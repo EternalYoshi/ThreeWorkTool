@@ -111,6 +111,20 @@ namespace ThreeWorkTool
             treeview.SelectedNode.Text = txtRename.Text;
             treeview.SelectedNode.Name = txtRename.Text;
 
+            //Ensures the TrueName gets change so it gets reflected in the save.
+            ArcEntry aey = new ArcEntry();
+            if(treeview.SelectedNode.Tag is ArcEntry)
+            {
+                aey = treeview.SelectedNode.Tag as ArcEntry;
+                aey.TrueName = txtRename.Text;
+                
+            }
+            else if (treeview.SelectedNode.Tag != null && treeview.SelectedNode.Tag as string == "Folder")
+            {
+
+            }
+
+
             Mainfrm.OpenFileModified = true;
 
             //Closes form with changes made above.

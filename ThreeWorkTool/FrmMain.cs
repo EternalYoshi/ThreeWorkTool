@@ -188,7 +188,6 @@ namespace ThreeWorkTool
                                     //Header that has the magic, version number and entry count.
                                     byte[] ArcHeader = {0x41, 0x52, 0x43, 0x00};
                                     byte[] ArcVersion = { 0x07, 0x00 };
-                                    int dataoffset = 0x8000;
                                     int arcentryoffset = 0x04;
                                     fs.Write(ArcHeader, 0,4);
 
@@ -201,6 +200,21 @@ namespace ThreeWorkTool
 
                                     List<TreeNode> Nodes = new List<TreeNode>();
                                     frename.Mainfrm.AddChildren(Nodes, frename.Mainfrm.TreeSource.SelectedNode);
+
+                                    //Determines where to start the compressed data storage based on amount of entries.
+                                    int dataoffset = 0x8000;
+                                    if (Nodes.Count < 110)
+                                    {
+                                        dataoffset = 0x2000;
+                                    }
+                                    else if (Nodes.Count < 200)
+                                    {
+                                        dataoffset = 0x4000;
+                                    }
+                                    else
+                                    {
+                                        dataoffset = 0x8000;
+                                    }
 
                                     int nowcount = 0;
                                     foreach (TreeNode treno in Nodes)
@@ -220,6 +234,18 @@ namespace ThreeWorkTool
                                     int ComSize = 0;
                                     int DecSize = 0;
                                     int DataEntryOffset = 0x8000;
+                                    if (Nodes.Count < 110)
+                                    {
+                                        DataEntryOffset = 0x2000;
+                                    }
+                                    else if (Nodes.Count < 200)
+                                    {
+                                        DataEntryOffset = 0x4000;
+                                    }
+                                    else
+                                    {
+                                        DataEntryOffset = 0x8000;
+                                    }
                                     List<int> offsets;
 
 
@@ -231,11 +257,19 @@ namespace ThreeWorkTool
                                         {
                                             enty = treno.Tag as ArcEntry;
                                             exportname = "";
+
+                                            exportname = treno.FullPath;
+                                            int inp = (exportname.IndexOf("\\"))+1;
+                                            exportname = exportname.Substring(inp, exportname.Length - inp);
+                                            /*
                                             foreach (string s in enty.EntryDirs)
                                             {
                                                 exportname = exportname + s + "\\";
                                             }
-                                            exportname = exportname + enty.TrueName;
+                                            */
+
+                                            //exportname = exportname + enty.TrueName;
+
 
                                             int NumberChars = exportname.Length;
                                             byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
@@ -298,6 +332,10 @@ namespace ThreeWorkTool
                                         { }
                                     }
 
+                                    //This part goes to where the data offset begins and fills the in between areas with zeroes.
+                                    fs.Position = 0;
+                                    long CPos = fs.Seek(dataoffset, SeekOrigin.Current);
+
                                     foreach (TreeNode treno in Nodes)
                                     {
                                         if (treno.Tag as ArcEntry != null)
@@ -305,9 +343,6 @@ namespace ThreeWorkTool
                                             enty = treno.Tag as ArcEntry;
                                             byte[] CompData = enty.CompressedData;
                                             fs.Write(CompData, 0, CompData.Length);
-
-
-
                                         }
                                         else
                                         {
