@@ -9,7 +9,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool.Resources.Archives
 {
@@ -146,7 +146,7 @@ namespace ThreeWorkTool.Resources.Archives
                 arcentry.EntryDirs = subnames.ToArray();
                 
 
-                //Looks through the archive_filetypes.txt file to find the extension associated with the typehash.
+                //Looks through the archive_filetypes.cfg file to find the extension associated with the typehash.
                 try
                 {
                     using (var sr = new StreamReader("archive_filetypes.cfg"))
@@ -204,6 +204,212 @@ namespace ThreeWorkTool.Resources.Archives
                 tru += temps;
             }
             return tru;
+        }
+
+        public static ArcEntry ReplaceEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        {
+            ArcEntry arcentry = new ArcEntry();
+            ArcEntry oldentry = new ArcEntry();
+
+            tree.BeginUpdate();
+
+            try
+            {
+                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
+                {
+                    //We build the arcentry starting from the uncompressed data.
+                    arcentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
+                    arcentry.DecompressedFileLength = arcentry.UncompressedData.Length;
+                    arcentry._DecompressedFileLength = arcentry.UncompressedData.Length;
+
+                    //Then Compress.
+                    arcentry.CompressedData = Zlibber.Compressor(arcentry.UncompressedData);
+                    arcentry.CompressedFileLength = arcentry.CompressedData.Length;
+                    arcentry._CompressedFileLength = arcentry.CompressedData.Length;
+
+                    //Gets the filename of the file to inject without the directory.
+                    string trname = filename;
+                    while (trname.Contains("\\"))
+                    {
+                        trname = trname.Substring(trname.IndexOf("\\") + 1);
+                    }
+
+                    //Enters name related parameters of the arcentry.
+                    arcentry.TrueName = trname;
+                    arcentry._FileName = arcentry.TrueName;
+                    arcentry.TrueName = Path.GetFileNameWithoutExtension(trname);
+                    arcentry.FileExt = trname.Substring(trname.LastIndexOf("."));
+                    arcentry._FileType = arcentry.FileExt;
+                    
+
+                    var tag = node.Tag;
+                    if (tag is ArcEntry)
+                    {
+                        oldentry = tag as ArcEntry;
+                    }
+                    string path = "";
+                    int index = oldentry.EntryName.LastIndexOf("\\");
+                    if (index > 0)
+                    {
+                        path = oldentry.EntryName.Substring(0, index);
+                    }
+
+                    arcentry.EntryName = path + "\\" + arcentry.TrueName;
+                    
+                    tag = arcentry;
+
+                    if (node.Tag is ArcEntry)
+                    {
+                        node.Tag = arcentry;
+                        node.Name = Path.GetFileNameWithoutExtension(arcentry.EntryName);
+                        node.Text = Path.GetFileNameWithoutExtension(arcentry.EntryName);
+                        
+                    }
+
+                    var aew = node as ArcEntryWrapper;
+
+                    string type = node.GetType().ToString();
+                    if (type == "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper")
+                    {
+                        aew.entryfile = arcentry;
+                    }
+
+                    node = aew;
+                    node.entryfile = arcentry;
+                    /*
+                    //ArcEntryWrapper aew = new ArcEntryWrapper();
+                    if (node is ArcEntryWrapper)
+                    {
+                        node.entryfile as ArcEntryWrapper = node.Tag;
+                    }
+                    */
+                    tree.EndUpdate();
+
+                }
+            }
+            catch(Exception ex)
+           {
+                MessageBox.Show("Read error. Is the file readable?");
+           }
+
+
+
+            return node.entryfile;
+        }
+
+        public static ArcEntry InsertEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        {
+            ArcEntry arcentry = new ArcEntry();
+
+            try
+            {
+                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
+                {
+                    //We build the arcentry starting from the uncompressed data.
+                    arcentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
+                    arcentry.DecompressedFileLength = arcentry.UncompressedData.Length;
+                    arcentry._DecompressedFileLength = arcentry.UncompressedData.Length;
+                    arcentry.DSize = arcentry.UncompressedData.Length;
+
+                    //Then Compress.
+                    arcentry.CompressedData = Zlibber.Compressor(arcentry.UncompressedData);
+                    arcentry.CompressedFileLength = arcentry.CompressedData.Length;
+                    arcentry._CompressedFileLength = arcentry.CompressedData.Length;
+                    arcentry.CSize = arcentry.CompressedData.Length;
+
+                    //Gets the filename of the file to inject without the directory.
+                    string trname = filename;
+                    while (trname.Contains("\\"))
+                    {
+                        trname = trname.Substring(trname.IndexOf("\\") + 1);
+                    }
+
+                    arcentry.TrueName = trname;
+                    arcentry._FileName = arcentry.TrueName;
+                    arcentry.TrueName = Path.GetFileNameWithoutExtension(trname);
+                    arcentry.FileExt = trname.Substring(trname.LastIndexOf("."));
+                    arcentry._FileType = arcentry.FileExt;
+
+                    //Gets the path of the selected node to inject here.
+                    string nodepath = tree.SelectedNode.FullPath;
+                    nodepath = nodepath.Substring(nodepath.IndexOf("\\") + 1);
+
+                    string[] sepstr = { "\\"};
+                    arcentry.EntryDirs = nodepath.Split(sepstr, StringSplitOptions.RemoveEmptyEntries);
+                    arcentry.EntryName = arcentry.FileName;
+
+                    //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
+                    try
+                    {
+                        using (var sr2 = new StreamReader("archive_filetypes.cfg"))
+                        {
+                            while (!sr2.EndOfStream)
+                            {
+                                var keyword = Console.ReadLine() ?? arcentry.FileExt;
+                                var line = sr2.ReadLine();
+                                if (String.IsNullOrEmpty(line)) continue;
+                                if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                {
+                                    arcentry.TypeHash = line;
+                                    arcentry.TypeHash = arcentry.TypeHash.Split(' ')[0];
+
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                        
+                    }
+
+
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+
+
+            return arcentry;
+        }
+
+        //Looks through the cfg file to find the Typehash and returns it.
+        public static string TypeHashFinder(ArcEntry arctry)
+        {
+            string TypeHash = "";
+
+
+            //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
+            try
+            {
+                using (var sr2 = new StreamReader("archive_filetypes.cfg"))
+                {
+                    while (!sr2.EndOfStream)
+                    {
+                        var keyword = Console.ReadLine() ?? arctry.FileExt;
+                        var line = sr2.ReadLine();
+                        if (String.IsNullOrEmpty(line)) continue;
+                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        {
+                            TypeHash = line;
+                            TypeHash = arctry.TypeHash.Split(' ')[0];
+
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+
+            }
+
+            return TypeHash;
         }
 
         #region ArcEntry Properties

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources;
+using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool
@@ -83,10 +84,26 @@ namespace ThreeWorkTool
             //Checks for existing name in directory.
             foreach (TreeNode c in node_.Parent.Nodes)
             {
+                ArcEntry ae = new ArcEntry();
+                ArcEntry se = new ArcEntry();
+                if (node_.Tag is ArcEntry)
+                {
+                    ae = node_.Tag as ArcEntry;
+                }
+                
+                if (c.Tag is ArcEntry)
+                {
+                    se = c.Tag as ArcEntry;
+                }
+
+                //Checks the nodes in the same directory for existing name AND extension and will stop if there's a node with the same type in the same directory.
                 if (c.Text == txtRename.Text)
                 {
-                    MessageBox.Show("That name already exists on a resource on the same level. \nTry a different name.", "Oh Boy");
-                    return;
+                    if (ae != se && ae.FileExt == se.FileExt)
+                    {
+                        MessageBox.Show("That name already exists on a resource of the same type on the same level. \nTry a different name.", "Oh Boy");
+                        return;
+                    }
                 }
             }
 

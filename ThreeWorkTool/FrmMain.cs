@@ -72,8 +72,12 @@ namespace ThreeWorkTool
         //Export Dialogue.
         SaveFileDialog EXDialog = new SaveFileDialog();
 
-        //Replace Dialogue
+        //Replace Dialogue.
         OpenFileDialog RPDialog = new OpenFileDialog();
+
+        //Import Into Folder Dialogue.
+        OpenFileDialog IMPDialog = new OpenFileDialog();
+
 
         #region Menu Stuffs
 
@@ -161,15 +165,169 @@ namespace ThreeWorkTool
                 {
                     try
                     {
-                        byte[] OFBArray = File.ReadAllBytes(OFDialog.FileName);
-                        using (MemoryStream stream = new MemoryStream())
-                        {
-                            stream.Write(OFBArray, 0, (int)OFBArray.Length);
-                            {
 
+                        //Literally copies over the open file if not modified.
+                        if (OpenFileModified == false)
+                        {
+                            byte[] OFBArray = File.ReadAllBytes(OFDialog.FileName);
+                            using (MemoryStream stream = new MemoryStream())
+                            {
+                                stream.Write(OFBArray, 0, (int)OFBArray.Length);
+                                {
+
+                                }
+                                File.WriteAllBytes(SFDialog.FileName, stream.ToArray());
                             }
-                            File.WriteAllBytes(SFDialog.FileName, stream.ToArray());
                         }
+                        else
+                        {
+                            try
+                            {
+                                using (var fs = new FileStream(SFDialog.FileName, FileMode.Create, FileAccess.Write))
+                                {
+                                    //Header that has the magic, version number and entry count.
+                                    byte[] ArcHeader = {0x41, 0x52, 0x43, 0x00};
+                                    byte[] ArcVersion = { 0x07, 0x00 };
+                                    int dataoffset = 0x8000;
+                                    int arcentryoffset = 0x04;
+                                    fs.Write(ArcHeader, 0,4);
+
+                                    fs.Seek(0x04, SeekOrigin.Begin);
+                                    fs.Write(ArcVersion, 0, ArcVersion.Length);
+
+                                    //Goes to top node to begin iteration.
+                                    TreeNode tn = FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = tn;
+
+                                    List<TreeNode> Nodes = new List<TreeNode>();
+                                    frename.Mainfrm.AddChildren(Nodes, frename.Mainfrm.TreeSource.SelectedNode);
+
+                                    int nowcount = 0;
+                                    foreach (TreeNode treno in Nodes)
+                                    {
+                                        if (treno.Tag as string != null && treno.Tag as string == "Folder")
+                                        {}
+                                        else
+                                        {nowcount++;}
+                                    }
+
+                                    byte[] EntryTotal = { Convert.ToByte(nowcount) , 0x00};
+
+                                    fs.Write(EntryTotal, 0, EntryTotal.Length);
+
+                                    string exportname = "";
+                                    string HashType = "";
+                                    int ComSize = 0;
+                                    int DecSize = 0;
+                                    int DataEntryOffset = 0x8000;
+                                    List<int> offsets;
+
+
+                                    ArcEntry enty = new ArcEntry();
+                                    //This is for the filenames and everything after.
+                                    foreach (TreeNode treno in Nodes)
+                                    {
+                                        if (treno.Tag as ArcEntry != null)
+                                        {
+                                            enty = treno.Tag as ArcEntry;
+                                            exportname = "";
+                                            foreach (string s in enty.EntryDirs)
+                                            {
+                                                exportname = exportname + s + "\\";
+                                            }
+                                            exportname = exportname + enty.TrueName;
+
+                                            int NumberChars = exportname.Length;
+                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                            int nblength = namebuffer.Length;
+
+                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                            byte[] writenamedata = new byte[64];
+                                            Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                            for (int i = 0; i < namebuffer.Length; ++i)
+                                            {
+                                                writenamedata[i] = namebuffer[i];
+                                            }
+
+                                            fs.Write(writenamedata, 0, writenamedata.Length);
+
+                                            //Gotta finish writing the data for the Entries of the arc. First the TypeHash,
+                                            //then compressed size, decompressed size, and lastly starting data offset.
+
+                                            //For the typehash.
+                                            HashType = ArcEntry.TypeHashFinder(enty);
+                                            byte[] HashBrown = new byte[4];
+                                            HashBrown = StringToByteArray(HashType);
+                                            Array.Reverse(HashBrown);
+                                            if(HashBrown.Length < 4)
+                                            {
+                                                byte[] PartHash = new byte[] { };
+                                                PartHash = HashBrown;
+                                                Array.Resize(ref HashBrown, 4);
+                                            }
+                                            fs.Write(HashBrown, 0, HashBrown.Length);
+
+                                            //For the compressed size.
+                                            ComSize = enty.CompressedData.Length;
+                                            string ComSizeHex = ComSize.ToString("X8");
+                                            byte[] ComPacked = new byte[4];
+                                            ComPacked = StringToByteArray(ComSizeHex);
+                                            Array.Reverse(ComPacked);
+                                            fs.Write(ComPacked, 0, ComPacked.Length);
+
+                                            //For the unpacked size. No clue why all the entries "start" with 40.
+                                            DecSize = enty.UncompressedData.Length;
+                                            string DecSizeHex = DecSize.ToString("X8");
+                                            byte[] DePacked = new byte[4];
+                                            DePacked = StringToByteArray(DecSizeHex);
+                                            Array.Reverse(DePacked);
+                                            DePacked[3] = 0x40;
+                                            fs.Write(DePacked, 0, DePacked.Length);
+
+                                            //Starting Offset.
+                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                            byte[] DEOffed = new byte[4];
+                                            DEOffed = StringToByteArray(DataEntrySizeHex);
+                                            Array.Reverse(DEOffed);
+                                            fs.Write(DEOffed, 0, DEOffed.Length);
+                                            DataEntryOffset = DataEntryOffset + ComSize;
+                                        }
+                                        else
+                                        { }
+                                    }
+
+                                    foreach (TreeNode treno in Nodes)
+                                    {
+                                        if (treno.Tag as ArcEntry != null)
+                                        {
+                                            enty = treno.Tag as ArcEntry;
+                                            byte[] CompData = enty.CompressedData;
+                                            fs.Write(CompData, 0, CompData.Length);
+
+
+
+                                        }
+                                        else
+                                        {
+
+                                        }
+                                    }
+
+                                        fs.Close();
+                                    OpenFileModified = false;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Exception caught in process: {0}", ex);
+                                return;
+                            }
+                            
+                        }
+
+
                     }
                     catch (Exception Ex)
                     {
@@ -281,6 +439,7 @@ namespace ThreeWorkTool
             ContextMenu conmenu = new ContextMenu();
 
             conmenu.MenuItems.Add(new MenuItem("Rename Folder", MenuItemRenameFolder_Click));
+            conmenu.MenuItems.Add(new MenuItem("Import Into Folder", MenuItemImportFileInFolder_Click));
             conmenu.MenuItems.Add("Delete Folder", MenuItemDeleteFolder_Click);
 
             return conmenu;
@@ -293,7 +452,7 @@ namespace ThreeWorkTool
             ContextMenu conmenu = new ContextMenu();
 
             conmenu.MenuItems.Add(new MenuItem("Export", MenuExportFile_Click));
-            conmenu.MenuItems.Add(new MenuItem("Export", MenuReplaceFile_Click));
+            conmenu.MenuItems.Add(new MenuItem("Replace", MenuReplaceFile_Click));
             conmenu.MenuItems.Add(new MenuItem("Rename", MenuItemRenameFile_Click));
             conmenu.MenuItems.Add(new MenuItem("Delete", MenuItemDeleteFile_Click));
 
@@ -317,12 +476,109 @@ namespace ThreeWorkTool
             {
                 ExportFileWriter.ArcEntryWriter(EXDialog.FileName,Aentry);
             }
-                //MessageBox.Show("Check the directory to see if it was successful.");
+
+            //Writes to log file.
+            using (StreamWriter sw = File.AppendText("Log.txt"))
+            {
+                sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+            }
+
         }
 
         private static void MenuReplaceFile_Click(Object sender, System.EventArgs e)
         {
+
+            ArcEntry Aentry = new ArcEntry();
             OpenFileDialog RPDialog = new OpenFileDialog();
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            if (tag is ArcEntry)
+            {
+                Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(Aentry.FileExt);
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            string[] paths = OldWrapper.entryfile.EntryDirs;
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = ArcEntry.ReplaceEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.                            
+                            NewWrapper.entryfile.EntryDirs = paths;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+
+                            //Removes the node and inserts the new one.
+                            //TreeNode node = 
+                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
+                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+            }
+
+            //Writes to log file.
+            using (StreamWriter sw = File.AppendText("Log.txt"))
+            {
+                sw.WriteLine("Replaced a file: " + frename.Mainfrm.FilePath + "\nCurrent File List:\n");
+                sw.WriteLine("===============================================================================================================");
+                int entrycount = 0;
+                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                sw.WriteLine("Current file Count: " + entrycount);
+                sw.WriteLine("===============================================================================================================");
+            }
+
 
         }
 
@@ -340,11 +596,43 @@ namespace ThreeWorkTool
         private static void MenuItemDeleteFile_Click(Object sender, System.EventArgs e)
         {
 
-            DialogResult DelResult = MessageBox.Show("Are you sure you want to do this? This cannot be undone!", "Hey!", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+            DialogResult DelResult = MessageBox.Show("Are you sure you want to do this? This cannot be undone!", "Caution", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
             if (DelResult == DialogResult.Yes)
             {
-                frename.Mainfrm.TreeSource.SelectedNode.Remove();
-                frename.Mainfrm.OpenFileModified = true;
+                //Writes to log file.
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Deleted a file: " + frename.Mainfrm.TreeSource.SelectedNode + "\nCurrent File List:\n");
+                    sw.WriteLine("===============================================================================================================");
+                    frename.Mainfrm.TreeSource.SelectedNode.Remove();
+                    frename.Mainfrm.OpenFileModified = true;
+                    int entrycount = 0;
+                    frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+
+                    TreeNode rootnode = new TreeNode();
+                    rootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                    TreeNode selectednode = new TreeNode();
+                    selectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                    frename.Mainfrm.TreeSource.SelectedNode = rootnode;
+
+                    int filecount = 0;
+
+                    ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                    if (rootarc != null)
+                    {
+                        filecount = rootarc.FileCount;
+                        filecount--;
+                        rootarc.FileCount--;
+                        rootarc.FileAmount--;
+                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
+                    }
+
+                    sw.WriteLine("Current file Count: " + filecount);
+                    sw.WriteLine("===============================================================================================================");
+
+                    frename.Mainfrm.TreeSource.SelectedNode = selectednode;
+                    frename.Mainfrm.pGrdMain.SelectedObject = null;
+                }
             }
 
         }
@@ -365,12 +653,135 @@ namespace ThreeWorkTool
             DialogResult DelResult = MessageBox.Show("Deleting this will also erase anything inside this folder as well. \nAre you sure you want to do this? This cannot be undone!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
             if (DelResult == DialogResult.Yes)
             {
-                frename.Mainfrm.TreeSource.SelectedNode.Remove();
-                //form2
-                //form1.tree
-                frename.Mainfrm.OpenFileModified = true;
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Deleted a Folder and everything in it: " + frename.Mainfrm.TreeSource.SelectedNode + "\nCurrent File List:\n");
+                    sw.WriteLine("===============================================================================================================");
+
+                    int filecount = 0;
+                    int filesremoved = 0;
+                    filesremoved = frename.Mainfrm.TreeSource.SelectedNode.GetNodeCount(true);
+
+                    TreeNode rootnode = new TreeNode();
+                    rootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                    int FolderCount = 0;
+
+                    //FolderCount = RecursiveFolderCount(rootnode, FolderCount);
+                    filesremoved = filesremoved - FolderCount;
+
+                    //Deletes the Folder and everything in it. Don't say I didn't warn you.
+                    frename.Mainfrm.TreeSource.SelectedNode.Remove();
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.TopNode);
+                    int entrycount = 0;
+                    frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+
+                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                    //Gets File Count.
+                    List<TreeNode> Nodes = new List<TreeNode>();
+                    frename.Mainfrm.AddChildren(Nodes, frename.Mainfrm.TreeSource.SelectedNode);
+
+                    int nowcount = 0;
+
+                    foreach (TreeNode treno in Nodes)
+                    {
+                        if(treno.Tag as string != null && treno.Tag as string == "Folder")
+                        {
+                            
+                        }
+                        else
+                        {
+                            nowcount++;
+                        }
+                    } 
+
+                    ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                    if (rootarc != null)
+                    {
+                        rootarc.FileCount = Convert.ToByte(nowcount);
+                        rootarc.FileAmount = Convert.ToUInt16(nowcount);
+                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
+                    }
+
+                    sw.WriteLine("Current file Count: " + nowcount);
+                    sw.WriteLine("===============================================================================================================");
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+
+                }
             }
 
+        }
+
+        private static void MenuItemImportFileInFolder_Click(Object sender, System.EventArgs e)
+        {
+            ArcEntry Aentry = new ArcEntry();
+            OpenFileDialog IMPDialog = new OpenFileDialog();
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
+                if (IMPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+                    ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+
+                    NewWrapper.entryData = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource,NewWrapper,IMPDialog.FileName);
+                    NewWrapper.Tag = NewWrapper.entryData;
+                    NewWrapper.Text = NewWrapper.entryData.TrueName;
+                    NewWrapper.Name = NewWrapper.entryData.TrueName;
+                    NewWrapper.FileExt = NewWrapper.entryData.FileExt;
+
+                    frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+
+                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapper);
+
+                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                    frename.Mainfrm.OpenFileModified = true;
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                TreeNode rootnode = new TreeNode();
+                TreeNode selectednode = new TreeNode();
+                selectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                rootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                frename.Mainfrm.TreeSource.SelectedNode = rootnode;
+
+                int filecount = 0;
+
+                ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                if(rootarc != null)
+                {
+                    filecount = rootarc.FileCount;
+                    filecount++;
+                    rootarc.FileCount++;
+                    rootarc.FileAmount++;
+                    frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
+                }
+
+
+
+                //Writes to log file.
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                    sw.WriteLine("===============================================================================================================");
+                    int entrycount = 0;
+                    frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                    sw.WriteLine("Current file Count: " + filecount);
+                    sw.WriteLine("===============================================================================================================");
+                }
+
+                frename.Mainfrm.TreeSource.SelectedNode = selectednode;
+
+            }
         }
 
         private void TreeFill(string D, int E, ArcFile archivearc)
@@ -503,7 +914,7 @@ namespace ThreeWorkTool
                         {
                             TreeNode folder = new TreeNode();
                             folder.Name = Folder;
-                            folder.Tag = Folder;
+                            folder.Tag = "Folder";
                             folder.Text = Folder;
                             folder.ContextMenu = FolderContextAdder(folder, TreeSource);
                             TreeSource.SelectedNode.Nodes.Add(folder);
@@ -571,6 +982,49 @@ namespace ThreeWorkTool
             }
         }
 
+        public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
+        {
+
+            if (extension == ".mis")
+            {
+                wrapper.ImageIndex = 10;
+                wrapper.SelectedImageIndex = 10;
+            }
+            else if (extension == ".arc")
+            {
+                wrapper.ImageIndex = 1;
+                wrapper.SelectedImageIndex = 1;
+            }
+            else if (extension == ".tex")
+            {
+                wrapper.ImageIndex = 15;
+                wrapper.SelectedImageIndex = 15;
+            }
+            else if (extension == ".mod")
+            {
+                wrapper.ImageIndex = 11;
+                wrapper.SelectedImageIndex = 11;
+            }
+            else if (extension == ".efl")
+            {
+                wrapper.ImageIndex = 8;
+                wrapper.SelectedImageIndex = 8;
+            }
+            else
+            {
+                wrapper.ImageIndex = 16;
+                wrapper.SelectedImageIndex = 16;
+            }
+
+
+            return wrapper;
+        }
+
+        public void PathFinder(TreeView treesource, ArcEntryWrapper arcnode)
+        {
+
+        }
+
         private void TreeSource_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             TreeSource.SelectedNode = e.Node;
@@ -587,14 +1041,16 @@ namespace ThreeWorkTool
 
                 case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
                     ArcEntry entry = new ArcEntry();
-                    //entry = e.Node;\
-                    //TreeSource.SelectedNode.
                     pGrdMain.SelectedObject = e.Node.Tag;
-                    //pGrdMain.SelectedObject = e.Node;
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ArcFileWrapper":
+                    ArcFile afile = new ArcFile();
+                    pGrdMain.SelectedObject = e.Node.Tag;
                     break;
 
                 default:
-                    pGrdMain.SelectedObject = e.Node;
+                    pGrdMain.SelectedObject = null;
                     break;
             }
         }
@@ -653,14 +1109,99 @@ namespace ThreeWorkTool
             frn.Mainfrm = this;
             frename = frn;
 
+            TreeSource.Sort();
+
+            //Writes to log file.
+            using (StreamWriter sw = new StreamWriter("Log.txt"))
+            {
+                sw.WriteLine("Archive file: " + FilePath + " Opened.\nFile List:\n");
+                sw.WriteLine("===============================================================================================================");
+                int entrycount = 0;
+                PrintRecursive(TreeSource.TopNode, sw, 0);
+                entrycount = frename.Mainfrm.TreeSource.TopNode.GetNodeCount(true);
+                sw.WriteLine("Current file Count: " + entrycount);
+                sw.WriteLine("===============================================================================================================");
+            }
+            
         }
 
 
+        //This is test stuff from the Microsoft website. Modified for my purposes.
+        private void PrintRecursive(TreeNode WrapNode, StreamWriter sw, int count)
+        {
+            if (WrapNode.Tag is ArcEntry)
+            {
+                ArcEntry ae = new ArcEntry();
+                ae = WrapNode.Tag as ArcEntry;
+                //Outputs name to log.
+                sw.WriteLine(ae.EntryName);
+            }
+            else
+            {
 
+            }
 
-        #endregion
+            // Print each node recursively.  
+            foreach (TreeNode tn in WrapNode.Nodes)
+            {
+                count++;
+                PrintRecursive(tn, sw, count);
+            }
+        }
 
+        //This is test stuff from the Microsoft website. Modified for my purposes.
+        private void CountFiles(TreeNode WrapNode, StreamWriter sw, int count)
+        {
 
+            foreach (TreeNode tn in frename.Mainfrm.TreeSource.SelectedNode.Nodes)
+            {
+                count++;
+            }
+
+                int c = 0;
+            if (WrapNode.Tag is ArcEntry)
+            {
+                foreach (TreeNode tn in WrapNode.Nodes)
+                {
+                    count++;
+                    PrintRecursive(tn, sw, count);
+                }
+            }
+
+            #endregion
+
+        }
+
+        private static int RecursiveFolderCount(TreeNode WrapNode, int foldercount)
+        {
+            foreach (TreeNode tn in frename.Mainfrm.TreeSource.SelectedNode.Nodes)
+            {
+                if (tn.Tag as string != null && tn.Tag as string == "Folder")
+                {                    
+                    foldercount++;
+                    RecursiveFolderCount(tn, foldercount);
+                }
+            }
+            return foldercount;
+        }
+
+        public void AddChildren(List<TreeNode> Nodes, TreeNode Node)
+        {
+            foreach (TreeNode thisNode in Node.Nodes)
+            {
+                Nodes.Add(thisNode);
+                AddChildren(Nodes, thisNode);
+            }
+        }
+
+        public static byte[] StringToByteArray(String hex)
+        {
+            int NumberChars = hex.Length;
+            byte[] bytes = new byte[NumberChars / 2];
+            for (int i = 0; i < NumberChars; i += 2)
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            return bytes;
+        }
 
     }
 }
