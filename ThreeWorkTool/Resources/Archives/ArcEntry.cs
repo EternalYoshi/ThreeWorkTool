@@ -306,7 +306,34 @@ namespace ThreeWorkTool.Resources.Archives
                     arcentry.TrueName = Path.GetFileNameWithoutExtension(trname);
                     arcentry.FileExt = trname.Substring(trname.LastIndexOf("."));
                     arcentry._FileType = arcentry.FileExt;
-                    
+
+                    string TypeHash = "";
+
+                    //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
+                    try
+                    {
+                        using (var sr2 = new StreamReader("archive_filetypes.cfg"))
+                        {
+                            while (!sr2.EndOfStream)
+                            {
+                                var keyword = Console.ReadLine() ?? arcentry.FileExt;
+                                var line = sr2.ReadLine();
+                                if (String.IsNullOrEmpty(line)) continue;
+                                if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                {
+                                    TypeHash = line;
+                                    TypeHash = TypeHash.Split(' ')[0];
+                                    arcentry.TypeHash = TypeHash;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+
+                    }
 
                     var tag = node.Tag;
                     if (tag is ArcEntry)
@@ -462,7 +489,7 @@ namespace ThreeWorkTool.Resources.Archives
                         if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
                         {
                             TypeHash = line;
-                            TypeHash = arctry.TypeHash.Split(' ')[0];
+                            TypeHash = TypeHash.Split(' ')[0];
 
                             break;
                         }
