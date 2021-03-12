@@ -379,7 +379,7 @@ namespace ThreeWorkTool
 
         private void MenuAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("ThreeWork Tool Alpha version 0.00.\n2020-2021 By Eternal Yoshi", "About", MessageBoxButtons.OK);
+            MessageBox.Show("ThreeWork Tool Alpha version 0.1.\n2021 By Eternal Yoshi", "About", MessageBoxButtons.OK);
         }
 
         //Detects changes and asks to save them during closing.
