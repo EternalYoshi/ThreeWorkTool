@@ -94,6 +94,7 @@
     <Compile Include="Resources\Wrappers\ArcFileWrapper.cs" />
     <Compile Include="Resources\Wrappers\DefaultWrapper.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
+    <Compile Include="Resources\Wrappers\TexWrapper.cs" />
     <Compile Include="Resources\Zlibber.cs" />
     <EmbeddedResource Include="FrmMain.resx">
       <DependentUpon>FrmMain.cs</DependentUpon>
