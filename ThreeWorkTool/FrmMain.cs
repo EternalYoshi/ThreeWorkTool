@@ -246,7 +246,6 @@ namespace ThreeWorkTool
                                     {
                                         DataEntryOffset = 0x8000;
                                     }
-                                    List<int> offsets;
 
 
                                     ArcEntry enty = new ArcEntry();
@@ -544,14 +543,19 @@ namespace ThreeWorkTool
 
                             OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             string oldname = OldWrapper.Name;
-                            string[] paths = OldWrapper.entryfile.EntryDirs;
+                            ArcEntry Oldaent = new ArcEntry();
+                            ArcEntry Newaent = new ArcEntry();
+                            Oldaent = OldWrapper.entryfile as ArcEntry;
+                            string[] paths = Oldaent.EntryDirs;
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ArcEntry.ReplaceEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
                             NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
-                            //Takes the path data from the old node and slaps it on the new node.                            
-                            NewWrapper.entryfile.EntryDirs = paths;
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as ArcEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
 
                             frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
 
@@ -756,9 +760,12 @@ namespace ThreeWorkTool
             OpenFileDialog IMPDialog = new OpenFileDialog();
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
+            /*
+
                 Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
                 if (IMPDialog.ShowDialog() == DialogResult.OK)
                 {
+
                     string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
 
                     frename.Mainfrm.TreeSource.BeginUpdate();
@@ -815,8 +822,9 @@ namespace ThreeWorkTool
                 }
 
                 frename.Mainfrm.TreeSource.SelectedNode = selectednode;
-
+              
             }
+            */
         }
 
         private void TreeFill(string D, int E, ArcFile archivearc)
@@ -863,83 +871,84 @@ namespace ThreeWorkTool
 
         }
 
-        public void TreeChildInsert(int E, string F, string G, string[] H, string I, ArcEntry FEntry)
+        public void TreeChildInsert(int E, string F, string G, string[] H, string I, object FEntry)
         {
-
-            switch (G)
+            string type = FEntry.GetType().ToString();
+            switch (type)
             {
-                /*
-                case ".tex":
 
-                    TexWrapNode Tchild = new TexWrapNode();
-
-                    TreeSource.BeginUpdate();
-
-                    Tchild.Name = I;
-                    Tchild.Tag = I;
-                    Tchild.Text = I;
-                    Tchild.entryfile = FEntry;
-
-                    //Checks for subdirectories. Makes folder if they don't exist already.
-                    //int Findex = 0;
-                    foreach (string Folder in H)
-                    {
-                        TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = Folder;
-                            folder.Text = Folder;
+                //For Textures.
+                case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
+                ArcEntryWrapper tchild = new ArcEntryWrapper();
 
 
-                            //ContextM cm = new ContextM();
-                            //folder.ContextMenu = ContextM.FolderContextAdder(folder, TreeSource);
-                            folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+            TreeSource.BeginUpdate();
 
-                            //TreeSource.SelectedNode.ContextMenuStrip.
+            tchild.Name = I;
+            tchild.Tag = FEntry as TextureEntry;
+            tchild.Text = I;
+            tchild.entryfile = FEntry as TextureEntry;
+            tchild.FileExt = G;
 
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 8;
-                            TreeSource.SelectedNode.SelectedImageIndex = 8;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+            //Checks for subdirectories. Makes folder if they don't exist already.
+            foreach (string Folder in H)
+            {
+                if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                {
+                    TreeNode folder = new TreeNode();
+                    folder.Name = Folder;
+                    folder.Tag = "Folder";
+                    folder.Text = Folder;
+                    folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+                    TreeSource.SelectedNode.Nodes.Add(folder);
+                    TreeSource.SelectedNode = folder;
+                    TreeSource.SelectedNode.ImageIndex = 2;
+                    TreeSource.SelectedNode.SelectedImageIndex = 2;
+                }
+                else
+                {
+                    TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                }
+            }
 
-                    //Gotta code the above in if you want things to show up right.
+            TreeSource.SelectedNode = tchild;
 
-                    TreeSource.SelectedNode.Nodes.Add(Tchild);
+            TreeSource.SelectedNode.Nodes.Add(tchild);
 
-                    TreeSource.ImageList = imageList1;
+            TreeSource.ImageList = imageList1;
 
-                    var TrootNode = FindRootNode(Tchild);
+            var rootNode = FindRootNode(tchild);
 
-                    //For testing. First one chooses root node, second one chooses the created child node.
-                    TreeSource.SelectedNode = Tchild;
-                    TreeSource.SelectedNode.ImageIndex = 15;
-                    TreeSource.SelectedNode.SelectedImageIndex = 15;
-                    TreeSource.SelectedNode = TrootNode;
+            TreeSource.SelectedNode = tchild;
+            TreeSource.SelectedNode.ImageIndex = 15;
+            TreeSource.SelectedNode.SelectedImageIndex = 15;
+           
 
-                    break;
-                    */
-                //case ".mod":
+            tchild.ContextMenu = GenericFileContextAdder(tchild, TreeSource);
 
-                //For Undocumented file types. Anything else should have a case above.
-                default:
+            TreeSource.SelectedNode = rootNode;
+
+            tcount++;
+            break;
+
+            //Cases for future file supports go here. For example;
+            //case ".mod":
+
+            //For Undocumented file types. Anything else should have a case above.
+            default:
 
                     ArcEntryWrapper child = new ArcEntryWrapper();
 
 
-                    TreeSource.BeginUpdate();                    
+                    TreeSource.BeginUpdate();
+
+                    ArcEntry caev = new ArcEntry();
+                    caev = FEntry as ArcEntry;
 
                     child.Name = I;
-                    child.Tag = FEntry;
+                    child.Tag = caev;
                     child.Text = I;
-                    child.entryfile = FEntry;
+                    child.entryfile = caev;
                     child.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
@@ -969,14 +978,10 @@ namespace ThreeWorkTool
 
                     TreeSource.ImageList = imageList1;
 
-                    var rootNode = FindRootNode(child);
-
-                    //For testing. First one chooses root node, second one chooses the created child node.
-                    //TreeSource.SelectedNode = rootNode;
+                    var trootNode = FindRootNode(child);
 
                     TreeSource.SelectedNode = child;
 
-                    //TreeSource.SelectedNode = TreeSource.Nodes[E];
                     if (G == ".mis")
                     {
                         TreeSource.SelectedNode.ImageIndex = 10;
@@ -1010,7 +1015,7 @@ namespace ThreeWorkTool
 
                     child.ContextMenu = GenericFileContextAdder(child, TreeSource);
 
-                    TreeSource.SelectedNode = rootNode;
+                    TreeSource.SelectedNode = trootNode;
 
                     tcount++;
                     break;
@@ -1127,11 +1132,46 @@ namespace ThreeWorkTool
             TreeSource.archivefile = newArc;
 
             //For whatever is inside the archive itself.
-            foreach (ArcEntry ArcEntry in newArc.arctable)
+            foreach (var ArcEntry in newArc.arcfiles)
             {
-                //Fills in child nodes, i.e. the filenames inside the archive.
-                TreeChildInsert(NCount, ArcEntry.EntryName, ArcEntry.FileExt, ArcEntry.EntryDirs, ArcEntry.TrueName, ArcEntry);
-                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+
+                string type = ArcEntry.GetType().ToString();
+
+                switch(type)
+                {
+
+                    case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
+                        TextureEntry te = new TextureEntry();
+                        te = ArcEntry as TextureEntry;
+                        if(te != null)
+                        {
+                            TreeChildInsert(NCount, te.EntryName, te.FileExt, te.EntryDirs, te.TrueName, te);
+                            TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                            break;
+                        }
+                        else
+                        {
+                            MessageBox.Show("We got a read error here!", "YIKES");
+                            break;
+                        }
+
+
+                    default:
+                        //Fills in child nodes, i.e. the filenames inside the archive.
+                        ArcEntry ae = new ArcEntry();
+                        ae = ArcEntry as ArcEntry;
+                        if (ae != null)
+                        {
+                            TreeChildInsert(NCount, ae.EntryName, ae.FileExt, ae.EntryDirs, ae.TrueName, ae);
+                            TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                            break;
+                        }
+                        else
+                        {
+                            MessageBox.Show("We got a read error here!","YIKES");
+                            break;
+                        }
+                }
             }
 
             TreeSource.EndUpdate();

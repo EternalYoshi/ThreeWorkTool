@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool.Resources.Archives
 {
@@ -13,7 +14,9 @@ namespace ThreeWorkTool.Resources.Archives
     {
         public List<ArcEntry> arctable;
         public List<ArcEntry> arctableBACKUP;
+        public List<object> arcfiles;
         public List<String> FileList;
+        public List<String> TypeHashes;
         public int FLOffset;
         public static StringBuilder SBname;
         public byte[] HeaderMagic;
@@ -59,8 +62,9 @@ namespace ThreeWorkTool.Resources.Archives
                 }
 
                 arcfile.arctable = new List<ArcEntry>();
+                arcfile.arcfiles = new List<object>();
                 arcfile.FileList = new List<string>();
-
+                arcfile.TypeHashes = new List<string>();
                 arcfile.FileCount = Bytes[6];
                 arcfile.FileAmount = Bytes[6];
                 arcfile.UnknownFlag = Bytes[4];
@@ -74,10 +78,13 @@ namespace ThreeWorkTool.Resources.Archives
 
                 byte[] BytesTemp;
                 BytesTemp = new byte[] { };
+                byte[] HTTemp = new byte[] { };
                 int j = 8;
                 //int k = 0;
                 int l = 64;
                 int m = 80;
+                int n = 4;
+
                 //Iterates through the header/first part of the arc to get all the filenames and occupy the filename list.
                 for (int i = 0; i < arcfile.FileCount; i++)
                 {
@@ -87,21 +94,44 @@ namespace ThreeWorkTool.Resources.Archives
                     BytesTemp = Bytes.Skip(j).Take(l).Where(x => x != 0x00).ToArray();
                     //Array.Copy(Bytes, j, BytesTemp,k,l - j);
                     filenames.Add(BytesToString(BytesTemp));
+                    //For The Typehashes.
+                     n = 72 + (m * i);
+                    HTTemp = Bytes.Skip(n).Take(4).ToArray();
+                    Array.Reverse(HTTemp);
+                    arcfile.TypeHashes.Add(HashBytesToString(HTTemp));
+
                 }
 
 
-
-                //Fills in each file as an ArcEntry.
+                //===========================================
+                //Gotta have the for loop read the TypeHashes to determine whether to make a TextureEntry or ArcEntry. Also,
+                //How will I make these later loops work with both ArcEntries and TextureEntries?
+                //Fills in each file as an ArcEntry. 
                 j = 8;
                 int IDCounter = 0;
                 for (int i = 0; i < arcfile.FileCount; i++)
                 {
                     j = 8 + (80 * i);
-                    ArcEntry newentry = ArcEntry.FillEntry(filename, foldernames, tree, Bytes, j, IDCounter);                    
-                    arcfile.arctable.Add(newentry);
+                    switch (arcfile.TypeHashes[i])
+                    {
+                        //Texture Files.
+                        case "241F5DEB":
+                            TextureEntry newtexen = TextureEntry.FillTexEntry(filename, foldernames, tree, Bytes, j, IDCounter);
+                            arcfile.arcfiles.Add(newtexen);
+                            arcfile.FileList.Add(newtexen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
+                    default:
+                    //Everything not listed above.
+                    ArcEntry newentry = ArcEntry.FillEntry(filename, foldernames, tree, Bytes, j, IDCounter);
+                    arcfile.arcfiles.Add(newentry);
                     arcfile.FileList.Add(newentry.EntryName);
                     foldernames.Clear();
                     IDCounter++;
+                    break;
+                    }
                 }
 
 
@@ -136,6 +166,82 @@ namespace ThreeWorkTool.Resources.Archives
             Tempname = ascii.GetString(bytes);
             //Tempname = Tempname.Replace(@"\\", @"\");
             return Tempname;
+        }
+
+        public static string HashBytesToString(byte[] bytes)
+        {
+            string temps;
+            string tru = "";
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                temps = bytes[i].ToString("X");
+                if (temps == "0")
+                {
+                    temps = "00";
+                }
+                else if (temps == "1")
+                {
+                    temps = "01";
+                }
+                else if (temps == "2")
+                {
+                    temps = "02";
+                }
+                else if (temps == "3")
+                {
+                    temps = "03";
+                }
+                else if (temps == "4")
+                {
+                    temps = "04";
+                }
+                else if (temps == "5")
+                {
+                    temps = "05";
+                }
+                else if (temps == "6")
+                {
+                    temps = "06";
+                }
+                else if (temps == "7")
+                {
+                    temps = "07";
+                }
+                else if (temps == "8")
+                {
+                    temps = "08";
+                }
+                else if (temps == "9")
+                {
+                    temps = "09";
+                }
+                else if (temps == "A")
+                {
+                    temps = "0A";
+                }
+                else if (temps == "B")
+                {
+                    temps = "0B";
+                }
+                else if (temps == "C")
+                {
+                    temps = "0C";
+                }
+                else if (temps == "D")
+                {
+                    temps = "0D";
+                }
+                else if (temps == "E")
+                {
+                    temps = "0E";
+                }
+                else if (temps == "F")
+                {
+                    temps = "0F";
+                }
+                tru += temps;
+            }
+            return tru;
         }
 
         #region Arc Class

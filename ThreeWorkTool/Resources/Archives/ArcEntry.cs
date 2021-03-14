@@ -13,7 +13,7 @@ using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool.Resources.Archives
 {
-    public class ArcEntry
+    public class ArcEntry:ArcEntryWrapper
     {
         public string EntryName;
         public string TypeHash;
@@ -59,6 +59,7 @@ namespace ThreeWorkTool.Resources.Archives
                 ASCIIEncoding ascii = new ASCIIEncoding();
                 Tempname = ascii.GetString(BTemp);
 
+                //For catching problematic files.
                 if(Tempname == "chr\\Ryu\\camera\\0000")
                 {
                     string placeholder = "er56";
@@ -387,7 +388,7 @@ namespace ThreeWorkTool.Resources.Archives
 
 
 
-            return node.entryfile;
+            return node.entryfile as ArcEntry;
         }
 
         public static ArcEntry InsertEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
