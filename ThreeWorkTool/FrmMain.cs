@@ -884,6 +884,8 @@ namespace ThreeWorkTool
 
             TreeSource.BeginUpdate();
 
+            //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+
             tchild.Name = I;
             tchild.Tag = FEntry as TextureEntry;
             tchild.Text = I;
@@ -1070,17 +1072,25 @@ namespace ThreeWorkTool
             TreeSource.SelectedNode = e.Node;
             e.Node.GetType();
 
-            string type = e.Node.GetType().ToString();
+            string type = e.Node.Tag.GetType().ToString();
 
 
             switch (type)
             {
                 case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
-                    pGrdMain.SelectedObject = e.Node;
+                    pGrdMain.SelectedObject = e.Node.Tag;
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
+                    pGrdMain.SelectedObject = e.Node.Tag;
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
                     ArcEntry entry = new ArcEntry();
+                    pGrdMain.SelectedObject = e.Node.Tag;
+                    break;
+
+                case "ThreeWorkTool.Resources.Archives.ArcEntry":
                     pGrdMain.SelectedObject = e.Node.Tag;
                     break;
 
@@ -1089,6 +1099,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = e.Node.Tag;
                     break;
 
+                case "ThreeWorkTool.Resources.Archives.ArcFile":
+                    pGrdMain.SelectedObject = e.Node.Tag;
+                    break;
                 default:
                     pGrdMain.SelectedObject = null;
                     break;

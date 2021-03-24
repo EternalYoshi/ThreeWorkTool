@@ -53,6 +53,8 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.pnlNew = new System.Windows.Forms.Panel();
+            this.picBoxA = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -60,7 +62,10 @@
             this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
+            this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            this.pnlNew.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picBoxA)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -193,6 +198,7 @@
             // 
             // txtBoxCurrentFile
             // 
+            this.txtBoxCurrentFile.Enabled = false;
             this.txtBoxCurrentFile.Location = new System.Drawing.Point(425, 2);
             this.txtBoxCurrentFile.Name = "txtBoxCurrentFile";
             this.txtBoxCurrentFile.Size = new System.Drawing.Size(508, 20);
@@ -287,9 +293,31 @@
             // splitContainer2.Panel1
             // 
             this.splitContainer2.Panel1.Controls.Add(this.pGrdMain);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.pnlNew);
             this.splitContainer2.Size = new System.Drawing.Size(626, 524);
             this.splitContainer2.SplitterDistance = 256;
             this.splitContainer2.TabIndex = 6;
+            // 
+            // pnlNew
+            // 
+            this.pnlNew.Controls.Add(this.picBoxA);
+            this.pnlNew.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlNew.Location = new System.Drawing.Point(0, 0);
+            this.pnlNew.Name = "pnlNew";
+            this.pnlNew.Size = new System.Drawing.Size(626, 264);
+            this.pnlNew.TabIndex = 0;
+            // 
+            // picBoxA
+            // 
+            this.picBoxA.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.picBoxA.Location = new System.Drawing.Point(191, 2);
+            this.picBoxA.Name = "picBoxA";
+            this.picBoxA.Size = new System.Drawing.Size(256, 256);
+            this.picBoxA.TabIndex = 1;
+            this.picBoxA.TabStop = false;
             // 
             // FrmMainThree
             // 
@@ -313,8 +341,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
+            this.pnlNew.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.picBoxA)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -345,6 +376,8 @@
         private System.Windows.Forms.SplitContainer splitContainer2;
         public ThreeSourceTree TreeSource;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.Panel pnlNew;
+        private System.Windows.Forms.PictureBox picBoxA;
     }
 }
 

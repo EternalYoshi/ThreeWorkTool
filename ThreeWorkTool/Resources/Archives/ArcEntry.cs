@@ -13,7 +13,7 @@ using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool.Resources.Archives
 {
-    public class ArcEntry:ArcEntryWrapper
+    public class ArcEntry
     {
         public string EntryName;
         public string TypeHash;
