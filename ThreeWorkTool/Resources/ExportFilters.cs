@@ -11,7 +11,7 @@ namespace ThreeWorkTool.Resources
 
         public string result;
 
-        public static string rTexture = "Raw Texture File (*.tex)|*.tex|DirectDraw Surface Image(*.dds)| *.dds";
+        public static string rTexture = "Raw Texture File (*.tex)|*.tex|DirectDraw Surface Image(*.dds)| *.dds|Portable Network Graphics (*.png)|*.png";
 
         public static string Etc = "All Files (*.*)|*.*";
         

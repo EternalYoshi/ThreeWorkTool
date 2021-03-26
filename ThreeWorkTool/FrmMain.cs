@@ -496,31 +496,73 @@ namespace ThreeWorkTool
         private static void MenuExportFile_Click(Object sender, System.EventArgs e)
         {
             //Gets the Data from the SelectedNode's Tag and checks the data type so it can export with the correct filter.
-            ArcEntry Aentry = new ArcEntry();
             SaveFileDialog EXDialog = new SaveFileDialog();
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-            if (tag is ArcEntry)
-            {
-                Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
-                EXDialog.Filter = ExportFilters.GetFilter(Aentry.FileExt);
-            }
-            EXDialog.FileName = Aentry.FileName;
 
-            if (EXDialog.ShowDialog() == DialogResult.OK)
+            string extension = tag.GetType().ToString();
+
+            switch (extension)
             {
-                ExportFileWriter.ArcEntryWriter(EXDialog.FileName,Aentry);
+                //Textures.
+                case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
+                case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
+                    TextureEntry Tentry = new TextureEntry();
+                    if (tag is TextureEntry)
+                    {
+                        Tentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as TextureEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(Tentry.FileExt);
+                        EXDialog.FileName = Tentry.FileName;
+                    }
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.TexEntryWriter(EXDialog.FileName, Tentry);
+                    }
+                    
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+
+
+                //Normal Entries inside Arc File.
+                case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                case "ThreeWorkTool.Resources.Archives.ArcEntry":
+                    ArcEntry Aentry = new ArcEntry();
+                    if (tag is ArcEntry)
+                    {
+
+                        Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(Aentry.FileExt);
+                    }
+                    EXDialog.FileName = Aentry.FileName;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.ArcEntryWriter(EXDialog.FileName, Aentry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+
+                default:
+                    break;
             }
 
-            //Writes to log file.
-            using (StreamWriter sw = File.AppendText("Log.txt"))
-            {
-                sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-            }
+
 
         }
 
         private static void MenuReplaceFile_Click(Object sender, System.EventArgs e)
         {
+            //Gotta rewrite this to incorporate Textures.
 
             ArcEntry Aentry = new ArcEntry();
             OpenFileDialog RPDialog = new OpenFileDialog();
@@ -759,7 +801,7 @@ namespace ThreeWorkTool
             ArcEntry Aentry = new ArcEntry();
             OpenFileDialog IMPDialog = new OpenFileDialog();
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
+            //Gotta rewrite this to incorporate Textures.
             /*
 
                 Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
@@ -1079,10 +1121,18 @@ namespace ThreeWorkTool
             {
                 case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
                     pGrdMain.SelectedObject = e.Node.Tag;
+                    TextureEntry tentry = new TextureEntry();
+                    tentry = e.Node.Tag as TextureEntry;
+                    picBoxA.Visible = true;
+                    picBoxA.Image = new Bitmap(tentry.tex);
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
                     pGrdMain.SelectedObject = e.Node.Tag;
+                    TextureEntry txentry = new TextureEntry();
+                    txentry = e.Node.Tag as TextureEntry;
+                    picBoxA.Visible = true;
+                    picBoxA.Image = new Bitmap(txentry.tex);
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
@@ -1255,9 +1305,6 @@ namespace ThreeWorkTool
                     PrintRecursive(tn, sw, count);
                 }
             }
-
-            #endregion
-
         }
 
         private static int RecursiveFolderCount(TreeNode WrapNode, int foldercount)
@@ -1290,6 +1337,9 @@ namespace ThreeWorkTool
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
             return bytes;
         }
+
+        #endregion
+
 
     }
 }
