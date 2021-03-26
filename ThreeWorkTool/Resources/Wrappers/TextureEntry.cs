@@ -1,22 +1,21 @@
-﻿using Ionic.Zlib;
+﻿using DDSReader;
+using Ionic.Zlib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using ThreeWorkTool.Resources.Archives;
-using SharpDX;
-using SharpDX.Direct3D11;
-using SharpDX.Mathematics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Drawing.Drawing2D;
-
+using Pfim;
+using System.Runtime.InteropServices;
+using SixLabors;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -41,6 +40,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public byte[] UncompressedData;
         public byte[] OutMaps;
         public byte[][] OutMapsB;
+        public byte[] OutMapsC;
         public int[] MipOffsets;
         public List<byte> OutTexTest;
         public static StringBuilder SBname;
@@ -49,7 +49,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public string EntryName;
         public int AOffset;
         public string FileExt;
-        public Bitmap tex;
+        public byte[] tex;
 
         public static TextureEntry FillTexEntry(string filename, List<string> subnames, TreeView tree, byte[] Bytes, int c, int ID, Type filetype = null)
         {
@@ -173,7 +173,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             //Actual Tex Loading work here.
             byte[] VTemp = new byte[4];
             uint[] LWData = new uint[3];
-            Array.Copy(texentry.UncompressedData, 8 ,VTemp, 0, 4);
+            Array.Copy(texentry.UncompressedData, 8, VTemp, 0, 4);
             byte[] DTemp = new byte[4];
 
             //Gets the Texture type.
@@ -210,7 +210,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     texentry.PixelCount = texentry._X * texentry._Y;
 
-                    texentry.CSize = ((texentry._X/4) * (texentry._Y/4));
+                    texentry.CSize = ((texentry._X / 4) * (texentry._Y / 4));
 
                     texentry.DSize = 8;
 
@@ -225,7 +225,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         Array.Copy(texentry.UncompressedData, v, DTemp, 0, 4);
 
                         //Gets offsets of MipMapData.
-                        texentry.MipOffsets[i] = BitConverter.ToInt32(DTemp, 0);                        
+                        texentry.MipOffsets[i] = BitConverter.ToInt32(DTemp, 0);
 
                         v = v + 8;
                     }
@@ -238,7 +238,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
 
                     //Extracts and separates the Mip Maps.
-                    texentry.OutMapsB = new byte [texentry._MipMapCount] [];
+                    texentry.OutMapsB = new byte[texentry._MipMapCount][];
 
                     for (int i = 0; i < texentry._MipMapCount; i++)
                     {
@@ -290,7 +290,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                     }
 
                     int findex = filename.LastIndexOf("\\");
-                    string outname = (filename.Substring(0, findex)+ "\\") + texentry.TrueName + ".dds";
+                    string outname = (filename.Substring(0, findex) + "\\") + texentry.TrueName;
+                    string outpngname = outname + ".png";
+                    outname = outname + ".dds";
 
                     texentry.OutMaps = texentry.OutTexTest.ToArray();
                     uint blargx = Convert.ToUInt32(texentry.XSize);
@@ -299,8 +301,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                     byte[] Xbytes = BitConverter.GetBytes(blargy);
                     byte[] Ybytes = BitConverter.GetBytes(blargx);
 
-                    Array.Copy(Xbytes, 0, texentry.OutMaps,12,4);
-                    Array.Copy(Ybytes, 0, texentry.OutMaps,16,4);
+                    Array.Copy(Xbytes, 0, texentry.OutMaps, 12, 4);
+                    Array.Copy(Ybytes, 0, texentry.OutMaps, 16, 4);
 
                     try
                     {
@@ -318,13 +320,67 @@ namespace ThreeWorkTool.Resources.Wrappers
                         break;
                     }
 
+                    Stream stream = new MemoryStream(texentry.OutMaps);
+
+                    #region PNG Stuffs
+                    //From the pfim website.
+                    using (var image = Pfim.Pfim.FromStream(stream))
+                    {
+                        PixelFormat format;
+
+                        // Convert from Pfim's backend agnostic image format into GDI+'s image format
+                        switch (image.Format)
+                        {
+                            case Pfim.ImageFormat.Rgba32:
+                                format = PixelFormat.Format32bppArgb;
+                                break;
+                            case Pfim.ImageFormat.Rgb24:
+                                format = PixelFormat.Format24bppRgb;
+                                break;
+                            default:
+                                // see the sample for more details
+                                throw new NotImplementedException();
+                        }
+
+                        // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
+                        // in this snippet but useful technique if the data was going to be used in
+                        // control like a picture box
+                        var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+                        try
+                        {
+                            var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                            var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+                            bitmap.Save(Path.ChangeExtension(outpngname, ".png"), System.Drawing.Imaging.ImageFormat.Png);
+                        }
+                        finally
+                        {
+                            handle.Free();
+                        }
+                    }
 
 
+                    #endregion
 
+                    //DDSImage img = new DDSImage(stream);
+                    //texentry.tex = img.ToPNGArray(texentry.OutMaps);
 
-                    //Builds Bitmap with data from above.
-                    texentry.tex = BitmapBuilder(texentry);
+                    /*
+                    try
+                    {
 
+                        using (BinaryWriter bw = new BinaryWriter(File.Open(outpngname, FileMode.Create)))
+                        {
+                            bw.Write(texentry.tex);
+                            bw.Close();
+                        }
+
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                        break;
+                    }
+                    */
 
 
 
@@ -439,7 +495,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                     }
 
                     int findex17 = filename.LastIndexOf("\\");
-                    string outname17 = (filename.Substring(0, findex17) + "\\") + texentry.TrueName + ".dds";
+                    string outname17 = (filename.Substring(0, findex17) + "\\") + texentry.TrueName;
+                    string outpngname17 = outname17 + ".png";
+                    outname17 = outname17 + ".dds";
 
                     texentry.OutMaps = texentry.OutTexTest.ToArray();
                     uint blargx17 = Convert.ToUInt32(texentry.XSize);
@@ -467,6 +525,27 @@ namespace ThreeWorkTool.Resources.Wrappers
                         break;
                     }
 
+
+
+
+                    DDSImage img17 = new DDSImage(texentry.OutMaps);
+                    texentry.tex = img17.ToPNGArray(texentry.OutMaps);
+
+                    try
+                    {
+
+                        using (BinaryWriter bw = new BinaryWriter(File.Open(outpngname17, FileMode.Create)))
+                        {
+                            //bw.Write(texentry.tex);
+                            //bw.Close();
+                        }
+
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                        break;
+                    }
 
                     break;
                 #endregion
@@ -762,7 +841,222 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 #region Weirdo Problematic Portrait Textures
                 case "2A":
-                    texentry._Format = "????";
+
+                    texentry._Format = "????/Problematic Portrait Picture";
+
+                    //Gets the unsigned integers which hold data on the texture's dimensions.
+                    Array.Copy(texentry.UncompressedData, 4, DTemp, 0, 4);
+                    LWData[0] = BitConverter.ToUInt32(DTemp, 0);
+
+                    Array.Copy(texentry.UncompressedData, 8, DTemp, 0, 4);
+                    LWData[1] = BitConverter.ToUInt32(DTemp, 0);
+
+                    Array.Copy(texentry.UncompressedData, 12, DTemp, 0, 4);
+                    LWData[2] = BitConverter.ToUInt32(DTemp, 0);
+
+                    //X and Y coordinates. This method is borrowed from the old TexCheck.py file.
+                    texentry.XSize = Convert.ToInt32(((LWData[1] >> 6) & 0x1fff));
+                    texentry._X = texentry.XSize;
+
+                    texentry.YSize = Convert.ToInt32(((LWData[1] >> 19) & 0x1fff));
+                    texentry._Y = texentry.YSize;
+
+                    texentry.Mips = Convert.ToInt32(((LWData[1]) & 0x3f));
+                    texentry._MipMapCount = texentry.Mips;
+
+                    texentry.PixelCount = texentry._X * texentry._Y;
+
+                    texentry.CSize = ((texentry._X / 4) * (texentry._Y / 4));
+
+                    texentry.DSize = 16;
+
+                    Array.Clear(DTemp, 0, 4);
+
+                    int v2a = 0x10;
+
+                    texentry.MipOffsets = new int[texentry.MipMapCount];
+
+                    for (int i = 0; i < texentry._MipMapCount; i++)
+                    {
+                        Array.Copy(texentry.UncompressedData, v2a, DTemp, 0, 4);
+
+                        //Gets offsets of MipMapData.
+                        texentry.MipOffsets[i] = BitConverter.ToInt32(DTemp, 0);
+
+                        v2a = v2a + 8;
+                    }
+
+                    v = 0x10;
+
+                    int w2a = 0;
+                    int u2a = 0;
+                    string LTemp2a = "";
+
+
+                    //Extracts and separates the Mip Maps.
+                    texentry.OutMapsB = new byte[texentry._MipMapCount][];
+
+                    for (int i = 0; i < texentry._MipMapCount; i++)
+                    {
+
+                        if ((i) == (texentry.MipOffsets.Length - 1))
+                        {
+                            texentry.WTemp = new byte[(texentry.UncompressedData.Length - texentry.MipOffsets[i])];
+                            texentry.OutMaps = new byte[(texentry._MipMapCount)];
+
+                            System.Buffer.BlockCopy(texentry.UncompressedData, texentry.MipOffsets[i], texentry.WTemp, 0, (texentry.UncompressedData.Length - texentry.MipOffsets[i]));
+                            w2a = texentry.WTemp.Length;
+                            u2a = u2a + texentry.WTemp.Length;
+
+                            texentry.OutMaps = texentry.WTemp;
+                            texentry.OutMapsB[i] = texentry.OutMaps;
+                        }
+                        else
+                        {
+                            texentry.WTemp = new byte[(texentry.MipOffsets[(i + 1)] - texentry.MipOffsets[i])];
+                            texentry.OutMaps = new byte[(texentry._MipMapCount)];
+                            System.Buffer.BlockCopy(texentry.UncompressedData, texentry.MipOffsets[i], texentry.WTemp, 0, (texentry.MipOffsets[(i + 1)] - texentry.MipOffsets[i]));
+                            w = texentry.WTemp.Length;
+                            u2a = u2a + texentry.WTemp.Length;
+
+                            texentry.OutMaps = texentry.WTemp;
+                            texentry.OutMapsB[i] = texentry.OutMaps;
+                        }
+
+                    }
+
+                    //Special test for these problematic portraits.
+
+                    List<byte> SpecialSwapper = new List<byte>();
+                    byte SSwapA = 00;
+                    byte SSwapR = 00;
+                    byte SSwapG = 00;
+                    byte SSwapB = 00;
+                    int swaps = 0;
+                    int vswap = 4;
+
+                    foreach (byte[] barray in texentry.OutMapsB)
+                    {
+                        for (int i = 0; i < barray.Length; i++)
+                        {
+                            /*
+                            if (i % 4 == 0 && vswap == 0)
+                            {
+                                barray[i - 2] = SSwapA;
+                                barray[i - 4] = SSwapG;
+                                vswap = 3;
+                                SSwapA = barray[i];
+                            }
+                            else if (i % 4 == 0)
+                            {
+                                SSwapA = barray[i];
+                                vswap--;
+                            }
+                            else if (i % 4 == 1)
+                            {
+                                SSwapR = barray[i];
+                                vswap--;
+                            }
+                            else if (i % 4 == 2)
+                            {
+                                SSwapG = barray[i];
+                                vswap--;
+                            }
+                            else if (i % 4 == 3)
+                            {
+                                SSwapB = barray[i];
+                                vswap--;
+                            }
+                            /*
+                            if (i % 16 == 0 && vswap == 0)
+                            {
+
+                                Array.Copy(SSwapC, 0, barray, (i - 4), 4);
+                                Array.Copy(SSwapD, 0, barray, (i - 8), 4);
+
+
+                                Array.Clear(SSwapA, 0, SSwapA.Length);
+                                Array.Clear(SSwapB, 0, SSwapA.Length);
+                                Array.Clear(SSwapC, 0, SSwapA.Length);
+                                Array.Clear(SSwapD, 0, SSwapA.Length);
+
+                                vswap = 15;
+                            }
+                            else if(i % 16 < 4)
+                            {
+                                SSwapA[i % 4] = barray[i];
+                                vswap--;
+                            }
+                            else if (i % 16 < 8)
+                            {
+                                SSwapB[i % 4] = barray[i];
+                                vswap--;
+                            }
+                            else if (i % 16 < 12)
+                            {
+                                SSwapC[i % 4] = barray[i];
+                                vswap--;
+                            }
+                            else if (i % 16 < 16)
+                            {
+                                SSwapD[i % 4] = barray[i];
+                                vswap--;
+                            }
+                            */
+                        }
+                    }
+
+
+                    //Debug Export. Gotta use this for the export as well.
+                    texentry.OutTexTest = new List<byte>();
+
+
+                    byte[] DDSHeader2a = { 0x44, 0x44, 0x53, 0x20, 0x7c, 0x00, 0x00, 0x00, 0x07, 0x10, 0x08, 0x00, 0x00, 0x01, 0x00, 0x00,
+                                           0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
+                                           0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x35, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+                    texentry.OutTexTest.AddRange(DDSHeader2a);
+
+                    foreach (byte[] array in texentry.OutMapsB)
+                    {
+                        texentry.OutTexTest.AddRange(array);
+                    }
+
+                    int findex2a = filename.LastIndexOf("\\");
+                    string outname2a = (filename.Substring(0, findex2a) + "\\") + texentry.TrueName + ".dds";
+
+                    texentry.OutMaps = texentry.OutTexTest.ToArray();
+                    uint blargx2a = Convert.ToUInt32(texentry.XSize);
+                    uint blargy2a = Convert.ToUInt32(texentry.YSize);
+
+                    byte[] Xbytes2a = BitConverter.GetBytes(blargy2a);
+                    byte[] Ybytes2a = BitConverter.GetBytes(blargx2a);
+
+                    Array.Copy(Xbytes2a, 0, texentry.OutMaps, 12, 4);
+                    Array.Copy(Ybytes2a, 0, texentry.OutMaps, 16, 4);
+
+                    try
+                    {
+
+                        using (BinaryWriter bw = new BinaryWriter(File.Open(outname2a, FileMode.Create)))
+                        {
+                            bw.Write(texentry.OutMaps);
+                            bw.Close();
+                        }
+
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                        break;
+                    }
+
+
                     break;
 
                 #endregion
