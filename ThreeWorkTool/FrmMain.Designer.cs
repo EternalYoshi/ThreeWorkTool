@@ -296,7 +296,6 @@
             this.picBoxA.Location = new System.Drawing.Point(191, 2);
             this.picBoxA.Name = "picBoxA";
             this.picBoxA.Size = new System.Drawing.Size(256, 256);
-            this.picBoxA.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 

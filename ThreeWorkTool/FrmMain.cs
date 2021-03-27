@@ -1124,7 +1124,8 @@ namespace ThreeWorkTool
                     TextureEntry tentry = new TextureEntry();
                     tentry = e.Node.Tag as TextureEntry;
                     picBoxA.Visible = true;
-                    picBoxA.Image = new Bitmap(tentry.tex);
+                    Bitmap bm = new Bitmap(tentry.tex);
+                    ImageRescaler(bm, picBoxA, tentry);
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
@@ -1132,7 +1133,8 @@ namespace ThreeWorkTool
                     TextureEntry txentry = new TextureEntry();
                     txentry = e.Node.Tag as TextureEntry;
                     picBoxA.Visible = true;
-                    picBoxA.Image = new Bitmap(txentry.tex);
+                    Bitmap bmx = new Bitmap(txentry.tex);
+                    ImageRescaler(bmx, picBoxA, txentry);
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
@@ -1173,6 +1175,26 @@ namespace ThreeWorkTool
                 //pGrdMain.SelectedObject = aewrap.entryData;
             }
         }
+
+        //Attempts to resize PictureBox to actually make the image fit the original proportions.
+        public static void ImageRescaler(Bitmap bm, PictureBox pb, TextureEntry te)
+        {
+            if (bm.Width > pb.Width || bm.Height > pb.Height)
+            {
+                //if (te.X == te.Y)
+                //{
+                    int OldX = pb.Width;
+                    int OldY = pb.Height;
+                    pb.Image = bm;
+                    //pb.Size = frename.Mainfrm.pnlNew.Size;
+                    pb.SizeMode = bm.Width > OldX || bm.Height > OldY ?
+                    PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
+
+
+                //}
+            }
+        }
+
 
         #endregion
 
