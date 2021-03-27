@@ -293,7 +293,6 @@
             // 
             // picBoxA
             // 
-            this.picBoxA.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.picBoxA.Location = new System.Drawing.Point(191, 2);
             this.picBoxA.Name = "picBoxA";
             this.picBoxA.Size = new System.Drawing.Size(256, 256);

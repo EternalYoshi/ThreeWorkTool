@@ -1138,22 +1138,27 @@ namespace ThreeWorkTool
                 case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
                     ArcEntry entry = new ArcEntry();
                     pGrdMain.SelectedObject = e.Node.Tag;
+                    picBoxA.Visible = false;
                     break;
 
                 case "ThreeWorkTool.Resources.Archives.ArcEntry":
                     pGrdMain.SelectedObject = e.Node.Tag;
+                    picBoxA.Visible = false;
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ArcFileWrapper":
                     ArcFile afile = new ArcFile();
                     pGrdMain.SelectedObject = e.Node.Tag;
+                    picBoxA.Visible = false;
                     break;
 
                 case "ThreeWorkTool.Resources.Archives.ArcFile":
                     pGrdMain.SelectedObject = e.Node.Tag;
+                    picBoxA.Visible = false;
                     break;
                 default:
                     pGrdMain.SelectedObject = null;
+                    picBoxA.Visible = false;
                     break;
             }
         }

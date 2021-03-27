@@ -323,7 +323,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Stream stream = new MemoryStream(texentry.OutMaps);
 
                     texentry.tex = BitmapBuilder(outpngname,stream);
-
+                    stream.Close();
                     break;
 
                 #endregion
@@ -467,7 +467,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Stream stream17 = new MemoryStream(texentry.OutMaps);
 
                     texentry.tex = BitmapBuilder(outpngname17, stream17);
-
+                    stream17.Close();
                     break;
                 #endregion
 
@@ -612,6 +612,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     texentry.tex = BitmapBuilder(outpngname19, stream19);
 
+                    stream19.Close();
 
                     break;
 
@@ -770,7 +771,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     texentry.tex = BitmapBuilder(outpngname1f, stream1f);
 
-
+                    stream1f.Close();
 
                     break;
 
@@ -988,7 +989,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Stream stream27 = new MemoryStream(texentry.OutMaps);
 
                     texentry.tex = BitmapBuilder(outpngname27, stream27);
-
+                    stream27.Close();
                     break;
 
                 #endregion
@@ -1215,7 +1216,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Stream stream2a = new MemoryStream(texentry.OutMaps);
 
                     texentry.tex = BitmapBuilder(outpngname2a, stream2a);
-
+                    stream2a.Close();
                     break;
 
                 #endregion
@@ -1442,6 +1443,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                 {
                     var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
                     var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+                    //Stream strim;
+                    //bitmap.Save(strim, System.Drawing.Imaging.ImageFormat.Png);
                     //bitmap.Save(Path.ChangeExtension(filenametest, ".png"), System.Drawing.Imaging.ImageFormat.Png);     
                     bitmap.Save(Path.ChangeExtension(filenametest, ".png"), System.Drawing.Imaging.ImageFormat.Png);
                     //Stream goodmap = new MemoryStream(barry);
