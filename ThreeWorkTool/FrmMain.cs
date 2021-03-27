@@ -14,6 +14,8 @@ using System.Reflection;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
 using ThreeWorkTool.Resources;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 namespace ThreeWorkTool
 {
@@ -1124,7 +1126,7 @@ namespace ThreeWorkTool
                     TextureEntry tentry = new TextureEntry();
                     tentry = e.Node.Tag as TextureEntry;
                     picBoxA.Visible = true;
-                    Bitmap bm = new Bitmap(tentry.tex);
+                    Bitmap bm = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
                     ImageRescaler(bm, picBoxA, tentry);
                     break;
 
@@ -1133,7 +1135,7 @@ namespace ThreeWorkTool
                     TextureEntry txentry = new TextureEntry();
                     txentry = e.Node.Tag as TextureEntry;
                     picBoxA.Visible = true;
-                    Bitmap bmx = new Bitmap(txentry.tex);
+                    Bitmap bmx = BitmapBuilderDX(txentry.OutMaps, txentry, picBoxA);
                     ImageRescaler(bmx, picBoxA, txentry);
                     break;
 
@@ -1176,22 +1178,70 @@ namespace ThreeWorkTool
             }
         }
 
+        //Makes Bitmap from byte array containing DDS file.
+        public static Bitmap BitmapBuilderDX(byte[] ddsfile, TextureEntry textureEntry, PictureBox picbox)
+        {
+            if (textureEntry.OutMaps != null)
+            {
+                Stream ztrim = new MemoryStream(textureEntry.OutMaps);
+                //From the pfim website.
+                using (var image = Pfim.Pfim.FromStream(ztrim))
+                {
+                    PixelFormat format;
+
+                    // Convert from Pfim's backend agnostic image format into GDI+'s image format
+                    switch (image.Format)
+                    {
+                        case Pfim.ImageFormat.Rgba32:
+                            format = PixelFormat.Format32bppArgb;
+                            break;
+                        //case Pfim.ImageFormat.Rgb24:
+                           // format = PixelFormat.Format24bppRgb;
+                            //break;
+                        default:
+                            // see the sample for more details
+                            throw new NotImplementedException();
+                    }
+
+                    // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
+                    // in this snippet but useful technique if the data was going to be used in
+                    // control like a picture box
+                    var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+                    try
+                    {
+                        var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                        var pmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+                        return pmap;
+                    }
+                    finally
+                    {
+                        handle.Free();
+                    }
+                }
+
+
+                Bitmap bitmap;
+
+                return bitmap;
+            }
+            else
+            {
+                picbox.Image = picbox.ErrorImage;
+                return null;
+            }
+        }
+
         //Attempts to resize PictureBox to actually make the image fit the original proportions.
         public static void ImageRescaler(Bitmap bm, PictureBox pb, TextureEntry te)
         {
             if (bm.Width > pb.Width || bm.Height > pb.Height)
             {
-                //if (te.X == te.Y)
-                //{
                     int OldX = pb.Width;
                     int OldY = pb.Height;
                     pb.Image = bm;
                     //pb.Size = frename.Mainfrm.pnlNew.Size;
                     pb.SizeMode = bm.Width > OldX || bm.Height > OldY ?
                     PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
-
-
-                //}
             }
         }
 

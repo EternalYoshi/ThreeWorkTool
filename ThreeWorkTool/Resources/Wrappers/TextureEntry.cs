@@ -49,7 +49,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public string EntryName;
         public int AOffset;
         public string FileExt;
-        public Bitmap tex;
+        //public Bitmap tex;
 
         public static TextureEntry FillTexEntry(string filename, List<string> subnames, TreeView tree, byte[] Bytes, int c, int ID, Type filetype = null)
         {
@@ -322,7 +322,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     Stream stream = new MemoryStream(texentry.OutMaps);
 
-                    texentry.tex = BitmapBuilder(outpngname,stream);
+                    //texentry.tex = BitmapBuilder(outpngname,stream);
                     stream.Close();
                     break;
 
@@ -466,7 +466,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     Stream stream17 = new MemoryStream(texentry.OutMaps);
 
-                    texentry.tex = BitmapBuilder(outpngname17, stream17);
+                    //texentry.tex = BitmapBuilder(outpngname17, stream17);
                     stream17.Close();
                     break;
                 #endregion
@@ -610,7 +610,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     Stream stream19 = new MemoryStream(texentry.OutMaps);
 
-                    texentry.tex = BitmapBuilder(outpngname19, stream19);
+                    //texentry.tex = BitmapBuilder(outpngname19, stream19);
 
                     stream19.Close();
 
@@ -769,7 +769,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     Stream stream1f = new MemoryStream(texentry.OutMaps);
 
-                    texentry.tex = BitmapBuilder(outpngname1f, stream1f);
+                    //texentry.tex = BitmapBuilder(outpngname1f, stream1f);
 
                     stream1f.Close();
 
@@ -988,7 +988,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     Stream stream27 = new MemoryStream(texentry.OutMaps);
 
-                    texentry.tex = BitmapBuilder(outpngname27, stream27);
+                    //texentry.tex = BitmapBuilder(outpngname27, stream27);
                     stream27.Close();
                     break;
 
@@ -1215,7 +1215,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     Stream stream2a = new MemoryStream(texentry.OutMaps);
 
-                    texentry.tex = BitmapBuilder(outpngname2a, stream2a);
+                    //texentry.tex = BitmapBuilder(outpngname2a, stream2a);
                     stream2a.Close();
                     break;
 
