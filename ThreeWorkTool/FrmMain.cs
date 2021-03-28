@@ -482,6 +482,19 @@ namespace ThreeWorkTool
 
         }
 
+        //Adds Context Menu for Texture files.
+        public static ContextMenu TextureContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenu conmenu = new ContextMenu();
+
+            conmenu.MenuItems.Add(new MenuItem("Export", MenuExportFile_Click));
+            conmenu.MenuItems.Add(new MenuItem("Replace", MenuReplaceTexture_Click));
+            conmenu.MenuItems.Add(new MenuItem("Rename", MenuItemRenameFile_Click));
+            conmenu.MenuItems.Add(new MenuItem("Delete", MenuItemDeleteFile_Click));
+
+            return conmenu;
+        }
+        
         //Adds Context Menu for undefined files.
         public static ContextMenu GenericFileContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
@@ -564,15 +577,116 @@ namespace ThreeWorkTool
 
         private static void MenuReplaceFile_Click(Object sender, System.EventArgs e)
         {
-            //Gotta rewrite this to incorporate Textures.
-
             ArcEntry Aentry = new ArcEntry();
             OpenFileDialog RPDialog = new OpenFileDialog();
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-            if (tag is ArcEntry)
+            if (tag is TextureEntry)
             {
                 Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
                 RPDialog.Filter = ExportFilters.GetFilter(Aentry.FileExt);
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            ArcEntry Oldaent = new ArcEntry();
+                            ArcEntry Newaent = new ArcEntry();
+                            Oldaent = OldWrapper.entryfile as ArcEntry;
+                            string[] paths = Oldaent.EntryDirs;
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = ArcEntry.ReplaceEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as ArcEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+
+                            //Removes the node and inserts the new one.
+                            //TreeNode node = 
+                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
+                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+            }
+
+            //Writes to log file.
+            using (StreamWriter sw = File.AppendText("Log.txt"))
+            {
+                sw.WriteLine("Replaced a file: " + frename.Mainfrm.FilePath + "\nCurrent File List:\n");
+                sw.WriteLine("===============================================================================================================");
+                int entrycount = 0;
+                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                sw.WriteLine("Current file Count: " + entrycount);
+                sw.WriteLine("===============================================================================================================");
+            }
+
+
+        }
+
+        private static void MenuReplaceTexture_Click(Object sender, System.EventArgs e)
+        {
+            //Gotta rewrite this to incorporate Textures.
+
+            TextureEntry Tentry = new TextureEntry();
+            OpenFileDialog RPDialog = new OpenFileDialog();
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            if (tag is TextureEntry)
+            {
+                Tentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as TextureEntry;
+                RPDialog.Filter = ExportFilters.GetFilter("ReplaceTexture");
                 if (RPDialog.ShowDialog() == DialogResult.OK)
                 {
                     string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
@@ -803,72 +917,144 @@ namespace ThreeWorkTool
             ArcEntry Aentry = new ArcEntry();
             OpenFileDialog IMPDialog = new OpenFileDialog();
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-            //Gotta rewrite this to incorporate Textures.
-            /*
+            //Gotta rewrite this to incorporate Textures.            
+            Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
+            if (IMPDialog.ShowDialog() == DialogResult.OK)
+            {
+                string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                string otherhelper = Path.GetExtension(IMPDialog.FileName);
 
-                Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
-                if (IMPDialog.ShowDialog() == DialogResult.OK)
+                switch (otherhelper)
                 {
+                    case ".tex":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperTEX = new ArcEntryWrapper();
+                        TextureEntry Tentry = new TextureEntry();
 
-                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        Tentry = TextureEntry.InsertTextureEntry(frename.Mainfrm.TreeSource, NewWrapperTEX, IMPDialog.FileName);
+                        NewWrapperTEX.Tag = Tentry;
+                        NewWrapperTEX.Text = Tentry.TrueName;
+                        NewWrapperTEX.Name = Tentry.TrueName;
+                        NewWrapperTEX.FileExt = Tentry.FileExt;
+                        NewWrapperTEX.entryData = Tentry;
 
-                    frename.Mainfrm.TreeSource.BeginUpdate();
-                    ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                        frename.Mainfrm.IconSetter(NewWrapperTEX, NewWrapperTEX.FileExt);
 
-                    NewWrapper.entryData = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource,NewWrapper,IMPDialog.FileName);
-                    NewWrapper.Tag = NewWrapper.entryData;
-                    NewWrapper.Text = NewWrapper.entryData.TrueName;
-                    NewWrapper.Name = NewWrapper.entryData.TrueName;
-                    NewWrapper.FileExt = NewWrapper.entryData.FileExt;
+                        NewWrapperTEX.ContextMenu = TextureContextAdder(NewWrapperTEX, frename.Mainfrm.TreeSource);
 
-                    frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperTEX);
 
-                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapper);
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperTEX;
 
-                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                        frename.Mainfrm.OpenFileModified = true;
 
-                    frename.Mainfrm.OpenFileModified = true;
+                        string typeTEX = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
-                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+                        frename.Mainfrm.TreeSource.EndUpdate();
 
-                    frename.Mainfrm.TreeSource.EndUpdate();
+                        TreeNode rootnodeTEX = new TreeNode();
+                        TreeNode selectednodeTEX = new TreeNode();
+                        selectednodeTEX = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeTEX = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeTEX;
 
-                TreeNode rootnode = new TreeNode();
-                TreeNode selectednode = new TreeNode();
-                selectednode = frename.Mainfrm.TreeSource.SelectedNode;
-                rootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-                frename.Mainfrm.TreeSource.SelectedNode = rootnode;
+                        int filecountTEX = 0;
 
-                int filecount = 0;
+                        ArcFile rootarcTEX = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcTEX != null)
+                        {
+                            filecountTEX = rootarcTEX.FileCount;
+                            filecountTEX++;
+                            rootarcTEX.FileCount++;
+                            rootarcTEX.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcTEX;
+                        }
 
-                ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
-                if(rootarc != null)
-                {
-                    filecount = rootarc.FileCount;
-                    filecount++;
-                    rootarc.FileCount++;
-                    rootarc.FileAmount++;
-                    frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
+
+
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountTEX);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeTEX;
+
+                        break;
+
+                    //For everything else.
+                    default:
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                        ArcEntry NEntry = new ArcEntry();
+
+                        NEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, IMPDialog.FileName);
+                        NewWrapper.Tag = NEntry;
+                        NewWrapper.Text = NEntry.TrueName;
+                        NewWrapper.Name = NEntry.TrueName;
+                        NewWrapper.FileExt = NEntry.FileExt;
+                        NewWrapper.entryData = NEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+
+                        NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapper);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnode = new TreeNode();
+                        TreeNode selectednode = new TreeNode();
+                        selectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnode;
+
+                        int filecount = 0;
+
+                        ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarc != null)
+                        {
+                            filecount = rootarc.FileCount;
+                            filecount++;
+                            rootarc.FileCount++;
+                            rootarc.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
+                        }
+
+
+
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecount);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednode;
+                        break;
                 }
 
 
-
-                //Writes to log file.
-                using (StreamWriter sw = File.AppendText("Log.txt"))
-                {
-                    sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                    sw.WriteLine("===============================================================================================================");
-                    int entrycount = 0;
-                    frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                    sw.WriteLine("Current file Count: " + filecount);
-                    sw.WriteLine("===============================================================================================================");
-                }
-
-                frename.Mainfrm.TreeSource.SelectedNode = selectednode;
-              
             }
-            */
+
+            
         }
 
         private void TreeFill(string D, int E, ArcFile archivearc)
@@ -970,7 +1156,7 @@ namespace ThreeWorkTool
             TreeSource.SelectedNode.SelectedImageIndex = 15;
            
 
-            tchild.ContextMenu = GenericFileContextAdder(tchild, TreeSource);
+            tchild.ContextMenu = TextureContextAdder(tchild, TreeSource);
 
             TreeSource.SelectedNode = rootNode;
 
@@ -1127,8 +1313,16 @@ namespace ThreeWorkTool
                     tentry = e.Node.Tag as TextureEntry;
                     picBoxA.Visible = true;
                     Bitmap bm = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
-                    ImageRescaler(bm, picBoxA, tentry);
-                    break;
+                    if (bm == null)
+                    {
+                        picBoxA.Image = picBoxA.ErrorImage;
+                        break;
+                    }
+                    else
+                    {
+                        ImageRescaler(bm, picBoxA, tentry);
+                        break;
+                    }
 
                 case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
                     pGrdMain.SelectedObject = e.Node.Tag;
@@ -1136,8 +1330,16 @@ namespace ThreeWorkTool
                     txentry = e.Node.Tag as TextureEntry;
                     picBoxA.Visible = true;
                     Bitmap bmx = BitmapBuilderDX(txentry.OutMaps, txentry, picBoxA);
-                    ImageRescaler(bmx, picBoxA, txentry);
-                    break;
+                    if (bmx == null)
+                    {
+                        picBoxA.Image = picBoxA.ErrorImage;
+                        break;
+                    }
+                    else
+                    {
+                        ImageRescaler(bmx, picBoxA, txentry);
+                        break;
+                    }
 
                 case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
                     ArcEntry entry = new ArcEntry();
@@ -1218,11 +1420,6 @@ namespace ThreeWorkTool
                         handle.Free();
                     }
                 }
-
-
-                Bitmap bitmap;
-
-                return bitmap;
             }
             else
             {
@@ -1351,8 +1548,16 @@ namespace ThreeWorkTool
                 //Outputs name to log.
                 sw.WriteLine(ae.EntryName);
             }
+            else if(WrapNode.Tag is TextureEntry)
+            {
+                TextureEntry ae = new TextureEntry();
+                ae = WrapNode.Tag as TextureEntry;
+                //Outputs name to log.
+                sw.WriteLine(ae.EntryName);
+            }
             else
             {
+
 
             }
 

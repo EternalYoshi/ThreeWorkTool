@@ -59,13 +59,6 @@ namespace ThreeWorkTool.Resources.Archives
                 ASCIIEncoding ascii = new ASCIIEncoding();
                 Tempname = ascii.GetString(BTemp);
 
-                //For catching problematic files.
-                if(Tempname == "chr\\Ryu\\camera\\0000")
-                {
-                    string placeholder = "er56";
-
-                }
-
                 //This is for the bytes that have the typehash, the thing that dictates the type of file stored.
 
                 BTemp = new byte[] { };
