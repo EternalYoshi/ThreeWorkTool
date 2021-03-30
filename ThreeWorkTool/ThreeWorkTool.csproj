@@ -119,6 +119,12 @@
     <Compile Include="FrmRename.Designer.cs">
       <DependentUpon>FrmRename.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmTexEncodeDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmTexEncodeDialog.Designer.cs">
+      <DependentUpon>FrmTexEncodeDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Lib\DDSImage.cs" />
     <Compile Include="Lib\DDSToImage.cs" />
     <Compile Include="Program.cs" />
@@ -142,6 +148,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrmRename.resx">
       <DependentUpon>FrmRename.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmTexEncodeDialog.resx">
+      <DependentUpon>FrmTexEncodeDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
