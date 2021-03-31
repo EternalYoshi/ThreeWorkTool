@@ -156,7 +156,6 @@
             // 
             // btnTexCancel
             // 
-            this.btnTexCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnTexCancel.Location = new System.Drawing.Point(129, 539);
             this.btnTexCancel.Name = "btnTexCancel";
             this.btnTexCancel.Size = new System.Drawing.Size(80, 30);

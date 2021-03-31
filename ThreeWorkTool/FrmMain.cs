@@ -837,7 +837,7 @@ namespace ThreeWorkTool
                                 //Creates and Spawns the Texture Encoder Dialog.
                                 FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(RPDialog.FileName, RPDialog);
 
-                                frmtexencode.Show();
+                                frmtexencode.ShowDialog();
 
 
                                 break;
@@ -1096,6 +1096,16 @@ namespace ThreeWorkTool
                         }
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeTEX;
+
+                        break;
+
+                    case ".dds":
+                    case ".DDS":
+
+                        //Creates and Spawns the Texture Encoder Dialog.
+                        FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(IMPDialog.FileName, IMPDialog);
+
+                        frmtexencode.ShowDialog();
 
                         break;
 

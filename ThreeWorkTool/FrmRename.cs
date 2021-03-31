@@ -34,7 +34,7 @@ namespace ThreeWorkTool
             treeview = Mainfrm.TreeSource;
             node_ = treeview.SelectedNode;
             OriginalName = Mainfrm.TreeSource.SelectedNode.Text;
-            this.Show();
+            this.ShowDialog();
         }
 
         public void ShowItItem()
@@ -43,7 +43,7 @@ namespace ThreeWorkTool
             treeview = Mainfrm.TreeSource;
             node_ = treeview.SelectedNode;
             OriginalName = Mainfrm.TreeSource.SelectedNode.Text;
-            this.Show();
+            this.ShowDialog();
         }
 
         public void LoadTree(TreeView maintree, TreeNode nodetouse)
