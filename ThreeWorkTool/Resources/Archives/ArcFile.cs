@@ -102,11 +102,7 @@ namespace ThreeWorkTool.Resources.Archives
 
                 }
 
-
-                //===========================================
-                //Gotta have the for loop read the TypeHashes to determine whether to make a TextureEntry or ArcEntry. Also,
-                //How will I make these later loops work with both ArcEntries and TextureEntries?
-                //Fills in each file as an ArcEntry. 
+                //Fills in each file as an ArcEntry or TextureEntry as needed. 
                 j = 8;
                 int IDCounter = 0;
                 for (int i = 0; i < arcfile.FileCount; i++)
@@ -137,7 +133,6 @@ namespace ThreeWorkTool.Resources.Archives
 
 
                 fs.Close();
-                //byte[] HeaderMagic = new List<byte>().GetRange(0,3).ToArray();
 
                 for (int i = 0; i > arcfile.FileCount; i++)
                 {

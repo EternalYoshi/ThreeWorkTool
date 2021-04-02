@@ -252,6 +252,7 @@ namespace ThreeWorkTool
 
 
                                     ArcEntry enty = new ArcEntry();
+                                    TextureEntry tenty = new TextureEntry();
                                     //This is for the filenames and everything after.
                                     foreach (TreeNode treno in Nodes)
                                     {
@@ -330,6 +331,81 @@ namespace ThreeWorkTool
                                             fs.Write(DEOffed, 0, DEOffed.Length);
                                             DataEntryOffset = DataEntryOffset + ComSize;
                                         }
+                                        else if (treno.Tag as TextureEntry != null)
+                                        {
+                                            tenty = treno.Tag as TextureEntry;
+                                            exportname = "";
+
+                                            exportname = treno.FullPath;
+                                            int inp = (exportname.IndexOf("\\")) + 1;
+                                            exportname = exportname.Substring(inp, exportname.Length - inp);
+                                            /*
+                                            foreach (string s in enty.EntryDirs)
+                                            {
+                                                exportname = exportname + s + "\\";
+                                            }
+                                            */
+
+                                            //exportname = exportname + enty.TrueName;
+
+
+                                            int NumberChars = exportname.Length;
+                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                            int nblength = namebuffer.Length;
+
+                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                            byte[] writenamedata = new byte[64];
+                                            Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                            for (int i = 0; i < namebuffer.Length; ++i)
+                                            {
+                                                writenamedata[i] = namebuffer[i];
+                                            }
+
+                                            fs.Write(writenamedata, 0, writenamedata.Length);
+
+                                            //Gotta finish writing the data for the Entries of the arc. First the TypeHash,
+                                            //then compressed size, decompressed size, and lastly starting data offset.
+
+                                            //For the typehash.
+                                            HashType = "241F5DEB";
+                                            byte[] HashBrown = new byte[4];
+                                            HashBrown = StringToByteArray(HashType);
+                                            Array.Reverse(HashBrown);
+                                            if (HashBrown.Length < 4)
+                                            {
+                                                byte[] PartHash = new byte[] { };
+                                                PartHash = HashBrown;
+                                                Array.Resize(ref HashBrown, 4);
+                                            }
+                                            fs.Write(HashBrown, 0, HashBrown.Length);
+
+                                            //For the compressed size.
+                                            ComSize = tenty.CompressedData.Length;
+                                            string ComSizeHex = ComSize.ToString("X8");
+                                            byte[] ComPacked = new byte[4];
+                                            ComPacked = StringToByteArray(ComSizeHex);
+                                            Array.Reverse(ComPacked);
+                                            fs.Write(ComPacked, 0, ComPacked.Length);
+
+                                            //For the unpacked size. No clue why all the entries "start" with 40.
+                                            DecSize = tenty.UncompressedData.Length;
+                                            string DecSizeHex = DecSize.ToString("X8");
+                                            byte[] DePacked = new byte[4];
+                                            DePacked = StringToByteArray(DecSizeHex);
+                                            Array.Reverse(DePacked);
+                                            DePacked[3] = 0x40;
+                                            fs.Write(DePacked, 0, DePacked.Length);
+
+                                            //Starting Offset.
+                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                            byte[] DEOffed = new byte[4];
+                                            DEOffed = StringToByteArray(DataEntrySizeHex);
+                                            Array.Reverse(DEOffed);
+                                            fs.Write(DEOffed, 0, DEOffed.Length);
+                                            DataEntryOffset = DataEntryOffset + ComSize;
+                                        }
                                         else
                                         { }
                                     }
@@ -346,10 +422,13 @@ namespace ThreeWorkTool
                                             byte[] CompData = enty.CompressedData;
                                             fs.Write(CompData, 0, CompData.Length);
                                         }
-                                        else
+                                        else if(treno.Tag as TextureEntry != null)
                                         {
-
+                                            tenty = treno.Tag as TextureEntry;
+                                            byte[] CompData = tenty.CompressedData;
+                                            fs.Write(CompData, 0, CompData.Length);
                                         }
+
                                     }
 
                                         fs.Close();
@@ -383,6 +462,33 @@ namespace ThreeWorkTool
         {
             MessageBox.Show("ThreeWork Tool Alpha version 0.1.\n2021 By Eternal Yoshi", "About", MessageBoxButtons.OK);
         }
+
+        private void MenuClose_Click(object sender, EventArgs e)
+        {
+
+            if (OpenFileModified == true)
+            {
+                DialogResult dlrs = MessageBox.Show("Want to save your changes to this file?", "Closing", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
+                if (dlrs == DialogResult.Yes)
+                {
+                    //Code to save the file goes here!
+
+                    //Application.Exit();
+                }
+                if (dlrs == DialogResult.No)
+                {
+                    //Application.Exit();
+                }
+                //else if(DialogResult.Cancel)
+                if (dlrs == DialogResult.Cancel)
+                {
+                    return;
+                }
+            }
+
+        }
+
 
         //Detects changes and asks to save them during closing.
         private void FrmMainThree_FormClosing(object sender, FormClosingEventArgs e)
@@ -1107,6 +1213,20 @@ namespace ThreeWorkTool
 
                         frmtexencode.ShowDialog();
 
+                        if(frmtexencode.DialogResult == DialogResult.OK)
+                        {
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+                            ArcEntryWrapper NewWrapperDDS = new ArcEntryWrapper();
+                            TextureEntry DDSentry = new TextureEntry();
+
+
+                            DDSentry = TextureEntry.InsertTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS,IMPDialog.FileName,frmtexencode);
+
+
+
+
+                        }
+
                         break;
 
                     //For everything else.
@@ -1506,6 +1626,52 @@ namespace ThreeWorkTool
         {
             if (textureEntry.OutMaps != null)
             {
+                /*
+                byte[] pixelData;
+                int bpp = 4;
+                PixelFormat pixelFormat = PixelFormat.Format32bppArgb;
+
+                SharpDX.Direct3D11.T
+                
+                
+
+                switch (textureEntry.TexType)
+                {
+                    //DXT1 Bitmaps.
+                    case "13":
+                        break;
+
+                    //DXT5 Bitmaps w/ Transparency
+                    case "17":
+                        break;
+
+                    //"BC4_UNORM/Metalic/Specular Map"
+                    case "19":
+                        break;
+
+                    //"BC5/Normal Map"
+                    case "1F":
+                        break;
+
+                    //"Weird Toon Map"
+                    case "27":
+                        break;
+
+                    //"Special Problematic Portraits"
+                    case "2A":
+                        break;
+
+                    default:
+                        break;
+
+                }
+                //textureEntry.OutMapsB[0];
+
+                return null;
+                */
+
+
+                
                 Stream ztrim = new MemoryStream(textureEntry.OutMaps);
                 //From the pfim website.
                 using (var image = Pfim.Pfim.FromStream(ztrim))
@@ -1541,6 +1707,8 @@ namespace ThreeWorkTool
                         handle.Free();
                     }
                 }
+                
+
             }
             else
             {
@@ -1741,9 +1909,9 @@ namespace ThreeWorkTool
             return bytes;
         }
 
+
+
         #endregion
-
-
 
     }
 }

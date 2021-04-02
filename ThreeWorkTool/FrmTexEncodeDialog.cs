@@ -76,11 +76,13 @@ namespace ThreeWorkTool
                             //DXT1
                             case "44585431":
                                 fted.cmBoxTextureType.SelectedIndex = 0;
+                                fted.TXTextureType = "13";
                                 break;
 
                             //DXT5
                             case "44585435":
                                 fted.cmBoxTextureType.SelectedIndex = 1;
+                                fted.TXTextureType = "17";
                                 break;
 
                             //Etc.
@@ -98,6 +100,18 @@ namespace ThreeWorkTool
                         fted.lblY.Text = Convert.ToString(fted.TXy);
                         fted.lblX.Text = Convert.ToString(fted.TXx);
                         fted.lblY.Text = Convert.ToString(fted.TXy);
+                        fted.TXfilename = openedfile;
+                        
+                        //Gets Filename without the extension and the previous directories.
+                        while (fted.TXfilename.Contains("\\"))
+                        {
+                            fted.TXfilename = fted.TXfilename.Substring(fted.TXfilename.IndexOf("\\") + 1);
+                        }
+
+                        int index = fted.TXfilename.IndexOf(".");
+                        if (index > 0)
+                            fted.TXfilename = fted.TXfilename.Substring(0, index);
+
                         fs.Close();
 
                         fted.DDSData = File.ReadAllBytes(openedfile);
@@ -250,13 +264,46 @@ namespace ThreeWorkTool
         }
 
         private void btnTexOK_Click(object sender, EventArgs e)
-        {
-            
-            
-            
+        {                                  
             //Closes form with changes made above.
             DialogResult = DialogResult.OK;
             Hide();
+        }
+
+        private void cmBoxTextureType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (cmBoxTextureType.SelectedIndex)
+            {
+
+                case 0:
+                    this.TXTextureType = "13";
+                    break;
+
+                case 1:
+                    this.TXTextureType = "17";
+                    break;
+
+                case 2:
+                    this.TXTextureType = "19";
+                    break;
+
+                case 3:
+                    this.TXTextureType = "1F";
+                    break;
+
+                case 4:
+                    this.TXTextureType = "27";
+                    break;
+
+                case 5:
+                    this.TXTextureType = "2A";
+                    break;
+
+                default:
+                    this.TXTextureType = "13";
+                    break;
+
+            }
         }
     }
 

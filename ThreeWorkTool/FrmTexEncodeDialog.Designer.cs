@@ -141,6 +141,7 @@
             // 
             // cmBoxTextureType
             // 
+            this.cmBoxTextureType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmBoxTextureType.FormattingEnabled = true;
             this.cmBoxTextureType.Items.AddRange(new object[] {
             "DXT1/BC1",
@@ -153,9 +154,11 @@
             this.cmBoxTextureType.Name = "cmBoxTextureType";
             this.cmBoxTextureType.Size = new System.Drawing.Size(196, 21);
             this.cmBoxTextureType.TabIndex = 3;
+            this.cmBoxTextureType.SelectedIndexChanged += new System.EventHandler(this.cmBoxTextureType_SelectedIndexChanged);
             // 
             // btnTexCancel
             // 
+            this.btnTexCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnTexCancel.Location = new System.Drawing.Point(129, 539);
             this.btnTexCancel.Name = "btnTexCancel";
             this.btnTexCancel.Size = new System.Drawing.Size(80, 30);

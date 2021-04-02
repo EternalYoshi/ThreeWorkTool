@@ -2916,6 +2916,157 @@ namespace ThreeWorkTool.Resources.Wrappers
             return node.entryfile as TextureEntry;
         }
 
+        public static TextureEntry InsertTextureFromDDS(TreeView tree, ArcEntryWrapper node, string filename, FrmTexEncodeDialog FTED, Type filetype = null)
+        {
+            TextureEntry teXentry = new TextureEntry();
+            
+            try
+            {
+                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
+                {
+
+                    /*
+                    //We build the arcentry starting from the uncompressed data.
+                    teXentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
+                    teXentry.DSize = teXentry.UncompressedData.Length;
+
+                    //Then Compress.
+                    teXentry.CompressedData = Zlibber.Compressor(teXentry.UncompressedData);
+                    teXentry.CSize = teXentry.CompressedData.Length;
+                    */
+
+
+                    if(FTED.TXx > FTED.TXy)
+                    {
+                       double XD = Convert.ToDouble(FTED.TXx);
+                       teXentry.MipMapCount = Convert.ToInt32(Math.Log(XD,2.0));
+                    }
+                    else
+                    {
+                        double XD = Convert.ToDouble(FTED.TXy);
+                        teXentry.MipMapCount = Convert.ToInt32(Math.Log(XD, 2.0));
+                    }
+
+                    FTED.TXfilename = teXentry.EntryName;
+                    FTED.TXfilename = teXentry.TrueName;
+                    teXentry._FileName = teXentry.TrueName;
+                    teXentry.FileExt = ".tex";
+
+                    //Gets Dimensions and Tex Type.                    
+                    teXentry.TexType = FTED.TXTextureType;
+                    teXentry._TextureType = teXentry.TexType;
+
+                    byte[] TexTemp;
+                    TexTemp = new byte[] { };
+                    uint XYTemp;
+
+                    switch (teXentry.TexType)
+                    {
+                        #region Bitmap Textures
+                        case "13":
+                            teXentry._Format = "DXT1/BC1";
+
+                            byte[] TEXHeader13 = { 0x54, 0x45, 0x58, 0x00, 0x9d, 0xa0, 0x00, 0x20};
+
+                            //What's the opposite of a bitwise AND operation?
+
+                            
+                            /*
+                    //Gets the unsigned integers which hold data on the texture's dimensions.
+                    Array.Copy(texentry.UncompressedData, 4, DTemp, 0, 4);
+                    LWData[0] = BitConverter.ToUInt32(DTemp, 0);
+
+                    Array.Copy(texentry.UncompressedData, 8, DTemp, 0, 4);
+                    LWData[1] = BitConverter.ToUInt32(DTemp, 0);
+
+                    Array.Copy(texentry.UncompressedData, 12, DTemp, 0, 4);
+                    LWData[2] = BitConverter.ToUInt32(DTemp, 0);
+
+                    //X and Y coordinates. This method is borrowed from the old TexCheck.py file.
+                    texentry.XSize = Convert.ToInt32(((LWData[1] >> 6) & 0x1fff));
+                    texentry._X = texentry.XSize;
+
+                    texentry.YSize = Convert.ToInt32(((LWData[1] >> 19) & 0x1fff));
+                    texentry._Y = texentry.YSize;
+
+                    texentry.Mips = Convert.ToInt32(((LWData[1]) & 0x3f));
+                    texentry._MipMapCount = texentry.Mips;
+                             */
+
+                            break;
+
+                        #endregion
+
+                        #region Bitmap Textures with Transparency
+                        case "17":
+                            teXentry._Format = "DXT5/BC3";
+
+ 
+                            break;
+                        #endregion
+
+                        #region Specular Tetures
+                        case "19":
+                            teXentry._Format = "BC4_UNORM/Metalic/Specular Map";
+
+
+                            break;
+
+                        #endregion
+
+                        #region Normal Maps(Incomplete)
+                        case "1F":
+                            teXentry._Format = "BC5/Normal Map";
+
+
+                            break;
+
+
+                        #endregion
+
+                        #region Weird Toon Shader Textures
+                        case "27":
+                            teXentry._Format = "????/Problematic Portrait Picture";
+
+ 
+                            break;
+
+                        #endregion
+
+                        #region Weirdo Problematic Portrait Textures
+                        case "2A":
+                            teXentry._Format = "????/Problematic Portrait Picture";
+
+ 
+                            break;
+
+                        #endregion
+
+                        default:
+                            break;
+                    }
+
+
+
+                    //Gets the path of the selected node to inject here.
+                    string nodepath = tree.SelectedNode.FullPath;
+                    nodepath = nodepath.Substring(nodepath.IndexOf("\\") + 1);
+
+                    string[] sepstr = { "\\" };
+                    teXentry.EntryDirs = nodepath.Split(sepstr, StringSplitOptions.RemoveEmptyEntries);
+                    teXentry.EntryName = teXentry.FileName;
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+
+
+            return teXentry;
+        }
 
     }
 }
