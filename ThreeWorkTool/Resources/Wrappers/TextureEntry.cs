@@ -191,9 +191,19 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Array.Copy(texentry.UncompressedData, 12, DTemp, 0, 4);
                     LWData[2] = BitConverter.ToUInt32(DTemp, 0);
 
+                    byte[] bytemp = {0x09, 0x80, 0x10, 0x01};
+                    uint uinttemp;
+                    int inttemp;
+                    int inttempw;
+
                     //X and Y coordinates. This method is borrowed from the old TexCheck.py file.
                     texentry.XSize = Convert.ToInt32(((LWData[1] >> 6) & 0x1fff));
+
+                    uinttemp = BitConverter.ToUInt32(bytemp, 0);
+                    inttemp = Convert.ToInt32((uinttemp >> 6) & 0x1fff);
+                    inttempw = Convert.ToInt32((uinttemp >> 19) & 0x1fff);
                     texentry._X = texentry.XSize;
+                    uinttemp = uinttemp & 0x1fff;
 
                     texentry.YSize = Convert.ToInt32(((LWData[1] >> 19) & 0x1fff));
                     texentry._Y = texentry.YSize;

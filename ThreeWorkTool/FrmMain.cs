@@ -472,23 +472,37 @@ namespace ThreeWorkTool
 
                 if (dlrs == DialogResult.Yes)
                 {
-                    //Code to save the file goes here!
-
-                    //Application.Exit();
+                    MenuSaveAs_Click(sender, e);
+                    FlushAndClean();
                 }
                 if (dlrs == DialogResult.No)
                 {
-                    //Application.Exit();
+                    FlushAndClean();
                 }
-                //else if(DialogResult.Cancel)
                 if (dlrs == DialogResult.Cancel)
                 {
                     return;
                 }
             }
-
+            else
+            {
+                FlushAndClean();
+            }
         }
 
+        //Function for unloading all the assets from the previously open file.
+        private static void FlushAndClean()
+        {
+            frename.Mainfrm.TreeSource.Nodes.Clear();
+            frename.Mainfrm.TreeSource.SelectedNode = null;
+            frename.Mainfrm.OpenFileModified = false;
+            frename.Mainfrm.OFilename = null;
+            frename.Mainfrm.FilePath = null;
+            frename.Mainfrm.OFilename = null;
+            frename.Mainfrm.txtBoxCurrentFile.Text = null;
+            frename.Mainfrm.pGrdMain.SelectedObject = null;
+            frename.Mainfrm.picBoxA.Image = null;
+        }
 
         //Detects changes and asks to save them during closing.
         private void FrmMainThree_FormClosing(object sender, FormClosingEventArgs e)
@@ -500,14 +514,11 @@ namespace ThreeWorkTool
                 if (dlrs == DialogResult.Yes)
                 {
                     //Code to save the file goes here!
-
-                    //Application.Exit();
+                    MenuSaveAs_Click(sender, e);
                 }
                 if (dlrs == DialogResult.No)
                 {
-                    //Application.Exit();
                 }
-                //else if(DialogResult.Cancel)
                 if (dlrs == DialogResult.Cancel)
                 {
                     e.Cancel = true;
