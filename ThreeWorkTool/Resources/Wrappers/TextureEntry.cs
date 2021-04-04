@@ -50,7 +50,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int AOffset;
         public string FileExt;
         public static string TypeHash = "241F5DEB";
-        //public Bitmap tex;
+        public int SizeShift;
 
         public static TextureEntry FillTexEntry(string filename, List<string> subnames, TreeView tree, byte[] Bytes, int c, int ID, Type filetype = null)
         {
@@ -111,6 +111,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                 c = texentry.AOffset;
                 BTemp = Bytes.Skip(c).Take(texentry.CSize).ToArray();
                 texentry.CompressedData = BTemp;
+
+                //Gets the SizeShift.... whatever that is.
+                texentry.SizeShift = texentry.CompressedData[7];
 
                 //Namestuff.
                 texentry.EntryName = Tempname;
@@ -283,6 +286,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+                    if(texentry.FileName.Contains("NOMIP"))
+                    {
+                        DDSHeader[28] = Convert.ToByte(1);
+                    }
+                    else
+                    {
+                        DDSHeader[28] = Convert.ToByte(texentry.MipMapCount);
+                    }
+
                     texentry.OutTexTest.AddRange(DDSHeader);
 
                     foreach (byte[] array in texentry.OutMapsB)
@@ -425,6 +437,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+                    if (texentry.FileName.Contains("NOMIP"))
+                    {
+                        DDSHeader17[28] = Convert.ToByte(1);
+                    }
+                    else
+                    {
+                        DDSHeader17[28] = Convert.ToByte(texentry.MipMapCount);
+                    }
+
                     texentry.OutTexTest.AddRange(DDSHeader17);
 
                     foreach (byte[] array in texentry.OutMapsB)
@@ -566,6 +587,14 @@ namespace ThreeWorkTool.Resources.Wrappers
                                          0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                    if (texentry.FileName.Contains("NOMIP"))
+                    {
+                        DDSHeader19[28] = Convert.ToByte(1);
+                    }
+                    else
+                    {
+                        DDSHeader19[28] = Convert.ToByte(texentry.MipMapCount);
+                    }
 
                     texentry.OutTexTest.AddRange(DDSHeader19);
 
@@ -712,17 +741,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-                    /*
-                    byte[] DDSHeader1f = { 0x44, 0x44, 0x53, 0x20, 0x7c, 0x00, 0x00, 0x00, 0x07, 0x10, 0x08, 0x00, 0x00, 0x01, 0x00, 0x00,
-                                         0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                         0x00, 0x00, 0x00, 0x00, 0x4E, 0x56, 0x54, 0x33, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
-                                         0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x31, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
-                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                    if (texentry.FileName.Contains("NOMIP"))
+                    {
+                        DDSHeader1f[28] = Convert.ToByte(1);
+                    }
+                    else
+                    {
+                        DDSHeader1f[28] = Convert.ToByte(texentry.MipMapCount);
+                    }
 
-                    */
 
                     texentry.OutTexTest.AddRange(DDSHeader1f);
 
@@ -941,6 +968,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
                                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+                    if (texentry.FileName.Contains("NOMIP"))
+                    {
+                        DDSHeader27[28] = Convert.ToByte(1);
+                    }
+                    else
+                    {
+                        DDSHeader27[28] = Convert.ToByte(texentry.MipMapCount);
+                    }
+
                     texentry.OutTexTest.AddRange(DDSHeader27);
 
                     foreach (byte[] array in texentry.OutMapsB)
@@ -1087,6 +1123,16 @@ namespace ThreeWorkTool.Resources.Wrappers
                                            0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x35, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
                                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+                    if (texentry.FileName.Contains("NOMIP"))
+                    {
+                        DDSHeader2a[28] = Convert.ToByte(1);
+                    }
+                    else
+                    {
+                        DDSHeader2a[28] = Convert.ToByte(texentry.MipMapCount);
+                    }
+
 
                     texentry.OutTexTest.AddRange(DDSHeader2a);
 
@@ -1318,6 +1364,17 @@ namespace ThreeWorkTool.Resources.Wrappers
             byte[] bytes = new byte[NumberChars / 2];
             for (int i = 0; i < NumberChars; i += 2)
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            return bytes;
+        }
+
+        public static byte[] BinaryStringToByteArray(string binary)
+        {
+            int numOfBytes = binary.Length / 8;
+            byte[] bytes = new byte[numOfBytes];
+            for (int i = 0; i < numOfBytes; ++i)
+            {
+                bytes[i] = Convert.ToByte(binary.Substring(8 * i, 8), 2);
+            }
             return bytes;
         }
 
@@ -2966,9 +3023,70 @@ namespace ThreeWorkTool.Resources.Wrappers
                     teXentry.TexType = FTED.TXTextureType;
                     teXentry._TextureType = teXentry.TexType;
 
+                    string FullEightBinary = "00000000000000000000000000000000";
+
+                    byte[] EightTemp = new byte[4];
+
+                    //Fiddles with binary to insert the values in a little endian binary style.
+                    string MipBinary = Convert.ToString(teXentry.MipMapCount,2);
+                    if(MipBinary.Length < 8)
+                    {
+                      MipBinary = MipBinary.PadLeft(8, '0');
+                    }
+
+                    //Gotta split these strings in accordance to how they're stored in the image I made yesterday, then insert them in the big binary.
+                    string WidthBinary = Convert.ToString(FTED.TXx, 2);
+                    if (WidthBinary.Length < 11)
+                    {
+                        WidthBinary = WidthBinary.PadLeft(11, '0');
+                    }
+
+                    if (WidthBinary.Length == 11)
+                    {
+                        WidthBinary = WidthBinary.Substring(0, WidthBinary.Length - 2);
+                        WidthBinary = WidthBinary.PadLeft(11, '0');
+                    }
+
+                    string[] WidthParts = new string[2];
+                    string[] LengthParts = new string[2];
+
+                    string twp = WidthBinary;
+                    WidthParts[0] = WidthBinary.Substring(3, 8);
+                    WidthParts[1] = WidthBinary.Substring(0, 3);
+
+                    string LengthBinary = Convert.ToString(FTED.TXy, 2);
+                    if (LengthBinary.Length < 13)
+                    {
+                        LengthBinary = LengthBinary.PadLeft(13, '0');
+                    }
+
+                    string tlp = LengthBinary;
+                    LengthParts[0] = LengthBinary.Substring(0, 8);
+                    LengthParts[1] = tlp.Substring(8, 5);
+
+
+                    var aStringBuilder = new StringBuilder(FullEightBinary);
+                    //Puts the MipMap Count in the primary string Binary.
+                    aStringBuilder.Remove(0, 8);
+                    aStringBuilder.Insert(0, MipBinary);
+                    aStringBuilder.Remove(8, 8);
+                    aStringBuilder.Insert(8, WidthParts[0]);
+
+                    aStringBuilder.Remove(16, 5);
+                    aStringBuilder.Insert(16, LengthParts[1]);
+                    aStringBuilder.Remove(21, 3);
+                    aStringBuilder.Insert(21, WidthParts[1]);
+
+                    aStringBuilder.Remove(24, 8);
+                    aStringBuilder.Insert(24, LengthParts[0]);
+
+                    string bytesstr = aStringBuilder.ToString();
+
                     byte[] TexTemp;
                     TexTemp = new byte[] { };
-                    uint XYTemp;
+
+                    //Gets the binary representation into 4 Bytes.
+                    TexTemp = BinaryStringToByteArray(bytesstr);
 
                     switch (teXentry.TexType)
                     {
