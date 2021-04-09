@@ -126,6 +126,7 @@
       <DependentUpon>FrmTexEncodeDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Lib\DDSImage.cs" />
+    <Compile Include="Lib\DDSTextureLoader.cs" />
     <Compile Include="Lib\DDSToImage.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -141,6 +142,7 @@
     <Compile Include="Resources\Wrappers\ArcFileWrapper.cs" />
     <Compile Include="Resources\Wrappers\DefaultWrapper.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
+    <Compile Include="Resources\Wrappers\ResourcePathListEntry.cs" />
     <Compile Include="Resources\Wrappers\TextureEntry.cs" />
     <Compile Include="Resources\Zlibber.cs" />
     <EmbeddedResource Include="FrmMain.resx">
@@ -193,6 +195,7 @@
     <Content Include="Images\MRL.png" />
     <Content Include="Images\MSD.png" />
     <Content Include="Images\REDIRECTBASE copy.png" />
+    <Content Include="Images\Rpl.png" />
     <Content Include="Images\SHT.png" />
     <Content Include="Images\Tex.png" />
     <Content Include="Images\Unknown.png" />

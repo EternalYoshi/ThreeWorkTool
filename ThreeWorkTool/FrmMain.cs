@@ -1216,6 +1216,77 @@ namespace ThreeWorkTool
 
                         break;
 
+                    case ".rpl":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperRPL = new ArcEntryWrapper();
+                        ResourcePathListEntry listEntry = new ResourcePathListEntry();
+
+
+                        /*
+                         
+                        NEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, IMPDialog.FileName);
+                        NewWrapper.Tag = NEntry;
+                        NewWrapper.Text = NEntry.TrueName;
+                        NewWrapper.Name = NEntry.TrueName;
+                        NewWrapper.FileExt = NEntry.FileExt;
+                        NewWrapper.entryData = NEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+
+                        NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapper);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnode = new TreeNode();
+                        TreeNode selectednode = new TreeNode();
+                        selectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnode;
+
+                        int filecount = 0;
+
+                        ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarc != null)
+                        {
+                            filecount = rootarc.FileCount;
+                            filecount++;
+                            rootarc.FileCount++;
+                            rootarc.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
+                        }
+
+
+
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecount);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednode;
+                        break;
+                         
+                         */
+
+
+                        break;
+
+
+
                     case ".dds":
                     case ".DDS":
 
@@ -1415,11 +1486,69 @@ namespace ThreeWorkTool
             tcount++;
             break;
 
-            //Cases for future file supports go here. For example;
-            //case ".mod":
 
-            //For Undocumented file types. Anything else should have a case above.
-            default:
+                //For Resouce Path Lists.
+                case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
+                    ArcEntryWrapper rplchild = new ArcEntryWrapper();
+
+
+                    TreeSource.BeginUpdate();
+
+                    //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+
+                    rplchild.Name = I;
+                    rplchild.Tag = FEntry as ResourcePathListEntry;
+                    rplchild.Text = I;
+                    rplchild.entryfile = FEntry as ResourcePathListEntry;
+                    rplchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = rplchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(rplchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var rplrootNode = FindRootNode(rplchild);
+
+                    TreeSource.SelectedNode = rplchild;
+                    TreeSource.SelectedNode.ImageIndex = 17;
+                    TreeSource.SelectedNode.SelectedImageIndex = 17;
+
+
+                    rplchild.ContextMenu = TextureContextAdder(rplchild, TreeSource);
+
+                    TreeSource.SelectedNode = rplrootNode;
+
+                    tcount++;
+                    break;
+
+
+                //Cases for future file supports go here. For example;
+                //case ".mod":
+
+                //For Undocumented file types. Anything else should have a case above.
+                default:
 
                     ArcEntryWrapper child = new ArcEntryWrapper();
 
@@ -1559,6 +1688,13 @@ namespace ThreeWorkTool
 
             switch (type)
             {
+                case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
+                    pGrdMain.SelectedObject = e.Node.Tag;
+                    ResourcePathListEntry rplentry = new ResourcePathListEntry();
+                    rplentry = e.Node.Tag as ResourcePathListEntry;
+                    picBoxA.Visible = false;
+                    break;
+
                 case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
                     pGrdMain.SelectedObject = e.Node.Tag;
                     TextureEntry tentry = new TextureEntry();
@@ -1638,50 +1774,22 @@ namespace ThreeWorkTool
             if (textureEntry.OutMaps != null)
             {
                 /*
-                byte[] pixelData;
-                int bpp = 4;
-                PixelFormat pixelFormat = PixelFormat.Format32bppArgb;
-
-                SharpDX.Direct3D11.T
-                
-                
+                PixelFormat PixForm = PixelFormat.Format32bppArgb;
+                //Gets the largest Mip Map Pixel Data.
+                byte[] PData = textureEntry.OutMapsB[0];
 
                 switch (textureEntry.TexType)
                 {
-                    //DXT1 Bitmaps.
-                    case "13":
+                    case("13"):
                         break;
 
-                    //DXT5 Bitmaps w/ Transparency
-                    case "17":
-                        break;
-
-                    //"BC4_UNORM/Metalic/Specular Map"
-                    case "19":
-                        break;
-
-                    //"BC5/Normal Map"
-                    case "1F":
-                        break;
-
-                    //"Weird Toon Map"
-                    case "27":
-                        break;
-
-                    //"Special Problematic Portraits"
-                    case "2A":
+                    case ("17"):
                         break;
 
                     default:
                         break;
-
                 }
-                //textureEntry.OutMapsB[0];
-
-                return null;
                 */
-
-
                 
                 Stream ztrim = new MemoryStream(textureEntry.OutMaps);
                 //From the pfim website.
@@ -1718,6 +1826,7 @@ namespace ThreeWorkTool
                         handle.Free();
                     }
                 }
+                
                 
 
             }
@@ -1792,6 +1901,20 @@ namespace ThreeWorkTool
                             break;
                         }
 
+                    case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
+                        ResourcePathListEntry rple = new ResourcePathListEntry();
+                        rple = ArcEntry as ResourcePathListEntry;
+                        if (rple != null)
+                        {
+                            TreeChildInsert(NCount, rple.EntryName, rple.FileExt, rple.EntryDirs, rple.TrueName, rple);
+                            TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                            break;
+                        }
+                        else
+                        {
+                            MessageBox.Show("We got a read error here!", "YIKES");
+                            break;
+                        }
 
                     default:
                         //Fills in child nodes, i.e. the filenames inside the archive.

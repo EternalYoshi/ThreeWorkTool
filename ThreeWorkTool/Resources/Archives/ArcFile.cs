@@ -119,7 +119,16 @@ namespace ThreeWorkTool.Resources.Archives
                             IDCounter++;
                             break;
 
-                    default:
+                        //Resource Path Lists.
+                        case "357EF6D4":
+                            ResourcePathListEntry newplen = ResourcePathListEntry.FillRPLEntry(filename, foldernames, tree, Bytes, j, IDCounter);
+                            arcfile.arcfiles.Add(newplen);
+                            arcfile.FileList.Add(newplen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
+                        default:
                     //Everything not listed above.
                     ArcEntry newentry = ArcEntry.FillEntry(filename, foldernames, tree, Bytes, j, IDCounter);
                     arcfile.arcfiles.Add(newentry);

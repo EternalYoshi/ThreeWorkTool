@@ -111,9 +111,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 c = texentry.AOffset;
                 BTemp = Bytes.Skip(c).Take(texentry.CSize).ToArray();
                 texentry.CompressedData = BTemp;
-
-                //Gets the SizeShift.... whatever that is.
-                texentry.SizeShift = texentry.CompressedData[7];
+                
 
                 //Namestuff.
                 texentry.EntryName = Tempname;
@@ -163,6 +161,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 //Decompression Time.
                 texentry.UncompressedData = ZlibStream.UncompressBuffer(texentry.CompressedData);
+
+                //Gets the SizeShift.... whatever that is.
+                texentry.SizeShift = texentry.UncompressedData[6];
 
             }
 
@@ -3088,38 +3089,29 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //Gets the binary representation into 4 Bytes.
                     TexTemp = BinaryStringToByteArray(bytesstr);
 
+                    teXentry.SizeShift = 0;
+                    byte[] TEXHeader = { 0x54, 0x45, 0x58, 0x00, 0x9d, 0xa0, 0x00, 0x20 };
+
+                    //Starts Building the tex data in this list.
+                    List<byte> TBuffer = new List<byte>();
+                    TBuffer.AddRange(TEXHeader);
+                    TBuffer.AddRange(TexTemp);
+
                     switch (teXentry.TexType)
                     {
                         #region Bitmap Textures
                         case "13":
                             teXentry._Format = "DXT1/BC1";
+                            byte[] HeaderTwo = { 0x01, 0x13, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo);
 
-                            byte[] TEXHeader13 = { 0x54, 0x45, 0x58, 0x00, 0x9d, 0xa0, 0x00, 0x20};
-
-                            //What's the opposite of a bitwise AND operation?
-
+                            for(int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                            }
                             
-                            /*
-                    //Gets the unsigned integers which hold data on the texture's dimensions.
-                    Array.Copy(texentry.UncompressedData, 4, DTemp, 0, 4);
-                    LWData[0] = BitConverter.ToUInt32(DTemp, 0);
 
-                    Array.Copy(texentry.UncompressedData, 8, DTemp, 0, 4);
-                    LWData[1] = BitConverter.ToUInt32(DTemp, 0);
-
-                    Array.Copy(texentry.UncompressedData, 12, DTemp, 0, 4);
-                    LWData[2] = BitConverter.ToUInt32(DTemp, 0);
-
-                    //X and Y coordinates. This method is borrowed from the old TexCheck.py file.
-                    texentry.XSize = Convert.ToInt32(((LWData[1] >> 6) & 0x1fff));
-                    texentry._X = texentry.XSize;
-
-                    texentry.YSize = Convert.ToInt32(((LWData[1] >> 19) & 0x1fff));
-                    texentry._Y = texentry.YSize;
-
-                    texentry.Mips = Convert.ToInt32(((LWData[1]) & 0x3f));
-                    texentry._MipMapCount = texentry.Mips;
-                             */
 
                             break;
 
