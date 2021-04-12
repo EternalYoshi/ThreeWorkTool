@@ -34,9 +34,12 @@ namespace ThreeWorkTool.Resources.Wrappers
         public struct PathEntries
         {
             public string FullPath;
-            public byte[] TypeHash;
+            public string TypeHash;
             public string FileExt;
+            public string TotalName;
         }
+
+        public List<PathEntries> EntryList;
 
         public static ResourcePathListEntry FillRPLEntry(string filename, List<string> subnames, TreeView tree, byte[] Bytes, int c, int ID, Type filetype = null)
         {
@@ -166,6 +169,61 @@ namespace ThreeWorkTool.Resources.Wrappers
                 int ECTemp = Convert.ToInt32(STemp);
                 RPLentry._EntryTotal = ECTemp;
                 RPLentry.EntryCount = ECTemp;
+
+                //Starts occupying the entry list via structs. 
+                RPLentry.EntryList = new List<PathEntries>();
+                byte[] PLName = new byte[] { };
+                byte[] PTHName = new byte[] { };
+
+                int p = 16;
+                string Teme;
+                string Hame;
+
+                for (int g = 0; g < RPLentry.EntryCount; g++)
+                {
+                    PathEntries pe = new PathEntries();
+                    PLName = RPLentry.UncompressedData.Skip(p).Take(64).Where(x => x != 0x00).ToArray();                
+                    Teme = ascii.GetString(PLName);
+
+                    pe.FullPath = Teme;
+                    p = p + 64;
+                    PTHName = RPLentry.UncompressedData.Skip(p).Take(4).Where(x => x != 0x00).ToArray();
+                    Array.Reverse(PTHName);
+
+                    Teme = BytesToString(PTHName, Teme);
+                    pe.TypeHash = Teme;
+
+                    try
+                    {
+                        using (var sr = new StreamReader("archive_filetypes.cfg"))
+                        {
+                            while (!sr.EndOfStream)
+                            {
+                                var keyword = Console.ReadLine() ?? Teme;
+                                var line = sr.ReadLine();
+                                if (String.IsNullOrEmpty(line)) continue;
+                                if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                {
+                                    Hame = line;
+                                    Hame = Hame.Split(' ')[1];
+                                    pe.TotalName = pe.FullPath + Hame;
+                                    pe.FileExt = Hame;
+                                    break;
+                                }
+                            }
+                        }
+
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                        fs.Close();
+                    }
+
+                    RPLentry.EntryList.Add(pe);
+                    p = p + 4;
+
+                }
 
                 return RPLentry;
 
@@ -368,6 +426,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     string[] sepstr = { "\\" };
                     rplentry.EntryDirs = nodepath.Split(sepstr, StringSplitOptions.RemoveEmptyEntries);
                     rplentry.EntryName = rplentry.FileName;
+
 
 
                 }
