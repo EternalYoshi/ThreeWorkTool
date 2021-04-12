@@ -51,10 +51,11 @@
             this.pGrdMain = new System.Windows.Forms.PropertyGrid();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.pnlNew = new System.Windows.Forms.Panel();
             this.picBoxA = new System.Windows.Forms.PictureBox();
-            this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
+            this.txtRPList = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -267,6 +268,25 @@
             this.splitContainer1.SplitterDistance = 315;
             this.splitContainer1.TabIndex = 8;
             // 
+            // TreeSource
+            // 
+            this.TreeSource.archivefile = null;
+            this.TreeSource.BackColor = System.Drawing.SystemColors.MenuText;
+            this.TreeSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TreeSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TreeSource.ForeColor = System.Drawing.SystemColors.Window;
+            this.TreeSource.HideSelection = false;
+            this.TreeSource.ImageIndex = 0;
+            this.TreeSource.ImageList = this.imageList1;
+            this.TreeSource.ItemHeight = 24;
+            this.TreeSource.Location = new System.Drawing.Point(0, 0);
+            this.TreeSource.Name = "TreeSource";
+            this.TreeSource.SelectedImageIndex = 16;
+            this.TreeSource.Size = new System.Drawing.Size(315, 524);
+            this.TreeSource.TabIndex = 6;
+            this.TreeSource.SelectionChanged += new System.EventHandler(this.TreeSource_SelectionChanged);
+            this.TreeSource.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeSource_NodeMouseClick);
+            // 
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -287,6 +307,7 @@
             // 
             // pnlNew
             // 
+            this.pnlNew.Controls.Add(this.txtRPList);
             this.pnlNew.Controls.Add(this.picBoxA);
             this.pnlNew.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlNew.Location = new System.Drawing.Point(0, 0);
@@ -305,24 +326,17 @@
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 
-            // TreeSource
+            // txtRPList
             // 
-            this.TreeSource.archivefile = null;
-            this.TreeSource.BackColor = System.Drawing.SystemColors.MenuText;
-            this.TreeSource.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TreeSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TreeSource.ForeColor = System.Drawing.SystemColors.Window;
-            this.TreeSource.HideSelection = false;
-            this.TreeSource.ImageIndex = 0;
-            this.TreeSource.ImageList = this.imageList1;
-            this.TreeSource.ItemHeight = 24;
-            this.TreeSource.Location = new System.Drawing.Point(0, 0);
-            this.TreeSource.Name = "TreeSource";
-            this.TreeSource.SelectedImageIndex = 16;
-            this.TreeSource.Size = new System.Drawing.Size(315, 524);
-            this.TreeSource.TabIndex = 6;
-            this.TreeSource.SelectionChanged += new System.EventHandler(this.TreeSource_SelectionChanged);
-            this.TreeSource.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeSource_NodeMouseClick);
+            this.txtRPList.AcceptsReturn = true;
+            this.txtRPList.AcceptsTab = true;
+            this.txtRPList.Location = new System.Drawing.Point(4, 0);
+            this.txtRPList.Multiline = true;
+            this.txtRPList.Name = "txtRPList";
+            this.txtRPList.Size = new System.Drawing.Size(181, 258);
+            this.txtRPList.TabIndex = 1;
+            this.txtRPList.Visible = false;
+            this.txtRPList.TextChanged += new System.EventHandler(this.txtRPList_TextChanged);
             // 
             // FrmMainThree
             // 
@@ -350,6 +364,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
             this.pnlNew.ResumeLayout(false);
+            this.pnlNew.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picBoxA)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -383,6 +398,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.Panel pnlNew;
         private System.Windows.Forms.PictureBox picBoxA;
+        private System.Windows.Forms.TextBox txtRPList;
     }
 }
 

@@ -389,6 +389,20 @@ namespace ThreeWorkTool.Resources.Wrappers
             return bytes;
         }
 
+        public static TextBox LoadRPLInTextBox(TextBox texbox, ResourcePathListEntry rple)
+        {
+
+            texbox.Text = "";
+
+            for (int t = 0; t < rple.EntryList.Count; t++)
+            {
+                texbox.Text = texbox.Text + rple.EntryList[t].TotalName + System.Environment.NewLine;
+            }
+
+
+            return texbox;
+        }
+
         public static ResourcePathListEntry InsertRPL(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
         {
             ResourcePathListEntry rplentry = new ResourcePathListEntry();

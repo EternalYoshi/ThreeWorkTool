@@ -63,6 +63,7 @@ namespace ThreeWorkTool
         public int foldercount;
         public bool OpenFileModified;
         public List<string> ArcFileList;
+        public List<string> RPLNameList;
         public static FrmRename frename;
         public static FrmTexEncodeDialog frmtexencode;
 
@@ -1693,12 +1694,18 @@ namespace ThreeWorkTool
                     ResourcePathListEntry rplentry = new ResourcePathListEntry();
                     rplentry = e.Node.Tag as ResourcePathListEntry;
                     picBoxA.Visible = false;
+                    txtRPList.Text = "";
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
+                    txtRPList = ResourcePathListEntry.LoadRPLInTextBox(txtRPList,rplentry);
+                    txtRPList.Visible = true;
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
                     pGrdMain.SelectedObject = e.Node.Tag;
                     TextureEntry tentry = new TextureEntry();
                     tentry = e.Node.Tag as TextureEntry;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     picBoxA.Visible = true;
                     Bitmap bm = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
                     if (bm == null)
@@ -1716,6 +1723,8 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = e.Node.Tag;
                     TextureEntry txentry = new TextureEntry();
                     txentry = e.Node.Tag as TextureEntry;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     picBoxA.Visible = true;
                     Bitmap bmx = BitmapBuilderDX(txentry.OutMaps, txentry, picBoxA);
                     if (bmx == null)
@@ -1733,26 +1742,36 @@ namespace ThreeWorkTool
                     ArcEntry entry = new ArcEntry();
                     pGrdMain.SelectedObject = e.Node.Tag;
                     picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     break;
 
                 case "ThreeWorkTool.Resources.Archives.ArcEntry":
                     pGrdMain.SelectedObject = e.Node.Tag;
                     picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ArcFileWrapper":
                     ArcFile afile = new ArcFile();
                     pGrdMain.SelectedObject = e.Node.Tag;
                     picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     break;
 
                 case "ThreeWorkTool.Resources.Archives.ArcFile":
                     pGrdMain.SelectedObject = e.Node.Tag;
                     picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     break;
                 default:
                     pGrdMain.SelectedObject = null;
                     picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     break;
             }
         }
@@ -1863,6 +1882,7 @@ namespace ThreeWorkTool
             tcount = 0;
 
             List<string> subdirs = new List<String>();
+            List<string> RPLNameList = new List<string>();
 
             ArcFile newArc = ArcFile.LoadArc(TreeSource, FilePath, subdirs, false);
 
@@ -2047,5 +2067,15 @@ namespace ThreeWorkTool
 
         #endregion
 
+        private void txtRPList_TextChanged(object sender, EventArgs e)
+        {
+            string[] Stemp = new string[] { };
+            string ST = txtRPList.Text;
+            Stemp = ST.Split('\n');
+
+
+
+            this.OpenFileModified = true;
+        }
     }
 }
