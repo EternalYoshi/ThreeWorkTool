@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
-    class ResourcePathListEntry
+    public class ResourcePathListEntry
     {
         public string Magic;
         public string Constant;
@@ -167,7 +167,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 Array.Reverse(MTemp);
                 STemp = BytesToString(MTemp,STemp);
 
-                int ECTemp = Convert.ToInt32(STemp);
+                int ECTemp = Convert.ToInt32(STemp, 16);
                 RPLentry._EntryTotal = ECTemp;
                 RPLentry.EntryCount = ECTemp;
 
@@ -473,14 +473,13 @@ namespace ThreeWorkTool.Resources.Wrappers
             LoadRPLInTextBox(texbox, rple);
         }
 
-
         public static ResourcePathListEntry InsertRPL(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
         {
             ResourcePathListEntry rplentry = new ResourcePathListEntry();
 
             try
             {
-                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
+                using (FileStream fs = File.OpenRead(filename))
                 {
                     //We build the arcentry starting from the uncompressed data.
                     rplentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
@@ -512,7 +511,81 @@ namespace ThreeWorkTool.Resources.Wrappers
                     rplentry.EntryDirs = nodepath.Split(sepstr, StringSplitOptions.RemoveEmptyEntries);
                     rplentry.EntryName = rplentry.FileName;
 
+                    //Specific file type work goes here!
 
+                    string Tempname;
+                    ASCIIEncoding ascii = new ASCIIEncoding();
+
+                    //Gets the Magic.
+                    byte[] MTemp = new byte[4];
+                    string STemp = " ";
+                    Array.Copy(rplentry.UncompressedData, 0, MTemp, 0, 4);
+                    rplentry.Magic = BytesToString(MTemp, rplentry.Magic);
+
+                    Array.Copy(rplentry.UncompressedData, 12, MTemp, 0, 4);
+                    Array.Reverse(MTemp);
+                    STemp = BytesToString(MTemp, STemp);
+
+                    int ECTemp = Convert.ToInt32(STemp, 16);
+                    rplentry._EntryTotal = ECTemp;
+                    rplentry.EntryCount = ECTemp;
+
+                    //Starts occupying the entry list via structs. 
+                    rplentry.EntryList = new List<PathEntries>();
+                    byte[] PLName = new byte[] { };
+                    byte[] PTHName = new byte[] { };
+
+                    int p = 16;
+                    string Teme;
+                    string Hame;
+
+                    for (int g = 0; g < rplentry.EntryCount; g++)
+                    {
+                        PathEntries pe = new PathEntries();
+                        PLName = rplentry.UncompressedData.Skip(p).Take(64).Where(x => x != 0x00).ToArray();
+                        Teme = ascii.GetString(PLName);
+
+                        pe.FullPath = Teme;
+                        p = p + 64;
+                        PTHName = rplentry.UncompressedData.Skip(p).Take(4).Where(x => x != 0x00).ToArray();
+                        Array.Reverse(PTHName);
+
+                        Teme = BytesToString(PTHName, Teme);
+                        pe.TypeHash = Teme;
+
+                        try
+                        {
+                            using (var sr = new StreamReader("archive_filetypes.cfg"))
+                            {
+                                while (!sr.EndOfStream)
+                                {
+                                    var keyword = Console.ReadLine() ?? Teme;
+                                    var line = sr.ReadLine();
+                                    if (String.IsNullOrEmpty(line)) continue;
+                                    if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                    {
+                                        Hame = line;
+                                        Hame = Hame.Split(' ')[1];
+                                        pe.TotalName = pe.FullPath + Hame;
+                                        pe.FileExt = Hame;
+                                        break;
+                                    }
+                                }
+                            }
+
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                            fs.Close();
+                        }
+
+                        rplentry.EntryList.Add(pe);
+                        p = p + 4;
+
+                    }
+
+                    rplentry.TextBackup = new List<string>();
 
                 }
             }
@@ -526,6 +599,302 @@ namespace ThreeWorkTool.Resources.Wrappers
             return rplentry;
         }
 
+        public static ResourcePathListEntry ReplaceRPL(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        {
+            ResourcePathListEntry rpathentry = new ResourcePathListEntry();
+            ResourcePathListEntry rpoldentry = new ResourcePathListEntry();
+
+            tree.BeginUpdate();
+
+            //Gotta Fix this up then test insert and replacing.
+            try
+            {
+                using (FileStream fs = File.OpenRead(filename))
+                {
+                    //We build the arcentry starting from the uncompressed data.
+                    rpathentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
+
+                    //Then Compress.
+                    rpathentry.CompressedData = Zlibber.Compressor(rpathentry.UncompressedData);
+
+                    //Gets the filename of the file to inject without the directory.
+                    string trname = filename;
+                    while (trname.Contains("\\"))
+                    {
+                        trname = trname.Substring(trname.IndexOf("\\") + 1);
+                    }
+
+                    //Enters name related parameters of the arcentry.
+                    rpathentry.TrueName = trname;
+                    rpathentry._FileName = rpathentry.TrueName;
+                    rpathentry.TrueName = Path.GetFileNameWithoutExtension(trname);
+                    rpathentry.FileExt = trname.Substring(trname.LastIndexOf("."));
+                    rpathentry._FileType = rpathentry.FileExt;
+
+                    string TypeHash = "";
+
+                    //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
+                    try
+                    {
+                        using (var sr2 = new StreamReader("archive_filetypes.cfg"))
+                        {
+                            while (!sr2.EndOfStream)
+                            {
+                                var keyword = Console.ReadLine() ?? rpathentry.FileExt;
+                                var line = sr2.ReadLine();
+                                if (String.IsNullOrEmpty(line)) continue;
+                                if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                {
+                                    TypeHash = line;
+                                    TypeHash = TypeHash.Split(' ')[0];
+                                    //arcentry.TypeHash = TypeHash;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+
+                    }
+
+                    ASCIIEncoding ascii = new ASCIIEncoding();
+
+                    //Gets the Magic.
+                    byte[] MTemp = new byte[4];
+                    string STemp = " ";
+                    Array.Copy(rpathentry.UncompressedData, 0, MTemp, 0, 4);
+                    rpathentry.Magic = BytesToString(MTemp, rpathentry.Magic);
+
+                    Array.Copy(rpathentry.UncompressedData, 12, MTemp, 0, 4);
+                    Array.Reverse(MTemp);
+                    STemp = BytesToString(MTemp, STemp);
+
+                    int ECTemp = Convert.ToInt32(STemp, 16);
+                    rpathentry._EntryTotal = ECTemp;
+                    rpathentry.EntryCount = ECTemp;
+
+                    //Starts occupying the entry list via structs. 
+                    rpathentry.EntryList = new List<PathEntries>();
+                    byte[] PLName = new byte[] { };
+                    byte[] PTHName = new byte[] { };
+
+                    int p = 16;
+                    string Teme;
+                    string Hame;
+
+                    for (int g = 0; g < rpathentry.EntryCount; g++)
+                    {
+                        PathEntries pe = new PathEntries();
+                        PLName = rpathentry.UncompressedData.Skip(p).Take(64).Where(x => x != 0x00).ToArray();
+                        Teme = ascii.GetString(PLName);
+
+                        pe.FullPath = Teme;
+                        p = p + 64;
+                        PTHName = rpathentry.UncompressedData.Skip(p).Take(4).Where(x => x != 0x00).ToArray();
+                        Array.Reverse(PTHName);
+
+                        Teme = BytesToString(PTHName, Teme);
+                        pe.TypeHash = Teme;
+
+                        try
+                        {
+                            using (var sr = new StreamReader("archive_filetypes.cfg"))
+                            {
+                                while (!sr.EndOfStream)
+                                {
+                                    var keyword = Console.ReadLine() ?? Teme;
+                                    var line = sr.ReadLine();
+                                    if (String.IsNullOrEmpty(line)) continue;
+                                    if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                    {
+                                        Hame = line;
+                                        Hame = Hame.Split(' ')[1];
+                                        pe.TotalName = pe.FullPath + Hame;
+                                        pe.FileExt = Hame;
+                                        break;
+                                    }
+                                }
+                            }
+
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                            fs.Close();
+                        }
+
+                        rpathentry.EntryList.Add(pe);
+                        p = p + 4;
+
+                    }
+
+                    rpathentry.TextBackup = new List<string>();
+                    rpathentry._FileLength = rpathentry.UncompressedData.Length;
+
+                    //Hmmm.
+
+                    var tag = node.Tag;
+                    if (tag is ResourcePathListEntry)
+                    {
+                        rpoldentry = tag as ResourcePathListEntry;
+                    }
+                    string path = "";
+                    int index = rpoldentry.EntryName.LastIndexOf("\\");
+                    if (index > 0)
+                    {
+                        path = rpoldentry.EntryName.Substring(0, index);
+                    }
+
+                    rpathentry.EntryName = path + "\\" + rpathentry.TrueName;
+
+                    tag = rpathentry;
+
+                    if (node.Tag is ResourcePathListEntry)
+                    {
+                        node.Tag = rpathentry;
+                        node.Name = Path.GetFileNameWithoutExtension(rpathentry.EntryName);
+                        node.Text = Path.GetFileNameWithoutExtension(rpathentry.EntryName);
+
+                    }
+
+                    var aew = node as ArcEntryWrapper;
+
+                    string type = node.GetType().ToString();
+                    if (type == "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper")
+                    {
+                        aew.entryfile = rpathentry;
+                    }
+
+                    node = aew;
+                    node.entryfile = rpathentry;
+                    tree.EndUpdate();
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Read error. Is the file readable?");
+            }
+
+
+
+            return node.entryfile as ResourcePathListEntry;
+        }
+
+        /*
+         
+                public static ResourcePathListEntry ReplaceRPL(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        {
+            ResourcePathListEntry rpathentry = new ResourcePathListEntry();
+            ResourcePathListEntry rpoldentry = new ResourcePathListEntry();
+
+            tree.BeginUpdate();
+
+            //Gotta Fix this up then test insert and replacing.
+            try
+            {
+                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
+                {
+                    //We build the arcentry starting from the uncompressed data.
+                    rpathentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
+
+                    //Then Compress.
+                    rpathentry.CompressedData = Zlibber.Compressor(rpathentry.UncompressedData);
+
+                    //Gets the filename of the file to inject without the directory.
+                    string trname = filename;
+                    while (trname.Contains("\\"))
+                    {
+                        trname = trname.Substring(trname.IndexOf("\\") + 1);
+                    }
+
+                    //Enters name related parameters of the arcentry.
+                    rpathentry.TrueName = trname;
+                    rpathentry._FileName = rpathentry.TrueName;
+                    rpathentry.TrueName = Path.GetFileNameWithoutExtension(trname);
+                    rpathentry.FileExt = trname.Substring(trname.LastIndexOf("."));
+                    rpathentry._FileType = rpathentry.FileExt;
+
+                    string TypeHash = "";
+
+                    //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
+                    try
+                    {
+                        using (var sr2 = new StreamReader("archive_filetypes.cfg"))
+                        {
+                            while (!sr2.EndOfStream)
+                            {
+                                var keyword = Console.ReadLine() ?? rpathentry.FileExt;
+                                var line = sr2.ReadLine();
+                                if (String.IsNullOrEmpty(line)) continue;
+                                if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                {
+                                    TypeHash = line;
+                                    TypeHash = TypeHash.Split(' ')[0];
+                                    //arcentry.TypeHash = TypeHash;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+
+                    }
+
+                    var tag = node.Tag;
+                    if (tag is ResourcePathListEntry)
+                    {
+                        rpoldentry = tag as ResourcePathListEntry;
+                    }
+                    string path = "";
+                    int index = rpoldentry.EntryName.LastIndexOf("\\");
+                    if (index > 0)
+                    {
+                        path = rpoldentry.EntryName.Substring(0, index);
+                    }
+
+                    rpathentry.EntryName = path + "\\" + rpathentry.TrueName;
+
+                    tag = rpathentry;
+
+                    if (node.Tag is ResourcePathListEntry)
+                    {
+                        node.Tag = rpathentry;
+                        node.Name = Path.GetFileNameWithoutExtension(rpathentry.EntryName);
+                        node.Text = Path.GetFileNameWithoutExtension(rpathentry.EntryName);
+
+                    }
+
+                    var aew = node as ArcEntryWrapper;
+
+                    string type = node.GetType().ToString();
+                    if (type == "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper")
+                    {
+                        aew.entryfile = rpathentry;
+                    }
+
+                    node = aew;
+                    node.entryfile = rpathentry;
+                    tree.EndUpdate();
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Read error. Is the file readable?");
+            }
+
+
+
+            return node.entryfile as ResourcePathListEntry;
+        }
+
+         
+         */
 
     }
 }

@@ -256,9 +256,11 @@ namespace ThreeWorkTool
 
                                     ArcEntry enty = new ArcEntry();
                                     TextureEntry tenty = new TextureEntry();
+                                    ResourcePathListEntry lrpenty = new ResourcePathListEntry();
                                     //This is for the filenames and everything after.
                                     foreach (TreeNode treno in Nodes)
                                     {
+                                        //Saving generic files.
                                         if (treno.Tag as ArcEntry != null)
                                         {
                                             enty = treno.Tag as ArcEntry;
@@ -334,6 +336,7 @@ namespace ThreeWorkTool
                                             fs.Write(DEOffed, 0, DEOffed.Length);
                                             DataEntryOffset = DataEntryOffset + ComSize;
                                         }
+                                        //Saving Textures.
                                         else if (treno.Tag as TextureEntry != null)
                                         {
                                             tenty = treno.Tag as TextureEntry;
@@ -367,9 +370,6 @@ namespace ThreeWorkTool
                                             }
 
                                             fs.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //Gotta finish writing the data for the Entries of the arc. First the TypeHash,
-                                            //then compressed size, decompressed size, and lastly starting data offset.
 
                                             //For the typehash.
                                             HashType = "241F5DEB";
@@ -409,6 +409,70 @@ namespace ThreeWorkTool
                                             fs.Write(DEOffed, 0, DEOffed.Length);
                                             DataEntryOffset = DataEntryOffset + ComSize;
                                         }
+                                        else if (treno.Tag as ResourcePathListEntry != null)
+                                        {
+                                            lrpenty = treno.Tag as ResourcePathListEntry;
+                                            exportname = "";
+
+                                            exportname = treno.FullPath;
+                                            int inp = (exportname.IndexOf("\\")) + 1;
+                                            exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                            int NumberChars = exportname.Length;
+                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                            int nblength = namebuffer.Length;
+
+                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                            byte[] writenamedata = new byte[64];
+                                            Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                            for (int i = 0; i < namebuffer.Length; ++i)
+                                            {
+                                                writenamedata[i] = namebuffer[i];
+                                            }
+
+                                            fs.Write(writenamedata, 0, writenamedata.Length);
+
+                                            //For the typehash.
+                                            HashType = "357EF6D4";
+                                            byte[] HashBrown = new byte[4];
+                                            HashBrown = StringToByteArray(HashType);
+                                            Array.Reverse(HashBrown);
+                                            if (HashBrown.Length < 4)
+                                            {
+                                                byte[] PartHash = new byte[] { };
+                                                PartHash = HashBrown;
+                                                Array.Resize(ref HashBrown, 4);
+                                            }
+                                            fs.Write(HashBrown, 0, HashBrown.Length);
+
+                                            //For the compressed size.
+                                            ComSize = lrpenty.CompressedData.Length;
+                                            string ComSizeHex = ComSize.ToString("X8");
+                                            byte[] ComPacked = new byte[4];
+                                            ComPacked = StringToByteArray(ComSizeHex);
+                                            Array.Reverse(ComPacked);
+                                            fs.Write(ComPacked, 0, ComPacked.Length);
+
+                                            //For the unpacked size. No clue why all the entries "start" with 40.
+                                            DecSize = lrpenty.UncompressedData.Length;
+                                            string DecSizeHex = DecSize.ToString("X8");
+                                            byte[] DePacked = new byte[4];
+                                            DePacked = StringToByteArray(DecSizeHex);
+                                            Array.Reverse(DePacked);
+                                            DePacked[3] = 0x40;
+                                            fs.Write(DePacked, 0, DePacked.Length);
+
+                                            //Starting Offset.
+                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                            byte[] DEOffed = new byte[4];
+                                            DEOffed = StringToByteArray(DataEntrySizeHex);
+                                            Array.Reverse(DEOffed);
+                                            fs.Write(DEOffed, 0, DEOffed.Length);
+                                            DataEntryOffset = DataEntryOffset + ComSize;
+
+                                        }
                                         else
                                         { }
                                     }
@@ -432,9 +496,17 @@ namespace ThreeWorkTool
                                             fs.Write(CompData, 0, CompData.Length);
                                         }
 
+                                        else if (treno.Tag as ResourcePathListEntry != null)
+                                        {
+                                            lrpenty = treno.Tag as ResourcePathListEntry;
+                                            byte[] CompData = lrpenty.CompressedData;
+                                            fs.Write(CompData, 0, CompData.Length);
+
+                                        }
+
                                     }
 
-                                        fs.Close();
+                                    fs.Close();
                                     OpenFileModified = false;
                                 }
                             }
@@ -616,7 +688,7 @@ namespace ThreeWorkTool
             return conmenu;
         }
         
-        //Adds Context Menu for undefined files.
+        //Adds Context Menu for undefined files & everything else.
         public static ContextMenu GenericFileContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
             ContextMenu conmenu = new ContextMenu();
@@ -687,6 +759,27 @@ namespace ThreeWorkTool
                     }
                     break;
 
+                case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
+                    ResourcePathListEntry RPLentry = new ResourcePathListEntry();
+                    if (tag is ResourcePathListEntry)
+                    {
+
+                        RPLentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ResourcePathListEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(RPLentry.FileExt);
+                    }
+                    EXDialog.FileName = RPLentry.FileName + RPLentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.RPListEntryWriter(EXDialog.FileName, RPLentry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
 
                 default:
                     break;
@@ -780,6 +873,94 @@ namespace ThreeWorkTool
                     frename.Mainfrm.TreeSource.EndUpdate();
 
                 }
+
+            }
+            else if(tag is ResourcePathListEntry)
+            {
+                ResourcePathListEntry RPListEntry = new ResourcePathListEntry();
+                RPListEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ResourcePathListEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(RPListEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            ResourcePathListEntry Oldaent = new ResourcePathListEntry();
+                            ResourcePathListEntry Newaent = new ResourcePathListEntry();
+                            Oldaent = OldWrapper.entryfile as ResourcePathListEntry;
+                            string[] paths = Oldaent.EntryDirs;
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = ResourcePathListEntry.ReplaceRPL(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as ResourcePathListEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Reloads the replaced file data in the text box.
+                            frename.Mainfrm.txtRPList = ResourcePathListEntry.LoadRPLInTextBox(frename.Mainfrm.txtRPList, Newaent);
+                            frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+
+                            //Removes the node and inserts the new one.
+                            //TreeNode node = 
+                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
+                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
 
             }
             else
@@ -1219,52 +1400,55 @@ namespace ThreeWorkTool
 
                         break;
 
-                    case ".rpl":
+                    case ".lrp":
                         frename.Mainfrm.TreeSource.BeginUpdate();
                         ArcEntryWrapper NewWrapperRPL = new ArcEntryWrapper();
-                        ResourcePathListEntry listEntry = new ResourcePathListEntry();
+                        ResourcePathListEntry RlistEntry = new ResourcePathListEntry();
 
 
-                        /*
-                         
-                        NEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, IMPDialog.FileName);
-                        NewWrapper.Tag = NEntry;
-                        NewWrapper.Text = NEntry.TrueName;
-                        NewWrapper.Name = NEntry.TrueName;
-                        NewWrapper.FileExt = NEntry.FileExt;
-                        NewWrapper.entryData = NEntry;
+                        //RlistEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, IMPDialog.FileName);
+                        RlistEntry = ResourcePathListEntry.InsertRPL(frename.Mainfrm.TreeSource, NewWrapperRPL, IMPDialog.FileName);
+                        NewWrapperRPL.Tag = RlistEntry;
+                        NewWrapperRPL.Text = RlistEntry.TrueName;
+                        NewWrapperRPL.Name = RlistEntry.TrueName;
+                        NewWrapperRPL.FileExt = RlistEntry.FileExt;
+                        NewWrapperRPL.entryData = RlistEntry;
 
-                        frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                        frename.Mainfrm.IconSetter(NewWrapperRPL, NewWrapperRPL.FileExt);
 
-                        NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                        NewWrapperRPL.ContextMenu = GenericFileContextAdder(NewWrapperRPL, frename.Mainfrm.TreeSource);
 
-                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapper);
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperRPL);
 
-                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperRPL;
 
                         frename.Mainfrm.OpenFileModified = true;
 
-                        string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
-                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+                        //Reloads the replaced file data in the text box.
+                        frename.Mainfrm.txtRPList = ResourcePathListEntry.LoadRPLInTextBox(frename.Mainfrm.txtRPList, RlistEntry);
+                        frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
 
+                        string typeRPL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+                        
                         frename.Mainfrm.TreeSource.EndUpdate();
 
-                        TreeNode rootnode = new TreeNode();
-                        TreeNode selectednode = new TreeNode();
-                        selectednode = frename.Mainfrm.TreeSource.SelectedNode;
-                        rootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-                        frename.Mainfrm.TreeSource.SelectedNode = rootnode;
+                        TreeNode rootnodeRPL = new TreeNode();
+                        TreeNode selectednodeRPL = new TreeNode();
+                        selectednodeRPL = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeRPL = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeRPL;
 
-                        int filecount = 0;
+                        int filecountRPL = 0;
 
-                        ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
-                        if (rootarc != null)
+                        ArcFile rootarcRPL = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcRPL != null)
                         {
-                            filecount = rootarc.FileCount;
-                            filecount++;
-                            rootarc.FileCount++;
-                            rootarc.FileAmount++;
-                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
+                            filecountRPL = rootarcRPL.FileCount;
+                            filecountRPL++;
+                            rootarcRPL.FileCount++;
+                            rootarcRPL.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcRPL;
                         }
 
 
@@ -1276,14 +1460,13 @@ namespace ThreeWorkTool
                             sw.WriteLine("===============================================================================================================");
                             int entrycount = 0;
                             frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecount);
+                            sw.WriteLine("Current file Count: " + filecountRPL);
                             sw.WriteLine("===============================================================================================================");
                         }
 
-                        frename.Mainfrm.TreeSource.SelectedNode = selectednode;
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeRPL;
                         break;
                          
-                         */
 
 
                         break;
@@ -1539,8 +1722,8 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 17;
 
 
-                    rplchild.ContextMenu = TextureContextAdder(rplchild, TreeSource);
-
+                    rplchild.ContextMenu = GenericFileContextAdder(rplchild, TreeSource);
+                    
                     TreeSource.SelectedNode = rplrootNode;
 
                     tcount++;
@@ -1665,6 +1848,11 @@ namespace ThreeWorkTool
             {
                 wrapper.ImageIndex = 8;
                 wrapper.SelectedImageIndex = 8;
+            }
+            else if (extension == ".lrp")
+            {
+                wrapper.ImageIndex = 17;
+                wrapper.SelectedImageIndex = 17;
             }
             else
             {

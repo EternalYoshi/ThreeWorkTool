@@ -15,6 +15,9 @@ namespace ThreeWorkTool.Resources
 
         public static string TexImport = "Raw Texture File(*.tex)|*.tex|DirectDraw Surface Image(*.dds)| *.dds";
 
+        public static string rResourcePathList = "Resources Path List (*.lrp*)|*.lrp*";
+        
+
         public static string Etc = "All Files (*.*)|*.*";
         
         public static string GetFilter(string filetype)
@@ -27,6 +30,9 @@ namespace ThreeWorkTool.Resources
 
                 case "ReplaceTexture":
                     return TexImport;
+
+                case ".lrp":
+                    return rResourcePathList;
 
                 default:
                     return Etc; 
