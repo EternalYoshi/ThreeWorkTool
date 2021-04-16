@@ -66,6 +66,8 @@ namespace ThreeWorkTool
         public List<string> RPLNameList;
         public static FrmRename frename;
         public static FrmTexEncodeDialog frmtexencode;
+        public string RPLBackup;
+        public bool FinishRPLRead;
 
         //This lets us use the dilogue without having to paste this within each button's function.
         OpenFileDialog OFDialog = new OpenFileDialog();
@@ -113,7 +115,7 @@ namespace ThreeWorkTool
                 {
                     NCount = 0;
                     OFilename = OFDialog.FileName;
-
+                    FinishRPLRead = false;
                     FilePath = OFilename;
                     OpenDX(FilePath);
 
@@ -1690,6 +1692,7 @@ namespace ThreeWorkTool
             switch (type)
             {
                 case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
+                    FinishRPLRead = false;
                     pGrdMain.SelectedObject = e.Node.Tag;
                     ResourcePathListEntry rplentry = new ResourcePathListEntry();
                     rplentry = e.Node.Tag as ResourcePathListEntry;
@@ -1697,7 +1700,9 @@ namespace ThreeWorkTool
                     txtRPList.Text = "";
                     txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
                     txtRPList = ResourcePathListEntry.LoadRPLInTextBox(txtRPList,rplentry);
+                    RPLBackup = txtRPList.Text;
                     txtRPList.Visible = true;
+                    FinishRPLRead = true;
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
@@ -2069,13 +2074,46 @@ namespace ThreeWorkTool
 
         private void txtRPList_TextChanged(object sender, EventArgs e)
         {
-            string[] Stemp = new string[] { };
-            string ST = txtRPList.Text;
-            Stemp = ST.Split('\n');
+            if (FinishRPLRead == true)
+            {
+                TextBoxUpdating();
+            }
+        }
 
+        private void TextBoxUpdating()
+        {
+            ResourcePathListEntry rplentry = new ResourcePathListEntry();
+            rplentry = TreeSource.SelectedNode.Tag as ResourcePathListEntry;
+            if (rplentry != null)
+            {
+                ResourcePathListEntry.RenewRPLList(txtRPList, rplentry);
+                TreeSource.SelectedNode.Tag = rplentry;
+                this.OpenFileModified = true;
+            }
+        }
 
+        private void TextBoxLeaving()
+        {
 
-            this.OpenFileModified = true;
+            ResourcePathListEntry rplentry = new ResourcePathListEntry();
+            rplentry = TreeSource.SelectedNode.Tag as ResourcePathListEntry;
+            if (rplentry != null)
+            {
+
+                string[] Stemp = new string[] { };
+                string ST = txtRPList.Text;
+                Stemp = ST.Split('\n');
+
+                //Updates the text list.
+                ResourcePathListEntry.UpdateRPLList(txtRPList, rplentry);
+                TreeSource.SelectedNode.Tag = rplentry;
+
+            }
+        }
+
+        private void txtRPList_Leave(object sender, EventArgs e)
+        {
+            //TextBoxLeaving();
         }
     }
 }

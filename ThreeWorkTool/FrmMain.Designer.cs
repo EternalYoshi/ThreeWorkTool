@@ -54,8 +54,8 @@
             this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.pnlNew = new System.Windows.Forms.Panel();
-            this.picBoxA = new System.Windows.Forms.PictureBox();
             this.txtRPList = new System.Windows.Forms.TextBox();
+            this.picBoxA = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -315,17 +315,6 @@
             this.pnlNew.Size = new System.Drawing.Size(626, 264);
             this.pnlNew.TabIndex = 0;
             // 
-            // picBoxA
-            // 
-            this.picBoxA.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.picBoxA.Location = new System.Drawing.Point(191, 2);
-            this.picBoxA.Name = "picBoxA";
-            this.picBoxA.Size = new System.Drawing.Size(256, 256);
-            this.picBoxA.TabIndex = 1;
-            this.picBoxA.TabStop = false;
-            // 
             // txtRPList
             // 
             this.txtRPList.AcceptsReturn = true;
@@ -337,6 +326,18 @@
             this.txtRPList.TabIndex = 1;
             this.txtRPList.Visible = false;
             this.txtRPList.TextChanged += new System.EventHandler(this.txtRPList_TextChanged);
+            this.txtRPList.Leave += new System.EventHandler(this.txtRPList_Leave);
+            // 
+            // picBoxA
+            // 
+            this.picBoxA.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.picBoxA.Location = new System.Drawing.Point(191, 2);
+            this.picBoxA.Name = "picBoxA";
+            this.picBoxA.Size = new System.Drawing.Size(256, 256);
+            this.picBoxA.TabIndex = 1;
+            this.picBoxA.TabStop = false;
             // 
             // FrmMainThree
             // 

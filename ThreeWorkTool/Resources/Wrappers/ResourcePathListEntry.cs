@@ -30,6 +30,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public string TrueName;
         public byte[] WTemp;
         public string FileExt;
+        public List<string> TextBackup;
 
         public struct PathEntries
         {
@@ -225,6 +226,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 }
 
+                RPLentry.TextBackup = new List<string>();
+
                 return RPLentry;
 
             }
@@ -394,14 +397,82 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             texbox.Text = "";
 
-            for (int t = 0; t < rple.EntryList.Count; t++)
+            bool isEmpty = !rple.TextBackup.Any();
+            if (isEmpty)
             {
-                texbox.Text = texbox.Text + rple.EntryList[t].TotalName + System.Environment.NewLine;
+                for (int t = 0; t < rple.EntryList.Count; t++)
+                {
+                    texbox.Text = texbox.Text + rple.EntryList[t].TotalName + System.Environment.NewLine;
+                    rple.TextBackup.Add(rple.EntryList[t].TotalName + System.Environment.NewLine);
+                }
             }
+            else
+            {
+
+                for (int t = 0; t < rple.EntryList.Count; t++)
+                {
+                    texbox.Text = texbox.Text + rple.EntryList[t].TotalName + System.Environment.NewLine;
+                }
+                /*
+                for (int t = 0; t < rple.TextBackup.Count; t++)
+                {
+                    texbox.Text = texbox.Text + rple.TextBackup[t];
+                }
+                */
+            }
+
 
 
             return texbox;
         }
+
+        public static void UpdateRPLList(TextBox texbox, ResourcePathListEntry rple)
+        {
+            string txbtxt = texbox.Text;
+            string[] SPLT = new string[] { };
+            if (texbox.Text != " ")
+            {
+                //SPLT = txbtxt.Split('\n');
+                //rple.TextBackup = SPLT.ToList();
+                RefreshRPLList(texbox, rple);
+            }
+
+        }
+
+        public static void RenewRPLList(TextBox texbox, ResourcePathListEntry rple)
+        {
+            //Reconstructs the Entry List.
+            string txbtxt = texbox.Text;
+            string[] SPLT = new string[] { };
+
+            SPLT = txbtxt.Split('\n');
+
+            rple.EntryCount = SPLT.Length;
+            rple.EntryList = new List<PathEntries>();
+
+            for (int g = 0; g < rple.EntryCount; g++)
+            {
+                PathEntries pe = new PathEntries();
+                pe.TotalName = SPLT[g];
+                rple.EntryList.Add(pe);
+            }
+        }
+
+        public static void RefreshRPLList(TextBox texbox, ResourcePathListEntry rple)
+        {
+            //Reconstructs the Entry List.
+            rple.EntryCount = rple.TextBackup.Count;
+            rple.EntryList = new List<PathEntries>();
+
+            for (int g = 0; g < rple.EntryCount; g++)
+            {
+                PathEntries pe = new PathEntries();
+                pe.TotalName = rple.TextBackup[g];
+                rple.EntryList.Add(pe);
+            }
+            LoadRPLInTextBox(texbox, rple);
+        }
+
 
         public static ResourcePathListEntry InsertRPL(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
         {
