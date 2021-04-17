@@ -439,7 +439,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        public static void RenewRPLList(TextBox texbox, ResourcePathListEntry rple)
+        public static ResourcePathListEntry RenewRPLList(TextBox texbox, ResourcePathListEntry rple)
         {
             //Reconstructs the Entry List.
             string txbtxt = texbox.Text;
@@ -456,6 +456,148 @@ namespace ThreeWorkTool.Resources.Wrappers
                 pe.TotalName = SPLT[g];
                 rple.EntryList.Add(pe);
             }
+
+            //Rebuilds the Decompressed data Array.
+            //byte[] NewLRP = new byte[] { };
+            List<byte> NEWLRP = new List<byte>();
+            byte[] HeaderLRP = { 0x4C, 0x52, 0x50, 0x00, 0x00, 0x01, 0xFE, 0xFF };
+            NEWLRP.AddRange(HeaderLRP);
+            int NewEntryCount = rple.EntryCount;
+            //if (rple.EntryList[(rple.EntryCount - 1)].TotalName == "" || rple.EntryList[(rple.EntryCount - 1)].TotalName == " ")
+            if (string.IsNullOrWhiteSpace(rple.EntryList[(rple.EntryCount - 1)].TotalName))
+            {
+                NewEntryCount--;
+            }
+            int ProjectedSize = NewEntryCount * 68;
+            int EstimatedSize = ((int)Math.Round(ProjectedSize / 16.0, MidpointRounding.AwayFromZero) * 16);
+            EstimatedSize = EstimatedSize + 48;
+
+            //byte[] LRPEntryTotal = { Convert.ToByte(NewEntryCount), 0x00};
+            byte[] LRPEntryTotal = new byte[4];
+            LRPEntryTotal[3] = Convert.ToByte(NewEntryCount);
+            Array.Reverse(LRPEntryTotal);
+
+            //Converts an integer to 4 bytes in a roundabout way.
+            string LRPSize = EstimatedSize.ToString("X8");
+            byte[] LRPProjSize = new byte[4];
+            LRPProjSize = StringToByteArray(LRPSize);
+            Array.Reverse(LRPProjSize);
+
+            //Finishes the header for the new LRP built from what you see on the textbox.
+            NEWLRP.AddRange(LRPProjSize);
+            NEWLRP.AddRange(LRPEntryTotal);
+
+            string ENTemp = "";
+            string RPTemp = "";
+            string HashStr = "";
+            byte[] HashTempDX = new byte[4];
+
+            //Starts building the entries.
+            for (int k= 0; k< NewEntryCount; k++)
+            {
+                ENTemp = rple.EntryList[k].TotalName;
+                ENTemp = ENTemp.Replace("\r", "");
+                int inp = (ENTemp.IndexOf("."));
+                string[] SplTemp = ENTemp.Split('.');
+                if (inp < 0)
+                {
+                    RPTemp = "";
+                }
+                else
+                {
+                    RPTemp = ENTemp.Substring(inp, ENTemp.Length - inp);
+                }
+                ENTemp = SplTemp[0];
+                bool ExtFound = false;
+
+                int NumberChars = ENTemp.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(ENTemp);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                NEWLRP.AddRange(writenamedata);
+
+                if (RPTemp == "")
+                {
+                    HashTempDX[0] = 0xFF;
+                    HashTempDX[1] = 0xFF;
+                    HashTempDX[2] = 0xFF;
+                    HashTempDX[3] = 0xFF;
+                }
+                else
+                {
+                    //Typehash stuff.
+                    try
+                    {
+                        using (var sr = new StreamReader("archive_filetypes.cfg"))
+                        {
+                            while (!sr.EndOfStream)
+                            {
+                                var keyword = Console.ReadLine() ?? RPTemp;
+                                var line = sr.ReadLine();
+                                if (String.IsNullOrEmpty(line)) continue;
+                                if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                {
+                                    ExtFound = true;
+                                    HashStr = line;
+                                    HashStr = HashStr.Split(' ')[0];
+                                    break;
+                                }
+                            }
+                        }
+
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                        return null;
+                    }
+                }
+                if(ExtFound == true)
+                {
+                    HashTempDX = StringToByteArray(HashStr);
+                    Array.Reverse(HashTempDX);
+                }
+                else
+                {
+
+                    HashTempDX[0] = 0xFF;
+                    HashTempDX[1] = 0xFF;
+                    HashTempDX[2] = 0xFF;
+                    HashTempDX[3] = 0xFF;
+                }
+
+                NEWLRP.AddRange(HashTempDX);
+
+            }
+
+            if(EstimatedSize > (NEWLRP.Count - 16))
+            {
+                for(int vv=0; EstimatedSize > (NEWLRP.Count - 16); vv++)
+                {
+                    NEWLRP.Add(0x00);
+                }
+            }
+
+            rple.UncompressedData = NEWLRP.ToArray();
+            rple.DSize = rple.UncompressedData.Length;
+
+            rple.CompressedData = Zlibber.Compressor(rple.UncompressedData);
+            rple.CSize = rple.CompressedData.Length;
+
+            rple._FileLength = rple.UncompressedData.Length;
+            rple._EntryTotal = NewEntryCount;
+
+            return rple;
+
         }
 
         public static void RefreshRPLList(TextBox texbox, ResourcePathListEntry rple)

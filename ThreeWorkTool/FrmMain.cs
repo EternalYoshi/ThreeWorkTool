@@ -1469,7 +1469,7 @@ namespace ThreeWorkTool
                          
 
 
-                        break;
+                        //break;
 
 
 
@@ -2274,7 +2274,7 @@ namespace ThreeWorkTool
             rplentry = TreeSource.SelectedNode.Tag as ResourcePathListEntry;
             if (rplentry != null)
             {
-                ResourcePathListEntry.RenewRPLList(txtRPList, rplentry);
+                rplentry = ResourcePathListEntry.RenewRPLList(txtRPList, rplentry);
                 TreeSource.SelectedNode.Tag = rplentry;
                 this.OpenFileModified = true;
             }
