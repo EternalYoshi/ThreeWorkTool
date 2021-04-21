@@ -1137,8 +1137,15 @@ namespace ThreeWorkTool
                             {
                                 //Creates and Spawns the Texture Encoder Dialog.
                                 FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(RPDialog.FileName, RPDialog);
-
+                                frmtexencode.IsReplacing = true;
                                 frmtexencode.ShowDialog();
+
+                                if (frmtexencode.DialogResult == DialogResult.OK)
+                                {
+
+
+
+                                }
 
 
                                 break;
@@ -1478,6 +1485,7 @@ namespace ThreeWorkTool
 
                         //Creates and Spawns the Texture Encoder Dialog.
                         FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(IMPDialog.FileName, IMPDialog);
+                        frmtexencode.IsReplacing = false;
 
                         frmtexencode.ShowDialog();
 
@@ -1488,10 +1496,60 @@ namespace ThreeWorkTool
                             TextureEntry DDSentry = new TextureEntry();
 
 
-                            DDSentry = TextureEntry.InsertTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS,IMPDialog.FileName,frmtexencode);
+                            DDSentry = TextureEntry.InsertTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS,IMPDialog.FileName,frmtexencode, frmtexencode.TexData);
+                            NewWrapperDDS.Tag = DDSentry;
+                            NewWrapperDDS.Text = DDSentry.TrueName;
+                            NewWrapperDDS.Name = DDSentry.TrueName;
+                            NewWrapperDDS.FileExt = DDSentry.FileExt;
+                            NewWrapperDDS.entryData = DDSentry;
+
+                            frename.Mainfrm.IconSetter(NewWrapperDDS, NewWrapperDDS.FileExt);
+
+                            NewWrapperDDS.ContextMenu = TextureContextAdder(NewWrapperDDS, frename.Mainfrm.TreeSource);
+
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperDDS);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperDDS;
+
+                            frename.Mainfrm.OpenFileModified = true;
+
+                            string typeDDS = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            TreeNode rootnodeDDS = new TreeNode();
+                            TreeNode selectednodeDDS = new TreeNode();
+                            selectednodeDDS = frename.Mainfrm.TreeSource.SelectedNode;
+                            rootnodeDDS = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                            frename.Mainfrm.TreeSource.SelectedNode = rootnodeDDS;
+
+                            int filecountDDS = 0;
+
+                            ArcFile rootarcDDS = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                            if (rootarcDDS != null)
+                            {
+                                filecountDDS = rootarcDDS.FileCount;
+                                filecountDDS++;
+                                rootarcDDS.FileCount++;
+                                rootarcDDS.FileAmount++;
+                                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcDDS;
+                            }
 
 
 
+                            //Writes to log file.
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + filecountDDS);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeDDS;
 
                         }
 

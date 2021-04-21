@@ -34,6 +34,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public bool HasMips;
         public int Mips;
         public int EntryID;
+        public int PossibleCubeMapFlag;
         public string TrueName;
         public byte[] WTemp;
         public byte[] CompressedData;
@@ -225,7 +226,17 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     int v = 0x10;
 
+                    texentry.PossibleCubeMapFlag = Convert.ToInt32(((LWData[0] >> 28) & 0xf));
+
                     texentry.MipOffsets = new int[texentry.MipMapCount];
+
+                    //For CubeMaps.
+                    if (texentry.PossibleCubeMapFlag == 6)
+                    {
+                        texentry._Format = "Cube Map(Unsupported)";
+
+                        return texentry;
+                    }
 
                     for (int i = 0; i < texentry._MipMapCount; i++)
                     {
@@ -318,6 +329,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Array.Copy(Xbytes, 0, texentry.OutMaps, 12, 4);
                     Array.Copy(Ybytes, 0, texentry.OutMaps, 16, 4);
 
+#if DEBUG
+
+
                     try
                     {
 
@@ -338,6 +352,10 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     //texentry.tex = BitmapBuilder(outpngname,stream);
                     stream.Close();
+
+#endif
+
+
                     break;
 
                 #endregion
@@ -469,6 +487,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Array.Copy(Xbytes17, 0, texentry.OutMaps, 12, 4);
                     Array.Copy(Ybytes17, 0, texentry.OutMaps, 16, 4);
 
+#if DEBUG
                     try
                     {
 
@@ -489,6 +508,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     //texentry.tex = BitmapBuilder(outpngname17, stream17);
                     stream17.Close();
+
+#endif
+
                     break;
                 #endregion
 
@@ -619,6 +641,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Array.Copy(Xbytes19, 0, texentry.OutMaps, 12, 4);
                     Array.Copy(Ybytes19, 0, texentry.OutMaps, 16, 4);
 
+#if DEBUG
+
                     try
                     {
 
@@ -640,6 +664,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //texentry.tex = BitmapBuilder(outpngname19, stream19);
 
                     stream19.Close();
+
+#endif
 
                     break;
 
@@ -774,6 +800,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Array.Copy(Xbytes1a, 0, texentry.OutMaps, 12, 4);
                     Array.Copy(Ybytes1a, 0, texentry.OutMaps, 16, 4);
 
+#if DEBUG
+
                     try
                     {
 
@@ -795,6 +823,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //texentry.tex = BitmapBuilder(outpngname1f, stream1f);
 
                     stream1f.Close();
+
+#endif
 
                     break;
 
@@ -1000,6 +1030,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Array.Copy(Xbytes27, 0, texentry.OutMaps, 12, 4);
                     Array.Copy(Ybytes27, 0, texentry.OutMaps, 16, 4);
 
+#if DEBUG
+
                     try
                     {
 
@@ -1020,6 +1052,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     //texentry.tex = BitmapBuilder(outpngname27, stream27);
                     stream27.Close();
+
+#endif
+
                     break;
 
                 #endregion
@@ -1157,6 +1192,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Array.Copy(Xbytes2a, 0, texentry.OutMaps, 12, 4);
                     Array.Copy(Ybytes2a, 0, texentry.OutMaps, 16, 4);
 
+#if DEBUG
+
                     try
                     {
 
@@ -1177,6 +1214,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     //texentry.tex = BitmapBuilder(outpngname2a, stream2a);
                     stream2a.Close();
+
+#endif
+
                     break;
 
                 #endregion
@@ -2984,8 +3024,9 @@ namespace ThreeWorkTool.Resources.Wrappers
             return node.entryfile as TextureEntry;
         }
 
-        public static TextureEntry InsertTextureFromDDS(TreeView tree, ArcEntryWrapper node, string filename, FrmTexEncodeDialog FTED, Type filetype = null)
+        public static TextureEntry InsertTextureFromDDS(TreeView tree, ArcEntryWrapper node, string filename, FrmTexEncodeDialog FTED, byte[] newtex, Type filetype = null)
         {
+            //Gotta Finish this to ensure the insertion method is done properly.
             TextureEntry teXentry = new TextureEntry();
             
             try
@@ -3183,7 +3224,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             }
 
-
+            teXentry.UncompressedData = newtex;
+            teXentry.CompressedData = Zlibber.Compressor(newtex);
 
             return teXentry;
         }

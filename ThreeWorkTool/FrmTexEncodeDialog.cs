@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources;
 
 namespace ThreeWorkTool
 {
@@ -27,11 +28,20 @@ namespace ThreeWorkTool
         public int TXmips;
         public string TXfilename;
         public byte[] DDSData;
+        public byte[] DDTemp;
+        public byte[] XDTemp;
         public int TXPixelFormat;
         public string TXTextureType;
         public string[] TXTxTypeDescriptions;
+        public List<int> MMOffsets;
+        public List<int> MMipSizes;
+        public List<int> TXOffsets;
+        public byte[] MipMaps;
         public Bitmap TXpreview;
-        
+        public byte[] TexData;
+        public List<byte> TempTexData;
+        public bool IsReplacing;
+
 
         public static FrmTexEncodeDialog LoadDDSData(string openedfile, OpenFileDialog ofd)
         {
@@ -71,6 +81,7 @@ namespace ThreeWorkTool
                         fs.Read(DimTemp, 0, 4);
                         TempStr = "";
                         TempStr = BytesToString(DimTemp, TempStr);
+                        /*
                         switch (TempStr)
                         {
                             //DXT1
@@ -90,6 +101,7 @@ namespace ThreeWorkTool
 
                                 break;
                         }
+                        */
 
                         fs.Position = 28;
                         fs.Read(DimTemp, 0, 4);
@@ -117,6 +129,28 @@ namespace ThreeWorkTool
                         fted.DDSData = File.ReadAllBytes(openedfile);
 
                         Stream ztrim = new MemoryStream(fted.DDSData);
+                        byte[] TexData = new byte[] { };
+
+                        switch (TempStr)
+                        {
+                            //DXT1
+                            case "44585431":
+                                fted.cmBoxTextureType.SelectedIndex = 0;
+                                fted.TXTextureType = "13";
+                                break;
+
+                            //DXT5
+                            case "44585435":
+                                fted.cmBoxTextureType.SelectedIndex = 1;
+                                fted.TXTextureType = "17";
+                                break;
+
+                            //Etc.
+                            default:
+
+                                break;
+                        }
+
 
                         //From the pfim website. Modified for my uses.
                         using (var image = Pfim.Pfim.FromStream(ztrim))
@@ -171,7 +205,7 @@ namespace ThreeWorkTool
 
                 }
             }
-            catch (Exception)
+            catch (Exception vi)
             {
                 MessageBox.Show("Either this file isn't a proper DDS file or I can't read it because it's in use by some other proccess.", "Hey.");
                 return null;
@@ -272,15 +306,119 @@ namespace ThreeWorkTool
 
         private void cmBoxTextureType_SelectedIndexChanged(object sender, EventArgs e)
         {
+            this.MMipSizes = new List<int>();
+            this.MMOffsets = new List<int>();
+            this.TXOffsets = new List<int>();
+
             switch (cmBoxTextureType.SelectedIndex)
             {
 
                 case 0:
                     this.TXTextureType = "13";
+
+                    //Gotta fix this up and finish building the TEX file so I can get this over with.
+
+                    //Little Endian Binary. Gotta love it.
+                    this.TempTexData = new List<byte>();
+                    Byte[] TexHeader = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
+                    this.TempTexData.AddRange(TexHeader);
+                    string WidthTemp = Convert.ToString(this.TXx, 2);
+                    WidthTemp = WidthTemp.Substring(0, WidthTemp.Length - 2);
+                    int wt = 11 - WidthTemp.Length;
+                    if (wt > 0)
+                    {
+                        WidthTemp = WidthTemp.PadLeft(11, '0');
+                    }
+
+                    string LengthTemp = Convert.ToString(this.TXy, 2);
+                    int lt = 13 - LengthTemp.Length;
+                    if (lt > 0)
+                    {
+                        LengthTemp = LengthTemp.PadLeft(13, '0');
+                    }
+
+                    string WidthTA = WidthTemp.Substring(WidthTemp.Length - 8);
+                    string WidthTB = WidthTemp.Substring(0, WidthTemp.Length - 8);
+
+                    string LengthTA = LengthTemp.Substring(LengthTemp.Length - 5);
+                    string LengthTB = LengthTemp.Substring(0, LengthTemp.Length - 5);
+
+                    string Byte2 = WidthTA;
+                    string Byte3 = LengthTA + WidthTB;
+                    string Byte4 = LengthTB;
+
+                    byte[] B2 = BSWConverter.BinaryToByteArray(Byte2);
+                    byte[] B3 = BSWConverter.BinaryToByteArray(Byte3);
+                    byte[] B4 = BSWConverter.BinaryToByteArray(Byte4);
+
+                    TempTexData.Add(Convert.ToByte(this.TXmips));
+                    TempTexData.AddRange(B2);
+                    TempTexData.AddRange(B3);
+                    TempTexData.AddRange(B4);
+                    TempTexData.Add(0x01);
+                    TempTexData.Add(0x13);
+                    TempTexData.Add(0x01);
+                    TempTexData.Add(0x00);
+
+                    int MpMpTest = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 8;
+
+                    //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
+                    int MippMapPixelSizeThingDXT1 = 0;
+                    int MipOffset = 0;
+                    int OffTemp = 0;
+                    int DDSOffset = 128;
+                    for (int p = 0; p < this.TXmips; p++)
+                    {
+                        MipOffset = 16 + (8 * p);
+                        this.MMOffsets.Add(MipOffset);
+                        MippMapPixelSizeThingDXT1 = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 8;
+                        this.MMipSizes.Add(MippMapPixelSizeThingDXT1);
+                    }
+
+                    byte[][] MipMaps = new byte[this.TXmips][];
+                    //Reads and extracts from the DDS file stored in memory.
+                    for (int q = 0; q < this.TXmips; q++)
+                    {
+
+                        DDTemp = new byte[this.MMipSizes[q]];
+
+                        XDTemp = new byte[(this.TXmips)];
+
+                        Buffer.BlockCopy(this.DDSData, DDSOffset, DDTemp, 0, (this.MMipSizes[q]));
+                        DDSOffset = DDSOffset + DDTemp.Length;
+
+                        MipMaps[q] = DDTemp;
+
+                    }
+
+                    OffTemp = 16 + (8 * this.TXmips);
+                    byte[] FillerBytes = {0x00,0x00,0x00,0x00};
+
+                    //Finishes the tex header by putting in the offsets as double words.
+                    for (int r =0;r < this.TXmips; r++)
+                    {
+                        byte[] OTemp = BitConverter.GetBytes(OffTemp);
+                        //Array.Reverse(OTemp);
+                        this.TempTexData.AddRange(OTemp);
+                        OffTemp = OffTemp + MipMaps[r].Length;
+                        this.TempTexData.AddRange(FillerBytes);
+                    }
+
+                    //Now the MipMaps go in the AFTER Tex header.
+                    for(int s = 0; s < this.TXmips; s++)
+                    {
+                        this.TempTexData.AddRange(MipMaps[s]); 
+                    }
+
+                    this.TexData = this.TempTexData.ToArray();
+
+
+
                     break;
 
                 case 1:
                     this.TXTextureType = "17";
+
                     break;
 
                 case 2:
