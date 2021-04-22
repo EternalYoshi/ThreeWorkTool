@@ -3138,6 +3138,20 @@ namespace ThreeWorkTool.Resources.Wrappers
                     TBuffer.AddRange(TEXHeader);
                     TBuffer.AddRange(TexTemp);
 
+                    //Filling in data for the teXentry.
+                    teXentry.TrueName = FTED.ShortName;
+                    teXentry._FileName = teXentry.TrueName;
+                    teXentry.UncompressedData = newtex;
+                    teXentry.CompressedData = Zlibber.Compressor(newtex);
+                    teXentry.DSize = newtex.Length;
+                    teXentry.CSize = teXentry.CompressedData.Length;
+                    teXentry._X = FTED.TXx;
+                    teXentry._Y = FTED.TXy;
+                    teXentry.XSize = teXentry._X;
+                    teXentry.YSize = teXentry._Y;
+                    //teXentry.OutMaps = FTED.FirstMip;
+                    teXentry.OutMaps = FTED.DDSData;
+
                     switch (teXentry.TexType)
                     {
                         #region Bitmap Textures
@@ -3162,7 +3176,271 @@ namespace ThreeWorkTool.Resources.Wrappers
                         case "17":
                             teXentry._Format = "DXT5/BC3";
 
- 
+                            byte[] HeaderTwo17 = { 0x01, 0x17, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo17);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
+
+                            break;
+                        #endregion
+
+                        #region Specular Tetures
+                        case "19":
+                            teXentry._Format = "BC4_UNORM/Metalic/Specular Map";
+
+                            byte[] HeaderTwo19 = { 0x01, 0x19, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo19);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
+
+
+                            break;
+
+                        #endregion
+
+                        #region Normal Maps(Incomplete)
+                        case "1F":
+                            teXentry._Format = "BC5/Normal Map";
+
+                            byte[] HeaderTwo1F = { 0x01, 0x1F, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo1F);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
+
+
+                            break;
+
+
+                        #endregion
+
+                        #region Weird Toon Shader Textures
+                        case "27":
+                            teXentry._Format = "????/Problematic Portrait Picture";
+
+                            byte[] HeaderTwo27 = { 0x01, 0x27, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo27);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
+
+
+                            break;
+
+                        #endregion
+
+                        #region Weirdo Problematic Portrait Textures
+                        case "2A":
+                            teXentry._Format = "????/Problematic Portrait Picture";
+
+                            byte[] HeaderTwo2A = { 0x01, 0x2A, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo2A);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
+
+
+                            break;
+
+                        #endregion
+
+                        default:
+                            break;
+                    }
+
+
+
+                    //Gets the path of the selected node to inject here.
+                    string nodepath = tree.SelectedNode.FullPath;
+                    nodepath = nodepath.Substring(nodepath.IndexOf("\\") + 1);
+
+                    string[] sepstr = { "\\" };
+                    teXentry.EntryDirs = nodepath.Split(sepstr, StringSplitOptions.RemoveEmptyEntries);
+                    teXentry.EntryName = teXentry.FileName;
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+
+            //teXentry.OutMaps = ;
+
+            return teXentry;
+        }
+
+        public static TextureEntry ReplaceTextureFromDDS(TreeView tree, ArcEntryWrapper node, string filename, FrmTexEncodeDialog FTED, byte[] newtex, Type filetype = null)
+        {
+            //Gotta Finish this to ensure the insertion method is done properly.
+            TextureEntry teXentry = new TextureEntry();
+            
+            try
+            {
+                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
+                {
+
+                    /*
+                    //We build the arcentry starting from the uncompressed data.
+                    teXentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
+                    teXentry.DSize = teXentry.UncompressedData.Length;
+
+                    //Then Compress.
+                    teXentry.CompressedData = Zlibber.Compressor(teXentry.UncompressedData);
+                    teXentry.CSize = teXentry.CompressedData.Length;
+                    */
+
+
+                    if (FTED.TXx > FTED.TXy)
+                    {
+                        double XD = Convert.ToDouble(FTED.TXx);
+                        teXentry.MipMapCount = Convert.ToInt32(Math.Log(XD, 2.0));
+                    }
+                    else
+                    {
+                        double XD = Convert.ToDouble(FTED.TXy);
+                        teXentry.MipMapCount = Convert.ToInt32(Math.Log(XD, 2.0));
+                    }
+
+                    FTED.TXfilename = teXentry.EntryName;
+                    FTED.TXfilename = teXentry.TrueName;
+                    teXentry._FileName = teXentry.TrueName;
+                    teXentry.FileExt = ".tex";
+
+                    //Gets Dimensions and Tex Type.                    
+                    teXentry.TexType = FTED.TXTextureType;
+                    teXentry._TextureType = teXentry.TexType;
+
+                    string FullEightBinary = "00000000000000000000000000000000";
+
+                    byte[] EightTemp = new byte[4];
+
+                    //Fiddles with binary to insert the values in a little endian binary style.
+                    string MipBinary = Convert.ToString(teXentry.MipMapCount, 2);
+                    if (MipBinary.Length < 8)
+                    {
+                        MipBinary = MipBinary.PadLeft(8, '0');
+                    }
+
+                    //Gotta split these strings in accordance to how they're stored in the image I made yesterday, then insert them in the big binary.
+                    string WidthBinary = Convert.ToString(FTED.TXx, 2);
+                    if (WidthBinary.Length < 11)
+                    {
+                        WidthBinary = WidthBinary.PadLeft(11, '0');
+                    }
+
+                    if (WidthBinary.Length == 11)
+                    {
+                        WidthBinary = WidthBinary.Substring(0, WidthBinary.Length - 2);
+                        WidthBinary = WidthBinary.PadLeft(11, '0');
+                    }
+
+                    string[] WidthParts = new string[2];
+                    string[] LengthParts = new string[2];
+
+                    string twp = WidthBinary;
+                    WidthParts[0] = WidthBinary.Substring(3, 8);
+                    WidthParts[1] = WidthBinary.Substring(0, 3);
+
+                    string LengthBinary = Convert.ToString(FTED.TXy, 2);
+                    if (LengthBinary.Length < 13)
+                    {
+                        LengthBinary = LengthBinary.PadLeft(13, '0');
+                    }
+
+                    string tlp = LengthBinary;
+                    LengthParts[0] = LengthBinary.Substring(0, 8);
+                    LengthParts[1] = tlp.Substring(8, 5);
+
+
+                    var aStringBuilder = new StringBuilder(FullEightBinary);
+                    //Puts the MipMap Count in the primary string Binary.
+                    aStringBuilder.Remove(0, 8);
+                    aStringBuilder.Insert(0, MipBinary);
+                    aStringBuilder.Remove(8, 8);
+                    aStringBuilder.Insert(8, WidthParts[0]);
+
+                    aStringBuilder.Remove(16, 5);
+                    aStringBuilder.Insert(16, LengthParts[1]);
+                    aStringBuilder.Remove(21, 3);
+                    aStringBuilder.Insert(21, WidthParts[1]);
+
+                    aStringBuilder.Remove(24, 8);
+                    aStringBuilder.Insert(24, LengthParts[0]);
+
+                    string bytesstr = aStringBuilder.ToString();
+
+                    byte[] TexTemp;
+                    TexTemp = new byte[] { };
+
+                    //Gets the binary representation into 4 Bytes.
+                    TexTemp = BinaryStringToByteArray(bytesstr);
+
+                    teXentry.SizeShift = 0;
+                    byte[] TEXHeader = { 0x54, 0x45, 0x58, 0x00, 0x9d, 0xa0, 0x00, 0x20 };
+
+                    //Starts Building the tex data in this list.
+                    List<byte> TBuffer = new List<byte>();
+                    TBuffer.AddRange(TEXHeader);
+                    TBuffer.AddRange(TexTemp);
+
+                    //Filling in data for the teXentry.
+                    teXentry.TrueName = FTED.ShortName;
+                    teXentry._FileName = teXentry.TrueName;
+                    teXentry.UncompressedData = newtex;
+                    teXentry.CompressedData = Zlibber.Compressor(newtex);
+                    teXentry.DSize = newtex.Length;
+                    teXentry.CSize = teXentry.CompressedData.Length;
+                    teXentry._X = FTED.TXx;
+                    teXentry._Y = FTED.TXy;
+                    teXentry.XSize = teXentry._X;
+                    teXentry.YSize = teXentry._Y;
+                    //teXentry.OutMaps = FTED.FirstMip;
+                    teXentry.OutMaps = FTED.DDSData;
+
+                    switch (teXentry.TexType)
+                    {
+                        #region Bitmap Textures
+                        case "13":
+                            teXentry._Format = "DXT1/BC1";
+                            byte[] HeaderTwo = { 0x01, 0x13, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
+
+
+
+                            break;
+
+                        #endregion
+
+                        #region Bitmap Textures with Transparency
+                        case "17":
+                            teXentry._Format = "DXT5/BC3";
+
+
                             break;
                         #endregion
 
@@ -3189,7 +3467,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         case "27":
                             teXentry._Format = "????/Problematic Portrait Picture";
 
- 
+
                             break;
 
                         #endregion
@@ -3198,7 +3476,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         case "2A":
                             teXentry._Format = "????/Problematic Portrait Picture";
 
- 
+
                             break;
 
                         #endregion
@@ -3224,11 +3502,12 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             }
 
-            teXentry.UncompressedData = newtex;
-            teXentry.CompressedData = Zlibber.Compressor(newtex);
+
+            //teXentry.OutMaps = ;
 
             return teXentry;
         }
+
 
     }
 }
