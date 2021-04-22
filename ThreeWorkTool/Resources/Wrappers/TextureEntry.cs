@@ -3292,7 +3292,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
             //Gotta Finish this to ensure the insertion method is done properly.
             TextureEntry teXentry = new TextureEntry();
-            
+
             try
             {
                 using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
@@ -3440,6 +3440,14 @@ namespace ThreeWorkTool.Resources.Wrappers
                         case "17":
                             teXentry._Format = "DXT5/BC3";
 
+                            byte[] HeaderTwo17 = { 0x01, 0x17, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo17);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
 
                             break;
                         #endregion
@@ -3447,6 +3455,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                         #region Specular Tetures
                         case "19":
                             teXentry._Format = "BC4_UNORM/Metalic/Specular Map";
+
+                            byte[] HeaderTwo19 = { 0x01, 0x19, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo19);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
 
 
                             break;
@@ -3456,6 +3473,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                         #region Normal Maps(Incomplete)
                         case "1F":
                             teXentry._Format = "BC5/Normal Map";
+
+                            byte[] HeaderTwo1F = { 0x01, 0x1F, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo1F);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
 
 
                             break;
@@ -3467,6 +3493,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                         case "27":
                             teXentry._Format = "????/Problematic Portrait Picture";
 
+                            byte[] HeaderTwo27 = { 0x01, 0x27, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo27);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
+
 
                             break;
 
@@ -3475,6 +3510,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                         #region Weirdo Problematic Portrait Textures
                         case "2A":
                             teXentry._Format = "????/Problematic Portrait Picture";
+
+                            byte[] HeaderTwo2A = { 0x01, 0x2A, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo2A);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
 
 
                             break;

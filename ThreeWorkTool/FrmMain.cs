@@ -1061,7 +1061,7 @@ namespace ThreeWorkTool
 
         private static void MenuReplaceTexture_Click(Object sender, System.EventArgs e)
         {
-            //Gotta rewrite this to incorporate Textures.
+            //Gotta rewrite this to incorporate DDS Textures.
 
             TextureEntry Tentry = new TextureEntry();
             OpenFileDialog RPDialog = new OpenFileDialog();
@@ -1142,7 +1142,48 @@ namespace ThreeWorkTool
 
                                 if (frmtexencode.DialogResult == DialogResult.OK)
                                 {
+                                    ArcEntryWrapper NewWrapperDDS = new ArcEntryWrapper();
+                                    ArcEntryWrapper OldWrapperDDS = new ArcEntryWrapper();
 
+                                    OldWrapperDDS = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                    string oldnameDDS = OldWrapperDDS.Name;
+                                    TextureEntry OldaentDDS = new TextureEntry();
+                                    TextureEntry NewaentDDS = new TextureEntry();
+                                    OldaentDDS = OldWrapperDDS.entryfile as TextureEntry;
+                                    string[] pathsDDS = OldaentDDS.EntryDirs;
+                                    NewWrapperDDS = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                    int indexDDS = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                                    NewWrapperDDS.Tag = TextureEntry.ReplaceTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS, RPDialog.FileName, frmtexencode, frmtexencode.TexData);
+                                    NewWrapperDDS.ContextMenu = TextureContextAdder(NewWrapperDDS, frename.Mainfrm.TreeSource);
+                                    frename.Mainfrm.IconSetter(NewWrapperDDS, NewWrapperDDS.FileExt);
+                                    //Takes the path data from the old node and slaps it on the new node.
+                                    NewaentDDS = NewWrapperDDS.entryfile as TextureEntry;
+                                    NewaentDDS.EntryDirs = pathsDDS;
+                                    NewWrapperDDS.entryfile = NewaentDDS;
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                                    //Pathing.
+                                    foreach (string Folder in pathsDDS)
+                                    {
+                                        if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                        {
+                                            TreeNode folder = new TreeNode();
+                                            folder.Name = Folder;
+                                            folder.Tag = Folder;
+                                            folder.Text = Folder;
+                                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                            frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                            frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                            frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                        }
+                                        else
+                                        {
+                                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                        }
+                                    }
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperDDS;
 
 
                                 }
