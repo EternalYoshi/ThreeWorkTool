@@ -126,8 +126,7 @@ namespace ThreeWorkTool
                         fted.ShortName = fted.TXfilename;
                         fted.DDSData = File.ReadAllBytes(openedfile);
 
-                        Stream ztrim = new MemoryStream(fted.DDSData);
-                        byte[] TexData = new byte[] { };
+
 
                         switch (TempStr)
                         {
@@ -135,12 +134,72 @@ namespace ThreeWorkTool
                             case "44585431":
                                 fted.cmBoxTextureType.SelectedIndex = 0;
                                 fted.TXTextureType = "13";
+
+                                byte[] DHTemp =    { 0x44, 0x44, 0x53, 0x20, 0x7c, 0x00, 0x00, 0x00, 0x07, 0x10, 0x08, 0x00, 0x00, 0x01, 0x00, 0x00,
+                                                     0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+                                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
+                                                     0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
+                                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+
+                                List<byte> PrevTemp = new List<byte>();
+                                byte[] LenTemp = BitConverter.GetBytes(fted.TXy);
+                                byte[] WidTemp = BitConverter.GetBytes(fted.TXx);
+
+                                Array.Copy(LenTemp, 0, DHTemp, 12, 4);
+                                Array.Copy(WidTemp, 0, DHTemp, 16, 4);
+
+                                int FirstMipSize = Math.Max(1, (fted.TXx + 3) / 4) * Math.Max(1, (fted.TXy + 3) / 4) * 8;
+
+                                byte[] MipPix = new byte[FirstMipSize];
+
+                                Array.Copy(fted.DDSData,128, MipPix,0, FirstMipSize);
+
+
+                                PrevTemp.AddRange(DHTemp);
+                                PrevTemp.AddRange(MipPix);
+
+                                fted.FirstMip = PrevTemp.ToArray();
+
                                 break;
 
                             //DXT5
                             case "44585435":
                                 fted.cmBoxTextureType.SelectedIndex = 1;
                                 fted.TXTextureType = "17";
+
+                                byte[] DHTemp17 =    { 0x44, 0x44, 0x53, 0x20, 0x7c, 0x00, 0x00, 0x00, 0x07, 0x10, 0x08, 0x00, 0x00, 0x01, 0x00, 0x00,
+                                                     0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+                                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
+                                                     0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x35, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
+                                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+
+                                List<byte> PrevTemp17 = new List<byte>();
+                                byte[] LenTemp17 = BitConverter.GetBytes(fted.TXy);
+                                byte[] WidTemp17 = BitConverter.GetBytes(fted.TXx);
+
+                                Array.Copy(LenTemp17, 0, DHTemp17, 12, 4);
+                                Array.Copy(WidTemp17, 0, DHTemp17, 16, 4);
+
+                                int FirstMipSize17 = Math.Max(1, (fted.TXx + 3) / 4) * Math.Max(1, (fted.TXy + 3) / 4) * 16;
+
+                                byte[] MipPix17 = new byte[FirstMipSize17];
+
+                                Array.Copy(fted.DDSData, 128, MipPix17, 0, FirstMipSize17);
+
+
+                                PrevTemp17.AddRange(DHTemp17);
+                                PrevTemp17.AddRange(MipPix17);
+
+                                fted.FirstMip = PrevTemp17.ToArray();
+
                                 break;
 
                             //Etc.
@@ -149,7 +208,9 @@ namespace ThreeWorkTool
                                 break;
                         }
 
-
+                        Stream ztrim = new MemoryStream(fted.FirstMip);
+                        byte[] TexData = new byte[] { };
+                        Bitmap pmap;
                         //From the pfim website. Modified for my uses.
                         using (var image = Pfim.Pfim.FromStream(ztrim))
                         {
@@ -181,7 +242,7 @@ namespace ThreeWorkTool
 
 
                                 var datai = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
-                                var pmap = new Bitmap(fted.TXx, fted.TXy, image.Stride, format, datai);
+                                pmap = new Bitmap(fted.TXx, fted.TXy, image.Stride, format, datai);
 
                             }
                             finally
@@ -192,6 +253,29 @@ namespace ThreeWorkTool
 
                         fted.txtTexConvFile.Text = openedfile;
 
+                        if (pmap == null)
+                        {
+                            fted.PicBoxTex.Image = fted.PicBoxTex.ErrorImage;
+                        }
+                        else
+                        {
+                            if (pmap.Width > fted.PicBoxTex.Width || pmap.Height > fted.PicBoxTex.Height)
+                            {
+                                int OldX = fted.PicBoxTex.Width;
+                                int OldY = fted.PicBoxTex.Height;
+                                fted.PicBoxTex.Image = pmap;
+                                fted.PicBoxTex.SizeMode = pmap.Width > OldX || pmap.Height > OldY ?
+                                PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
+                            }
+                            else
+                            {
+                                fted.PicBoxTex.Image = pmap;
+                                fted.PicBoxTex.SizeMode = pmap.Width < fted.PicBoxTex.Width || pmap.Height < fted.PicBoxTex.Height ?
+                                PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
+                            }
+                        }
+
+                        //fted.PicBoxTex
 
                     }
                     else
