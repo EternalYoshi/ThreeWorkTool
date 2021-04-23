@@ -1,5 +1,4 @@
 ﻿using Ionic.Zlib;
-using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -3281,8 +3280,6 @@ namespace ThreeWorkTool.Resources.Wrappers
                     texentry._FileName = texentry.TrueName;
                     texentry.TrueName = Path.GetFileNameWithoutExtension(trname);
                     texentry.FileExt = trname.Substring(trname.LastIndexOf("."));
-
-                    string TypeHash = "241F5DEB";
 
                     var tag = node.Tag;
                     if (tag is TextureEntry)
