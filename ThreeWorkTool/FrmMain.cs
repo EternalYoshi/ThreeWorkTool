@@ -2160,6 +2160,12 @@ namespace ThreeWorkTool
                     pb.SizeMode = bm.Width > OldX || bm.Height > OldY ?
                     PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
             }
+            else
+            {
+                pb.Image = bm;
+                pb.SizeMode = bm.Width < pb.Width || bm.Height < pb.Height ?
+                PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
+            }
         }
 
 
