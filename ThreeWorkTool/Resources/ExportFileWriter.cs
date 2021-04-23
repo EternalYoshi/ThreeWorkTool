@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ThreeWorkTool.Resources.Archives;
-using System.IO;
-using System.Windows.Forms;
-using Pfim;
-using SixLabors;
-using ThreeWorkTool.Resources.Wrappers;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using ThreeWorkTool.Resources.Archives;
+using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool.Resources
 {

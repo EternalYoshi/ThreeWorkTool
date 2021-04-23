@@ -1,21 +1,15 @@
 ﻿//By Eternal Yoshi.
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Drawing.Imaging;
 using System.IO;
-using System.Text.RegularExpressions;
-using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows.Forms;
+using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
-using ThreeWorkTool.Resources;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 
 namespace ThreeWorkTool
 {
@@ -134,6 +128,9 @@ namespace ThreeWorkTool
                     {
                       MessageBox.Show("I cannot recognize the input file right now.");
                     }
+
+                    picBoxA.Visible = false;
+
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -548,10 +545,12 @@ namespace ThreeWorkTool
                 if (dlrs == DialogResult.Yes)
                 {
                     MenuSaveAs_Click(sender, e);
+                    picBoxA.Visible = false;
                     FlushAndClean();
                 }
                 if (dlrs == DialogResult.No)
                 {
+                    picBoxA.Visible = false;
                     FlushAndClean();
                 }
                 if (dlrs == DialogResult.Cancel)
