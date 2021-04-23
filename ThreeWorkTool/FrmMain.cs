@@ -28,7 +28,7 @@ namespace ThreeWorkTool
             _instance = this;
             InitializeComponent();
         }
-
+        
         public string[] ArcFileNameListBackup;
         public List<string> subdirs;
         public string CFile;
@@ -191,7 +191,7 @@ namespace ThreeWorkTool
                                     //Header that has the magic, version number and entry count.
                                     byte[] ArcHeader = {0x41, 0x52, 0x43, 0x00};
                                     byte[] ArcVersion = { 0x07, 0x00 };
-                                    int arcentryoffset = 0x04;
+                                    //int arcentryoffset = 0x04;
                                     fs.Write(ArcHeader, 0,4);
 
                                     fs.Seek(0x04, SeekOrigin.Begin);
