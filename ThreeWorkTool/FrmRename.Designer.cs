@@ -72,6 +72,7 @@
             this.Controls.Add(this.txtRename);
             this.Controls.Add(this.btnRnCancel);
             this.Controls.Add(this.btnRnOK);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(362, 108);
             this.MinimizeBox = false;

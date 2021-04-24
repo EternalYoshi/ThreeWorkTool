@@ -274,6 +274,7 @@
             this.Controls.Add(this.txtTexConvFile);
             this.Controls.Add(this.lblTexC);
             this.Controls.Add(this.menuStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.MinimizeBox = false;

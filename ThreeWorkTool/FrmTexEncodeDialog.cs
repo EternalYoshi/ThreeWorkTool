@@ -38,8 +38,10 @@ namespace ThreeWorkTool
         public byte[] TexData;
         public List<byte> TempTexData;
         public bool IsReplacing;
-
-
+        public bool IsDXT1;
+        public bool Dialoginit;
+        public string DXType;
+        
         public static FrmTexEncodeDialog LoadDDSData(string openedfile, OpenFileDialog ofd)
         {
             FrmTexEncodeDialog fted = new FrmTexEncodeDialog();
@@ -126,7 +128,7 @@ namespace ThreeWorkTool
                         fted.ShortName = fted.TXfilename;
                         fted.DDSData = File.ReadAllBytes(openedfile);
 
-
+                        fted.DXType = TempStr;
 
                         switch (TempStr)
                         {
@@ -163,7 +165,7 @@ namespace ThreeWorkTool
                                 PrevTemp.AddRange(MipPix);
 
                                 fted.FirstMip = PrevTemp.ToArray();
-
+                                fted.IsDXT1 = true;
                                 break;
 
                             //DXT5
@@ -199,12 +201,12 @@ namespace ThreeWorkTool
                                 PrevTemp17.AddRange(MipPix17);
 
                                 fted.FirstMip = PrevTemp17.ToArray();
-
+                                fted.IsDXT1 = false;
                                 break;
 
                             //Etc.
                             default:
-
+                                fted.IsDXT1 = false;
                                 break;
                         }
 
@@ -292,6 +294,8 @@ namespace ThreeWorkTool
                 MessageBox.Show("Either this file isn't a proper DDS file or I can't read it because it's in use by some other proccess.", "Hey.");
                 return null;
             }
+
+            fted.Dialoginit = false;
 
             return fted;
         }
@@ -396,612 +400,678 @@ namespace ThreeWorkTool
             {
 
                 case 0:
-                    this.TXTextureType = "13";
 
-                    //Little Endian Binary. Gotta love it.
-                    this.TempTexData = new List<byte>();
-                    Byte[] TexHeader = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
-                    this.TempTexData.AddRange(TexHeader);
-                    string WidthTemp = Convert.ToString(this.TXx, 2);
-                    WidthTemp = WidthTemp.Substring(0, WidthTemp.Length - 2);
-                    int wt = 11 - WidthTemp.Length;
-                    if (wt > 0)
+                    if (this.IsDXT1 == false && this.DXType == "44585435")
                     {
-                        WidthTemp = WidthTemp.PadLeft(11, '0');
+                        MessageBox.Show("This texture was saved as a DXT5 .DDS file, meaning the DXT compression method used for this is not compatible with this texture type.\nIf you want to import this as this type of texture, return to the image editing software you used to save this and make sure to save it as a DXT1 instead.", "Hold it!");
+                        cmBoxTextureType.SelectedIndex = 1;
+                        return;
                     }
-
-                    string LengthTemp = Convert.ToString(this.TXy, 2);
-                    int lt = 13 - LengthTemp.Length;
-                    if (lt > 0)
+                    else
                     {
-                        LengthTemp = LengthTemp.PadLeft(13, '0');
+                        this.TXTextureType = "13";
+
+                        //Little Endian Binary. Gotta love it.
+                        this.TempTexData = new List<byte>();
+                        Byte[] TexHeader = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
+                        this.TempTexData.AddRange(TexHeader);
+                        string WidthTemp = Convert.ToString(this.TXx, 2);
+                        WidthTemp = WidthTemp.Substring(0, WidthTemp.Length - 2);
+                        int wt = 11 - WidthTemp.Length;
+                        if (wt > 0)
+                        {
+                            WidthTemp = WidthTemp.PadLeft(11, '0');
+                        }
+
+                        string LengthTemp = Convert.ToString(this.TXy, 2);
+                        int lt = 13 - LengthTemp.Length;
+                        if (lt > 0)
+                        {
+                            LengthTemp = LengthTemp.PadLeft(13, '0');
+                        }
+
+                        string WidthTA = WidthTemp.Substring(WidthTemp.Length - 8);
+                        string WidthTB = WidthTemp.Substring(0, WidthTemp.Length - 8);
+
+                        string LengthTA = LengthTemp.Substring(LengthTemp.Length - 5);
+                        string LengthTB = LengthTemp.Substring(0, LengthTemp.Length - 5);
+
+                        string Byte2 = WidthTA;
+                        string Byte3 = LengthTA + WidthTB;
+                        string Byte4 = LengthTB;
+
+                        byte[] B2 = BSWConverter.BinaryToByteArray(Byte2);
+                        byte[] B3 = BSWConverter.BinaryToByteArray(Byte3);
+                        byte[] B4 = BSWConverter.BinaryToByteArray(Byte4);
+
+                        TempTexData.Add(Convert.ToByte(this.TXmips));
+                        TempTexData.AddRange(B2);
+                        TempTexData.AddRange(B3);
+                        TempTexData.AddRange(B4);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x13);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x00);
+
+                        int MpMpTest = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 8;
+
+                        //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
+                        int MippMapPixelSizeThingDXT1 = 0;
+                        int MipOffset = 0;
+                        int OffTemp = 0;
+                        int DDSOffset = 128;
+                        for (int p = 0; p < this.TXmips; p++)
+                        {
+                            MipOffset = 16 + (8 * p);
+                            this.MMOffsets.Add(MipOffset);
+                            MippMapPixelSizeThingDXT1 = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 8;
+                            this.MMipSizes.Add(MippMapPixelSizeThingDXT1);
+                        }
+
+                        byte[][] MipMaps = new byte[this.TXmips][];
+                        //Reads and extracts from the DDS file stored in memory.
+                        for (int q = 0; q < this.TXmips; q++)
+                        {
+
+                            DDTemp = new byte[this.MMipSizes[q]];
+
+                            XDTemp = new byte[(this.TXmips)];
+
+                            Buffer.BlockCopy(this.DDSData, DDSOffset, DDTemp, 0, (this.MMipSizes[q]));
+                            DDSOffset = DDSOffset + DDTemp.Length;
+
+                            MipMaps[q] = DDTemp;
+
+                        }
+
+                        this.FirstMip = MipMaps[0];
+
+                        OffTemp = 16 + (8 * this.TXmips);
+                        byte[] FillerBytes = { 0x00, 0x00, 0x00, 0x00 };
+
+                        //Finishes the tex header by putting in the offsets as double words.
+                        for (int r = 0; r < this.TXmips; r++)
+                        {
+                            byte[] OTemp = BitConverter.GetBytes(OffTemp);
+                            //Array.Reverse(OTemp);
+                            this.TempTexData.AddRange(OTemp);
+                            OffTemp = OffTemp + MipMaps[r].Length;
+                            this.TempTexData.AddRange(FillerBytes);
+                        }
+
+                        //Now the MipMaps go in the AFTER Tex header.
+                        for (int s = 0; s < this.TXmips; s++)
+                        {
+                            this.TempTexData.AddRange(MipMaps[s]);
+                        }
+
+                        this.TexData = this.TempTexData.ToArray();
+
+                        this.Dialoginit = true;
+
+                        break;
                     }
-
-                    string WidthTA = WidthTemp.Substring(WidthTemp.Length - 8);
-                    string WidthTB = WidthTemp.Substring(0, WidthTemp.Length - 8);
-
-                    string LengthTA = LengthTemp.Substring(LengthTemp.Length - 5);
-                    string LengthTB = LengthTemp.Substring(0, LengthTemp.Length - 5);
-
-                    string Byte2 = WidthTA;
-                    string Byte3 = LengthTA + WidthTB;
-                    string Byte4 = LengthTB;
-
-                    byte[] B2 = BSWConverter.BinaryToByteArray(Byte2);
-                    byte[] B3 = BSWConverter.BinaryToByteArray(Byte3);
-                    byte[] B4 = BSWConverter.BinaryToByteArray(Byte4);
-
-                    TempTexData.Add(Convert.ToByte(this.TXmips));
-                    TempTexData.AddRange(B2);
-                    TempTexData.AddRange(B3);
-                    TempTexData.AddRange(B4);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x13);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x00);
-
-                    int MpMpTest = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 8;
-
-                    //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
-                    int MippMapPixelSizeThingDXT1 = 0;
-                    int MipOffset = 0;
-                    int OffTemp = 0;
-                    int DDSOffset = 128;
-                    for (int p = 0; p < this.TXmips; p++)
-                    {
-                        MipOffset = 16 + (8 * p);
-                        this.MMOffsets.Add(MipOffset);
-                        MippMapPixelSizeThingDXT1 = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 8;
-                        this.MMipSizes.Add(MippMapPixelSizeThingDXT1);
-                    }
-
-                    byte[][] MipMaps = new byte[this.TXmips][];
-                    //Reads and extracts from the DDS file stored in memory.
-                    for (int q = 0; q < this.TXmips; q++)
-                    {
-
-                        DDTemp = new byte[this.MMipSizes[q]];
-
-                        XDTemp = new byte[(this.TXmips)];
-
-                        Buffer.BlockCopy(this.DDSData, DDSOffset, DDTemp, 0, (this.MMipSizes[q]));
-                        DDSOffset = DDSOffset + DDTemp.Length;
-
-                        MipMaps[q] = DDTemp;
-
-                    }
-
-                    this.FirstMip = MipMaps[0];
-
-                    OffTemp = 16 + (8 * this.TXmips);
-                    byte[] FillerBytes = {0x00,0x00,0x00,0x00};
-
-                    //Finishes the tex header by putting in the offsets as double words.
-                    for (int r =0;r < this.TXmips; r++)
-                    {
-                        byte[] OTemp = BitConverter.GetBytes(OffTemp);
-                        //Array.Reverse(OTemp);
-                        this.TempTexData.AddRange(OTemp);
-                        OffTemp = OffTemp + MipMaps[r].Length;
-                        this.TempTexData.AddRange(FillerBytes);
-                    }
-
-                    //Now the MipMaps go in the AFTER Tex header.
-                    for(int s = 0; s < this.TXmips; s++)
-                    {
-                        this.TempTexData.AddRange(MipMaps[s]); 
-                    }
-
-                    this.TexData = this.TempTexData.ToArray();
-
-
-
-                    break;
 
                 case 1:
-                    this.TXTextureType = "17";
 
-                    //Little Endian Binary. Gotta love it.
-                    this.TempTexData = new List<byte>();
-                    Byte[] TexHeader17 = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
-                    this.TempTexData.AddRange(TexHeader17);
-                    string WidthTemp17 = Convert.ToString(this.TXx, 2);
-                    WidthTemp17 = WidthTemp17.Substring(0, WidthTemp17.Length - 2);
-                    int wt17 = 11 - WidthTemp17.Length;
-                    if (wt17 > 0)
+                    if (this.IsDXT1 == true && this.DXType == "44585431")
                     {
-                        WidthTemp17 = WidthTemp17.PadLeft(11, '0');
+                        MessageBox.Show("This texture was saved as a DXT1 .DDS file, meaning the DXT compression method used for this is not compatible with this texture type.\nIf you want to import this as this type of texture, return to the image editing software you used to save this and make sure to save it as a DXT5 instead.","Hold it!");
+                        cmBoxTextureType.SelectedIndex = 0;
+                        return;
                     }
-
-                    string LengthTemp17 = Convert.ToString(this.TXy, 2);
-                    int lt17 = 13 - LengthTemp17.Length;
-                    if (lt17 > 0)
-                    {
-                        LengthTemp17 = LengthTemp17.PadLeft(13, '0');
-                    }
-
-                    string WidthTA17 = WidthTemp17.Substring(WidthTemp17.Length - 8);
-                    string WidthTB17 = WidthTemp17.Substring(0, WidthTemp17.Length - 8);
-
-                    string LengthTA17 = LengthTemp17.Substring(LengthTemp17.Length - 5);
-                    string LengthTB17 = LengthTemp17.Substring(0, LengthTemp17.Length - 5);
-
-                    string Byte217 = WidthTA17;
-                    string Byte317 = LengthTA17 + WidthTB17;
-                    string Byte417 = LengthTB17;
-
-                    byte[] B217 = BSWConverter.BinaryToByteArray(Byte217);
-                    byte[] B317 = BSWConverter.BinaryToByteArray(Byte317);
-                    byte[] B417 = BSWConverter.BinaryToByteArray(Byte417);
-
-                    TempTexData.Add(Convert.ToByte(this.TXmips));
-                    TempTexData.AddRange(B217);
-                    TempTexData.AddRange(B317);
-                    TempTexData.AddRange(B417);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x17);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x00);
-
-                    int MpMpTest17 = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 16;
-
-                    //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
-                    int MippMapPixelSizeThingDXT117 = 0;
-                    int MipOffset17 = 0;
-                    int OffTemp17 = 0;
-                    int DDSOffset17 = 128;
-                    for (int p = 0; p < this.TXmips; p++)
-                    {
-                        MipOffset = 16 + (8 * p);
-                        this.MMOffsets.Add(MipOffset17);
-                        MippMapPixelSizeThingDXT117 = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 16;
-                        this.MMipSizes.Add(MippMapPixelSizeThingDXT117);
-                    }
-
-                    byte[][] MipMaps17 = new byte[this.TXmips][];
-                    //Reads and extracts from the DDS file stored in memory.
-                    for (int q = 0; q < this.TXmips; q++)
+                    else
                     {
 
-                        DDTemp = new byte[this.MMipSizes[q]];
+                        this.TXTextureType = "17";
 
-                        XDTemp = new byte[(this.TXmips)];
+                        //Little Endian Binary. Gotta love it.
+                        this.TempTexData = new List<byte>();
+                        Byte[] TexHeader17 = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
+                        this.TempTexData.AddRange(TexHeader17);
+                        string WidthTemp17 = Convert.ToString(this.TXx, 2);
+                        WidthTemp17 = WidthTemp17.Substring(0, WidthTemp17.Length - 2);
+                        int wt17 = 11 - WidthTemp17.Length;
+                        if (wt17 > 0)
+                        {
+                            WidthTemp17 = WidthTemp17.PadLeft(11, '0');
+                        }
 
-                        Buffer.BlockCopy(this.DDSData, DDSOffset17, DDTemp, 0, (this.MMipSizes[q]));
-                        DDSOffset17 = DDSOffset17 + DDTemp.Length;
+                        string LengthTemp17 = Convert.ToString(this.TXy, 2);
+                        int lt17 = 13 - LengthTemp17.Length;
+                        if (lt17 > 0)
+                        {
+                            LengthTemp17 = LengthTemp17.PadLeft(13, '0');
+                        }
 
-                        MipMaps17[q] = DDTemp;
+                        string WidthTA17 = WidthTemp17.Substring(WidthTemp17.Length - 8);
+                        string WidthTB17 = WidthTemp17.Substring(0, WidthTemp17.Length - 8);
+
+                        string LengthTA17 = LengthTemp17.Substring(LengthTemp17.Length - 5);
+                        string LengthTB17 = LengthTemp17.Substring(0, LengthTemp17.Length - 5);
+
+                        string Byte217 = WidthTA17;
+                        string Byte317 = LengthTA17 + WidthTB17;
+                        string Byte417 = LengthTB17;
+
+                        byte[] B217 = BSWConverter.BinaryToByteArray(Byte217);
+                        byte[] B317 = BSWConverter.BinaryToByteArray(Byte317);
+                        byte[] B417 = BSWConverter.BinaryToByteArray(Byte417);
+
+                        TempTexData.Add(Convert.ToByte(this.TXmips));
+                        TempTexData.AddRange(B217);
+                        TempTexData.AddRange(B317);
+                        TempTexData.AddRange(B417);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x17);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x00);
+
+                        int MpMpTest17 = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 16;
+
+                        //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
+                        int MippMapPixelSizeThingDXT117 = 0;
+                        int MipOffset17 = 0;
+                        int OffTemp17 = 0;
+                        int DDSOffset17 = 128;
+                        for (int p = 0; p < this.TXmips; p++)
+                        {
+                            MipOffset17 = 16 + (8 * p);
+                            this.MMOffsets.Add(MipOffset17);
+                            MippMapPixelSizeThingDXT117 = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 16;
+                            this.MMipSizes.Add(MippMapPixelSizeThingDXT117);
+                        }
+
+                        byte[][] MipMaps17 = new byte[this.TXmips][];
+                        //Reads and extracts from the DDS file stored in memory.
+                        for (int q = 0; q < this.TXmips; q++)
+                        {
+
+                            DDTemp = new byte[this.MMipSizes[q]];
+
+                            XDTemp = new byte[(this.TXmips)];
+
+                            Buffer.BlockCopy(this.DDSData, DDSOffset17, DDTemp, 0, (this.MMipSizes[q]));
+                            DDSOffset17 = DDSOffset17 + DDTemp.Length;
+
+                            MipMaps17[q] = DDTemp;
+
+                        }
+
+                        this.FirstMip = MipMaps17[0];
+
+                        OffTemp17 = 16 + (8 * this.TXmips);
+                        byte[] FillerBytes17 = { 0x00, 0x00, 0x00, 0x00 };
+
+                        //Finishes the tex header by putting in the offsets as double words.
+                        for (int r = 0; r < this.TXmips; r++)
+                        {
+                            byte[] OTemp = BitConverter.GetBytes(OffTemp17);
+                            //Array.Reverse(OTemp);
+                            this.TempTexData.AddRange(OTemp);
+                            OffTemp17 = OffTemp17 + MipMaps17[r].Length;
+                            this.TempTexData.AddRange(FillerBytes17);
+                        }
+
+                        //Now the MipMaps go in the AFTER Tex header.
+                        for (int s = 0; s < this.TXmips; s++)
+                        {
+                            this.TempTexData.AddRange(MipMaps17[s]);
+                        }
+
+                        this.TexData = this.TempTexData.ToArray();
+
+                        this.Dialoginit = true;
+
+                        break;
 
                     }
 
-                    this.FirstMip = MipMaps17[0];
 
-                    OffTemp17 = 16 + (8 * this.TXmips);
-                    byte[] FillerBytes17 = { 0x00, 0x00, 0x00, 0x00 };
-
-                    //Finishes the tex header by putting in the offsets as double words.
-                    for (int r = 0; r < this.TXmips; r++)
-                    {
-                        byte[] OTemp = BitConverter.GetBytes(OffTemp17);
-                        //Array.Reverse(OTemp);
-                        this.TempTexData.AddRange(OTemp);
-                        OffTemp17 = OffTemp17 + MipMaps17[r].Length;
-                        this.TempTexData.AddRange(FillerBytes17);
-                    }
-
-                    //Now the MipMaps go in the AFTER Tex header.
-                    for (int s = 0; s < this.TXmips; s++)
-                    {
-                        this.TempTexData.AddRange(MipMaps17[s]);
-                    }
-
-                    this.TexData = this.TempTexData.ToArray();
-
-                    break;
 
                 case 2:
-                    this.TXTextureType = "19";
 
-                    //Little Endian Binary. Gotta love it.
-                    this.TempTexData = new List<byte>();
-                    Byte[] TexHeader19 = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
-                    this.TempTexData.AddRange(TexHeader19);
-                    string WidthTemp19 = Convert.ToString(this.TXx, 2);
-                    WidthTemp19 = WidthTemp19.Substring(0, WidthTemp19.Length - 2);
-                    int wt19 = 11 - WidthTemp19.Length;
-                    if (wt19 > 0)
+                    if (this.IsDXT1 == false)
                     {
-                        WidthTemp19 = WidthTemp19.PadLeft(11, '0');
+                        MessageBox.Show("This texture was saved as a DXT5 .DDS file, meaning the DXT compression method used for this is not compatible with this texture type.\nIf you want to import this as this type of texture, return to the image editing software you used to save this and make sure to save it as a DXT1 instead.", "Hold it!");
+                        cmBoxTextureType.SelectedIndex = 1;
+                        return;
                     }
-
-                    string LengthTemp19 = Convert.ToString(this.TXy, 2);
-                    int lt19 = 13 - LengthTemp19.Length;
-                    if (lt19 > 0)
+                    else
                     {
-                        LengthTemp19 = LengthTemp19.PadLeft(13, '0');
+                        this.TXTextureType = "19";
+
+                        //Little Endian Binary. Gotta love it.
+                        this.TempTexData = new List<byte>();
+                        Byte[] TexHeader19 = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
+                        this.TempTexData.AddRange(TexHeader19);
+                        string WidthTemp19 = Convert.ToString(this.TXx, 2);
+                        WidthTemp19 = WidthTemp19.Substring(0, WidthTemp19.Length - 2);
+                        int wt19 = 11 - WidthTemp19.Length;
+                        if (wt19 > 0)
+                        {
+                            WidthTemp19 = WidthTemp19.PadLeft(11, '0');
+                        }
+
+                        string LengthTemp19 = Convert.ToString(this.TXy, 2);
+                        int lt19 = 13 - LengthTemp19.Length;
+                        if (lt19 > 0)
+                        {
+                            LengthTemp19 = LengthTemp19.PadLeft(13, '0');
+                        }
+
+                        string WidthTA19 = WidthTemp19.Substring(WidthTemp19.Length - 8);
+                        string WidthTB19 = WidthTemp19.Substring(0, WidthTemp19.Length - 8);
+
+                        string LengthTA19 = LengthTemp19.Substring(LengthTemp19.Length - 5);
+                        string LengthTB19 = LengthTemp19.Substring(0, LengthTemp19.Length - 5);
+
+                        string Byte219 = WidthTA19;
+                        string Byte319 = LengthTA19 + WidthTB19;
+                        string Byte419 = LengthTB19;
+
+                        byte[] B219 = BSWConverter.BinaryToByteArray(Byte219);
+                        byte[] B319 = BSWConverter.BinaryToByteArray(Byte319);
+                        byte[] B419 = BSWConverter.BinaryToByteArray(Byte419);
+
+                        TempTexData.Add(Convert.ToByte(this.TXmips));
+                        TempTexData.AddRange(B219);
+                        TempTexData.AddRange(B319);
+                        TempTexData.AddRange(B419);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x19);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x00);
+
+                        int MpMpTest19 = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 8;
+
+                        //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
+                        int MippMapPixelSizeThingDXT119 = 0;
+                        int MipOffset19 = 0;
+                        int OffTemp19 = 0;
+                        int DDSOffset19 = 128;
+                        for (int p = 0; p < this.TXmips; p++)
+                        {
+                            MipOffset19 = 16 + (8 * p);
+                            this.MMOffsets.Add(MipOffset19);
+                            MippMapPixelSizeThingDXT119 = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 8;
+                            this.MMipSizes.Add(MippMapPixelSizeThingDXT119);
+                        }
+
+                        byte[][] MipMaps19 = new byte[this.TXmips][];
+                        //Reads and extracts from the DDS file stored in memory.
+                        for (int q = 0; q < this.TXmips; q++)
+                        {
+
+                            DDTemp = new byte[this.MMipSizes[q]];
+
+                            XDTemp = new byte[(this.TXmips)];
+
+                            Buffer.BlockCopy(this.DDSData, DDSOffset19, DDTemp, 0, (this.MMipSizes[q]));
+                            DDSOffset19 = DDSOffset19 + DDTemp.Length;
+
+                            MipMaps19[q] = DDTemp;
+
+                        }
+
+                        this.FirstMip = MipMaps19[0];
+
+                        OffTemp19 = 16 + (8 * this.TXmips);
+                        byte[] FillerBytes19 = { 0x00, 0x00, 0x00, 0x00 };
+
+                        //Finishes the tex header by putting in the offsets as double words.
+                        for (int r = 0; r < this.TXmips; r++)
+                        {
+                            byte[] OTemp19 = BitConverter.GetBytes(OffTemp19);
+                            //Array.Reverse(OTemp);
+                            this.TempTexData.AddRange(OTemp19);
+                            OffTemp19 = OffTemp19 + MipMaps19[r].Length;
+                            this.TempTexData.AddRange(FillerBytes19);
+                        }
+
+                        //Now the MipMaps go in the AFTER Tex header.
+                        for (int s = 0; s < this.TXmips; s++)
+                        {
+                            this.TempTexData.AddRange(MipMaps19[s]);
+                        }
+
+                        this.TexData = this.TempTexData.ToArray();
+
+                        break;
                     }
-
-                    string WidthTA19 = WidthTemp19.Substring(WidthTemp19.Length - 8);
-                    string WidthTB19 = WidthTemp19.Substring(0, WidthTemp19.Length - 8);
-
-                    string LengthTA19 = LengthTemp19.Substring(LengthTemp19.Length - 5);
-                    string LengthTB19 = LengthTemp19.Substring(0, LengthTemp19.Length - 5);
-
-                    string Byte219 = WidthTA19;
-                    string Byte319 = LengthTA19 + WidthTB19;
-                    string Byte419 = LengthTB19;
-
-                    byte[] B219 = BSWConverter.BinaryToByteArray(Byte219);
-                    byte[] B319 = BSWConverter.BinaryToByteArray(Byte319);
-                    byte[] B419 = BSWConverter.BinaryToByteArray(Byte419);
-
-                    TempTexData.Add(Convert.ToByte(this.TXmips));
-                    TempTexData.AddRange(B219);
-                    TempTexData.AddRange(B319);
-                    TempTexData.AddRange(B419);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x19);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x00);
-
-                    int MpMpTest19 = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 8;
-
-                    //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
-                    int MippMapPixelSizeThingDXT119 = 0;
-                    int MipOffset19 = 0;
-                    int OffTemp19 = 0;
-                    int DDSOffset19 = 128;
-                    for (int p = 0; p < this.TXmips; p++)
-                    {
-                        MipOffset19 = 16 + (8 * p);
-                        this.MMOffsets.Add(MipOffset19);
-                        MippMapPixelSizeThingDXT1 = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 8;
-                        this.MMipSizes.Add(MippMapPixelSizeThingDXT1);
-                    }
-
-                    byte[][] MipMaps19 = new byte[this.TXmips][];
-                    //Reads and extracts from the DDS file stored in memory.
-                    for (int q = 0; q < this.TXmips; q++)
-                    {
-
-                        DDTemp = new byte[this.MMipSizes[q]];
-
-                        XDTemp = new byte[(this.TXmips)];
-
-                        Buffer.BlockCopy(this.DDSData, DDSOffset19, DDTemp, 0, (this.MMipSizes[q]));
-                        DDSOffset19 = DDSOffset19 + DDTemp.Length;
-
-                        MipMaps19[q] = DDTemp;
-
-                    }
-
-                    this.FirstMip = MipMaps19[0];
-
-                    OffTemp = 16 + (8 * this.TXmips);
-                    byte[] FillerBytes19 = { 0x00, 0x00, 0x00, 0x00 };
-
-                    //Finishes the tex header by putting in the offsets as double words.
-                    for (int r = 0; r < this.TXmips; r++)
-                    {
-                        byte[] OTemp19 = BitConverter.GetBytes(OffTemp19);
-                        //Array.Reverse(OTemp);
-                        this.TempTexData.AddRange(OTemp19);
-                        OffTemp19 = OffTemp19 + MipMaps19[r].Length;
-                        this.TempTexData.AddRange(FillerBytes19);
-                    }
-
-                    //Now the MipMaps go in the AFTER Tex header.
-                    for (int s = 0; s < this.TXmips; s++)
-                    {
-                        this.TempTexData.AddRange(MipMaps19[s]);
-                    }
-
-                    this.TexData = this.TempTexData.ToArray();
-
-                    break;
 
                 case 3:
-                    this.TXTextureType = "1F";
 
-                    //Little Endian Binary. Gotta love it.
-                    this.TempTexData = new List<byte>();
-                    Byte[] TexHeader1F = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
-                    this.TempTexData.AddRange(TexHeader1F);
-                    string WidthTemp1F = Convert.ToString(this.TXx, 2);
-                    WidthTemp1F = WidthTemp1F.Substring(0, WidthTemp1F.Length - 2);
-                    int wt1F = 11 - WidthTemp1F.Length;
-                    if (wt1F > 0)
+                    if (this.IsDXT1 == true)
                     {
-                        WidthTemp1F = WidthTemp1F.PadLeft(11, '0');
+                        MessageBox.Show("This texture was saved as a DXT1 .DDS file, meaning the DXT compression method used for this is not compatible with this texture type.\nIf you want to import this as this type of texture, return to the image editing software you used to save this and make sure to save it as a DXT5 instead.", "Hold it!");
+                        cmBoxTextureType.SelectedIndex = 0;
+                        return;
                     }
-
-                    string LengthTemp1F = Convert.ToString(this.TXy, 2);
-                    int lt1F = 13 - LengthTemp1F.Length;
-                    if (lt1F > 0)
+                    else
                     {
-                        LengthTemp1F = LengthTemp1F.PadLeft(13, '0');
+                        this.TXTextureType = "1F";
+
+                        //Little Endian Binary. Gotta love it.
+                        this.TempTexData = new List<byte>();
+                        Byte[] TexHeader1F = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
+                        this.TempTexData.AddRange(TexHeader1F);
+                        string WidthTemp1F = Convert.ToString(this.TXx, 2);
+                        WidthTemp1F = WidthTemp1F.Substring(0, WidthTemp1F.Length - 2);
+                        int wt1F = 11 - WidthTemp1F.Length;
+                        if (wt1F > 0)
+                        {
+                            WidthTemp1F = WidthTemp1F.PadLeft(11, '0');
+                        }
+
+                        string LengthTemp1F = Convert.ToString(this.TXy, 2);
+                        int lt1F = 13 - LengthTemp1F.Length;
+                        if (lt1F > 0)
+                        {
+                            LengthTemp1F = LengthTemp1F.PadLeft(13, '0');
+                        }
+
+                        string WidthTA1F = WidthTemp1F.Substring(WidthTemp1F.Length - 8);
+                        string WidthTB1F = WidthTemp1F.Substring(0, WidthTemp1F.Length - 8);
+
+                        string LengthTA1F = LengthTemp1F.Substring(LengthTemp1F.Length - 5);
+                        string LengthTB1F = LengthTemp1F.Substring(0, LengthTemp1F.Length - 5);
+
+                        string Byte21F = WidthTA1F;
+                        string Byte31F = LengthTA1F + WidthTB1F;
+                        string Byte41F = LengthTB1F;
+
+                        byte[] B21F = BSWConverter.BinaryToByteArray(Byte21F);
+                        byte[] B31F = BSWConverter.BinaryToByteArray(Byte31F);
+                        byte[] B41F = BSWConverter.BinaryToByteArray(Byte41F);
+
+                        TempTexData.Add(Convert.ToByte(this.TXmips));
+                        TempTexData.AddRange(B21F);
+                        TempTexData.AddRange(B31F);
+                        TempTexData.AddRange(B41F);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x1F);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x00);
+
+                        int MpMpTest1F = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 16;
+
+                        //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
+                        int MippMapPixelSizeThingDXT11F = 0;
+                        int MipOffset1F = 0;
+                        int OffTemp1F = 0;
+                        int DDSOffset1F = 128;
+                        for (int p = 0; p < this.TXmips; p++)
+                        {
+                            MipOffset1F = 16 + (8 * p);
+                            this.MMOffsets.Add(MipOffset1F);
+                            MippMapPixelSizeThingDXT11F = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 16;
+                            this.MMipSizes.Add(MippMapPixelSizeThingDXT11F);
+                        }
+
+                        byte[][] MipMaps1F = new byte[this.TXmips][];
+                        //Reads and extracts from the DDS file stored in memory.
+                        for (int q = 0; q < this.TXmips; q++)
+                        {
+
+                            DDTemp = new byte[this.MMipSizes[q]];
+
+                            XDTemp = new byte[(this.TXmips)];
+
+                            Buffer.BlockCopy(this.DDSData, DDSOffset1F, DDTemp, 0, (this.MMipSizes[q]));
+                            DDSOffset1F = DDSOffset1F + DDTemp.Length;
+
+                            MipMaps1F[q] = DDTemp;
+
+                        }
+
+                        this.FirstMip = MipMaps1F[0];
+
+                        OffTemp1F = 16 + (8 * this.TXmips);
+                        byte[] FillerBytes1F = { 0x00, 0x00, 0x00, 0x00 };
+
+                        //Finishes the tex header by putting in the offsets as double words.
+                        for (int r = 0; r < this.TXmips; r++)
+                        {
+                            byte[] OTemp = BitConverter.GetBytes(OffTemp1F);
+                            //Array.Reverse(OTemp);
+                            this.TempTexData.AddRange(OTemp);
+                            OffTemp1F = OffTemp1F + MipMaps1F[r].Length;
+                            this.TempTexData.AddRange(FillerBytes1F);
+                        }
+
+                        //Now the MipMaps go in the AFTER Tex header.
+                        for (int s = 0; s < this.TXmips; s++)
+                        {
+                            this.TempTexData.AddRange(MipMaps1F[s]);
+                        }
+
+                        this.TexData = this.TempTexData.ToArray();
+
+                        break;
                     }
-
-                    string WidthTA1F = WidthTemp1F.Substring(WidthTemp1F.Length - 8);
-                    string WidthTB1F = WidthTemp1F.Substring(0, WidthTemp1F.Length - 8);
-
-                    string LengthTA1F = LengthTemp1F.Substring(LengthTemp1F.Length - 5);
-                    string LengthTB1F = LengthTemp1F.Substring(0, LengthTemp1F.Length - 5);
-
-                    string Byte21F = WidthTA1F;
-                    string Byte31F = LengthTA1F + WidthTB1F;
-                    string Byte41F = LengthTB1F;
-
-                    byte[] B21F = BSWConverter.BinaryToByteArray(Byte21F);
-                    byte[] B31F = BSWConverter.BinaryToByteArray(Byte31F);
-                    byte[] B41F = BSWConverter.BinaryToByteArray(Byte41F);
-
-                    TempTexData.Add(Convert.ToByte(this.TXmips));
-                    TempTexData.AddRange(B21F);
-                    TempTexData.AddRange(B31F);
-                    TempTexData.AddRange(B41F);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x1F);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x00);
-
-                    int MpMpTest1F = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 16;
-
-                    //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
-                    int MippMapPixelSizeThingDXT11F = 0;
-                    int MipOffset1F = 0;
-                    int OffTemp1F = 0;
-                    int DDSOffset1F = 128;
-                    for (int p = 0; p < this.TXmips; p++)
-                    {
-                        MipOffset = 16 + (8 * p);
-                        this.MMOffsets.Add(MipOffset1F);
-                        MippMapPixelSizeThingDXT11F = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 16;
-                        this.MMipSizes.Add(MippMapPixelSizeThingDXT11F);
-                    }
-
-                    byte[][] MipMaps1F = new byte[this.TXmips][];
-                    //Reads and extracts from the DDS file stored in memory.
-                    for (int q = 0; q < this.TXmips; q++)
-                    {
-
-                        DDTemp = new byte[this.MMipSizes[q]];
-
-                        XDTemp = new byte[(this.TXmips)];
-
-                        Buffer.BlockCopy(this.DDSData, DDSOffset1F, DDTemp, 0, (this.MMipSizes[q]));
-                        DDSOffset1F = DDSOffset1F + DDTemp.Length;
-
-                        MipMaps1F[q] = DDTemp;
-
-                    }
-
-                    this.FirstMip = MipMaps1F[0];
-
-                    OffTemp1F = 16 + (8 * this.TXmips);
-                    byte[] FillerBytes1F = { 0x00, 0x00, 0x00, 0x00 };
-
-                    //Finishes the tex header by putting in the offsets as double words.
-                    for (int r = 0; r < this.TXmips; r++)
-                    {
-                        byte[] OTemp = BitConverter.GetBytes(OffTemp1F);
-                        //Array.Reverse(OTemp);
-                        this.TempTexData.AddRange(OTemp);
-                        OffTemp1F = OffTemp1F + MipMaps1F[r].Length;
-                        this.TempTexData.AddRange(FillerBytes1F);
-                    }
-
-                    //Now the MipMaps go in the AFTER Tex header.
-                    for (int s = 0; s < this.TXmips; s++)
-                    {
-                        this.TempTexData.AddRange(MipMaps1F[s]);
-                    }
-
-                    this.TexData = this.TempTexData.ToArray();
-
-                    break;
 
                 case 4:
-                    this.TXTextureType = "27";
 
-                    //Little Endian Binary. Gotta love it.
-                    this.TempTexData = new List<byte>();
-                    Byte[] TexHeader27 = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
-                    this.TempTexData.AddRange(TexHeader27);
-                    string WidthTemp27 = Convert.ToString(this.TXx, 2);
-                    WidthTemp27 = WidthTemp27.Substring(0, WidthTemp27.Length - 2);
-                    int wt27 = 11 - WidthTemp27.Length;
-                    if (wt27 > 0)
+                    if (this.IsDXT1 == true)
                     {
-                        WidthTemp27 = WidthTemp27.PadLeft(11, '0');
+                        MessageBox.Show("This texture was saved as a DXT1 .DDS file, meaning the DXT compression method used for this is not compatible with this texture type.\nIf you want to import this as this type of texture, return to the image editing software you used to save this and make sure to save it as a DXT5 instead.", "Hold it!");
+                        cmBoxTextureType.SelectedIndex = 0;
+                        return;
                     }
-
-                    string LengthTemp27 = Convert.ToString(this.TXy, 2);
-                    int lt27 = 13 - LengthTemp27.Length;
-                    if (lt27 > 0)
-                    {
-                        LengthTemp27 = LengthTemp27.PadLeft(13, '0');
-                    }
-
-                    string WidthTA27 = WidthTemp27.Substring(WidthTemp27.Length - 8);
-                    string WidthTB27 = WidthTemp27.Substring(0, WidthTemp27.Length - 8);
-
-                    string LengthTA27 = LengthTemp27.Substring(LengthTemp27.Length - 5);
-                    string LengthTB27 = LengthTemp27.Substring(0, LengthTemp27.Length - 5);
-
-                    string Byte227 = WidthTA27;
-                    string Byte327 = LengthTA27 + WidthTB27;
-                    string Byte427 = LengthTB27;
-
-                    byte[] B227 = BSWConverter.BinaryToByteArray(Byte227);
-                    byte[] B327 = BSWConverter.BinaryToByteArray(Byte327);
-                    byte[] B427 = BSWConverter.BinaryToByteArray(Byte427);
-
-                    TempTexData.Add(Convert.ToByte(this.TXmips));
-                    TempTexData.AddRange(B227);
-                    TempTexData.AddRange(B327);
-                    TempTexData.AddRange(B427);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x27);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x00);
-
-                    int MpMpTest27 = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 16;
-
-                    //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
-                    int MippMapPixelSizeThingDXT127 = 0;
-                    int MipOffset27 = 0;
-                    int OffTemp27 = 0;
-                    int DDSOffset27 = 128;
-                    for (int p = 0; p < this.TXmips; p++)
-                    {
-                        MipOffset = 16 + (8 * p);
-                        this.MMOffsets.Add(MipOffset27);
-                        MippMapPixelSizeThingDXT127 = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 16;
-                        this.MMipSizes.Add(MippMapPixelSizeThingDXT127);
-                    }
-
-                    byte[][] MipMaps27 = new byte[this.TXmips][];
-                    //Reads and extracts from the DDS file stored in memory.
-                    for (int q = 0; q < this.TXmips; q++)
+                    else
                     {
 
-                        DDTemp = new byte[this.MMipSizes[q]];
+                        this.TXTextureType = "27";
 
-                        XDTemp = new byte[(this.TXmips)];
+                        //Little Endian Binary. Gotta love it.
+                        this.TempTexData = new List<byte>();
+                        Byte[] TexHeader27 = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
+                        this.TempTexData.AddRange(TexHeader27);
+                        string WidthTemp27 = Convert.ToString(this.TXx, 2);
+                        WidthTemp27 = WidthTemp27.Substring(0, WidthTemp27.Length - 2);
+                        int wt27 = 11 - WidthTemp27.Length;
+                        if (wt27 > 0)
+                        {
+                            WidthTemp27 = WidthTemp27.PadLeft(11, '0');
+                        }
 
-                        Buffer.BlockCopy(this.DDSData, DDSOffset27, DDTemp, 0, (this.MMipSizes[q]));
-                        DDSOffset27 = DDSOffset27 + DDTemp.Length;
+                        string LengthTemp27 = Convert.ToString(this.TXy, 2);
+                        int lt27 = 13 - LengthTemp27.Length;
+                        if (lt27 > 0)
+                        {
+                            LengthTemp27 = LengthTemp27.PadLeft(13, '0');
+                        }
 
-                        MipMaps27[q] = DDTemp;
+                        string WidthTA27 = WidthTemp27.Substring(WidthTemp27.Length - 8);
+                        string WidthTB27 = WidthTemp27.Substring(0, WidthTemp27.Length - 8);
 
+                        string LengthTA27 = LengthTemp27.Substring(LengthTemp27.Length - 5);
+                        string LengthTB27 = LengthTemp27.Substring(0, LengthTemp27.Length - 5);
+
+                        string Byte227 = WidthTA27;
+                        string Byte327 = LengthTA27 + WidthTB27;
+                        string Byte427 = LengthTB27;
+
+                        byte[] B227 = BSWConverter.BinaryToByteArray(Byte227);
+                        byte[] B327 = BSWConverter.BinaryToByteArray(Byte327);
+                        byte[] B427 = BSWConverter.BinaryToByteArray(Byte427);
+
+                        TempTexData.Add(Convert.ToByte(this.TXmips));
+                        TempTexData.AddRange(B227);
+                        TempTexData.AddRange(B327);
+                        TempTexData.AddRange(B427);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x27);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x00);
+
+                        int MpMpTest27 = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 16;
+
+                        //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
+                        int MippMapPixelSizeThingDXT127 = 0;
+                        int MipOffset27 = 0;
+                        int OffTemp27 = 0;
+                        int DDSOffset27 = 128;
+                        for (int p = 0; p < this.TXmips; p++)
+                        {
+                            MipOffset27 = 16 + (8 * p);
+                            this.MMOffsets.Add(MipOffset27);
+                            MippMapPixelSizeThingDXT127 = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 16;
+                            this.MMipSizes.Add(MippMapPixelSizeThingDXT127);
+                        }
+
+                        byte[][] MipMaps27 = new byte[this.TXmips][];
+                        //Reads and extracts from the DDS file stored in memory.
+                        for (int q = 0; q < this.TXmips; q++)
+                        {
+
+                            DDTemp = new byte[this.MMipSizes[q]];
+
+                            XDTemp = new byte[(this.TXmips)];
+
+                            Buffer.BlockCopy(this.DDSData, DDSOffset27, DDTemp, 0, (this.MMipSizes[q]));
+                            DDSOffset27 = DDSOffset27 + DDTemp.Length;
+
+                            MipMaps27[q] = DDTemp;
+
+                        }
+
+                        this.FirstMip = MipMaps27[0];
+
+                        OffTemp27 = 16 + (8 * this.TXmips);
+                        byte[] FillerBytes27 = { 0x00, 0x00, 0x00, 0x00 };
+
+                        //Finishes the tex header by putting in the offsets as double words.
+                        for (int r = 0; r < this.TXmips; r++)
+                        {
+                            byte[] OTemp = BitConverter.GetBytes(OffTemp27);
+                            //Array.Reverse(OTemp);
+                            this.TempTexData.AddRange(OTemp);
+                            OffTemp27 = OffTemp27 + MipMaps27[r].Length;
+                            this.TempTexData.AddRange(FillerBytes27);
+                        }
+
+                        //Now the MipMaps go in the AFTER Tex header.
+                        for (int s = 0; s < this.TXmips; s++)
+                        {
+                            this.TempTexData.AddRange(MipMaps27[s]);
+                        }
+
+                        this.TexData = this.TempTexData.ToArray();
+
+                        break;
                     }
-
-                    this.FirstMip = MipMaps27[0];
-
-                    OffTemp27 = 16 + (8 * this.TXmips);
-                    byte[] FillerBytes27 = { 0x00, 0x00, 0x00, 0x00 };
-
-                    //Finishes the tex header by putting in the offsets as double words.
-                    for (int r = 0; r < this.TXmips; r++)
-                    {
-                        byte[] OTemp = BitConverter.GetBytes(OffTemp27);
-                        //Array.Reverse(OTemp);
-                        this.TempTexData.AddRange(OTemp);
-                        OffTemp27 = OffTemp27 + MipMaps27[r].Length;
-                        this.TempTexData.AddRange(FillerBytes27);
-                    }
-
-                    //Now the MipMaps go in the AFTER Tex header.
-                    for (int s = 0; s < this.TXmips; s++)
-                    {
-                        this.TempTexData.AddRange(MipMaps27[s]);
-                    }
-
-                    this.TexData = this.TempTexData.ToArray();
-
-                    break;
 
                 case 5:
-                    this.TXTextureType = "2A";
-
-                    //Little Endian Binary. Gotta love it.
-                    this.TempTexData = new List<byte>();
-                    Byte[] TexHeader2A = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
-                    this.TempTexData.AddRange(TexHeader2A);
-                    string WidthTemp2A = Convert.ToString(this.TXx, 2);
-                    WidthTemp2A = WidthTemp2A.Substring(0, WidthTemp2A.Length - 2);
-                    int wt2A = 11 - WidthTemp2A.Length;
-                    if (wt2A > 0)
+                    if (this.IsDXT1 == true)
                     {
-                        WidthTemp2A = WidthTemp2A.PadLeft(11, '0');
+                        MessageBox.Show("This texture was saved as a DXT1 .DDS file, meaning the DXT compression method used for this is not compatible with this texture type.\nIf you want to import this as this type of texture, return to the image editing software you used to save this and make sure to save it as a DXT5 instead.", "Hold it!");
+                        cmBoxTextureType.SelectedIndex = 0;
+                        return;
                     }
-
-                    string LengthTemp2A = Convert.ToString(this.TXy, 2);
-                    int lt2A = 13 - LengthTemp2A.Length;
-                    if (lt2A > 0)
+                    else
                     {
-                        LengthTemp2A = LengthTemp2A.PadLeft(13, '0');
+                        this.TXTextureType = "2A";
+
+                        //Little Endian Binary. Gotta love it.
+                        this.TempTexData = new List<byte>();
+                        Byte[] TexHeader2A = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
+                        this.TempTexData.AddRange(TexHeader2A);
+                        string WidthTemp2A = Convert.ToString(this.TXx, 2);
+                        WidthTemp2A = WidthTemp2A.Substring(0, WidthTemp2A.Length - 2);
+                        int wt2A = 11 - WidthTemp2A.Length;
+                        if (wt2A > 0)
+                        {
+                            WidthTemp2A = WidthTemp2A.PadLeft(11, '0');
+                        }
+
+                        string LengthTemp2A = Convert.ToString(this.TXy, 2);
+                        int lt2A = 13 - LengthTemp2A.Length;
+                        if (lt2A > 0)
+                        {
+                            LengthTemp2A = LengthTemp2A.PadLeft(13, '0');
+                        }
+
+                        string WidthTA2A = WidthTemp2A.Substring(WidthTemp2A.Length - 8);
+                        string WidthTB2A = WidthTemp2A.Substring(0, WidthTemp2A.Length - 8);
+
+                        string LengthTA2A = LengthTemp2A.Substring(LengthTemp2A.Length - 5);
+                        string LengthTB2A = LengthTemp2A.Substring(0, LengthTemp2A.Length - 5);
+
+                        string Byte22A = WidthTA2A;
+                        string Byte32A = LengthTA2A + WidthTB2A;
+                        string Byte42A = LengthTB2A;
+
+                        byte[] B22A = BSWConverter.BinaryToByteArray(Byte22A);
+                        byte[] B32A = BSWConverter.BinaryToByteArray(Byte32A);
+                        byte[] B42A = BSWConverter.BinaryToByteArray(Byte42A);
+
+                        TempTexData.Add(Convert.ToByte(this.TXmips));
+                        TempTexData.AddRange(B22A);
+                        TempTexData.AddRange(B32A);
+                        TempTexData.AddRange(B42A);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x2A);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x00);
+
+                        int MpMpTest2A = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 16;
+
+                        //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
+                        int MippMapPixelSizeThingDXT12A = 0;
+                        int MipOffset2A = 0;
+                        int OffTemp2A = 0;
+                        int DDSOffset2A = 128;
+                        for (int p = 0; p < this.TXmips; p++)
+                        {
+                            MipOffset2A = 16 + (8 * p);
+                            this.MMOffsets.Add(MipOffset2A);
+                            MippMapPixelSizeThingDXT12A = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 16;
+                            this.MMipSizes.Add(MippMapPixelSizeThingDXT12A);
+                        }
+
+                        byte[][] MipMaps2A = new byte[this.TXmips][];
+                        //Reads and extracts from the DDS file stored in memory.
+                        for (int q = 0; q < this.TXmips; q++)
+                        {
+
+                            DDTemp = new byte[this.MMipSizes[q]];
+
+                            XDTemp = new byte[(this.TXmips)];
+
+                            Buffer.BlockCopy(this.DDSData, DDSOffset2A, DDTemp, 0, (this.MMipSizes[q]));
+                            DDSOffset2A = DDSOffset2A + DDTemp.Length;
+
+                            MipMaps2A[q] = DDTemp;
+
+                        }
+
+                        this.FirstMip = MipMaps2A[0];
+
+                        OffTemp2A = 16 + (8 * this.TXmips);
+                        byte[] FillerBytes2A = { 0x00, 0x00, 0x00, 0x00 };
+
+                        //Finishes the tex header by putting in the offsets as double words.
+                        for (int r = 0; r < this.TXmips; r++)
+                        {
+                            byte[] OTemp = BitConverter.GetBytes(OffTemp2A);
+                            //Array.Reverse(OTemp);
+                            this.TempTexData.AddRange(OTemp);
+                            OffTemp2A = OffTemp2A + MipMaps2A[r].Length;
+                            this.TempTexData.AddRange(FillerBytes2A);
+                        }
+
+                        //Now the MipMaps go in the AFTER Tex header.
+                        for (int s = 0; s < this.TXmips; s++)
+                        {
+                            this.TempTexData.AddRange(MipMaps2A[s]);
+                        }
+
+                        this.TexData = this.TempTexData.ToArray();
+
+                        break;
                     }
-
-                    string WidthTA2A = WidthTemp2A.Substring(WidthTemp2A.Length - 8);
-                    string WidthTB2A = WidthTemp2A.Substring(0, WidthTemp2A.Length - 8);
-
-                    string LengthTA2A = LengthTemp2A.Substring(LengthTemp2A.Length - 5);
-                    string LengthTB2A = LengthTemp2A.Substring(0, LengthTemp2A.Length - 5);
-
-                    string Byte22A = WidthTA2A;
-                    string Byte32A = LengthTA2A + WidthTB2A;
-                    string Byte42A = LengthTB2A;
-
-                    byte[] B22A = BSWConverter.BinaryToByteArray(Byte22A);
-                    byte[] B32A = BSWConverter.BinaryToByteArray(Byte32A);
-                    byte[] B42A = BSWConverter.BinaryToByteArray(Byte42A);
-
-                    TempTexData.Add(Convert.ToByte(this.TXmips));
-                    TempTexData.AddRange(B22A);
-                    TempTexData.AddRange(B32A);
-                    TempTexData.AddRange(B42A);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x2A);
-                    TempTexData.Add(0x01);
-                    TempTexData.Add(0x00);
-
-                    int MpMpTest2A = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 16;
-
-                    //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
-                    int MippMapPixelSizeThingDXT12A = 0;
-                    int MipOffset2A = 0;
-                    int OffTemp2A = 0;
-                    int DDSOffset2A = 128;
-                    for (int p = 0; p < this.TXmips; p++)
-                    {
-                        MipOffset = 16 + (8 * p);
-                        this.MMOffsets.Add(MipOffset2A);
-                        MippMapPixelSizeThingDXT12A = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 16;
-                        this.MMipSizes.Add(MippMapPixelSizeThingDXT12A);
-                    }
-
-                    byte[][] MipMaps2A = new byte[this.TXmips][];
-                    //Reads and extracts from the DDS file stored in memory.
-                    for (int q = 0; q < this.TXmips; q++)
-                    {
-
-                        DDTemp = new byte[this.MMipSizes[q]];
-
-                        XDTemp = new byte[(this.TXmips)];
-
-                        Buffer.BlockCopy(this.DDSData, DDSOffset2A, DDTemp, 0, (this.MMipSizes[q]));
-                        DDSOffset2A = DDSOffset2A + DDTemp.Length;
-
-                        MipMaps2A[q] = DDTemp;
-
-                    }
-
-                    this.FirstMip = MipMaps2A[0];
-
-                    OffTemp2A = 16 + (8 * this.TXmips);
-                    byte[] FillerBytes2A = { 0x00, 0x00, 0x00, 0x00 };
-
-                    //Finishes the tex header by putting in the offsets as double words.
-                    for (int r = 0; r < this.TXmips; r++)
-                    {
-                        byte[] OTemp = BitConverter.GetBytes(OffTemp2A);
-                        //Array.Reverse(OTemp);
-                        this.TempTexData.AddRange(OTemp);
-                        OffTemp2A = OffTemp2A + MipMaps2A[r].Length;
-                        this.TempTexData.AddRange(FillerBytes2A);
-                    }
-
-                    //Now the MipMaps go in the AFTER Tex header.
-                    for (int s = 0; s < this.TXmips; s++)
-                    {
-                        this.TempTexData.AddRange(MipMaps2A[s]);
-                    }
-
-                    this.TexData = this.TempTexData.ToArray();
-
-                    break;
 
                 default:
                     this.TXTextureType = "13";
