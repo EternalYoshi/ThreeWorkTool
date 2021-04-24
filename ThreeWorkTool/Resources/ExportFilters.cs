@@ -7,7 +7,7 @@
 
         public static string rTexture = "Raw Texture File (*.tex)|*.tex|DirectDraw Surface Image(*.dds)| *.dds|Portable Network Graphics (*.png)|*.png";
 
-        public static string TexImport = "Raw Texture File(*.tex)|*.tex|DirectDraw Surface Image(*.dds)| *.dds";
+        public static string TexImport = "Supported files(*.tex;*.dds)|*.tex;*.dds|Raw Texture File(*.tex)|*.tex|DirectDraw Surface Image(*.dds)| *.dds";
 
         public static string rResourcePathList = "Resources Path List (*.lrp*)|*.lrp*";
         
