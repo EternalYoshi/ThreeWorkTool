@@ -62,6 +62,9 @@ namespace ThreeWorkTool
         public static FrmTexEncodeDialog frmtexencode;
         public string RPLBackup;
         public bool FinishRPLRead;
+        private Bitmap bmx;
+        private TextureEntry tentry;
+
 
         //This lets us use the dilogue without having to paste this within each button's function.
         OpenFileDialog OFDialog = new OpenFileDialog();
@@ -1993,31 +1996,12 @@ namespace ThreeWorkTool
 
                 case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
                     pGrdMain.SelectedObject = e.Node.Tag;
-                    TextureEntry tentry = new TextureEntry();
+                    //tentry = new TextureEntry();
                     tentry = e.Node.Tag as TextureEntry;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     picBoxA.Visible = true;
-                    Bitmap bm = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
-                    if (bm == null)
-                    {
-                        picBoxA.Image = picBoxA.ErrorImage;
-                        break;
-                    }
-                    else
-                    {
-                        ImageRescaler(bm, picBoxA, tentry);
-                        break;
-                    }
-
-                case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    TextureEntry txentry = new TextureEntry();
-                    txentry = e.Node.Tag as TextureEntry;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    picBoxA.Visible = true;
-                    Bitmap bmx = BitmapBuilderDX(txentry.OutMaps, txentry, picBoxA);
+                    bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
                     if (bmx == null)
                     {
                         picBoxA.Image = picBoxA.ErrorImage;
@@ -2025,7 +2009,28 @@ namespace ThreeWorkTool
                     }
                     else
                     {
-                        ImageRescaler(bmx, picBoxA, txentry);
+                        ImageRescaler(bmx, picBoxA, tentry);
+                        picBoxA.BackColor = Color.Magenta;
+                        break;
+                    }
+
+                case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
+                    pGrdMain.SelectedObject = e.Node.Tag;
+                    //tentry = new TextureEntry();
+                    tentry = e.Node.Tag as TextureEntry;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    picBoxA.Visible = true;
+                    bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
+                    if (bmx == null)
+                    {
+                        picBoxA.Image = picBoxA.ErrorImage;
+                        break;
+                    }
+                    else
+                    {
+                        ImageRescaler(bmx, picBoxA, tentry);
+                        picBoxA.BackColor = Color.Magenta;
                         break;
                     }
 
@@ -2152,6 +2157,7 @@ namespace ThreeWorkTool
         {
             if (bm.Width > pb.Width || bm.Height > pb.Height)
             {
+
                     int OldX = pb.Width;
                     int OldY = pb.Height;
                     pb.Image = bm;
