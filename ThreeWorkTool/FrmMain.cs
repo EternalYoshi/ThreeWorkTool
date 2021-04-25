@@ -568,7 +568,7 @@ namespace ThreeWorkTool
 
         private void MenuAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("ThreeWork Tool Alpha version 0.1.\n2021 By Eternal Yoshi", "About", MessageBoxButtons.OK);
+            MessageBox.Show("ThreeWork Tool Alpha version 0.2\n2021 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program", "About", MessageBoxButtons.OK);
         }
 
         private void MenuClose_Click(object sender, EventArgs e)
@@ -2594,6 +2594,7 @@ namespace ThreeWorkTool
                     tentry = TreeSource.SelectedNode.Tag as TextureEntry;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    picBoxA.Image = null;
                     picBoxA.Visible = true;
                     bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
                     if (bmx == null)
@@ -2604,6 +2605,7 @@ namespace ThreeWorkTool
                     else
                     {
                         ImageRescaler(bmx, picBoxA, tentry);
+                        //picBoxA.Image = null;
                         picBoxA.BackColor = Color.Magenta;
                         break;
                     }
@@ -2614,6 +2616,7 @@ namespace ThreeWorkTool
                     tentry = TreeSource.SelectedNode.Tag as TextureEntry;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    picBoxA.Image = null;
                     picBoxA.Visible = true;
                     bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
                     if (bmx == null)
@@ -2624,6 +2627,7 @@ namespace ThreeWorkTool
                     else
                     {
                         ImageRescaler(bmx, picBoxA, tentry);
+                        //picBoxA.Image = null;
                         picBoxA.BackColor = Color.Magenta;
                         break;
                     }
