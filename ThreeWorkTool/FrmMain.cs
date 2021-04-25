@@ -169,6 +169,11 @@ namespace ThreeWorkTool
             {
                 if (SFDialog.ShowDialog() == DialogResult.OK)
                 {
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Attempting to save: " + frename.Mainfrm.FilePath + "\nCurrent File List:\n");
+                    }
                     try
                     {
 
@@ -183,6 +188,12 @@ namespace ThreeWorkTool
 
                                 }
                                 File.WriteAllBytes(SFDialog.FileName, stream.ToArray());
+                            }
+                            //Writes to log file.
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Saved: " + SFDialog.FileName + "\n Currently opened file hasn't been modified so the file was effectively copied.");
+                                sw.WriteLine("===============================================================================================================");
                             }
                         }
                         else
@@ -508,11 +519,26 @@ namespace ThreeWorkTool
 
                                     fs.Close();
                                     OpenFileModified = false;
+
+                                    //Writes to log file.
+                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                    {
+                                        sw.WriteLine("Successfully Saved: " + SFDialog.FileName);
+                                        sw.WriteLine("===============================================================================================================");
+                                    }
+
                                 }
                             }
                             catch (Exception ex)
                             {
                                 Console.WriteLine("Exception caught in process: {0}", ex);
+                                //Writes to log file.
+                                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                {
+                                    sw.WriteLine("Save failed!\n");
+                                    sw.WriteLine("Exception info:" + ex);
+                                    sw.WriteLine("===============================================================================================================");
+                                }
                                 return;
                             }
                             
@@ -523,6 +549,13 @@ namespace ThreeWorkTool
                     catch (Exception Ex)
                     {
                         MessageBox.Show("Unable to save. Here's something to gander at: \n \n" + Ex.StackTrace, "Oh No");
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Save failed!\n");
+                            sw.WriteLine("Exception info:" + Ex);
+                            sw.WriteLine("===============================================================================================================");
+                        }
                         return;
                     }
                 }
@@ -550,6 +583,11 @@ namespace ThreeWorkTool
                     MenuSaveAs_Click(sender, e);
                     picBoxA.Visible = false;
                     FlushAndClean();
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Closed the Arc file.");
+                    }
                 }
                 if (dlrs == DialogResult.No)
                 {
@@ -1050,7 +1088,7 @@ namespace ThreeWorkTool
             //Writes to log file.
             using (StreamWriter sw = File.AppendText("Log.txt"))
             {
-                sw.WriteLine("Replaced a file: " + frename.Mainfrm.FilePath + "\nCurrent File List:\n");
+                sw.WriteLine("Replaced a file: " + RPDialog.FileName + "\nCurrent File List:\n");
                 sw.WriteLine("===============================================================================================================");
                 int entrycount = 0;
                 frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
@@ -1131,6 +1169,17 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
+                            //Writes to log file.
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Replaced a file via .tex Import: " + RPDialog.FileName + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + entrycount);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
                             break;
 
                         //DDS imports.
@@ -1210,7 +1259,7 @@ namespace ThreeWorkTool
                     //Writes to log file.
                     using (StreamWriter sw = File.AppendText("Log.txt"))
                     {
-                        sw.WriteLine("Replaced a file: " + frename.Mainfrm.FilePath + "\nCurrent File List:\n");
+                        sw.WriteLine("Replaced a file via DDS Import: " + RPDialog.FileName + "\nCurrent File List:\n");
                         sw.WriteLine("===============================================================================================================");
                         int entrycount = 0;
                         frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
