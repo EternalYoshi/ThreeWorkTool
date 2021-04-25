@@ -285,6 +285,7 @@
             this.TreeSource.Size = new System.Drawing.Size(315, 524);
             this.TreeSource.TabIndex = 6;
             this.TreeSource.SelectionChanged += new System.EventHandler(this.TreeSource_SelectionChanged);
+            this.TreeSource.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeSource_AfterSelect);
             this.TreeSource.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeSource_NodeMouseClick);
             // 
             // splitContainer2
