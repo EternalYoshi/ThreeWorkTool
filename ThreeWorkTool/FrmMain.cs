@@ -1956,6 +1956,11 @@ namespace ThreeWorkTool
                         TreeSource.SelectedNode.ImageIndex = 8;
                         TreeSource.SelectedNode.SelectedImageIndex = 8;
                     }
+                    else if (G == ".mrl")
+                    {
+                        TreeSource.SelectedNode.ImageIndex = 12;
+                        TreeSource.SelectedNode.SelectedImageIndex = 12;
+                    }
                     else
                     {
                         TreeSource.SelectedNode.ImageIndex = 16;

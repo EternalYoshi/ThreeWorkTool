@@ -20,7 +20,7 @@ namespace ThreeWorkTool.Resources.Archives
         public static StringBuilder SBname;
         public byte[] HeaderMagic;
         public byte[] HeaderB;
-        public byte FileCount;
+        public int FileCount;
         public Type FileType;
         public byte UnknownFlag;
         public string Tempname;
@@ -64,7 +64,11 @@ namespace ThreeWorkTool.Resources.Archives
                 arcfile.arcfiles = new List<object>();
                 arcfile.FileList = new List<string>();
                 arcfile.TypeHashes = new List<string>();
-                arcfile.FileCount = Bytes[6];
+                byte[] FCTemp = new byte[2];
+                Array.Copy(Bytes, 6, FCTemp, 0, 2);//Bytes.Take(2).ToArray();
+                //Array.Reverse(FCTemp);
+                arcfile.FileCount = BitConverter.ToInt16(FCTemp,0);
+                //arcfile.FileCount = Bytes[6];
                 arcfile.FileAmount = Bytes[6];
                 arcfile.UnknownFlag = Bytes[4];
                 arcfile.Version = arcfile.UnknownFlag;
