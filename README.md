@@ -13,6 +13,9 @@ Thanks to TGE and smb123w64gb for assistance and giving me the resources that ma
 By Eternal Yoshi
 
 Current Changelog:
+V2.1
+- Fixed an issue that prevented Arc files with more than 255 files from being read and saved correctly.
+
 V2.0
 - Added a near complete resource hashes in the cfg thanks to TGE.
 - Added texture preview support via Pfim
