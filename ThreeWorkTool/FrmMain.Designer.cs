@@ -51,11 +51,11 @@
             this.pGrdMain = new System.Windows.Forms.PropertyGrid();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.pnlNew = new System.Windows.Forms.Panel();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
-            this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -268,6 +268,26 @@
             this.splitContainer1.SplitterDistance = 315;
             this.splitContainer1.TabIndex = 8;
             // 
+            // TreeSource
+            // 
+            this.TreeSource.archivefile = null;
+            this.TreeSource.BackColor = System.Drawing.SystemColors.MenuText;
+            this.TreeSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TreeSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TreeSource.ForeColor = System.Drawing.SystemColors.Window;
+            this.TreeSource.HideSelection = false;
+            this.TreeSource.ImageIndex = 0;
+            this.TreeSource.ImageList = this.imageList1;
+            this.TreeSource.ItemHeight = 24;
+            this.TreeSource.Location = new System.Drawing.Point(0, 0);
+            this.TreeSource.Name = "TreeSource";
+            this.TreeSource.SelectedImageIndex = 16;
+            this.TreeSource.Size = new System.Drawing.Size(315, 524);
+            this.TreeSource.TabIndex = 6;
+            this.TreeSource.SelectionChanged += new System.EventHandler(this.TreeSource_SelectionChanged);
+            this.TreeSource.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeSource_AfterSelect);
+            this.TreeSource.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeSource_NodeMouseClick);
+            // 
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -320,26 +340,6 @@
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 
-            // TreeSource
-            // 
-            this.TreeSource.archivefile = null;
-            this.TreeSource.BackColor = System.Drawing.SystemColors.MenuText;
-            this.TreeSource.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TreeSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TreeSource.ForeColor = System.Drawing.SystemColors.Window;
-            this.TreeSource.HideSelection = false;
-            this.TreeSource.ImageIndex = 0;
-            this.TreeSource.ImageList = this.imageList1;
-            this.TreeSource.ItemHeight = 24;
-            this.TreeSource.Location = new System.Drawing.Point(0, 0);
-            this.TreeSource.Name = "TreeSource";
-            this.TreeSource.SelectedImageIndex = 16;
-            this.TreeSource.Size = new System.Drawing.Size(315, 524);
-            this.TreeSource.TabIndex = 6;
-            this.TreeSource.SelectionChanged += new System.EventHandler(this.TreeSource_SelectionChanged);
-            this.TreeSource.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeSource_AfterSelect);
-            this.TreeSource.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeSource_NodeMouseClick);
-            // 
             // FrmMainThree
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -353,7 +353,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
-            this.Text = "ThreeWork Tool V0.20";
+            this.Text = "ThreeWork Tool V0.21";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

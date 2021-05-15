@@ -125,10 +125,12 @@
     <Compile Include="Resources\ThreeSourceTree.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Resources\Utility\ByteUtilitarian.cs" />
     <Compile Include="Resources\Wrappers\ArcEntryWrapper.cs" />
     <Compile Include="Resources\Wrappers\ArcFileWrapper.cs" />
     <Compile Include="Resources\Wrappers\DefaultWrapper.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
+    <Compile Include="Resources\Wrappers\MSDEntry.cs" />
     <Compile Include="Resources\Wrappers\ResourcePathListEntry.cs" />
     <Compile Include="Resources\Wrappers\TextureEntry.cs" />
     <Compile Include="Resources\Zlibber.cs" />

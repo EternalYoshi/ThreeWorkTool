@@ -242,7 +242,8 @@ namespace ThreeWorkTool
                                         {nowcount++;}
                                     }
 
-                                    byte[] EntryTotal = { Convert.ToByte(nowcount) , 0x00};
+                                    byte[] EntryTotal = BitConverter.GetBytes(Convert.ToInt16(nowcount));
+                                    //byte[] EntryTotal = { Convert.ToByte(nowcount) , 0x00};
 
                                     fs.Write(EntryTotal, 0, EntryTotal.Length);
 
@@ -268,6 +269,7 @@ namespace ThreeWorkTool
                                     ArcEntry enty = new ArcEntry();
                                     TextureEntry tenty = new TextureEntry();
                                     ResourcePathListEntry lrpenty = new ResourcePathListEntry();
+                                    MSDEntry msdenty = new MSDEntry();
                                     //This is for the filenames and everything after.
                                     foreach (TreeNode treno in Nodes)
                                     {
@@ -484,6 +486,70 @@ namespace ThreeWorkTool
                                             DataEntryOffset = DataEntryOffset + ComSize;
 
                                         }
+                                        else if (treno.Tag as MSDEntry != null)
+                                        {
+                                            msdenty = treno.Tag as MSDEntry;
+                                            exportname = "";
+
+                                            exportname = treno.FullPath;
+                                            int inp = (exportname.IndexOf("\\")) + 1;
+                                            exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                            int NumberChars = exportname.Length;
+                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                            int nblength = namebuffer.Length;
+
+                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                            byte[] writenamedata = new byte[64];
+                                            Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                            for (int i = 0; i < namebuffer.Length; ++i)
+                                            {
+                                                writenamedata[i] = namebuffer[i];
+                                            }
+
+                                            fs.Write(writenamedata, 0, writenamedata.Length);
+
+                                            //For the typehash.
+                                            HashType = "5B55F5B1";
+                                            byte[] HashBrown = new byte[4];
+                                            HashBrown = StringToByteArray(HashType);
+                                            Array.Reverse(HashBrown);
+                                            if (HashBrown.Length < 4)
+                                            {
+                                                byte[] PartHash = new byte[] { };
+                                                PartHash = HashBrown;
+                                                Array.Resize(ref HashBrown, 4);
+                                            }
+                                            fs.Write(HashBrown, 0, HashBrown.Length);
+
+                                            //For the compressed size.
+                                            ComSize = msdenty.CompressedData.Length;
+                                            string ComSizeHex = ComSize.ToString("X8");
+                                            byte[] ComPacked = new byte[4];
+                                            ComPacked = StringToByteArray(ComSizeHex);
+                                            Array.Reverse(ComPacked);
+                                            fs.Write(ComPacked, 0, ComPacked.Length);
+
+                                            //For the unpacked size. No clue why all the entries "start" with 40.
+                                            DecSize = msdenty.UncompressedData.Length;
+                                            string DecSizeHex = DecSize.ToString("X8");
+                                            byte[] DePacked = new byte[4];
+                                            DePacked = StringToByteArray(DecSizeHex);
+                                            Array.Reverse(DePacked);
+                                            DePacked[3] = 0x40;
+                                            fs.Write(DePacked, 0, DePacked.Length);
+
+                                            //Starting Offset.
+                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                            byte[] DEOffed = new byte[4];
+                                            DEOffed = StringToByteArray(DataEntrySizeHex);
+                                            Array.Reverse(DEOffed);
+                                            fs.Write(DEOffed, 0, DEOffed.Length);
+                                            DataEntryOffset = DataEntryOffset + ComSize;
+
+                                        }
                                         else
                                         { }
                                     }
@@ -511,6 +577,14 @@ namespace ThreeWorkTool
                                         {
                                             lrpenty = treno.Tag as ResourcePathListEntry;
                                             byte[] CompData = lrpenty.CompressedData;
+                                            fs.Write(CompData, 0, CompData.Length);
+
+                                        }
+
+                                        else if (treno.Tag as MSDEntry != null)
+                                        {
+                                            msdenty = treno.Tag as MSDEntry;
+                                            byte[] CompData = msdenty.CompressedData;
                                             fs.Write(CompData, 0, CompData.Length);
 
                                         }
@@ -821,6 +895,28 @@ namespace ThreeWorkTool
                     }
                     break;
 
+                case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
+                    MSDEntry MSDentry = new MSDEntry();
+                    if (tag is MSDEntry)
+                    {
+
+                        MSDentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MSDEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(MSDentry.FileExt);
+                    }
+                    EXDialog.FileName = MSDentry.FileName + MSDentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.MSDEntryWriter(EXDialog.FileName, MSDentry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a Message Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -953,6 +1049,94 @@ namespace ThreeWorkTool
 
                             //Reloads the replaced file data in the text box.
                             frename.Mainfrm.txtRPList = ResourcePathListEntry.LoadRPLInTextBox(frename.Mainfrm.txtRPList, Newaent);
+                            frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+
+                            //Removes the node and inserts the new one.
+                            //TreeNode node = 
+                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
+                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+
+            }
+            else if (tag is MSDEntry)
+            {
+                MSDEntry RPListEntry = new MSDEntry();
+                RPListEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MSDEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(RPListEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            MSDEntry Oldaent = new MSDEntry();
+                            MSDEntry Newaent = new MSDEntry();
+                            Oldaent = OldWrapper.entryfile as MSDEntry;
+                            string[] paths = Oldaent.EntryDirs;
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = MSDEntry.ReplaceMSD(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as MSDEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Reloads the replaced file data in the text box.
+                            frename.Mainfrm.txtRPList = MSDEntry.LoadMSDInTextBox(frename.Mainfrm.txtRPList, Newaent);
                             frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
 
                             //Pathing.
@@ -1879,6 +2063,61 @@ namespace ThreeWorkTool
                     tcount++;
                     break;
 
+                //For MSD Files.
+                case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
+                    ArcEntryWrapper msdchild = new ArcEntryWrapper();
+
+
+                    TreeSource.BeginUpdate();
+
+                    //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+
+                    msdchild.Name = I;
+                    msdchild.Tag = FEntry as MSDEntry;
+                    msdchild.Text = I;
+                    msdchild.entryfile = FEntry as MSDEntry;
+                    msdchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = msdchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(msdchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var msdrootNode = FindRootNode(msdchild);
+
+                    TreeSource.SelectedNode = msdchild;
+                    TreeSource.SelectedNode.ImageIndex = 17;
+                    TreeSource.SelectedNode.SelectedImageIndex = 17;
+
+
+                    msdchild.ContextMenu = GenericFileContextAdder(msdchild, TreeSource);
+
+                    TreeSource.SelectedNode = msdrootNode;
+
+                    tcount++;
+                    break;
 
                 //Cases for future file supports go here. For example;
                 //case ".mod":
@@ -1960,6 +2199,11 @@ namespace ThreeWorkTool
                     {
                         TreeSource.SelectedNode.ImageIndex = 12;
                         TreeSource.SelectedNode.SelectedImageIndex = 12;
+                    }
+                    else if (G == ".msd")
+                    {
+                        TreeSource.SelectedNode.ImageIndex = 13;
+                        TreeSource.SelectedNode.SelectedImageIndex = 13;
                     }
                     else
                     {
@@ -2265,7 +2509,23 @@ namespace ThreeWorkTool
 
                 switch(type)
                 {
-
+                    //Commented out until the next release.
+/*
+                    case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
+                        MSDEntry mse = new MSDEntry();
+                        mse = ArcEntry as MSDEntry;
+                        if (mse != null) 
+                        {
+                            TreeChildInsert(NCount, mse.EntryName, mse.FileExt, mse.EntryDirs, mse.TrueName, mse);
+                            TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                            break;
+                        }
+                        else
+                        {
+                            MessageBox.Show("We got a read error here!", "YIKES");
+                            break;
+                        }
+*/
                     case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
                         TextureEntry te = new TextureEntry();
                         te = ArcEntry as TextureEntry;
@@ -2339,7 +2599,6 @@ namespace ThreeWorkTool
             }
             
         }
-
 
         //This is test stuff from the Microsoft website. Modified for my purposes.
         private void PrintRecursive(TreeNode WrapNode, StreamWriter sw, int count)
@@ -2422,8 +2681,6 @@ namespace ThreeWorkTool
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
             return bytes;
         }
-
-
 
         #endregion
 
@@ -2588,6 +2845,20 @@ namespace ThreeWorkTool
                     txtRPList.Text = "";
                     txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
                     txtRPList = ResourcePathListEntry.LoadRPLInTextBox(txtRPList, rplentry);
+                    RPLBackup = txtRPList.Text;
+                    txtRPList.Visible = true;
+                    FinishRPLRead = true;
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
+                    FinishRPLRead = false;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    MSDEntry msdentry = new MSDEntry();
+                    msdentry = TreeSource.SelectedNode.Tag as MSDEntry;
+                    picBoxA.Visible = false;
+                    txtRPList.Text = "";
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
+                    txtRPList = MSDEntry.LoadMSDInTextBox(txtRPList, msdentry);
                     RPLBackup = txtRPList.Text;
                     txtRPList.Visible = true;
                     FinishRPLRead = true;

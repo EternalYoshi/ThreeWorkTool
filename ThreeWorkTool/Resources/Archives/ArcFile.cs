@@ -65,10 +65,8 @@ namespace ThreeWorkTool.Resources.Archives
                 arcfile.FileList = new List<string>();
                 arcfile.TypeHashes = new List<string>();
                 byte[] FCTemp = new byte[2];
-                Array.Copy(Bytes, 6, FCTemp, 0, 2);//Bytes.Take(2).ToArray();
-                //Array.Reverse(FCTemp);
+                Array.Copy(Bytes, 6, FCTemp, 0, 2);
                 arcfile.FileCount = BitConverter.ToInt16(FCTemp,0);
-                //arcfile.FileCount = Bytes[6];
                 arcfile.FileAmount = Bytes[6];
                 arcfile.UnknownFlag = Bytes[4];
                 arcfile.Version = arcfile.UnknownFlag;
@@ -127,6 +125,15 @@ namespace ThreeWorkTool.Resources.Archives
                             ResourcePathListEntry newplen = ResourcePathListEntry.FillRPLEntry(filename, foldernames, tree, Bytes, j, IDCounter);
                             arcfile.arcfiles.Add(newplen);
                             arcfile.FileList.Add(newplen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
+                        //MSD Files.
+                        case "5B55F5B1":
+                            MSDEntry newmsden = MSDEntry.FillMSDEntry(filename, foldernames, tree, Bytes, j, IDCounter);
+                            arcfile.arcfiles.Add(newmsden);
+                            arcfile.FileList.Add(newmsden.EntryName);
                             foldernames.Clear();
                             IDCounter++;
                             break;
