@@ -45,6 +45,7 @@ namespace ThreeWorkTool
         public string ExFilter;
         public FrmMainThree instance;
         //Variables in Arc stuff.
+        public static StringBuilder SBname;
         public object headerer;
         public object pathlist;
         public object filecmp;
@@ -138,6 +139,10 @@ namespace ThreeWorkTool
                 catch (UnauthorizedAccessException)
                 {
                     MessageBox.Show("Unable to access the file. Maybe it's already in use by something else?", "Oh no it's an error.");
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Cannot access the file:" + "\nMight be in use by another proccess.");
+                    }
                     return;
                 }
 
@@ -200,16 +205,16 @@ namespace ThreeWorkTool
                         {
                             try
                             {
-                                using (var fs = new FileStream(SFDialog.FileName, FileMode.Create, FileAccess.Write))
+                                using (BinaryWriter bwr = new BinaryWriter(File.OpenWrite(SFDialog.FileName)))
                                 {
                                     //Header that has the magic, version number and entry count.
-                                    byte[] ArcHeader = {0x41, 0x52, 0x43, 0x00};
+                                    byte[] ArcHeader = { 0x41, 0x52, 0x43, 0x00 };
                                     byte[] ArcVersion = { 0x07, 0x00 };
                                     //int arcentryoffset = 0x04;
-                                    fs.Write(ArcHeader, 0,4);
+                                    bwr.Write(ArcHeader, 0, 4);
 
-                                    fs.Seek(0x04, SeekOrigin.Begin);
-                                    fs.Write(ArcVersion, 0, ArcVersion.Length);
+                                    bwr.Seek(0x04, SeekOrigin.Begin);
+                                    bwr.Write(ArcVersion, 0, ArcVersion.Length);
 
                                     //Goes to top node to begin iteration.
                                     TreeNode tn = FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
@@ -237,15 +242,15 @@ namespace ThreeWorkTool
                                     foreach (TreeNode treno in Nodes)
                                     {
                                         if (treno.Tag as string != null && treno.Tag as string == "Folder")
-                                        {}
+                                        { }
                                         else
-                                        {nowcount++;}
+                                        { nowcount++; }
                                     }
 
                                     byte[] EntryTotal = BitConverter.GetBytes(Convert.ToInt16(nowcount));
                                     //byte[] EntryTotal = { Convert.ToByte(nowcount) , 0x00};
 
-                                    fs.Write(EntryTotal, 0, EntryTotal.Length);
+                                    bwr.Write(EntryTotal, 0, EntryTotal.Length);
 
                                     string exportname = "";
                                     string HashType = "";
@@ -280,7 +285,7 @@ namespace ThreeWorkTool
                                             exportname = "";
 
                                             exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\"))+1;
+                                            int inp = (exportname.IndexOf("\\")) + 1;
                                             exportname = exportname.Substring(inp, exportname.Length - inp);
                                             /*
                                             foreach (string s in enty.EntryDirs)
@@ -306,7 +311,7 @@ namespace ThreeWorkTool
                                                 writenamedata[i] = namebuffer[i];
                                             }
 
-                                            fs.Write(writenamedata, 0, writenamedata.Length);
+                                            bwr.Write(writenamedata, 0, writenamedata.Length);
 
                                             //Gotta finish writing the data for the Entries of the arc. First the TypeHash,
                                             //then compressed size, decompressed size, and lastly starting data offset.
@@ -316,13 +321,13 @@ namespace ThreeWorkTool
                                             byte[] HashBrown = new byte[4];
                                             HashBrown = StringToByteArray(HashType);
                                             Array.Reverse(HashBrown);
-                                            if(HashBrown.Length < 4)
+                                            if (HashBrown.Length < 4)
                                             {
                                                 byte[] PartHash = new byte[] { };
                                                 PartHash = HashBrown;
                                                 Array.Resize(ref HashBrown, 4);
                                             }
-                                            fs.Write(HashBrown, 0, HashBrown.Length);
+                                            bwr.Write(HashBrown, 0, HashBrown.Length);
 
                                             //For the compressed size.
                                             ComSize = enty.CompressedData.Length;
@@ -330,7 +335,7 @@ namespace ThreeWorkTool
                                             byte[] ComPacked = new byte[4];
                                             ComPacked = StringToByteArray(ComSizeHex);
                                             Array.Reverse(ComPacked);
-                                            fs.Write(ComPacked, 0, ComPacked.Length);
+                                            bwr.Write(ComPacked, 0, ComPacked.Length);
 
                                             //For the unpacked size. No clue why all the entries "start" with 40.
                                             DecSize = enty.UncompressedData.Length;
@@ -339,14 +344,14 @@ namespace ThreeWorkTool
                                             DePacked = StringToByteArray(DecSizeHex);
                                             Array.Reverse(DePacked);
                                             DePacked[3] = 0x40;
-                                            fs.Write(DePacked, 0, DePacked.Length);
+                                            bwr.Write(DePacked, 0, DePacked.Length);
 
                                             //Starting Offset.
                                             string DataEntrySizeHex = DataEntryOffset.ToString("X8");
                                             byte[] DEOffed = new byte[4];
                                             DEOffed = StringToByteArray(DataEntrySizeHex);
                                             Array.Reverse(DEOffed);
-                                            fs.Write(DEOffed, 0, DEOffed.Length);
+                                            bwr.Write(DEOffed, 0, DEOffed.Length);
                                             DataEntryOffset = DataEntryOffset + ComSize;
                                         }
                                         //Saving Textures.
@@ -382,7 +387,7 @@ namespace ThreeWorkTool
                                                 writenamedata[i] = namebuffer[i];
                                             }
 
-                                            fs.Write(writenamedata, 0, writenamedata.Length);
+                                            bwr.Write(writenamedata, 0, writenamedata.Length);
 
                                             //For the typehash.
                                             HashType = "241F5DEB";
@@ -395,7 +400,7 @@ namespace ThreeWorkTool
                                                 PartHash = HashBrown;
                                                 Array.Resize(ref HashBrown, 4);
                                             }
-                                            fs.Write(HashBrown, 0, HashBrown.Length);
+                                            bwr.Write(HashBrown, 0, HashBrown.Length);
 
                                             //For the compressed size.
                                             ComSize = tenty.CompressedData.Length;
@@ -403,7 +408,7 @@ namespace ThreeWorkTool
                                             byte[] ComPacked = new byte[4];
                                             ComPacked = StringToByteArray(ComSizeHex);
                                             Array.Reverse(ComPacked);
-                                            fs.Write(ComPacked, 0, ComPacked.Length);
+                                            bwr.Write(ComPacked, 0, ComPacked.Length);
 
                                             //For the unpacked size. No clue why all the entries "start" with 40.
                                             DecSize = tenty.UncompressedData.Length;
@@ -412,14 +417,14 @@ namespace ThreeWorkTool
                                             DePacked = StringToByteArray(DecSizeHex);
                                             Array.Reverse(DePacked);
                                             DePacked[3] = 0x40;
-                                            fs.Write(DePacked, 0, DePacked.Length);
+                                            bwr.Write(DePacked, 0, DePacked.Length);
 
                                             //Starting Offset.
                                             string DataEntrySizeHex = DataEntryOffset.ToString("X8");
                                             byte[] DEOffed = new byte[4];
                                             DEOffed = StringToByteArray(DataEntrySizeHex);
                                             Array.Reverse(DEOffed);
-                                            fs.Write(DEOffed, 0, DEOffed.Length);
+                                            bwr.Write(DEOffed, 0, DEOffed.Length);
                                             DataEntryOffset = DataEntryOffset + ComSize;
                                         }
                                         else if (treno.Tag as ResourcePathListEntry != null)
@@ -445,7 +450,7 @@ namespace ThreeWorkTool
                                                 writenamedata[i] = namebuffer[i];
                                             }
 
-                                            fs.Write(writenamedata, 0, writenamedata.Length);
+                                            bwr.Write(writenamedata, 0, writenamedata.Length);
 
                                             //For the typehash.
                                             HashType = "357EF6D4";
@@ -458,7 +463,7 @@ namespace ThreeWorkTool
                                                 PartHash = HashBrown;
                                                 Array.Resize(ref HashBrown, 4);
                                             }
-                                            fs.Write(HashBrown, 0, HashBrown.Length);
+                                            bwr.Write(HashBrown, 0, HashBrown.Length);
 
                                             //For the compressed size.
                                             ComSize = lrpenty.CompressedData.Length;
@@ -466,7 +471,7 @@ namespace ThreeWorkTool
                                             byte[] ComPacked = new byte[4];
                                             ComPacked = StringToByteArray(ComSizeHex);
                                             Array.Reverse(ComPacked);
-                                            fs.Write(ComPacked, 0, ComPacked.Length);
+                                            bwr.Write(ComPacked, 0, ComPacked.Length);
 
                                             //For the unpacked size. No clue why all the entries "start" with 40.
                                             DecSize = lrpenty.UncompressedData.Length;
@@ -475,14 +480,14 @@ namespace ThreeWorkTool
                                             DePacked = StringToByteArray(DecSizeHex);
                                             Array.Reverse(DePacked);
                                             DePacked[3] = 0x40;
-                                            fs.Write(DePacked, 0, DePacked.Length);
+                                            bwr.Write(DePacked, 0, DePacked.Length);
 
                                             //Starting Offset.
                                             string DataEntrySizeHex = DataEntryOffset.ToString("X8");
                                             byte[] DEOffed = new byte[4];
                                             DEOffed = StringToByteArray(DataEntrySizeHex);
                                             Array.Reverse(DEOffed);
-                                            fs.Write(DEOffed, 0, DEOffed.Length);
+                                            bwr.Write(DEOffed, 0, DEOffed.Length);
                                             DataEntryOffset = DataEntryOffset + ComSize;
 
                                         }
@@ -509,7 +514,7 @@ namespace ThreeWorkTool
                                                 writenamedata[i] = namebuffer[i];
                                             }
 
-                                            fs.Write(writenamedata, 0, writenamedata.Length);
+                                            bwr.Write(writenamedata, 0, writenamedata.Length);
 
                                             //For the typehash.
                                             HashType = "5B55F5B1";
@@ -522,7 +527,7 @@ namespace ThreeWorkTool
                                                 PartHash = HashBrown;
                                                 Array.Resize(ref HashBrown, 4);
                                             }
-                                            fs.Write(HashBrown, 0, HashBrown.Length);
+                                            bwr.Write(HashBrown, 0, HashBrown.Length);
 
                                             //For the compressed size.
                                             ComSize = msdenty.CompressedData.Length;
@@ -530,7 +535,7 @@ namespace ThreeWorkTool
                                             byte[] ComPacked = new byte[4];
                                             ComPacked = StringToByteArray(ComSizeHex);
                                             Array.Reverse(ComPacked);
-                                            fs.Write(ComPacked, 0, ComPacked.Length);
+                                            bwr.Write(ComPacked, 0, ComPacked.Length);
 
                                             //For the unpacked size. No clue why all the entries "start" with 40.
                                             DecSize = msdenty.UncompressedData.Length;
@@ -539,14 +544,14 @@ namespace ThreeWorkTool
                                             DePacked = StringToByteArray(DecSizeHex);
                                             Array.Reverse(DePacked);
                                             DePacked[3] = 0x40;
-                                            fs.Write(DePacked, 0, DePacked.Length);
+                                            bwr.Write(DePacked, 0, DePacked.Length);
 
                                             //Starting Offset.
                                             string DataEntrySizeHex = DataEntryOffset.ToString("X8");
                                             byte[] DEOffed = new byte[4];
                                             DEOffed = StringToByteArray(DataEntrySizeHex);
                                             Array.Reverse(DEOffed);
-                                            fs.Write(DEOffed, 0, DEOffed.Length);
+                                            bwr.Write(DEOffed, 0, DEOffed.Length);
                                             DataEntryOffset = DataEntryOffset + ComSize;
 
                                         }
@@ -555,8 +560,8 @@ namespace ThreeWorkTool
                                     }
 
                                     //This part goes to where the data offset begins and fills the in between areas with zeroes.
-                                    fs.Position = 0;
-                                    long CPos = fs.Seek(dataoffset, SeekOrigin.Current);
+                                    bwr.BaseStream.Position = 0;
+                                    long CPos = bwr.Seek(dataoffset, SeekOrigin.Current);
 
                                     foreach (TreeNode treno in Nodes)
                                     {
@@ -564,20 +569,20 @@ namespace ThreeWorkTool
                                         {
                                             enty = treno.Tag as ArcEntry;
                                             byte[] CompData = enty.CompressedData;
-                                            fs.Write(CompData, 0, CompData.Length);
+                                            bwr.Write(CompData, 0, CompData.Length);
                                         }
-                                        else if(treno.Tag as TextureEntry != null)
+                                        else if (treno.Tag as TextureEntry != null)
                                         {
                                             tenty = treno.Tag as TextureEntry;
                                             byte[] CompData = tenty.CompressedData;
-                                            fs.Write(CompData, 0, CompData.Length);
+                                            bwr.Write(CompData, 0, CompData.Length);
                                         }
 
                                         else if (treno.Tag as ResourcePathListEntry != null)
                                         {
                                             lrpenty = treno.Tag as ResourcePathListEntry;
                                             byte[] CompData = lrpenty.CompressedData;
-                                            fs.Write(CompData, 0, CompData.Length);
+                                            bwr.Write(CompData, 0, CompData.Length);
 
                                         }
 
@@ -585,13 +590,13 @@ namespace ThreeWorkTool
                                         {
                                             msdenty = treno.Tag as MSDEntry;
                                             byte[] CompData = msdenty.CompressedData;
-                                            fs.Write(CompData, 0, CompData.Length);
+                                            bwr.Write(CompData, 0, CompData.Length);
 
                                         }
 
                                     }
 
-                                    fs.Close();
+                                    bwr.Close();
                                     OpenFileModified = false;
 
                                     //Writes to log file.
@@ -1550,7 +1555,6 @@ namespace ThreeWorkTool
                     sw.WriteLine("Deleted a Folder and everything in it: " + frename.Mainfrm.TreeSource.SelectedNode + "\nCurrent File List:\n");
                     sw.WriteLine("===============================================================================================================");
 
-                    int filecount = 0;
                     int filesremoved = 0;
                     filesremoved = frename.Mainfrm.TreeSource.SelectedNode.GetNodeCount(true);
 
@@ -2375,13 +2379,7 @@ namespace ThreeWorkTool
 
         private void TreeSource_SelectionChanged(object sender, EventArgs e)
         {
-            ThreeSourceNodeBase b;
-            ArcEntryWrapper aewrap;
-            if ((TreeSource.SelectedNode is ArcEntryWrapper) && (TreeSource.SelectedNode != null))
-            {
-                //aewrap = TreeSource.SelectedNode as ArcEntryWrapper;
-                //pGrdMain.SelectedObject = aewrap.entryData;
-            }
+
         }
 
         //Makes Bitmap from byte array containing DDS file.
@@ -2481,7 +2479,6 @@ namespace ThreeWorkTool
 
         private void ArcFill()
         {
-            //string dirchecker;
 
             tcount = 0;
 
@@ -2495,7 +2492,6 @@ namespace ThreeWorkTool
             TreeFill(newArc.Tempname, NCount, newArc);
 
             NCount = 1;
-            //int RCount = 0;
 
             Arcsize = newArc.Totalsize;
 
@@ -2509,7 +2505,7 @@ namespace ThreeWorkTool
 
                 switch(type)
                 {
-                    //Commented out until the next release.
+                    //Commented out until a future release.
 /*
                     case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
                         MSDEntry mse = new MSDEntry();
@@ -2640,7 +2636,6 @@ namespace ThreeWorkTool
                 count++;
             }
 
-                int c = 0;
             if (WrapNode.Tag is ArcEntry)
             {
                 foreach (TreeNode tn in WrapNode.Nodes)
@@ -2736,100 +2731,6 @@ namespace ThreeWorkTool
             string type = e.Node.Tag.GetType().ToString();
 
             UpdateNodeSelection(type);
-            /*
-            switch (type)
-            {
-                case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
-                    FinishRPLRead = false;
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    ResourcePathListEntry rplentry = new ResourcePathListEntry();
-                    rplentry = e.Node.Tag as ResourcePathListEntry;
-                    picBoxA.Visible = false;
-                    txtRPList.Text = "";
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
-                    txtRPList = ResourcePathListEntry.LoadRPLInTextBox(txtRPList, rplentry);
-                    RPLBackup = txtRPList.Text;
-                    txtRPList.Visible = true;
-                    FinishRPLRead = true;
-                    break;
-
-                case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    //tentry = new TextureEntry();
-                    tentry = e.Node.Tag as TextureEntry;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    picBoxA.Visible = true;
-                    bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
-                    if (bmx == null)
-                    {
-                        picBoxA.Image = picBoxA.ErrorImage;
-                        break;
-                    }
-                    else
-                    {
-                        ImageRescaler(bmx, picBoxA, tentry);
-                        picBoxA.BackColor = Color.Magenta;
-                        break;
-                    }
-
-                case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    //tentry = new TextureEntry();
-                    tentry = e.Node.Tag as TextureEntry;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    picBoxA.Visible = true;
-                    bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
-                    if (bmx == null)
-                    {
-                        picBoxA.Image = picBoxA.ErrorImage;
-                        break;
-                    }
-                    else
-                    {
-                        ImageRescaler(bmx, picBoxA, tentry);
-                        picBoxA.BackColor = Color.Magenta;
-                        break;
-                    }
-
-                case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
-                    ArcEntry entry = new ArcEntry();
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    break;
-
-                case "ThreeWorkTool.Resources.Archives.ArcEntry":
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    break;
-
-                case "ThreeWorkTool.Resources.Wrappers.ArcFileWrapper":
-                    ArcFile afile = new ArcFile();
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    break;
-
-                case "ThreeWorkTool.Resources.Archives.ArcFile":
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    break;
-                default:
-                    pGrdMain.SelectedObject = null;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    break;
-            }
-            */
         }
 
         private void UpdateNodeSelection(string type)

@@ -394,8 +394,6 @@ namespace ThreeWorkTool.Resources.Wrappers
                     byte[] PTHName = new byte[] { };
 
                     int p = 16;
-                    string Teme;
-                    string Hame;
 
                     for (int g = 0; g < MSDNentry.EntryCount; g++)
                     {
@@ -448,6 +446,10 @@ namespace ThreeWorkTool.Resources.Wrappers
             catch (Exception ex)
             {
                 MessageBox.Show("Read error. Is the file readable?");
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("MSD Replacement failed. Here's details:\n" + ex);
+                }
             }
 
 

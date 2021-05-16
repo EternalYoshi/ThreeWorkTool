@@ -8,6 +8,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources.Utility;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -41,19 +42,18 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         public List<PathEntries> EntryList;
 
-        public static ResourcePathListEntry FillRPLEntry(string filename, List<string> subnames, TreeView tree, byte[] Bytes, int c, int ID, Type filetype = null)
+        public static ResourcePathListEntry FillRPLEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
             ResourcePathListEntry RPLentry = new ResourcePathListEntry();
 
-            using (FileStream fs = File.OpenRead(filename))
-            {
-                //This block gets the name of the entry.
 
-                RPLentry.OffsetTemp = c;
-                RPLentry.EntryID = ID;
-                byte[] BTemp;
-                BTemp = new byte[] { };
-                BTemp = Bytes.Skip(RPLentry.OffsetTemp).Take(64).Where(x => x != 0x00).ToArray();
+            //This block gets the name of the entry.
+            RPLentry.OffsetTemp = c;
+            RPLentry.EntryID = ID;
+            List<byte> BTemp = new List<byte>();
+            br.BaseStream.Position = RPLentry.OffsetTemp;
+            BTemp.AddRange(br.ReadBytes(64));
+            BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
 
                 if (SBname == null)
                 {
@@ -66,44 +66,46 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 string Tempname;
                 ASCIIEncoding ascii = new ASCIIEncoding();
-                Tempname = ascii.GetString(BTemp);
+                Tempname = ascii.GetString(BTemp.ToArray());
 
-                //Compressed Data size.
-                BTemp = new byte[] { };
-                c = c + 68;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                BTemp.Reverse();
-                RPLentry.CSize = BitConverter.ToInt32(BTemp, 0);
+            //Compressed Data size.
+            BTemp = new List<byte>();
+            c = c + 68;
+            br.BaseStream.Position = c;
+            BTemp.AddRange(br.ReadBytes(4));
+            RPLentry.CSize = BitConverter.ToInt32(BTemp.ToArray(), 0);
 
-                //Uncompressed Data size.
-                BTemp = new byte[] { };
-                c = c + 4;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                Array.Reverse(BTemp);
-                string TempStr = "";
-                TempStr = BytesToString(BTemp, TempStr);
-                BigInteger BN1, BN2, DIFF;
-                BN2 = BigInteger.Parse("40000000", NumberStyles.HexNumber);
-                BN1 = BigInteger.Parse(TempStr, NumberStyles.HexNumber);
-                DIFF = BN1 - BN2;
-                RPLentry.DSize = (int)DIFF;
+            //Uncompressed Data size.
+            BTemp = new List<byte>();
+            c = c + 4;
+            br.BaseStream.Position = c;
+            BTemp.AddRange(br.ReadBytes(4));
+            BTemp.Reverse();
+            string TempStr = "";
+            TempStr = ByteUtilitarian.BytesToStringL2(BTemp, TempStr);
+            BigInteger BN1, BN2, DIFF;
+            BN2 = BigInteger.Parse("40000000", NumberStyles.HexNumber);
+            BN1 = BigInteger.Parse(TempStr, NumberStyles.HexNumber);
+            DIFF = BN1 - BN2;
+            RPLentry.DSize = (int)DIFF;
 
-                //Data Offset.
-                BTemp = new byte[] { };
-                c = c + 4;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                BTemp.Reverse();
-                RPLentry.AOffset = BitConverter.ToInt32(BTemp, 0);
+            //Data Offset.
+            BTemp = new List<byte>();
+            c = c + 4;
+            br.BaseStream.Position = c;
+            BTemp.AddRange(br.ReadBytes(4));
+            RPLentry.AOffset = BitConverter.ToInt32(BTemp.ToArray(), 0);
 
-                //Compressed Data.
-                BTemp = new byte[] { };
-                c = RPLentry.AOffset;
-                BTemp = Bytes.Skip(c).Take(RPLentry.CSize).ToArray();
-                RPLentry.CompressedData = BTemp;
+            //Compressed Data.
+            BTemp = new List<byte>();
+            c = RPLentry.AOffset;
+            br.BaseStream.Position = c;
+            BTemp.AddRange(br.ReadBytes(RPLentry.CSize));
+            RPLentry.CompressedData = BTemp.ToArray();
 
 
-                //Namestuff.
-                RPLentry.EntryName = Tempname;
+            //Namestuff.
+            RPLentry.EntryName = Tempname;
 
                 //Ensures existing subdirectories are cleared so the directories for files are displayed correctly.
                 if (subnames != null)
@@ -160,11 +162,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                 byte[] MTemp = new byte[4];
                 string STemp = " ";
                 Array.Copy(RPLentry.UncompressedData,0,MTemp,0,4);
-                RPLentry.Magic = BytesToString(MTemp, RPLentry.Magic);
+                RPLentry.Magic = ByteUtilitarian.BytesToString(MTemp, RPLentry.Magic);
 
                 Array.Copy(RPLentry.UncompressedData, 12, MTemp, 0, 4);
                 Array.Reverse(MTemp);
-                STemp = BytesToString(MTemp,STemp);
+                STemp = ByteUtilitarian.BytesToString(MTemp,STemp);
 
                 int ECTemp = Convert.ToInt32(STemp, 16);
                 RPLentry._EntryTotal = ECTemp;
@@ -190,7 +192,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     PTHName = RPLentry.UncompressedData.Skip(p).Take(4).Where(x => x != 0x00).ToArray();
                     Array.Reverse(PTHName);
 
-                    Teme = BytesToString(PTHName, Teme);
+                    Teme = ByteUtilitarian.BytesToString(PTHName, Teme);
                     pe.TypeHash = Teme;
 
                     try
@@ -216,8 +218,12 @@ namespace ThreeWorkTool.Resources.Wrappers
                     }
                     catch (FileNotFoundException)
                     {
-                        MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                        fs.Close();
+                    MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
+                    }
+                    return null;
                     }
 
                     RPLentry.EntryList.Add(pe);
@@ -229,7 +235,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 return RPLentry;
 
-            }
+            
         }
 
         #region ResourcePathListEntryProperties
@@ -294,102 +300,6 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         #endregion
-
-        public static string BytesToString(byte[] bytes, string s)
-        {
-            string temps;
-            string tru = "";
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                temps = bytes[i].ToString("X");
-                if (temps == "0")
-                {
-                    temps = "00";
-                }
-                else if (temps == "1")
-                {
-                    temps = "01";
-                }
-                else if (temps == "2")
-                {
-                    temps = "02";
-                }
-                else if (temps == "3")
-                {
-                    temps = "03";
-                }
-                else if (temps == "4")
-                {
-                    temps = "04";
-                }
-                else if (temps == "5")
-                {
-                    temps = "05";
-                }
-                else if (temps == "6")
-                {
-                    temps = "06";
-                }
-                else if (temps == "7")
-                {
-                    temps = "07";
-                }
-                else if (temps == "8")
-                {
-                    temps = "08";
-                }
-                else if (temps == "9")
-                {
-                    temps = "09";
-                }
-                else if (temps == "A")
-                {
-                    temps = "0A";
-                }
-                else if (temps == "B")
-                {
-                    temps = "0B";
-                }
-                else if (temps == "C")
-                {
-                    temps = "0C";
-                }
-                else if (temps == "D")
-                {
-                    temps = "0D";
-                }
-                else if (temps == "E")
-                {
-                    temps = "0E";
-                }
-                else if (temps == "F")
-                {
-                    temps = "0F";
-                }
-                tru += temps;
-            }
-            return tru;
-        }
-
-        public static byte[] StringToByteArray(string hex)
-        {
-            int NumberChars = hex.Length;
-            byte[] bytes = new byte[NumberChars / 2];
-            for (int i = 0; i < NumberChars; i += 2)
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-            return bytes;
-        }
-
-        public static byte[] BinaryStringToByteArray(string binary)
-        {
-            int numOfBytes = binary.Length / 8;
-            byte[] bytes = new byte[numOfBytes];
-            for (int i = 0; i < numOfBytes; ++i)
-            {
-                bytes[i] = Convert.ToByte(binary.Substring(8 * i, 8), 2);
-            }
-            return bytes;
-        }
 
         public static TextBox LoadRPLInTextBox(TextBox texbox, ResourcePathListEntry rple)
         {
@@ -479,7 +389,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             //Converts an integer to 4 bytes in a roundabout way.
             string LRPSize = EstimatedSize.ToString("X8");
             byte[] LRPProjSize = new byte[4];
-            LRPProjSize = StringToByteArray(LRPSize);
+            LRPProjSize = ByteUtilitarian.StringToByteArray(LRPSize);
             Array.Reverse(LRPProjSize);
 
             //Finishes the header for the new LRP built from what you see on the textbox.
@@ -557,12 +467,16 @@ namespace ThreeWorkTool.Resources.Wrappers
                     catch (FileNotFoundException)
                     {
                         MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
+                        }
                         return null;
                     }
                 }
                 if(ExtFound == true)
                 {
-                    HashTempDX = StringToByteArray(HashStr);
+                    HashTempDX = ByteUtilitarian.StringToByteArray(HashStr);
                     Array.Reverse(HashTempDX);
                 }
                 else
@@ -620,7 +534,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             try
             {
-                using (FileStream fs = File.OpenRead(filename))
+                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
                 {
                     //We build the arcentry starting from the uncompressed data.
                     rplentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
@@ -653,19 +567,17 @@ namespace ThreeWorkTool.Resources.Wrappers
                     rplentry.EntryName = rplentry.FileName;
 
                     //Specific file type work goes here!
-
-                    string Tempname;
                     ASCIIEncoding ascii = new ASCIIEncoding();
 
                     //Gets the Magic.
                     byte[] MTemp = new byte[4];
                     string STemp = " ";
                     Array.Copy(rplentry.UncompressedData, 0, MTemp, 0, 4);
-                    rplentry.Magic = BytesToString(MTemp, rplentry.Magic);
+                    rplentry.Magic = ByteUtilitarian.BytesToString(MTemp, rplentry.Magic);
 
                     Array.Copy(rplentry.UncompressedData, 12, MTemp, 0, 4);
                     Array.Reverse(MTemp);
-                    STemp = BytesToString(MTemp, STemp);
+                    STemp = ByteUtilitarian.BytesToString(MTemp, STemp);
 
                     int ECTemp = Convert.ToInt32(STemp, 16);
                     rplentry._EntryTotal = ECTemp;
@@ -691,7 +603,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         PTHName = rplentry.UncompressedData.Skip(p).Take(4).Where(x => x != 0x00).ToArray();
                         Array.Reverse(PTHName);
 
-                        Teme = BytesToString(PTHName, Teme);
+                        Teme = ByteUtilitarian.BytesToString(PTHName, Teme);
                         pe.TypeHash = Teme;
 
                         try
@@ -718,7 +630,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                         catch (FileNotFoundException)
                         {
                             MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                            fs.Close();
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
+                            }
+                            return null;
                         }
 
                         rplentry.EntryList.Add(pe);
@@ -732,10 +648,11 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
             catch (Exception ex)
             {
-
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Caught the exception:" + ex);
+                }
             }
-
-
 
             return rplentry;
         }
@@ -806,11 +723,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                     byte[] MTemp = new byte[4];
                     string STemp = " ";
                     Array.Copy(rpathentry.UncompressedData, 0, MTemp, 0, 4);
-                    rpathentry.Magic = BytesToString(MTemp, rpathentry.Magic);
+                    rpathentry.Magic = ByteUtilitarian.BytesToString(MTemp, rpathentry.Magic);
 
                     Array.Copy(rpathentry.UncompressedData, 12, MTemp, 0, 4);
                     Array.Reverse(MTemp);
-                    STemp = BytesToString(MTemp, STemp);
+                    STemp = ByteUtilitarian.BytesToString(MTemp, STemp);
 
                     int ECTemp = Convert.ToInt32(STemp, 16);
                     rpathentry._EntryTotal = ECTemp;
@@ -836,7 +753,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         PTHName = rpathentry.UncompressedData.Skip(p).Take(4).Where(x => x != 0x00).ToArray();
                         Array.Reverse(PTHName);
 
-                        Teme = BytesToString(PTHName, Teme);
+                        Teme = ByteUtilitarian.BytesToString(PTHName, Teme);
                         pe.TypeHash = Teme;
 
                         try
@@ -917,125 +834,16 @@ namespace ThreeWorkTool.Resources.Wrappers
             catch (Exception ex)
             {
                 MessageBox.Show("Read error. Is the file readable?");
-            }
-
-
-
-            return node.entryfile as ResourcePathListEntry;
-        }
-
-        /*
-         
-                public static ResourcePathListEntry ReplaceRPL(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
-        {
-            ResourcePathListEntry rpathentry = new ResourcePathListEntry();
-            ResourcePathListEntry rpoldentry = new ResourcePathListEntry();
-
-            tree.BeginUpdate();
-
-            //Gotta Fix this up then test insert and replacing.
-            try
-            {
-                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
+                using (StreamWriter sw = File.AppendText("Log.txt"))
                 {
-                    //We build the arcentry starting from the uncompressed data.
-                    rpathentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
-
-                    //Then Compress.
-                    rpathentry.CompressedData = Zlibber.Compressor(rpathentry.UncompressedData);
-
-                    //Gets the filename of the file to inject without the directory.
-                    string trname = filename;
-                    while (trname.Contains("\\"))
-                    {
-                        trname = trname.Substring(trname.IndexOf("\\") + 1);
-                    }
-
-                    //Enters name related parameters of the arcentry.
-                    rpathentry.TrueName = trname;
-                    rpathentry._FileName = rpathentry.TrueName;
-                    rpathentry.TrueName = Path.GetFileNameWithoutExtension(trname);
-                    rpathentry.FileExt = trname.Substring(trname.LastIndexOf("."));
-                    rpathentry._FileType = rpathentry.FileExt;
-
-                    string TypeHash = "";
-
-                    //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
-                    try
-                    {
-                        using (var sr2 = new StreamReader("archive_filetypes.cfg"))
-                        {
-                            while (!sr2.EndOfStream)
-                            {
-                                var keyword = Console.ReadLine() ?? rpathentry.FileExt;
-                                var line = sr2.ReadLine();
-                                if (String.IsNullOrEmpty(line)) continue;
-                                if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
-                                {
-                                    TypeHash = line;
-                                    TypeHash = TypeHash.Split(' ')[0];
-                                    //arcentry.TypeHash = TypeHash;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-
-                    }
-
-                    var tag = node.Tag;
-                    if (tag is ResourcePathListEntry)
-                    {
-                        rpoldentry = tag as ResourcePathListEntry;
-                    }
-                    string path = "";
-                    int index = rpoldentry.EntryName.LastIndexOf("\\");
-                    if (index > 0)
-                    {
-                        path = rpoldentry.EntryName.Substring(0, index);
-                    }
-
-                    rpathentry.EntryName = path + "\\" + rpathentry.TrueName;
-
-                    tag = rpathentry;
-
-                    if (node.Tag is ResourcePathListEntry)
-                    {
-                        node.Tag = rpathentry;
-                        node.Name = Path.GetFileNameWithoutExtension(rpathentry.EntryName);
-                        node.Text = Path.GetFileNameWithoutExtension(rpathentry.EntryName);
-
-                    }
-
-                    var aew = node as ArcEntryWrapper;
-
-                    string type = node.GetType().ToString();
-                    if (type == "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper")
-                    {
-                        aew.entryfile = rpathentry;
-                    }
-
-                    node = aew;
-                    node.entryfile = rpathentry;
-                    tree.EndUpdate();
-
+                    sw.WriteLine("Read error. Cannot access the file:" + filename + "\n" + ex);
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Read error. Is the file readable?");
-            }
 
 
 
             return node.entryfile as ResourcePathListEntry;
         }
-
-         
-         */
 
     }
 }

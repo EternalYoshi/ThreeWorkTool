@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources.Wrappers;
+using ThreeWorkTool.Resources.Utility;
+
 
 namespace ThreeWorkTool.Resources.Archives
 {
@@ -30,7 +32,6 @@ namespace ThreeWorkTool.Resources.Archives
         public int IDCounter;
         public int Totalsize;
         public List<string> subdref;
-
         public static int EntryStart = 0x08;
         public static int EntrySize = 0x50;
 
@@ -40,48 +41,51 @@ namespace ThreeWorkTool.Resources.Archives
         {
             
             ArcFile arcfile = new ArcFile();
+            byte[] Bytes = File.ReadAllBytes(filename);
 
-            using (FileStream fs = File.OpenRead(filename))
+            using (BinaryReader br = new BinaryReader(File.Open(filename, FileMode.Open)))
             {
-                byte[] Bytes = File.ReadAllBytes(filename);
 
                 arcsize = Bytes.Length;
                 int Totalsize = arcsize;
                 arcfile.FileLength = arcsize;
-
-                fs.Read(Bytes, 0, Convert.ToInt32(fs.Length));
-
                 arcfile.Tempname = filename;
 
+                br.BaseStream.Position = 0;
+                byte[] HeaderMagic = br.ReadBytes(4);
                 //Checks file signature/Endianess.
-                if (Bytes[0] != 0x41 && Bytes[1] != 0x52 && Bytes[1] != 0x43)
+                if (HeaderMagic[0] == 0x00 && HeaderMagic[1] == 0x43 && HeaderMagic[2] == 0x52 && HeaderMagic[3] == 0x41)
                 {
                     MessageBox.Show("This .arc file is not in the kind of endian I can deal with right now, so I'm closing it.", "Ummm");
-                    fs.Close();
+                    br.Close();
+                    return null;
                 }
+
+                arcfile.HeaderMagic = HeaderMagic;
 
                 arcfile.arctable = new List<ArcEntry>();
                 arcfile.arcfiles = new List<object>();
                 arcfile.FileList = new List<string>();
                 arcfile.TypeHashes = new List<string>();
-                byte[] FCTemp = new byte[2];
-                Array.Copy(Bytes, 6, FCTemp, 0, 2);
-                arcfile.FileCount = BitConverter.ToInt16(FCTemp,0);
-                arcfile.FileAmount = Bytes[6];
-                arcfile.UnknownFlag = Bytes[4];
+
+                br.BaseStream.Position = 4;
+                arcfile.UnknownFlag = br.ReadByte();
+
+                br.BaseStream.Position = 6;
+                arcfile.FileCount = BitConverter.ToInt16((br.ReadBytes(2)), 0);
                 arcfile.Version = arcfile.UnknownFlag;
-                arcfile.HeaderMagic = Bytes.Take(4).ToArray();
 
                 List<String> filenames = new List<String>();
 
                 List<string> subdref = new List<string>();
                 foldernames = subdref;
 
-                byte[] BytesTemp;
-                BytesTemp = new byte[] { };
+
+                //byte[] BytesTemp;
+                //BytesTemp = new byte[] { };
+                List<byte> BytesTemp = new List<byte>();
                 byte[] HTTemp = new byte[] { };
                 int j = 8;
-                //int k = 0;
                 int l = 64;
                 int m = 80;
                 int n = 4;
@@ -89,17 +93,21 @@ namespace ThreeWorkTool.Resources.Archives
                 //Iterates through the header/first part of the arc to get all the filenames and occupy the filename list.
                 for (int i = 0; i < arcfile.FileCount; i++)
                 {
-                    Array.Clear(BytesTemp, 0, BytesTemp.Length);
+                    BytesTemp.Clear();
+                    BytesTemp.TrimExcess();
                     j = 8 + (m * i);
                     //Copies the specified range to isolate the bytes containing a filename.
-                    BytesTemp = Bytes.Skip(j).Take(l).Where(x => x != 0x00).ToArray();
-                    //Array.Copy(Bytes, j, BytesTemp,k,l - j);
-                    filenames.Add(BytesToString(BytesTemp));
+                    br.BaseStream.Position = j;
+                    BytesTemp.AddRange(br.ReadBytes(l));
+                    BytesTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
+                    filenames.Add(ByteUtilitarian.BytesToStringL(BytesTemp));
                     //For The Typehashes.
-                     n = 72 + (m * i);
-                    HTTemp = Bytes.Skip(n).Take(4).ToArray();
+                    n = 72 + (m * i);
+
+                    br.BaseStream.Position = n;
+                    HTTemp = br.ReadBytes(4);
                     Array.Reverse(HTTemp);
-                    arcfile.TypeHashes.Add(HashBytesToString(HTTemp));
+                    arcfile.TypeHashes.Add(ByteUtilitarian.HashBytesToString(HTTemp));
 
                 }
 
@@ -113,7 +121,7 @@ namespace ThreeWorkTool.Resources.Archives
                     {
                         //Texture Files.
                         case "241F5DEB":
-                            TextureEntry newtexen = TextureEntry.FillTexEntry(filename, foldernames, tree, Bytes, j, IDCounter);
+                            TextureEntry newtexen = TextureEntry.FillTexEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(newtexen);
                             arcfile.FileList.Add(newtexen.EntryName);
                             foldernames.Clear();
@@ -122,14 +130,14 @@ namespace ThreeWorkTool.Resources.Archives
 
                         //Resource Path Lists.
                         case "357EF6D4":
-                            ResourcePathListEntry newplen = ResourcePathListEntry.FillRPLEntry(filename, foldernames, tree, Bytes, j, IDCounter);
+                            ResourcePathListEntry newplen = ResourcePathListEntry.FillRPLEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(newplen);
                             arcfile.FileList.Add(newplen.EntryName);
                             foldernames.Clear();
                             IDCounter++;
                             break;
 
-                        //MSD Files. Commented out until the next release.
+                        //MSD Files. Commented out until a future release.
                         /*
                         case "5B55F5B1":
                             MSDEntry newmsden = MSDEntry.FillMSDEntry(filename, foldernames, tree, Bytes, j, IDCounter);
@@ -141,26 +149,19 @@ namespace ThreeWorkTool.Resources.Archives
                         */
 
                         default:
-                    //Everything not listed above.
-                    ArcEntry newentry = ArcEntry.FillEntry(filename, foldernames, tree, Bytes, j, IDCounter);
-                    arcfile.arcfiles.Add(newentry);
-                    arcfile.FileList.Add(newentry.EntryName);
-                    foldernames.Clear();
-                    IDCounter++;
-                    break;
+                            //Everything not listed above.
+                            ArcEntry newentry = ArcEntry.FillEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(newentry);
+                            arcfile.FileList.Add(newentry.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
                     }
                 }
 
 
 
-                fs.Close();
-
-                for (int i = 0; i > arcfile.FileCount; i++)
-                {
-
-
-                }
-
+                br.Close();
             }
 
             return arcfile;

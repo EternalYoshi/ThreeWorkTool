@@ -8,6 +8,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources.Utility;
 using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool.Resources.Archives
@@ -31,19 +32,17 @@ namespace ThreeWorkTool.Resources.Archives
         public string[] EntryDirs;
         public int EntryID;
 
-        public static ArcEntry FillEntry(string filename, List<string> subnames, TreeView tree, byte[] Bytes, int c, int ID, Type filetype = null)
+        public static ArcEntry FillEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
             ArcEntry arcentry = new ArcEntry();
 
-            using (FileStream fs = File.OpenRead(filename))
-            {
                 //This block gets the name of the entry.
-
                 arcentry.OffsetTemp = c;
                 arcentry.EntryID = ID;
-                byte[] BTemp;
-                BTemp = new byte[] { };
-                BTemp = Bytes.Skip(arcentry.OffsetTemp).Take(64).Where(x => x != 0x00).ToArray();
+                List<byte> BTemp = new List<byte>();
+                br.BaseStream.Position = arcentry.OffsetTemp;
+                BTemp.AddRange(br.ReadBytes(64));
+                BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
 
                 if (SBname == null)
                 {
@@ -56,32 +55,33 @@ namespace ThreeWorkTool.Resources.Archives
 
                 string Tempname;
                 ASCIIEncoding ascii = new ASCIIEncoding();
-                Tempname = ascii.GetString(BTemp);
+                Tempname = ascii.GetString(BTemp.ToArray());
 
                 //This is for the bytes that have the typehash, the thing that dictates the type of file stored.
-
-                BTemp = new byte[] { };
+                BTemp = new List<byte>();
                 c = c + 64;
-                BTemp = Bytes.Skip(c).Take(4).Where(x => x != 0x00).ToArray();
-                Array.Reverse(BTemp);
-                arcentry.TypeHash = BytesToString(BTemp, arcentry.TypeHash);
+                br.BaseStream.Position = c;
+                BTemp.AddRange(br.ReadBytes(4));
+                BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
+                BTemp.Reverse();
+                arcentry.TypeHash = ByteUtilitarian.BytesToStringL2(BTemp, arcentry.TypeHash);
 
                 //Compressed Data size.
-
-                BTemp = new byte[] { };
+                BTemp = new List<byte>();
                 c = c + 4;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                BTemp.Reverse();
-                arcentry.CSize = BitConverter.ToInt32(BTemp, 0);
+                br.BaseStream.Position = c;
+                BTemp.AddRange(br.ReadBytes(4));
+                arcentry.CSize = BitConverter.ToInt32(BTemp.ToArray(), 0);
 
                 //Uncompressed Data size.
-
-                BTemp = new byte[] { };
+                BTemp = new List<byte>();
                 c = c + 4;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                Array.Reverse(BTemp);
+                br.BaseStream.Position = c;
+                BTemp.AddRange(br.ReadBytes(4));
+                BTemp.Reverse();
+
                 string TempStr = "";
-                TempStr = BytesToString(BTemp, TempStr);
+                TempStr = ByteUtilitarian.BytesToStringL2(BTemp, TempStr);
                 BigInteger BN1, BN2, DIFF;
                 BN2 = BigInteger.Parse("40000000", NumberStyles.HexNumber);
                 BN1 = BigInteger.Parse(TempStr, NumberStyles.HexNumber);
@@ -89,17 +89,19 @@ namespace ThreeWorkTool.Resources.Archives
                 arcentry.DSize = (int)DIFF;
 
                 //Data Offset.
-                BTemp = new byte[] { };
+                BTemp = new List<byte>();
                 c = c + 4;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                BTemp.Reverse();
-                arcentry.AOffset = BitConverter.ToInt32(BTemp, 0);
+                br.BaseStream.Position = c;
+                BTemp.AddRange(br.ReadBytes(4));
+                //BTemp.Reverse();
+                arcentry.AOffset = BitConverter.ToInt32(BTemp.ToArray(), 0);
 
                 //Compressed Data.
-                BTemp = new byte[] { };
+                BTemp = new List<byte>();
                 c = arcentry.AOffset;
-                BTemp = Bytes.Skip(c).Take(arcentry.CSize).ToArray();
-                arcentry.CompressedData = BTemp;
+                br.BaseStream.Position = c;
+                BTemp.AddRange(br.ReadBytes(arcentry.CSize));
+                arcentry.CompressedData = BTemp.ToArray();
 
                 //Namestuff.
                 arcentry.EntryName = Tempname;
@@ -169,12 +171,16 @@ namespace ThreeWorkTool.Resources.Archives
                 }
                 catch (FileNotFoundException)
                 {
-                    MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                    fs.Close();
+                MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
+                }
+                return null;
                 }
 
 
-            }
+            
 
             arcentry._FileName = arcentry.TrueName + arcentry.FileExt;
 
@@ -185,84 +191,6 @@ namespace ThreeWorkTool.Resources.Archives
 
 
             return arcentry;
-        }
-
-        public static string BytesToString(byte[] bytes, string s)
-        {
-            string temps;
-            string tru = "";
-            //int tempi;
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                temps = bytes[i].ToString("X");
-                //Fix this for other single digit numbers!
-                if (temps == "0")
-                {
-                    temps = "00";
-                }
-                else if (temps == "1")
-                {
-                    temps = "01";
-                }
-                else if (temps == "2")
-                {
-                    temps = "02";
-                }
-                else if (temps == "3")
-                {
-                    temps = "03";
-                }
-                else if (temps == "4")
-                {
-                    temps = "04";
-                }
-                else if (temps == "5")
-                {
-                    temps = "05";
-                }
-                else if (temps == "6")
-                {
-                    temps = "06";
-                }
-                else if (temps == "7")
-                {
-                    temps = "07";
-                }
-                else if (temps == "8")
-                {
-                    temps = "08";
-                }
-                else if (temps == "9")
-                {
-                    temps = "09";
-                }
-                else if (temps == "A")
-                {
-                    temps = "0A";
-                }
-                else if (temps == "B")
-                {
-                    temps = "0B";
-                }
-                else if (temps == "C")
-                {
-                    temps = "0C";
-                }
-                else if (temps == "D")
-                {
-                    temps = "0D";
-                }
-                else if (temps == "E")
-                {
-                    temps = "0E";
-                }
-                else if (temps == "F")
-                {
-                    temps = "0F";
-                }
-                tru += temps;
-            }
-            return tru;
         }
 
         public static ArcEntry ReplaceEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
@@ -325,7 +253,11 @@ namespace ThreeWorkTool.Resources.Archives
                     catch (FileNotFoundException)
                     {
                         MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
+                        }
+                        return null;
                     }
 
                     var tag = node.Tag;
@@ -376,7 +308,11 @@ namespace ThreeWorkTool.Resources.Archives
             catch(Exception ex)
            {
                 MessageBox.Show("Read error. Is the file readable?");
-           }
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Read Error! Here's the exception info:\n" + ex);
+                }
+            }
 
 
 
@@ -447,7 +383,10 @@ namespace ThreeWorkTool.Resources.Archives
                     catch (FileNotFoundException)
                     {
                         MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                        
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
+                        }
                     }
 
 
@@ -455,7 +394,10 @@ namespace ThreeWorkTool.Resources.Archives
             }
             catch(Exception ex)
             {
-
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Caught an exception using the BinaryReader. Here's the details:\n" + ex);
+                }
             }
 
 

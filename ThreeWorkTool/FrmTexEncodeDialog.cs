@@ -292,6 +292,10 @@ namespace ThreeWorkTool
             catch (Exception vi)
             {
                 MessageBox.Show("Either this file isn't a proper DDS file or I can't read it because it's in use by some other proccess.", "Hey.");
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Texture reading from .DDS file failed. Here's details:\n" + vi);
+                }
                 return null;
             }
 

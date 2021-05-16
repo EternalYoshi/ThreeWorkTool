@@ -11,6 +11,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources.Utility;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -48,19 +49,17 @@ namespace ThreeWorkTool.Resources.Wrappers
         public static string TypeHash = "241F5DEB";
         public int SizeShift;
 
-        public static TextureEntry FillTexEntry(string filename, List<string> subnames, TreeView tree, byte[] Bytes, int c, int ID, Type filetype = null)
+        public static TextureEntry FillTexEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
             TextureEntry texentry = new TextureEntry();
 
-            using (FileStream fs = File.OpenRead(filename))
-            {
-                //This block gets the name of the entry.
-
+            //This block gets the name of the entry.
                 texentry.OffsetTemp = c;
                 texentry.EntryID = ID;
-                byte[] BTemp;
-                BTemp = new byte[] { };
-                BTemp = Bytes.Skip(texentry.OffsetTemp).Take(64).Where(x => x != 0x00).ToArray();
+                List<byte> BTemp = new List<byte>();
+                br.BaseStream.Position = texentry.OffsetTemp;
+                BTemp.AddRange(br.ReadBytes(64));
+                BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
 
                 if (SBname == null)
                 {
@@ -73,22 +72,23 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 string Tempname;
                 ASCIIEncoding ascii = new ASCIIEncoding();
-                Tempname = ascii.GetString(BTemp);
+                Tempname = ascii.GetString(BTemp.ToArray());
 
                 //Compressed Data size.
-                BTemp = new byte[] { };
+                BTemp = new List<byte>();
                 c = c + 68;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                BTemp.Reverse();
-                texentry.CSize = BitConverter.ToInt32(BTemp, 0);
+                br.BaseStream.Position = c;
+                BTemp.AddRange(br.ReadBytes(4));
+                texentry.CSize = BitConverter.ToInt32(BTemp.ToArray(), 0);
 
                 //Uncompressed Data size.
-                BTemp = new byte[] { };
+                BTemp = new List<byte>();
                 c = c + 4;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                Array.Reverse(BTemp);
+                br.BaseStream.Position = c;
+                BTemp.AddRange(br.ReadBytes(4));
+                BTemp.Reverse();
                 string TempStr = "";
-                TempStr = BytesToString(BTemp, TempStr);
+                TempStr = ByteUtilitarian.BytesToStringL2(BTemp, TempStr);
                 BigInteger BN1, BN2, DIFF;
                 BN2 = BigInteger.Parse("40000000", NumberStyles.HexNumber);
                 BN1 = BigInteger.Parse(TempStr, NumberStyles.HexNumber);
@@ -96,18 +96,19 @@ namespace ThreeWorkTool.Resources.Wrappers
                 texentry.DSize = (int)DIFF;
 
                 //Data Offset.
-                BTemp = new byte[] { };
+                BTemp = new List<byte>();
                 c = c + 4;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                BTemp.Reverse();
-                texentry.AOffset = BitConverter.ToInt32(BTemp, 0);
+                br.BaseStream.Position = c;
+                BTemp.AddRange(br.ReadBytes(4));
+                texentry.AOffset = BitConverter.ToInt32(BTemp.ToArray(), 0);
 
                 //Compressed Data.
-                BTemp = new byte[] { };
+                BTemp = new List<byte>();
                 c = texentry.AOffset;
-                BTemp = Bytes.Skip(c).Take(texentry.CSize).ToArray();
-                texentry.CompressedData = BTemp;
-                
+                br.BaseStream.Position = c;
+                BTemp.AddRange(br.ReadBytes(texentry.CSize));
+                texentry.CompressedData = BTemp.ToArray();
+
 
                 //Namestuff.
                 texentry.EntryName = Tempname;
@@ -161,7 +162,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 //Gets the SizeShift.... whatever that is.
                 texentry.SizeShift = texentry.UncompressedData[6];
 
-            }
+            
 
             //Actual Tex Loading work here.
             byte[] VTemp = new byte[4];
@@ -341,6 +342,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                     catch (UnauthorizedAccessException)
                     {
                         MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot access the file:" + outname);
+                        }
                         break;
                     }
 
@@ -516,6 +521,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                     catch (UnauthorizedAccessException)
                     {
                         MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot access the file:" + outname17);
+                        }
                         break;
                     }
 
@@ -693,6 +702,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                     catch (UnauthorizedAccessException)
                     {
                         MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot access the file:" + outname19);
+                        }
                         break;
                     }
 
@@ -870,6 +883,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                     catch (UnauthorizedAccessException)
                     {
                         MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot access the file:" + outname1e);
+                        }
                         break;
                     }
 
@@ -1026,6 +1043,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                     catch (UnauthorizedAccessException)
                     {
                         MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot access the file:" + outname1f);
+                        }
                         break;
                     }
 
@@ -1256,6 +1277,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                     catch (UnauthorizedAccessException)
                     {
                         MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot access the file:" + outname27);
+                        }
                         break;
                     }
 
@@ -1439,6 +1464,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                     catch (UnauthorizedAccessException)
                     {
                         MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot access the file:" + outname2a);
+                        }
                         break;
                     }
 
@@ -1629,102 +1658,6 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         #endregion
-
-        public static string BytesToString(byte[] bytes, string s)
-        {
-            string temps;
-            string tru = "";
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                temps = bytes[i].ToString("X");
-                if (temps == "0")
-                {
-                    temps = "00";
-                }
-                else if (temps == "1")
-                {
-                    temps = "01";
-                }
-                else if (temps == "2")
-                {
-                    temps = "02";
-                }
-                else if (temps == "3")
-                {
-                    temps = "03";
-                }
-                else if (temps == "4")
-                {
-                    temps = "04";
-                }
-                else if (temps == "5")
-                {
-                    temps = "05";
-                }
-                else if (temps == "6")
-                {
-                    temps = "06";
-                }
-                else if (temps == "7")
-                {
-                    temps = "07";
-                }
-                else if (temps == "8")
-                {
-                    temps = "08";
-                }
-                else if (temps == "9")
-                {
-                    temps = "09";
-                }
-                else if (temps == "A")
-                {
-                    temps = "0A";
-                }
-                else if (temps == "B")
-                {
-                    temps = "0B";
-                }
-                else if (temps == "C")
-                {
-                    temps = "0C";
-                }
-                else if (temps == "D")
-                {
-                    temps = "0D";
-                }
-                else if (temps == "E")
-                {
-                    temps = "0E";
-                }
-                else if (temps == "F")
-                {
-                    temps = "0F";
-                }
-                tru += temps;
-            }
-            return tru;
-        }
-
-        public static byte[] StringToByteArray(string hex)
-        {
-            int NumberChars = hex.Length;
-            byte[] bytes = new byte[NumberChars / 2];
-            for (int i = 0; i < NumberChars; i += 2)
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-            return bytes;
-        }
-
-        public static byte[] BinaryStringToByteArray(string binary)
-        {
-            int numOfBytes = binary.Length / 8;
-            byte[] bytes = new byte[numOfBytes];
-            for (int i = 0; i < numOfBytes; ++i)
-            {
-                bytes[i] = Convert.ToByte(binary.Substring(8 * i, 8), 2);
-            }
-            return bytes;
-        }
 
         public static Bitmap BitmapBuilder(string filenametest, Stream strim)
         {
@@ -2529,7 +2462,10 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
             catch (Exception ex)
             {
-
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Caught an exception:" + ex);
+                }
             }
 
 
@@ -3322,6 +3258,10 @@ namespace ThreeWorkTool.Resources.Wrappers
             catch (Exception ex)
             {
                 MessageBox.Show("Read error. Is the file readable?");
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Possible read error. Here's details:\n" + ex);
+                }
             }
 
 
@@ -3433,7 +3373,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     TexTemp = new byte[] { };
 
                     //Gets the binary representation into 4 Bytes.
-                    TexTemp = BinaryStringToByteArray(bytesstr);
+                    TexTemp = ByteUtilitarian.BinaryStringToByteArray(bytesstr);
 
                     teXentry.SizeShift = 0;
                     byte[] TEXHeader = { 0x54, 0x45, 0x58, 0x00, 0x9d, 0xa0, 0x00, 0x20 };
@@ -3584,7 +3524,10 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
             catch (Exception ex)
             {
-
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Texture insertion from .DDS file failed. Here's details:\n" + ex);
+                }
             }
 
 
@@ -3697,7 +3640,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     TexTemp = new byte[] { };
 
                     //Gets the binary representation into 4 Bytes.
-                    TexTemp = BinaryStringToByteArray(bytesstr);
+                    TexTemp = ByteUtilitarian.BinaryStringToByteArray(bytesstr);
 
                     teXentry.SizeShift = 0;
                     byte[] TEXHeader = { 0x54, 0x45, 0x58, 0x00, 0x9d, 0xa0, 0x00, 0x20 };
@@ -3848,7 +3791,10 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
             catch (Exception ex)
             {
-
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Texture replacement from .DDS file failed. Here's details:\n" + ex);
+                }
             }
 
 

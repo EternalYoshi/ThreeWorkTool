@@ -11,7 +11,6 @@ namespace ThreeWorkTool
         //private static TreeView treeview;
         private static TreeNode node_;
         //private static ThreeSourceNodeBase node_;
-        private static ArcEntryWrapper entry_;
         public static string OriginalName;
         public FrmMainThree Mainfrm { get; set; }
 
