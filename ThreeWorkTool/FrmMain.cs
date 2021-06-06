@@ -13,6 +13,7 @@ using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool
 {
+
     public partial class FrmMainThree : Form
     {
 
@@ -28,7 +29,7 @@ namespace ThreeWorkTool
             _instance = this;
             InitializeComponent();
         }
-        
+
         public string[] ArcFileNameListBackup;
         public List<string> subdirs;
         public string CFile;
@@ -65,7 +66,6 @@ namespace ThreeWorkTool
         public bool FinishRPLRead;
         private Bitmap bmx;
         private TextureEntry tentry;
-
 
         //This lets us use the dilogue without having to paste this within each button's function.
         OpenFileDialog OFDialog = new OpenFileDialog();
@@ -922,6 +922,28 @@ namespace ThreeWorkTool
                     }
                     break;
 
+                case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
+                    MaterialEntry MATEntry = new MaterialEntry();
+                    if (tag is ArcEntry)
+                    {
+
+                        MATEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MaterialEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(MATEntry.FileExt);
+                    }
+                    EXDialog.FileName = MATEntry.FileName;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.MaterialEntryWriter(EXDialog.FileName, MATEntry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -1016,7 +1038,7 @@ namespace ThreeWorkTool
                 }
 
             }
-            else if(tag is ResourcePathListEntry)
+            else if (tag is ResourcePathListEntry)
             {
                 ResourcePathListEntry RPListEntry = new ResourcePathListEntry();
                 RPListEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ResourcePathListEntry;
@@ -1055,6 +1077,90 @@ namespace ThreeWorkTool
                             //Reloads the replaced file data in the text box.
                             frename.Mainfrm.txtRPList = ResourcePathListEntry.LoadRPLInTextBox(frename.Mainfrm.txtRPList, Newaent);
                             frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+
+                            //Removes the node and inserts the new one.
+                            //TreeNode node = 
+                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
+                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+
+            }
+            else if (tag is MaterialEntry)
+            {
+                MaterialEntry MatEntEntry = new MaterialEntry();
+                MatEntEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MaterialEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(MatEntEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            MaterialEntry Oldaent = new MaterialEntry();
+                            MaterialEntry Newaent = new MaterialEntry();
+                            Oldaent = OldWrapper.entryfile as MaterialEntry;
+                            string[] paths = Oldaent.EntryDirs;
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = ResourcePathListEntry.ReplaceRPL(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as MaterialEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
 
                             //Pathing.
                             foreach (string Folder in paths)
@@ -1959,56 +2065,56 @@ namespace ThreeWorkTool
                 ArcEntryWrapper tchild = new ArcEntryWrapper();
 
 
-            TreeSource.BeginUpdate();
+                TreeSource.BeginUpdate();
 
-            //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+                //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
 
-            tchild.Name = I;
-            tchild.Tag = FEntry as TextureEntry;
-            tchild.Text = I;
-            tchild.entryfile = FEntry as TextureEntry;
-            tchild.FileExt = G;
+               tchild.Name = I;
+               tchild.Tag = FEntry as TextureEntry;
+               tchild.Text = I;
+               tchild.entryfile = FEntry as TextureEntry;
+               tchild.FileExt = G;
 
-            //Checks for subdirectories. Makes folder if they don't exist already.
-            foreach (string Folder in H)
-            {
-                if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                {
-                    TreeNode folder = new TreeNode();
-                    folder.Name = Folder;
-                    folder.Tag = "Folder";
-                    folder.Text = Folder;
-                    folder.ContextMenu = FolderContextAdder(folder, TreeSource);
-                    TreeSource.SelectedNode.Nodes.Add(folder);
-                    TreeSource.SelectedNode = folder;
-                    TreeSource.SelectedNode.ImageIndex = 2;
-                    TreeSource.SelectedNode.SelectedImageIndex = 2;
+                //Checks for subdirectories. Makes folder if they don't exist already.
+                foreach (string Folder in H)
+               {
+                   if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                   {
+                       TreeNode folder = new TreeNode();
+                       folder.Name = Folder;
+                        folder.Tag = "Folder";
+                        folder.Text = Folder;
+                        folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+                       TreeSource.SelectedNode.Nodes.Add(folder);
+                        TreeSource.SelectedNode = folder;
+                        TreeSource.SelectedNode.ImageIndex = 2;
+                       TreeSource.SelectedNode.SelectedImageIndex = 2;
+                    }
+                   else
+                    {
+                        TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                    }
                 }
-                else
-                {
-                    TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                }
-            }
 
-            TreeSource.SelectedNode = tchild;
+                TreeSource.SelectedNode = tchild;
+                        
+                TreeSource.SelectedNode.Nodes.Add(tchild);
 
-            TreeSource.SelectedNode.Nodes.Add(tchild);
+                TreeSource.ImageList = imageList1;
 
-            TreeSource.ImageList = imageList1;
+                var rootNode = FindRootNode(tchild);
 
-            var rootNode = FindRootNode(tchild);
-
-            TreeSource.SelectedNode = tchild;
-            TreeSource.SelectedNode.ImageIndex = 15;
-            TreeSource.SelectedNode.SelectedImageIndex = 15;
+                TreeSource.SelectedNode = tchild;
+                TreeSource.SelectedNode.ImageIndex = 15;
+                TreeSource.SelectedNode.SelectedImageIndex = 15;
            
 
-            tchild.ContextMenu = TextureContextAdder(tchild, TreeSource);
+                tchild.ContextMenu = TextureContextAdder(tchild, TreeSource);
 
-            TreeSource.SelectedNode = rootNode;
+                TreeSource.SelectedNode = rootNode;
 
-            tcount++;
-            break;
+                tcount++;
+                break;
 
 
                 //For Resouce Path Lists.
@@ -2119,6 +2225,62 @@ namespace ThreeWorkTool
                     msdchild.ContextMenu = GenericFileContextAdder(msdchild, TreeSource);
 
                     TreeSource.SelectedNode = msdrootNode;
+
+                    tcount++;
+                    break;
+
+                //For Material Files.
+                case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
+                    ArcEntryWrapper matchild = new ArcEntryWrapper();
+
+
+                    TreeSource.BeginUpdate();
+
+                    //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+
+                    matchild.Name = I;
+                    matchild.Tag = FEntry as MaterialEntry;
+                    matchild.Text = I;
+                    matchild.entryfile = FEntry as MaterialEntry;
+                    matchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = matchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(matchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var matrootNode = FindRootNode(matchild);
+
+                    TreeSource.SelectedNode = matchild;
+                    TreeSource.SelectedNode.ImageIndex = 12;
+                    TreeSource.SelectedNode.SelectedImageIndex = 12;
+
+
+                    matchild.ContextMenu = GenericFileContextAdder(matchild, TreeSource);
+
+                    TreeSource.SelectedNode = matrootNode;
 
                     tcount++;
                     break;
@@ -2506,13 +2668,30 @@ namespace ThreeWorkTool
                 switch(type)
                 {
                     //Commented out until a future release.
-/*
-                    case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
-                        MSDEntry mse = new MSDEntry();
-                        mse = ArcEntry as MSDEntry;
-                        if (mse != null) 
+                    /*
+                                        case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
+                                            MSDEntry mse = new MSDEntry();
+                                            mse = ArcEntry as MSDEntry;
+                                            if (mse != null) 
+                                            {
+                                                TreeChildInsert(NCount, mse.EntryName, mse.FileExt, mse.EntryDirs, mse.TrueName, mse);
+                                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show("We got a read error here!", "YIKES");
+                                                break;
+                                            }
+                    */
+
+
+                    case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
+                        MaterialEntry mte = new MaterialEntry();
+                        mte = ArcEntry as MaterialEntry;
+                        if (mte != null)
                         {
-                            TreeChildInsert(NCount, mse.EntryName, mse.FileExt, mse.EntryDirs, mse.TrueName, mse);
+                            TreeChildInsert(NCount, mte.EntryName, mte.FileExt, mte.EntryDirs, mte.TrueName, mte);
                             TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
                             break;
                         }
@@ -2521,7 +2700,7 @@ namespace ThreeWorkTool
                             MessageBox.Show("We got a read error here!", "YIKES");
                             break;
                         }
-*/
+
                     case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
                         TextureEntry te = new TextureEntry();
                         te = ArcEntry as TextureEntry;
@@ -2737,6 +2916,16 @@ namespace ThreeWorkTool
         {
             switch (type)
             {
+                case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
+                    MaterialEntry MatEntryM = new MaterialEntry();
+                    MatEntryM = TreeSource.SelectedNode.Tag as MaterialEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    
+                    break;
+
                 case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
                     FinishRPLRead = false;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
@@ -2846,6 +3035,8 @@ namespace ThreeWorkTool
                     break;
             }
         }
+
+
 
     }
 }

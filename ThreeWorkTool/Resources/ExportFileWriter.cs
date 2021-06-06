@@ -142,5 +142,25 @@ namespace ThreeWorkTool.Resources
 
         }
 
+        public static void MaterialEntryWriter(string filename, MaterialEntry entrytowrite)
+        {
+            try
+            {
+
+                using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                {
+                    bw.Write(entrytowrite.UncompressedData);
+                    bw.Close();
+                }
+                
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                return;
+            }
+        }
+
+
     }
 }

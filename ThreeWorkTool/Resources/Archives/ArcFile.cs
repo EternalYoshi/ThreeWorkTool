@@ -137,6 +137,15 @@ namespace ThreeWorkTool.Resources.Archives
                             IDCounter++;
                             break;
 
+                        //Materials.
+                        case "2749C8A8":
+                            MaterialEntry Maten = MaterialEntry.FillMatEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(Maten);
+                            arcfile.FileList.Add(Maten.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
                         //MSD Files. Commented out until a future release.
                         /*
                         case "5B55F5B1":
