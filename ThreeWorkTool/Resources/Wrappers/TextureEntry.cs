@@ -3650,9 +3650,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                     TBuffer.AddRange(TEXHeader);
                     TBuffer.AddRange(TexTemp);
 
+                    TextureEntry OldTex = node.Tag as TextureEntry;
+
                     //Filling in data for the teXentry.
-                    teXentry.TrueName = FTED.ShortName;
-                    teXentry._FileName = teXentry.TrueName;
+                    //teXentry.TrueName = FTED.ShortName;
+                    //teXentry._FileName = teXentry.TrueName;
+                    teXentry.TrueName = OldTex.TrueName;
+                    teXentry._FileName = OldTex._FileName;
+                    teXentry.EntryName = OldTex.EntryName;
+
                     teXentry.UncompressedData = newtex;
                     teXentry.CompressedData = Zlibber.Compressor(newtex);
                     teXentry.DSize = newtex.Length;

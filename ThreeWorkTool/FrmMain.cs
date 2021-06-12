@@ -275,6 +275,7 @@ namespace ThreeWorkTool
                                     TextureEntry tenty = new TextureEntry();
                                     ResourcePathListEntry lrpenty = new ResourcePathListEntry();
                                     MSDEntry msdenty = new MSDEntry();
+                                    MaterialEntry matent = new MaterialEntry();
                                     //This is for the filenames and everything after.
                                     foreach (TreeNode treno in Nodes)
                                     {
@@ -555,6 +556,69 @@ namespace ThreeWorkTool
                                             DataEntryOffset = DataEntryOffset + ComSize;
 
                                         }
+                                        else if (treno.Tag as MaterialEntry != null)
+                                        {
+                                            matent = treno.Tag as MaterialEntry;
+                                            exportname = "";
+
+                                            exportname = treno.FullPath;
+                                            int inp = (exportname.IndexOf("\\")) + 1;
+                                            exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                            int NumberChars = exportname.Length;
+                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                            int nblength = namebuffer.Length;
+
+                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                            byte[] writenamedata = new byte[64];
+                                            Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                            for (int i = 0; i < namebuffer.Length; ++i)
+                                            {
+                                                writenamedata[i] = namebuffer[i];
+                                            }
+
+                                            bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                            //For the typehash.
+                                            HashType = "357EF6D4";
+                                            byte[] HashBrown = new byte[4];
+                                            HashBrown = StringToByteArray(HashType);
+                                            Array.Reverse(HashBrown);
+                                            if (HashBrown.Length < 4)
+                                            {
+                                                byte[] PartHash = new byte[] { };
+                                                PartHash = HashBrown;
+                                                Array.Resize(ref HashBrown, 4);
+                                            }
+                                            bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                            //For the compressed size.
+                                            ComSize = matent.CompressedData.Length;
+                                            string ComSizeHex = ComSize.ToString("X8");
+                                            byte[] ComPacked = new byte[4];
+                                            ComPacked = StringToByteArray(ComSizeHex);
+                                            Array.Reverse(ComPacked);
+                                            bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                            //For the unpacked size. No clue why all the entries "start" with 40.
+                                            DecSize = matent.UncompressedData.Length;
+                                            string DecSizeHex = DecSize.ToString("X8");
+                                            byte[] DePacked = new byte[4];
+                                            DePacked = StringToByteArray(DecSizeHex);
+                                            Array.Reverse(DePacked);
+                                            DePacked[3] = 0x40;
+                                            bwr.Write(DePacked, 0, DePacked.Length);
+
+                                            //Starting Offset.
+                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                            byte[] DEOffed = new byte[4];
+                                            DEOffed = StringToByteArray(DataEntrySizeHex);
+                                            Array.Reverse(DEOffed);
+                                            bwr.Write(DEOffed, 0, DEOffed.Length);
+                                            DataEntryOffset = DataEntryOffset + ComSize;
+                                        }
                                         else
                                         { }
                                     }
@@ -586,6 +650,13 @@ namespace ThreeWorkTool
 
                                         }
 
+                                        else if (treno.Tag as MaterialEntry != null)
+                                        {
+                                            matent = treno.Tag as MaterialEntry;
+                                            byte[] CompData = matent.CompressedData;
+                                            bwr.Write(CompData, 0, CompData.Length);
+
+                                        }
                                         else if (treno.Tag as MSDEntry != null)
                                         {
                                             msdenty = treno.Tag as MSDEntry;
@@ -2237,7 +2308,8 @@ namespace ThreeWorkTool
                     TreeSource.BeginUpdate();
 
                     //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
-
+                    MaterialEntry ment = new MaterialEntry();
+                    ment = FEntry as MaterialEntry;
                     matchild.Name = I;
                     matchild.Tag = FEntry as MaterialEntry;
                     matchild.Text = I;
@@ -2283,6 +2355,9 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode = matrootNode;
 
                     tcount++;
+
+                    //Makes Child Nodes for Texture references. More to come.
+
                     break;
 
                 //Cases for future file supports go here. For example;
@@ -2386,6 +2461,11 @@ namespace ThreeWorkTool
             }
         }
 
+        public void MaterialChildrenCreation(int E, string F, string G, string[] H, string I, object FEntry)
+        {
+
+        }
+        
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
         {
 

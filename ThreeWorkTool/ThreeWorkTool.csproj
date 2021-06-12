@@ -129,6 +129,7 @@
     <Compile Include="Resources\Wrappers\ArcEntryWrapper.cs" />
     <Compile Include="Resources\Wrappers\ArcFileWrapper.cs" />
     <Compile Include="Resources\Wrappers\DefaultWrapper.cs" />
+    <Compile Include="Resources\Wrappers\EffectListEntry.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
     <Compile Include="Resources\Wrappers\MaterialEntry.cs" />
     <Compile Include="Resources\Wrappers\MSDEntry.cs" />

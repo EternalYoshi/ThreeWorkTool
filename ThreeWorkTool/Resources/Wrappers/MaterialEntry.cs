@@ -389,6 +389,109 @@ namespace ThreeWorkTool.Resources.Wrappers
             return node.entryfile as MaterialEntry;
         }
 
+        public static MaterialEntry InsertEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        {
+            MaterialEntry matentry = new MaterialEntry();
+
+            try
+            {
+                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
+                {
+                    //We build the arcentry starting from the uncompressed data.
+                    matentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
+                    matentry.DSize = matentry.UncompressedData.Length;
+
+                    //Then Compress.
+                    matentry.CompressedData = Zlibber.Compressor(matentry.UncompressedData);
+                    matentry.CSize = matentry.CompressedData.Length;
+
+                    //Reads and inserts Material data. To be expanded upon later.
+                    List<byte> BTemp = new List<byte>();
+                    string Tempname;
+
+                    matentry.WTemp = new byte[5];
+                    Array.Copy(matentry.UncompressedData, 0, matentry.WTemp, 0, 5);
+                    matentry.Magic = ByteUtilitarian.BytesToString(matentry.WTemp, matentry.Magic);
+
+                    byte[] MTemp = new byte[4];
+                    Array.Copy(matentry.UncompressedData, 8, MTemp, 0, 4);
+                    matentry.MaterialCount = BitConverter.ToInt32(MTemp, 0);
+                    matentry._MaterialTotal = matentry.MaterialCount;
+
+                    Array.Copy(matentry.UncompressedData, 12, MTemp, 0, 4);
+                    matentry.TextureCount = BitConverter.ToInt32(MTemp, 0);
+                    matentry._TextureTotal = matentry.TextureCount;
+
+                    Array.Copy(matentry.UncompressedData, 16, MTemp, 0, 4);
+                    matentry.WeirdHash = ByteUtilitarian.BytesToString(MTemp, matentry.WeirdHash);
+
+                    byte[] SixFourTemp = new byte[8];
+                    Array.Copy(matentry.UncompressedData, 24, SixFourTemp, 0, 8);
+                    matentry.TextureOffset = BitConverter.ToInt64(SixFourTemp, 0);
+                    matentry._TextureStartingOffset = Convert.ToInt32(matentry.TextureOffset);
+
+                    Array.Copy(matentry.UncompressedData, 32, SixFourTemp, 0, 8);
+                    matentry.MaterialOffset = BitConverter.ToInt64(SixFourTemp, 0);
+                    matentry._MaterialStartingOffset = Convert.ToInt32(matentry.MaterialOffset);
+
+                    matentry.TexEntries = new List<TextureEntries>();
+
+                    int j = Convert.ToInt32(matentry.TextureOffset);
+                    byte[] MENTemp = new byte[64];
+                    //Fills in(or at least tries to) fill in each Texture and Material entry.
+                    for (int i = 0; i < matentry.TextureCount; i++)
+                    {
+                        j = (Convert.ToInt32(matentry.TextureOffset) + i * 88);
+                        TextureEntries TexTemp = new TextureEntries();
+                        Array.Copy(matentry.UncompressedData, j, MTemp, 0, 4);
+                        TexTemp.TypeHash = ByteUtilitarian.BytesToString(MTemp, TexTemp.TypeHash);
+                        j = j + 24;
+                        BTemp.Clear();
+                        Array.Copy(matentry.UncompressedData, j, MENTemp, 0, 64);
+                        BTemp.AddRange(MENTemp);
+                        BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
+                        ASCIIEncoding asciime = new ASCIIEncoding();
+                        Tempname = asciime.GetString(BTemp.ToArray());
+                        TexTemp.FullTexName = Tempname;
+                        matentry.TexEntries.Add(TexTemp);
+                    }
+
+                    //Gets the filename of the file to inject without the directory.
+                    string trname = filename;
+                    while (trname.Contains("\\"))
+                    {
+                        trname = trname.Substring(trname.IndexOf("\\") + 1);
+                    }
+
+                    matentry.TrueName = trname;
+                    matentry._FileName = matentry.TrueName;
+                    matentry.TrueName = Path.GetFileNameWithoutExtension(trname);
+                    matentry.FileExt = trname.Substring(trname.LastIndexOf("."));
+                    matentry._FileType = matentry.FileExt;
+
+                    //Gets the path of the selected node to inject here.
+                    string nodepath = tree.SelectedNode.FullPath;
+                    nodepath = nodepath.Substring(nodepath.IndexOf("\\") + 1);
+
+                    string[] sepstr = { "\\" };
+                    matentry.EntryDirs = nodepath.Split(sepstr, StringSplitOptions.RemoveEmptyEntries);
+                    matentry.EntryName = matentry.FileName;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Caught an exception using the BinaryReader. Here's the details:\n" + ex);
+                }
+            }
+
+
+
+            return matentry;
+        }
+
 
         #region Material Properties
 
