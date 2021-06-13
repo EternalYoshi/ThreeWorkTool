@@ -37,6 +37,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int DataSize;
         public string WeirdConstant;
         public string OtherWeirdConstant;
+        public int SomeEntryCount;
+        public int OtherEntryCount;
 
         public static EffectListEntry FillEFLEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -175,7 +177,14 @@ namespace ThreeWorkTool.Resources.Wrappers
             Array.Copy(effectList.UncompressedData, 4, MTemp, 0, 4);
             effectList.Magic = ByteUtilitarian.BytesToString(MTemp, effectList.OtherWeirdConstant);
 
+            byte[] TwoTemp = new byte[2];
+            Array.Copy(effectList.UncompressedData, 16, TwoTemp, 0, 2);
+            Array.Reverse(TwoTemp);
+            effectList.SomeEntryCount = BitConverter.ToInt32(TwoTemp,0);
 
+            Array.Copy(effectList.UncompressedData, 18, TwoTemp, 0, 2);
+            Array.Reverse(TwoTemp);
+            effectList.OtherEntryCount = BitConverter.ToInt32(TwoTemp, 0);
 
             return effectList;
         }

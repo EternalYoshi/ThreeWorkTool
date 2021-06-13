@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
+using static ThreeWorkTool.Resources.Wrappers.MaterialEntry;
 
 namespace ThreeWorkTool
 {
@@ -241,8 +242,10 @@ namespace ThreeWorkTool
                                     int nowcount = 0;
                                     foreach (TreeNode treno in Nodes)
                                     {
-                                        if (treno.Tag as string != null && treno.Tag as string == "Folder")
-                                        { }
+                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag is MaterialTextureReference)
+                                        {
+
+                                        }
                                         else
                                         { nowcount++; }
                                     }
@@ -582,7 +585,7 @@ namespace ThreeWorkTool
                                             bwr.Write(writenamedata, 0, writenamedata.Length);
 
                                             //For the typehash.
-                                            HashType = "357EF6D4";
+                                            HashType = "2749C8A8";
                                             byte[] HashBrown = new byte[4];
                                             HashBrown = StringToByteArray(HashType);
                                             Array.Reverse(HashBrown);
@@ -923,7 +926,25 @@ namespace ThreeWorkTool
                     }
                     break;
 
+                case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
+                    MaterialEntry Matentry = new MaterialEntry();
+                    if(tag is MaterialEntry)
+                    {
+                        Matentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MaterialEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(Matentry.FileExt);
+                        EXDialog.FileName = Matentry.FileName;
+                    }
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.MaterialEntryWriter(EXDialog.FileName, Matentry);
+                    }
 
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
 
                 //Normal Entries inside Arc File.
                 case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
@@ -990,28 +1011,6 @@ namespace ThreeWorkTool
                     using (StreamWriter sw = File.AppendText("Log.txt"))
                     {
                         sw.WriteLine("Exported a Message Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
-                    break;
-
-                case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
-                    MaterialEntry MATEntry = new MaterialEntry();
-                    if (tag is ArcEntry)
-                    {
-
-                        MATEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MaterialEntry;
-                        EXDialog.Filter = ExportFilters.GetFilter(MATEntry.FileExt);
-                    }
-                    EXDialog.FileName = MATEntry.FileName;
-
-                    if (EXDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        ExportFileWriter.MaterialEntryWriter(EXDialog.FileName, MATEntry);
-                    }
-
-                    //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
-                    {
-                        sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -2352,11 +2351,14 @@ namespace ThreeWorkTool
 
                     matchild.ContextMenu = GenericFileContextAdder(matchild, TreeSource);
 
+                    //Makes Child Nodes for Texture references. More to come.
+                    MaterialChildrenCreation(E, F, G, H, I, matchild, ment);
+
                     TreeSource.SelectedNode = matrootNode;
 
                     tcount++;
 
-                    //Makes Child Nodes for Texture references. More to come.
+
 
                     break;
 
@@ -2461,8 +2463,58 @@ namespace ThreeWorkTool
             }
         }
 
-        public void MaterialChildrenCreation(int E, string F, string G, string[] H, string I, object FEntry)
+        public void MaterialChildrenCreation(int E, string F, string G, string[] H, string I, ArcEntryWrapper MEntry, MaterialEntry material)
         {
+
+            //Makes the Material and Texture Subfolder.
+            TreeNode folder = new TreeNode();
+            folder.Name = "Materials";
+            folder.Tag = "Folder";
+            folder.Text = "Materials";
+            //folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+
+            TreeSource.SelectedNode.Nodes.Add(folder);
+            TreeSource.SelectedNode = folder;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+            TreeSource.SelectedNode = MEntry;
+
+            //Makes the Material and Texture Subfolder.
+            TreeNode foldert = new TreeNode();
+            foldert.Name = "Textures";
+            foldert.Tag = "Folder";
+            foldert.Text = "Textures";
+            //foldert.ContextMenu = FolderContextAdder(foldert, TreeSource);
+            TreeSource.SelectedNode.Nodes.Add(foldert);
+            TreeSource.SelectedNode = foldert;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+            //Fills in Textures used in the Texture folder.
+            for (int i = 0; i < material.TextureCount; i++)
+            {
+
+                TreeNode Texture = new TreeNode();
+                Texture.Name = material.TexEntries[i].FullTexName;
+                Texture.Tag = material.TexEntries[i];
+                Texture.Text = material.TexEntries[i].FullTexName;
+                TreeSource.SelectedNode.Nodes.Add(Texture);
+                ContextMenu conmenu = new ContextMenu();
+                conmenu.MenuItems.Add(new MenuItem("Change Texture Reference via Rename", MenuItemRenameFile_Click));
+                Texture.ContextMenu = conmenu;
+
+            }
+
+            //Fills in Materials used in the Material Folder.
+            for (int i = 0; i < material.MaterialCount; i++)
+            {
+
+                TreeNode Material = new TreeNode();
+                //Material.Tag = material.TexEntries[i];
+
+            }
+
 
         }
         
@@ -3003,7 +3055,15 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.MaterialTextureReference":
+                    MaterialTextureReference MTexRefEntry = new MaterialTextureReference();
+                    MTexRefEntry = TreeSource.SelectedNode.Tag as MaterialTextureReference;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":

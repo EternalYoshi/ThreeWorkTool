@@ -40,16 +40,9 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int UnknownField;
         public string WeirdHash;
         public static string TypeHash = "2749C8A8";
-        public List<TextureEntries> TexEntries;
+        public List<MaterialTextureReference> TexEntries;
 
         //Well then.... gotta construct these classes before I put in the code that fills that data in the FillMatEntry function.
-
-        public struct TextureEntries
-        {
-            public string FullTexName;
-            public string TypeHash;
-            public string UnknownParam;
-        }
 
         public struct MaterialEntries
         {
@@ -151,10 +144,9 @@ namespace ThreeWorkTool.Resources.Wrappers
             BTemp.AddRange(br.ReadBytes(MATEntry.CSize));
             MATEntry.CompressedData = BTemp.ToArray();
 
-
             //Namestuff.
-            MATEntry.EntryName = Tempname + ".mrl";
-
+            MATEntry.EntryName = Tempname;
+            MATEntry._FileType = ".mrl";
 
             //Ensures existing subdirectories are cleared so the directories for files are displayed correctly.
             if (subnames != null)
@@ -201,6 +193,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //Decompression Time.
             MATEntry.UncompressedData = ZlibStream.UncompressBuffer(MATEntry.CompressedData);
+            MATEntry._FileLength = MATEntry.UncompressedData.Length;
+
 
             //Material specific work here.
             MATEntry.WTemp = new byte[5];
@@ -228,7 +222,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             MATEntry.MaterialOffset = BitConverter.ToInt64(SixFourTemp, 0);
             MATEntry._MaterialStartingOffset = Convert.ToInt32(MATEntry.MaterialOffset);
 
-            MATEntry.TexEntries = new List<TextureEntries>();
+            MATEntry.TexEntries = new List<MaterialTextureReference>();
 
             int j = Convert.ToInt32(MATEntry.TextureOffset);
             byte[] MENTemp = new byte[64];
@@ -236,7 +230,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             for (int i = 0; i < MATEntry.TextureCount; i++)
             {
                 j = (Convert.ToInt32(MATEntry.TextureOffset) + i * 88);
-                TextureEntries TexTemp = new TextureEntries();
+                MaterialTextureReference TexTemp = new MaterialTextureReference();
                 Array.Copy(MATEntry.UncompressedData, j, MTemp, 0, 4);
                 TexTemp.TypeHash = ByteUtilitarian.BytesToString(MTemp, TexTemp.TypeHash);
                 j = j + 24;
@@ -247,6 +241,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                 ASCIIEncoding asciime = new ASCIIEncoding();
                 Tempname = asciime.GetString(BTemp.ToArray());
                 TexTemp.FullTexName = Tempname;
+                TexTemp.Index = i;
+                TexTemp._Index = TexTemp.Index;
                 MATEntry.TexEntries.Add(TexTemp);
             }
 
@@ -308,7 +304,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     material.MaterialOffset = BitConverter.ToInt64(SixFourTemp, 0);
                     material._MaterialStartingOffset = Convert.ToInt32(material.MaterialOffset);
 
-                    material.TexEntries = new List<TextureEntries>();
+                    material.TexEntries = new List<MaterialTextureReference>();
 
                     int j = Convert.ToInt32(material.TextureOffset);
                     byte[] MENTemp = new byte[64];
@@ -316,7 +312,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     for (int i = 0; i < material.TextureCount; i++)
                     {
                         j = (Convert.ToInt32(material.TextureOffset) + i * 88);
-                        TextureEntries TexTemp = new TextureEntries();
+                        MaterialTextureReference TexTemp = new MaterialTextureReference();
                         Array.Copy(material.UncompressedData, j, MTemp, 0, 4);
                         TexTemp.TypeHash = ByteUtilitarian.BytesToString(MTemp, TexTemp.TypeHash);
                         j = j + 24;
@@ -327,6 +323,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                         ASCIIEncoding asciime = new ASCIIEncoding();
                         Tempname = asciime.GetString(BTemp.ToArray());
                         TexTemp.FullTexName = Tempname;
+                        TexTemp.Index = i;
+                        TexTemp._Index = TexTemp.Index;
                         material.TexEntries.Add(TexTemp);
                     }
 
@@ -434,7 +432,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     matentry.MaterialOffset = BitConverter.ToInt64(SixFourTemp, 0);
                     matentry._MaterialStartingOffset = Convert.ToInt32(matentry.MaterialOffset);
 
-                    matentry.TexEntries = new List<TextureEntries>();
+                    matentry.TexEntries = new List<MaterialTextureReference>();
 
                     int j = Convert.ToInt32(matentry.TextureOffset);
                     byte[] MENTemp = new byte[64];
@@ -442,7 +440,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     for (int i = 0; i < matentry.TextureCount; i++)
                     {
                         j = (Convert.ToInt32(matentry.TextureOffset) + i * 88);
-                        TextureEntries TexTemp = new TextureEntries();
+                        MaterialTextureReference TexTemp = new MaterialTextureReference();
                         Array.Copy(matentry.UncompressedData, j, MTemp, 0, 4);
                         TexTemp.TypeHash = ByteUtilitarian.BytesToString(MTemp, TexTemp.TypeHash);
                         j = j + 24;
@@ -453,6 +451,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                         ASCIIEncoding asciime = new ASCIIEncoding();
                         Tempname = asciime.GetString(BTemp.ToArray());
                         TexTemp.FullTexName = Tempname;
+                        TexTemp.Index = i;
+                        TexTemp._Index = TexTemp.Index;
                         matentry.TexEntries.Add(TexTemp);
                     }
 
@@ -496,7 +496,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         #region Material Properties
 
         private string _FileName;
-        [Category("Resource Path List"), ReadOnlyAttribute(true)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public string FileName
         {
 
@@ -511,7 +511,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         private string _FileType;
-        [Category("Resource Path List"), ReadOnlyAttribute(true)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public string FileType
         {
 
@@ -526,7 +526,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         private long _FileLength;
-        [Category("Resource Path List"), ReadOnlyAttribute(true)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public long FileLength
         {
 
@@ -541,7 +541,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         private int _TextureTotal;
-        [Category("Resource Path List"), ReadOnlyAttribute(true)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public int TextureTotal
         {
             get
@@ -555,7 +555,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         private int _MaterialTotal;
-        [Category("Resource Path List"), ReadOnlyAttribute(true)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public int MaterialTotal
         {
             get
@@ -569,7 +569,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         private int _TextureStartingOffset;
-        [Category("Resource Path List"), ReadOnlyAttribute(true)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public int TextureStartingOffset
         {
             get
@@ -583,7 +583,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         private int _MaterialStartingOffset;
-        [Category("Resource Path List"), ReadOnlyAttribute(true)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public int MaterialStartingOffset
         {
             get

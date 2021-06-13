@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
+using static ThreeWorkTool.Resources.Wrappers.MaterialEntry;
 
 namespace ThreeWorkTool
 {
@@ -88,7 +92,7 @@ namespace ThreeWorkTool
                 }
 
                 //Checks the nodes in the same directory for existing name AND extension and will stop if there's a node with the same type in the same directory.
-                if (c.Text == txtRename.Text)
+                if (c.Text == txtRename.Text && c.Tag as string != "MaterialChildTexture")
                 {
                     if (ae != se && ae.FileExt == se.FileExt)
                     {
@@ -104,17 +108,42 @@ namespace ThreeWorkTool
 
             //Ensures the TrueName gets change so it gets reflected in the save.
             ArcEntry aey = new ArcEntry();
-            if(treeview.SelectedNode.Tag is ArcEntry)
+            if (treeview.SelectedNode.Tag is ArcEntry)
             {
                 aey = treeview.SelectedNode.Tag as ArcEntry;
                 aey.TrueName = txtRename.Text;
-                
+
             }
             else if (treeview.SelectedNode.Tag != null && treeview.SelectedNode.Tag as string == "Folder")
             {
 
             }
-
+            else if (treeview.SelectedNode.Tag != null && treeview.SelectedNode.Tag is MaterialTextureReference)
+            {
+                //Goes about accessing and updating the data inside the material in a roundabout way.
+                MaterialTextureReference texref = treeview.SelectedNode.Tag as MaterialTextureReference;
+                MaterialEntry mentry = new MaterialEntry();
+                TreeNode parent = treeview.SelectedNode.Parent;
+                TreeNode child = treeview.SelectedNode;
+                treeview.SelectedNode = parent;
+                parent = treeview.SelectedNode.Parent;
+                treeview.SelectedNode = parent;
+                mentry = treeview.SelectedNode.Tag as MaterialEntry;
+                if(mentry != null)
+                {
+                    //Now for the actual file update.                    
+                    List<byte> NameToInject = new List<byte>();
+                    NameToInject.AddRange(Encoding.ASCII.GetBytes(txtRename.Text));
+                    int OffsetToUse;
+                    OffsetToUse = 40 + (88 * texref.Index) + 24;
+                    byte[] NewName = new byte[64];
+                    Array.Copy(NameToInject.ToArray(), 0, NewName, 0, NameToInject.ToArray().Length);
+                    Array.Copy(NewName, 0, mentry.UncompressedData, OffsetToUse, NewName.Length);
+                    mentry.CompressedData = Zlibber.Compressor(mentry.UncompressedData);
+                    treeview.SelectedNode.Tag = mentry;
+                }
+                treeview.SelectedNode = child;
+            }
 
             Mainfrm.OpenFileModified = true;
 

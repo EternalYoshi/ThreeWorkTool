@@ -9,8 +9,9 @@
 
         public static string TexImport = "Supported files(*.tex;*.dds)|*.tex;*.dds|Raw Texture File(*.tex)|*.tex|DirectDraw Surface Image(*.dds)| *.dds";
 
-        public static string rResourcePathList = "Resources Path List (*.lrp*)|*.lrp*";
-        
+        public static string rResourcePathList = "Resources Path List (*.lrp)|*.lrp";
+
+        public static string rMaterial = "Material File (*.mrl)|*.mrl";
 
         public static string Etc = "All Files (*.*)|*.*";
         
@@ -28,9 +29,13 @@
                 case ".lrp":
                     return rResourcePathList;
 
+                case ".mrl":
+                    return rMaterial;
+
                 default:
                     return Etc; 
             }
+
         }
 
 
