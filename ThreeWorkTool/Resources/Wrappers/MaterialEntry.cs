@@ -246,6 +246,101 @@ namespace ThreeWorkTool.Resources.Wrappers
                 MATEntry.TexEntries.Add(TexTemp);
             }
 
+            j = Convert.ToInt32(MATEntry.MaterialOffset);
+
+            byte[] XTemp = new byte[4];
+            int ITemp;
+            string HashTemp = "";
+            string BinTempA = "";
+            string BinTempB = "";
+            
+            for (int i=0; i< MATEntry.MaterialCount; i++)
+            {
+                MaterialMaterialEntry MMEntry = new MaterialMaterialEntry();
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                MMEntry.TypeHash = ByteUtilitarian.HashBytesToString(XTemp);
+                j = j + 4;
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                ITemp = BitConverter.ToInt32(XTemp,0);
+                MMEntry.UnknownField04 = ITemp.ToString();
+                j = j + 4;
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                MMEntry.NameHash = ByteUtilitarian.HashBytesToString(XTemp);
+                j = j + 4;
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                MMEntry.CmdBufferSize = BitConverter.ToUInt32(XTemp,0);
+                j = j + 4;
+
+                //This part is for ShaderObjectID Stuff.
+
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                Array.Reverse(XTemp);
+                HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
+                BinTempA = HashTemp.Substring(5,3);
+                BinTempB = HashTemp.Substring(0,5);
+                MMEntry.BlendState = new MaterialMaterialEntry.MatShaderObject();
+                MMEntry.BlendState.Index = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
+                int Num = MMEntry.BlendState.Index;
+                string line = "";
+                try
+                {
+                    line = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.BlendState.Index).Take(1).First();
+                }
+                catch (Exception xx)
+                {
+                    MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.", "Uh-Oh");
+                    return null;
+                }
+
+                MMEntry.BlendState.Hash = line;
+                j = j + 4;
+
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                Array.Reverse(XTemp);
+                HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
+                BinTempA = HashTemp.Substring(5, 3);
+                BinTempB = HashTemp.Substring(0, 5);
+                MMEntry.DepthStencilState = new MaterialMaterialEntry.MatShaderObject();
+                MMEntry.DepthStencilState.Index = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
+                int Num2 = MMEntry.DepthStencilState.Index;
+                string line2 = "";
+                try
+                {
+                    line2 = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.DepthStencilState.Index).Take(1).First();
+                }
+                catch (Exception xx)
+                {
+                    MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.", "Uh-Oh");
+                    return null;
+                }
+
+                MMEntry.DepthStencilState.Hash = line2;
+                j = j + 4;
+
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                Array.Reverse(XTemp);
+                HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
+                BinTempA = HashTemp.Substring(5, 3);
+                BinTempB = HashTemp.Substring(0, 5);
+                MMEntry.RasterizerState = new MaterialMaterialEntry.MatShaderObject();
+                MMEntry.RasterizerState.Index = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
+                int Num3 = MMEntry.RasterizerState.Index;
+                string line3 = "";
+                try
+                {
+                    line3 = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.RasterizerState.Index).Take(1).First();
+                }
+                catch (Exception xx)
+                {
+                    MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.", "Uh-Oh");
+                    return null;
+                }
+
+                MMEntry.RasterizerState.Hash = line3;
+                j = j + 4;
+
+            }
+
 
             return MATEntry;
 

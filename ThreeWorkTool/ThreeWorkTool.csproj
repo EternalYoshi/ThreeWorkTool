@@ -118,6 +118,7 @@
     <Compile Include="Resources\ExportFileWriter.cs" />
     <Compile Include="Resources\ExportFilters.cs" />
     <Compile Include="Resources\BSWConverter.cs" />
+    <Compile Include="Resources\ShaderEnum.cs" />
     <Compile Include="Resources\ThreeSourceMSDRPLEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -132,6 +133,7 @@
     <Compile Include="Resources\Wrappers\EffectListEntry.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
     <Compile Include="Resources\Wrappers\MaterialEntry.cs" />
+    <Compile Include="Resources\Wrappers\MaterialMaterialEntry.cs" />
     <Compile Include="Resources\Wrappers\MaterialTextureReference.cs" />
     <Compile Include="Resources\Wrappers\MSDEntry.cs" />
     <Compile Include="Resources\Wrappers\ResourcePathListEntry.cs" />
