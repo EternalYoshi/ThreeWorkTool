@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources.Utility;
+using static ThreeWorkTool.Resources.Wrappers.MaterialMaterialEntry;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -41,6 +42,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public string WeirdHash;
         public static string TypeHash = "2749C8A8";
         public List<MaterialTextureReference> TexEntries;
+        public int CommandBufferIndex;
 
         //Well then.... gotta construct these classes before I put in the code that fills that data in the FillMatEntry function.
 
@@ -67,16 +69,6 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
             public int Index;
             public int Hash;
-        }
-        
-        public struct MaterialCmd
-        {
-
-        }
-
-        public struct MatCmd
-        {
-
         }
 
         public struct ConstantBufferData
@@ -225,6 +217,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             MATEntry.TexEntries = new List<MaterialTextureReference>();
 
             int j = Convert.ToInt32(MATEntry.TextureOffset);
+            int k,l;
             byte[] MENTemp = new byte[64];
             //Fills in(or at least tries to) fill in each Texture and Material entry.
             for (int i = 0; i < MATEntry.TextureCount; i++)
@@ -249,6 +242,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             j = Convert.ToInt32(MATEntry.MaterialOffset);
 
             byte[] XTemp = new byte[4];
+            byte[] XXTemp = new byte[8];
             int ITemp;
             string HashTemp = "";
             string BinTempA = "";
@@ -268,7 +262,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 MMEntry.NameHash = ByteUtilitarian.HashBytesToString(XTemp);
                 j = j + 4;
                 Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                MMEntry.CmdBufferSize = BitConverter.ToUInt32(XTemp,0);
+                MMEntry.CmdBufferSize = BitConverter.ToInt32(XTemp,0);
                 j = j + 4;
 
                 //This part is for ShaderObjectID Stuff.
@@ -338,6 +332,120 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 MMEntry.RasterizerState.Hash = line3;
                 j = j + 4;
+
+                //Material Command List Info.
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                Array.Reverse(XTemp);
+                HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
+                BinTempA = HashTemp.Substring(5, 3);
+                BinTempB = HashTemp.Substring(0, 5);
+                MMEntry.MaterialCommandListInfo = new MaterialMaterialEntry.MaterialCmdListInfo();
+                MMEntry.MaterialCommandListInfo.Count = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
+                MMEntry.MaterialCommandListInfo.Unknown = int.Parse(BinTempB, System.Globalization.NumberStyles.HexNumber); ;
+                j = j + 4;
+
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                MMEntry.MateialinfoFlags = ByteUtilitarian.BytesToString(XTemp, MMEntry.MateialinfoFlags);
+
+                //Time for the weird unknown fields.
+                j = j + 4;
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                MMEntry.UnknownField24 = ByteUtilitarian.BytesToString(XTemp, MMEntry.UnknownField24);
+                j = j + 4;
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                MMEntry.UnknownField28 = ByteUtilitarian.BytesToString(XTemp, MMEntry.UnknownField28);
+                j = j + 4;
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                MMEntry.UnknownField2C = ByteUtilitarian.BytesToString(XTemp, MMEntry.UnknownField2C);
+                j = j + 4;
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                MMEntry.UnknownField30 = ByteUtilitarian.BytesToString(XTemp, MMEntry.UnknownField30);
+
+                //More Parameters yay!
+                j = j + 4;
+                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                Array.Reverse(XTemp);
+                MMEntry.AnimDataSize = BitConverter.ToInt32(XTemp,0);
+
+                j = j + 4;
+                Array.Copy(MATEntry.UncompressedData, j, XXTemp, 0, 8);
+                //Array.Reverse(XXTemp);
+                MMEntry.CmdListOffset = BitConverter.ToInt32(XXTemp, 0);
+
+                j = j + 8;
+                Array.Copy(MATEntry.UncompressedData, j, XXTemp, 0, 8);
+                Array.Reverse(XXTemp);
+                MMEntry.AnimDataOffset = BitConverter.ToInt32(XXTemp, 0);
+                MMEntry.SomethingLabeledP = Convert.ToUInt32(j);
+                j = j + 8;
+                j = MMEntry.CmdListOffset;
+
+                //If there's no animdata.
+                if (MMEntry.AnimDataSize == 0)
+                {
+                    //Command List Info.
+                    for (int p = 0; i < MMEntry.MaterialCommandListInfo.Count; i++)
+                    {
+                        MatCmd cmd = new MatCmd();
+                        MatCmdInfo cmdInfo = new MatCmdInfo();
+                        Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                        Array.Reverse(XTemp);
+                        HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
+                        BinTempA = HashTemp.Substring(5, 3);
+                        BinTempB = HashTemp.Substring(0, 5);
+                        cmdInfo.SetFlag = 0;
+                        cmdInfo.SomeValue = 0;
+                        cmdInfo.ShaderObjectIndex = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
+                        cmd.MCInfo = cmdInfo;
+                        j = j + 4;
+                        Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                        MMEntry.UnknownField04 = BitConverter.ToString(XTemp, 0);
+                        j = j + 4;
+                            
+                        //Union Value stuff.
+                        Value val = new Value();
+                        Array.Copy(MATEntry.UncompressedData, j, XXTemp, 0, 8);
+                        j = j + 4;
+                        Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                        Array.Reverse(XXTemp);
+                        Array.Reverse(XTemp);
+                        val.ConstantBufferDataOffset = BitConverter.ToUInt64(XXTemp, 0);
+                        val.TextureIndex = BitConverter.ToUInt16(XTemp,0);
+                        HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
+                        BinTempA = HashTemp.Substring(5, 3);
+                        BinTempB = HashTemp.Substring(0, 5);
+                        val.VShaderObjectID.Index = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
+                        val.VShaderObjectID.Hash = BinTempB;
+                        cmd.MaterialCommandValue = val;
+
+                        j = j + 8;
+
+                        Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                        Array.Reverse(XTemp);
+                        HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
+                        BinTempA = HashTemp.Substring(5, 3);
+                        BinTempB = HashTemp.Substring(0, 5);
+                        cmd.CmdShaderObject.Index = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
+                        cmd.CmdShaderObject.Hash = BinTempB;
+
+                        j = j + 4;
+                        Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
+                        Array.Reverse(XTemp);
+                        HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
+                        cmd.SomeField14 = Convert.ToUInt32(HashTemp);
+
+                        MMEntry.MaterialCommands = new List<MatCmd>();
+                        MMEntry.MaterialCommands.Add(cmd);
+                    }
+
+                   //Now for the CommandBuffer.
+                    MMEntry.CommandBufferIndex = MMEntry.CmdBufferSize - (MMEntry.MaterialCommandListInfo.Count*24);
+                    MMEntry.ConstantBufferData = new byte[MMEntry.CommandBufferIndex];
+
+                    
+
+                }
+
 
             }
 

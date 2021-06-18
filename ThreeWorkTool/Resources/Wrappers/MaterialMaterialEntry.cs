@@ -13,23 +13,24 @@ namespace ThreeWorkTool.Resources.Wrappers
         public string TypeHash;
         public string UnknownField;
         public string NameHash;
-        public uint CmdBufferSize;
+        public int CmdBufferSize;
         public string MateialinfoFlags;
-        public uint UnknownField24;
-        public uint UnknownField28;
-        public uint UnknownField2C;
-        public uint UnknownField30;
-        public uint AnimDataSize;
-        public uint CmdListOffset;
-        public uint AnimDataOffset;
+        public string UnknownField24;
+        public string UnknownField28;
+        public string UnknownField2C;
+        public string UnknownField30;
+        public int AnimDataSize;
+        public int CmdListOffset;
+        public int AnimDataOffset;
         public uint SomethingLabeledP;
         public uint Index;
         public MatShaderObject BlendState;
         public MatShaderObject DepthStencilState;
         public MatShaderObject RasterizerState;
-        public List<MaterialCmd> MaterialCommands;
-        public List<MatCmd> matCmds;
-        public List<byte> ConstantBufferData;
+        public MaterialCmdListInfo MaterialCommandListInfo;
+        public List<MatCmd> MaterialCommands;
+        public byte[] ConstantBufferData;
+        public int CommandBufferIndex;
 
         public struct MatShaderObject
         {
@@ -37,16 +38,34 @@ namespace ThreeWorkTool.Resources.Wrappers
             public string Hash;
         }
 
-        public struct MaterialCmd
+        public struct MaterialCmdListInfo
         {
-
+            public int Count;
+            public int Unknown;
         }
 
         public struct MatCmd
         {
-
+            public MatCmdInfo MCInfo;
+            public uint SomeField04;
+            public Value MaterialCommandValue;
+            public MatShaderObject CmdShaderObject;
+            public uint SomeField14;
         }
 
+        public struct MatCmdInfo
+        {
+            public uint SomeValue;
+            public int SetFlag;
+            public int ShaderObjectIndex;
+        }
+
+        public struct Value
+        {
+            public UInt64 ConstantBufferDataOffset;
+            public MatShaderObject VShaderObjectID;
+            public uint TextureIndex;
+        }
 
     }
 }
