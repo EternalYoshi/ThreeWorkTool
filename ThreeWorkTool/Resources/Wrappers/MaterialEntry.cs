@@ -217,7 +217,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             MATEntry.TexEntries = new List<MaterialTextureReference>();
 
             int j = Convert.ToInt32(MATEntry.TextureOffset);
-            int k,l;
             byte[] MENTemp = new byte[64];
             //Fills in(or at least tries to) fill in each Texture and Material entry.
             for (int i = 0; i < MATEntry.TextureCount; i++)
@@ -243,7 +242,6 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             byte[] XTemp = new byte[4];
             byte[] XXTemp = new byte[8];
-            int ITemp;
             string HashTemp = "";
             string BinTempA = "";
             string BinTempB = "";
@@ -255,8 +253,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 MMEntry.TypeHash = ByteUtilitarian.HashBytesToString(XTemp);
                 j = j + 4;
                 Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                ITemp = BitConverter.ToInt32(XTemp,0);
-                MMEntry.UnknownField04 = ITemp.ToString();
+                MMEntry.UnknownField04 = ByteUtilitarian.BytesToString(XTemp, MMEntry.UnknownField04);
                 j = j + 4;
                 Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
                 MMEntry.NameHash = ByteUtilitarian.HashBytesToString(XTemp);
@@ -326,7 +323,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 }
                 catch (Exception xx)
                 {
-                    MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.", "Uh-Oh");
+                    MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
                     return null;
                 }
 
@@ -376,15 +373,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                 Array.Copy(MATEntry.UncompressedData, j, XXTemp, 0, 8);
                 Array.Reverse(XXTemp);
                 MMEntry.AnimDataOffset = BitConverter.ToInt32(XXTemp, 0);
-                MMEntry.SomethingLabeledP = Convert.ToUInt32(j);
                 j = j + 8;
+                MMEntry.SomethingLabeledP = Convert.ToUInt32(j);
                 j = MMEntry.CmdListOffset;
 
                 //If there's no animdata.
                 if (MMEntry.AnimDataSize == 0)
                 {
                     //Command List Info.
-                    for (int p = 0; i < MMEntry.MaterialCommandListInfo.Count; i++)
+                    for (int p = 0; p < MMEntry.MaterialCommandListInfo.Count; p++)
                     {
                         MatCmd cmd = new MatCmd();
                         MatCmdInfo cmdInfo = new MatCmdInfo();
@@ -432,7 +429,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
                         Array.Reverse(XTemp);
                         HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
-                        cmd.SomeField14 = Convert.ToUInt32(HashTemp);
+                        cmd.SomeField14 = Convert.ToInt32(HashTemp,16);
 
                         MMEntry.MaterialCommands = new List<MatCmd>();
                         MMEntry.MaterialCommands.Add(cmd);

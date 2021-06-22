@@ -50,7 +50,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             public uint SomeField04;
             public Value MaterialCommandValue;
             public MatShaderObject CmdShaderObject;
-            public uint SomeField14;
+            public int SomeField14;
         }
 
         public struct MatCmdInfo
