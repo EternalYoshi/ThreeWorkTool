@@ -721,7 +721,7 @@ namespace ThreeWorkTool
 
         private void MenuAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("ThreeWork Tool Alpha version 0.2\n2021 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program", "About", MessageBoxButtons.OK);
+            MessageBox.Show("ThreeWork Tool Alpha version 0.2X\n2021 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program", "About", MessageBoxButtons.OK);
         }
 
         private void MenuClose_Click(object sender, EventArgs e)
@@ -761,15 +761,22 @@ namespace ThreeWorkTool
         //Function for unloading all the assets from the previously open file.
         private static void FlushAndClean()
         {
-            frename.Mainfrm.TreeSource.Nodes.Clear();
-            frename.Mainfrm.TreeSource.SelectedNode = null;
-            frename.Mainfrm.OpenFileModified = false;
-            frename.Mainfrm.OFilename = null;
-            frename.Mainfrm.FilePath = null;
-            frename.Mainfrm.OFilename = null;
-            frename.Mainfrm.txtBoxCurrentFile.Text = null;
-            frename.Mainfrm.pGrdMain.SelectedObject = null;
-            frename.Mainfrm.picBoxA.Image = null;
+            if (frename == null)
+            {
+                MessageBox.Show("Nothing is open.");
+            }
+            else
+            {
+                frename.Mainfrm.TreeSource.Nodes.Clear();
+                frename.Mainfrm.TreeSource.SelectedNode = null;
+                frename.Mainfrm.OpenFileModified = false;
+                frename.Mainfrm.OFilename = null;
+                frename.Mainfrm.FilePath = null;
+                frename.Mainfrm.OFilename = null;
+                frename.Mainfrm.txtBoxCurrentFile.Text = null;
+                frename.Mainfrm.pGrdMain.SelectedObject = null;
+                frename.Mainfrm.picBoxA.Image = null;
+            }
         }
 
         //Detects changes and asks to save them during closing.
@@ -2783,128 +2790,138 @@ namespace ThreeWorkTool
 
             NCount = 0;
 
-            TreeFill(newArc.Tempname, NCount, newArc);
-
-            NCount = 1;
-
-            Arcsize = newArc.Totalsize;
-
-            TreeSource.archivefile = newArc;
-
-            //For whatever is inside the archive itself.
-            foreach (var ArcEntry in newArc.arcfiles)
+            if (newArc == null)
             {
-
-                string type = ArcEntry.GetType().ToString();
-
-                switch(type)
+                //Writes to log file.
+                using (StreamWriter sw = File.AppendText("Log.txt"))
                 {
-                    //Commented out until a future release.
-                    /*
-                                        case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
-                                            MSDEntry mse = new MSDEntry();
-                                            mse = ArcEntry as MSDEntry;
-                                            if (mse != null) 
-                                            {
-                                                TreeChildInsert(NCount, mse.EntryName, mse.FileExt, mse.EntryDirs, mse.TrueName, mse);
-                                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
-                                                break;
-                                            }
-                                            else
-                                            {
-                                                MessageBox.Show("We got a read error here!", "YIKES");
-                                                break;
-                                            }
-                    */
-
-
-                    case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
-                        MaterialEntry mte = new MaterialEntry();
-                        mte = ArcEntry as MaterialEntry;
-                        if (mte != null)
-                        {
-                            TreeChildInsert(NCount, mte.EntryName, mte.FileExt, mte.EntryDirs, mte.TrueName, mte);
-                            TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
-                            break;
-                        }
-                        else
-                        {
-                            MessageBox.Show("We got a read error here!", "YIKES");
-                            break;
-                        }
-
-                    case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
-                        TextureEntry te = new TextureEntry();
-                        te = ArcEntry as TextureEntry;
-                        if(te != null)
-                        {
-                            TreeChildInsert(NCount, te.EntryName, te.FileExt, te.EntryDirs, te.TrueName, te);
-                            TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
-                            break;
-                        }
-                        else
-                        {
-                            MessageBox.Show("We got a read error here!", "YIKES");
-                            break;
-                        }
-
-                    case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
-                        ResourcePathListEntry rple = new ResourcePathListEntry();
-                        rple = ArcEntry as ResourcePathListEntry;
-                        if (rple != null)
-                        {
-                            TreeChildInsert(NCount, rple.EntryName, rple.FileExt, rple.EntryDirs, rple.TrueName, rple);
-                            TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
-                            break;
-                        }
-                        else
-                        {
-                            MessageBox.Show("We got a read error here!", "YIKES");
-                            break;
-                        }
-
-                    default:
-                        //Fills in child nodes, i.e. the filenames inside the archive.
-                        ArcEntry ae = new ArcEntry();
-                        ae = ArcEntry as ArcEntry;
-                        if (ae != null)
-                        {
-                            TreeChildInsert(NCount, ae.EntryName, ae.FileExt, ae.EntryDirs, ae.TrueName, ae);
-                            TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
-                            break;
-                        }
-                        else
-                        {
-                            MessageBox.Show("We got a read error here!","YIKES");
-                            break;
-                        }
+                    sw.WriteLine("Failed to open a file: " + FilePath);
                 }
             }
-
-            TreeSource.EndUpdate();
-            TreeSource.Visible = true;
-            //Fills in Arc Data and selects it on the grid.
-            pGrdMain.SelectedObject = newArc;
-
-
-            FrmRename frn = new FrmRename();
-            frn.Mainfrm = this;
-            frename = frn;
-
-            TreeSource.Sort();
-
-            //Writes to log file.
-            using (StreamWriter sw = new StreamWriter("Log.txt"))
+            else
             {
-                sw.WriteLine("Archive file: " + FilePath + " Opened.\nFile List:\n");
-                sw.WriteLine("===============================================================================================================");
-                int entrycount = 0;
-                PrintRecursive(TreeSource.TopNode, sw, 0);
-                entrycount = frename.Mainfrm.TreeSource.TopNode.GetNodeCount(true);
-                sw.WriteLine("Current file Count: " + entrycount);
-                sw.WriteLine("===============================================================================================================");
+                TreeFill(newArc.Tempname, NCount, newArc);
+
+                NCount = 1;
+
+                Arcsize = newArc.Totalsize;
+
+                TreeSource.archivefile = newArc;
+
+                //For whatever is inside the archive itself.
+                foreach (var ArcEntry in newArc.arcfiles)
+                {
+
+                    string type = ArcEntry.GetType().ToString();
+
+                    switch (type)
+                    {
+                        //Commented out until a future release.
+                        /*
+                                            case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
+                                                MSDEntry mse = new MSDEntry();
+                                                mse = ArcEntry as MSDEntry;
+                                                if (mse != null) 
+                                                {
+                                                    TreeChildInsert(NCount, mse.EntryName, mse.FileExt, mse.EntryDirs, mse.TrueName, mse);
+                                                    TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                                    break;
+                                                }
+                                                else
+                                                {
+                                                    MessageBox.Show("We got a read error here!", "YIKES");
+                                                    break;
+                                                }
+                        */
+
+
+                        case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
+                            MaterialEntry mte = new MaterialEntry();
+                            mte = ArcEntry as MaterialEntry;
+                            if (mte != null)
+                            {
+                                TreeChildInsert(NCount, mte.EntryName, mte.FileExt, mte.EntryDirs, mte.TrueName, mte);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
+                        case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
+                            TextureEntry te = new TextureEntry();
+                            te = ArcEntry as TextureEntry;
+                            if (te != null)
+                            {
+                                TreeChildInsert(NCount, te.EntryName, te.FileExt, te.EntryDirs, te.TrueName, te);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
+                        case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
+                            ResourcePathListEntry rple = new ResourcePathListEntry();
+                            rple = ArcEntry as ResourcePathListEntry;
+                            if (rple != null)
+                            {
+                                TreeChildInsert(NCount, rple.EntryName, rple.FileExt, rple.EntryDirs, rple.TrueName, rple);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
+                        default:
+                            //Fills in child nodes, i.e. the filenames inside the archive.
+                            ArcEntry ae = new ArcEntry();
+                            ae = ArcEntry as ArcEntry;
+                            if (ae != null)
+                            {
+                                TreeChildInsert(NCount, ae.EntryName, ae.FileExt, ae.EntryDirs, ae.TrueName, ae);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+                    }
+                }
+
+                TreeSource.EndUpdate();
+                TreeSource.Visible = true;
+                //Fills in Arc Data and selects it on the grid.
+                pGrdMain.SelectedObject = newArc;
+
+
+                FrmRename frn = new FrmRename();
+                frn.Mainfrm = this;
+                frename = frn;
+
+                TreeSource.Sort();
+
+                //Writes to log file.
+                using (StreamWriter sw = new StreamWriter("Log.txt"))
+                {
+                    sw.WriteLine("Archive file: " + FilePath + " Opened.\nFile List:\n");
+                    sw.WriteLine("===============================================================================================================");
+                    int entrycount = 0;
+                    PrintRecursive(TreeSource.TopNode, sw, 0);
+                    entrycount = frename.Mainfrm.TreeSource.TopNode.GetNodeCount(true);
+                    sw.WriteLine("Current file Count: " + entrycount);
+                    sw.WriteLine("===============================================================================================================");
+                }
             }
-            
         }
 
         //This is test stuff from the Microsoft website. Modified for my purposes.

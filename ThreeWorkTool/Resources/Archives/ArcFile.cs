@@ -61,6 +61,13 @@ namespace ThreeWorkTool.Resources.Archives
                     return null;
                 }
 
+                if (HeaderMagic[0] != 0x41 && HeaderMagic[1] != 0x52 && HeaderMagic[2] != 0x43 && HeaderMagic[3] != 0x00)
+                {
+                    MessageBox.Show("This .arc file is either not the correct kind or is not properly extracted, so I'm closing it.", "Oh dear");
+                    br.Close();
+                    return null;
+                }
+
                 arcfile.HeaderMagic = HeaderMagic;
 
                 arcfile.arctable = new List<ArcEntry>();

@@ -43,6 +43,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public static string TypeHash = "2749C8A8";
         public List<MaterialTextureReference> TexEntries;
         public int CommandBufferIndex;
+        public ModelEntry ModelToReference;
 
         //Well then.... gotta construct these classes before I put in the code that fills that data in the FillMatEntry function.
 
