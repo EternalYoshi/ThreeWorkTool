@@ -35,76 +35,36 @@ namespace ThreeWorkTool.Resources.Archives
         public static ArcEntry FillEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
             ArcEntry arcentry = new ArcEntry();
+            List<byte> BTemp = new List<byte>();
 
-                //This block gets the name of the entry.
-                arcentry.OffsetTemp = c;
-                arcentry.EntryID = ID;
-                List<byte> BTemp = new List<byte>();
-                br.BaseStream.Position = arcentry.OffsetTemp;
-                BTemp.AddRange(br.ReadBytes(64));
-                BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
+            //This block gets the name of the entry.
+            arcentry.OffsetTemp = c;
+            arcentry.EntryID = ID;
+            br.BaseStream.Position = arcentry.OffsetTemp;
+            var TempName = Encoding.ASCII.GetString(br.ReadBytes(64)).Trim('\0');
 
-                if (SBname == null)
-                {
-                    SBname = new StringBuilder();
-                }
-                else
-                {
-                    SBname.Clear();
-                }
+            //This is for the bytes that have the typehash, the thing that dictates the type of file stored.
+            BTemp = new List<byte>();
+            c = c + 64;
+            br.BaseStream.Position = c;
+            arcentry.TypeHash = ByteUtilitarian.BytesToStringL2R(br.ReadBytes(4).ToList(), arcentry.TypeHash);
 
-                string Tempname;
-                ASCIIEncoding ascii = new ASCIIEncoding();
-                Tempname = ascii.GetString(BTemp.ToArray());
+            //Compressed Data size.
+            arcentry.CSize = br.ReadInt32();
 
-                //This is for the bytes that have the typehash, the thing that dictates the type of file stored.
-                BTemp = new List<byte>();
-                c = c + 64;
-                br.BaseStream.Position = c;
-                BTemp.AddRange(br.ReadBytes(4));
-                BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
-                BTemp.Reverse();
-                arcentry.TypeHash = ByteUtilitarian.BytesToStringL2(BTemp, arcentry.TypeHash);
+            //Uncompressed Data size.
+            arcentry.DSize = br.ReadInt32() - 1073741824;
 
-                //Compressed Data size.
-                BTemp = new List<byte>();
-                c = c + 4;
-                br.BaseStream.Position = c;
-                BTemp.AddRange(br.ReadBytes(4));
-                arcentry.CSize = BitConverter.ToInt32(BTemp.ToArray(), 0);
+            //Data Offset.
+            arcentry.AOffset = br.ReadInt32();
 
-                //Uncompressed Data size.
-                BTemp = new List<byte>();
-                c = c + 4;
-                br.BaseStream.Position = c;
-                BTemp.AddRange(br.ReadBytes(4));
-                BTemp.Reverse();
-
-                string TempStr = "";
-                TempStr = ByteUtilitarian.BytesToStringL2(BTemp, TempStr);
-                BigInteger BN1, BN2, DIFF;
-                BN2 = BigInteger.Parse("40000000", NumberStyles.HexNumber);
-                BN1 = BigInteger.Parse(TempStr, NumberStyles.HexNumber);
-                DIFF = BN1 - BN2;
-                arcentry.DSize = (int)DIFF;
-
-                //Data Offset.
-                BTemp = new List<byte>();
-                c = c + 4;
-                br.BaseStream.Position = c;
-                BTemp.AddRange(br.ReadBytes(4));
-                //BTemp.Reverse();
-                arcentry.AOffset = BitConverter.ToInt32(BTemp.ToArray(), 0);
-
-                //Compressed Data.
-                BTemp = new List<byte>();
-                c = arcentry.AOffset;
-                br.BaseStream.Position = c;
-                BTemp.AddRange(br.ReadBytes(arcentry.CSize));
-                arcentry.CompressedData = BTemp.ToArray();
+            //Compressed Data.
+            BTemp = new List<byte>();
+            br.BaseStream.Position = arcentry.AOffset;
+            arcentry.CompressedData = br.ReadBytes(arcentry.CSize);
 
                 //Namestuff.
-                arcentry.EntryName = Tempname;
+                arcentry.EntryName = TempName;
 
                 //Ensures existing subdirectories are cleared so the directories for files are displayed correctly.
                 if (subnames != null)

@@ -79,54 +79,26 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         public static MaterialEntry FillMatEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
-            MaterialEntry MATEntry = new MaterialEntry();
+            var MATEntry = new MaterialEntry();
+            List<byte> BTemp = new List<byte>();
 
             //This block gets the name of the entry.
             MATEntry.OffsetTemp = c;
             MATEntry.EntryID = ID;
-            List<byte> BTemp = new List<byte>();
             br.BaseStream.Position = MATEntry.OffsetTemp;
-            BTemp.AddRange(br.ReadBytes(64));
-            BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
-
-            if (SBname == null)
-            {
-                SBname = new StringBuilder();
-            }
-            else
-            {
-                SBname.Clear();
-            }
-
-            string Tempname;
-            ASCIIEncoding ascii = new ASCIIEncoding();
-            Tempname = ascii.GetString(BTemp.ToArray());
+            var TempName = Encoding.ASCII.GetString(br.ReadBytes(64)).Trim('\0');
 
             //Compressed Data size.
-            BTemp = new List<byte>();
             c = c + 68;
             br.BaseStream.Position = c;
-            BTemp.AddRange(br.ReadBytes(4));
-            MATEntry.CSize = BitConverter.ToInt32(BTemp.ToArray(), 0);
+            MATEntry.CSize = br.ReadInt32();
 
             //Uncompressed Data size.
-            BTemp = new List<byte>();
-            c = c + 4;
-            br.BaseStream.Position = c;
-            BTemp.AddRange(br.ReadBytes(4));
-            BTemp.Reverse();
-            string TempStr = "";
-            TempStr = ByteUtilitarian.BytesToStringL2(BTemp, TempStr);
-            BigInteger BN1, BN2, DIFF;
-            BN2 = BigInteger.Parse("40000000", NumberStyles.HexNumber);
-            BN1 = BigInteger.Parse(TempStr, NumberStyles.HexNumber);
-            DIFF = BN1 - BN2;
-            MATEntry.DSize = (int)DIFF;
+            MATEntry.DSize = br.ReadInt32() - 1073741824;
+
 
             //Data Offset.
             BTemp = new List<byte>();
-            c = c + 4;
-            br.BaseStream.Position = c;
             BTemp.AddRange(br.ReadBytes(4));
             MATEntry.AOffset = BitConverter.ToInt32(BTemp.ToArray(), 0);
 
@@ -138,7 +110,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             MATEntry.CompressedData = BTemp.ToArray();
 
             //Namestuff.
-            MATEntry.EntryName = Tempname;
+            MATEntry.EntryName = TempName;
             MATEntry._FileType = ".mrl";
 
             //Ensures existing subdirectories are cleared so the directories for files are displayed correctly.
@@ -232,8 +204,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                 BTemp.AddRange(MENTemp);
                 BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
                 ASCIIEncoding asciime = new ASCIIEncoding();
-                Tempname = asciime.GetString(BTemp.ToArray());
-                TexTemp.FullTexName = Tempname;
+                TempName = asciime.GetString(BTemp.ToArray());
+                TexTemp.FullTexName = TempName;
                 TexTemp.Index = i;
                 TexTemp._Index = TexTemp.Index;
                 MATEntry.TexEntries.Add(TexTemp);
@@ -246,7 +218,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             string HashTemp = "";
             string BinTempA = "";
             string BinTempB = "";
-            
+            /*
             for (int i=0; i< MATEntry.MaterialCount; i++)
             {
                 MaterialMaterialEntry MMEntry = new MaterialMaterialEntry();
@@ -381,6 +353,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 //If there's no animdata.
                 if (MMEntry.AnimDataSize == 0)
                 {
+                    
                     //Command List Info.
                     for (int p = 0; p < MMEntry.MaterialCommandListInfo.Count; p++)
                     {
@@ -399,7 +372,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                         Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
                         MMEntry.UnknownField04 = BitConverter.ToString(XTemp, 0);
                         j = j + 4;
-                            
+                        
+                        
                         //Union Value stuff.
                         Value val = new Value();
                         Array.Copy(MATEntry.UncompressedData, j, XXTemp, 0, 8);
@@ -439,14 +413,14 @@ namespace ThreeWorkTool.Resources.Wrappers
                    //Now for the CommandBuffer.
                     MMEntry.CommandBufferIndex = MMEntry.CmdBufferSize - (MMEntry.MaterialCommandListInfo.Count*24);
                     MMEntry.ConstantBufferData = new byte[MMEntry.CommandBufferIndex];
-
+                    
                     
 
                 }
 
 
             }
-
+            */
 
             return MATEntry;
 

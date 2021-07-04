@@ -2582,100 +2582,6 @@ namespace ThreeWorkTool
             string type = e.Node.Tag.GetType().ToString();
 
             UpdateNodeSelection(type);
-            /*
-            switch (type)
-            {
-                case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
-                    FinishRPLRead = false;
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    ResourcePathListEntry rplentry = new ResourcePathListEntry();
-                    rplentry = e.Node.Tag as ResourcePathListEntry;
-                    picBoxA.Visible = false;
-                    txtRPList.Text = "";
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
-                    txtRPList = ResourcePathListEntry.LoadRPLInTextBox(txtRPList,rplentry);
-                    RPLBackup = txtRPList.Text;
-                    txtRPList.Visible = true;
-                    FinishRPLRead = true;
-                    break;
-
-                case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    //tentry = new TextureEntry();
-                    tentry = e.Node.Tag as TextureEntry;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    picBoxA.Visible = true;
-                    bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
-                    if (bmx == null)
-                    {
-                        picBoxA.Image = picBoxA.ErrorImage;
-                        break;
-                    }
-                    else
-                    {
-                        ImageRescaler(bmx, picBoxA, tentry);
-                        picBoxA.BackColor = Color.Magenta;
-                        break;
-                    }
-
-                case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    //tentry = new TextureEntry();
-                    tentry = e.Node.Tag as TextureEntry;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    picBoxA.Visible = true;
-                    bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
-                    if (bmx == null)
-                    {
-                        picBoxA.Image = picBoxA.ErrorImage;
-                        break;
-                    }
-                    else
-                    {
-                        ImageRescaler(bmx, picBoxA, tentry);
-                        picBoxA.BackColor = Color.Magenta;
-                        break;
-                    }
-
-                case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
-                    ArcEntry entry = new ArcEntry();
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    break;
-
-                case "ThreeWorkTool.Resources.Archives.ArcEntry":
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    break;
-
-                case "ThreeWorkTool.Resources.Wrappers.ArcFileWrapper":
-                    ArcFile afile = new ArcFile();
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    break;
-
-                case "ThreeWorkTool.Resources.Archives.ArcFile":
-                    pGrdMain.SelectedObject = e.Node.Tag;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    break;
-                default:
-                    pGrdMain.SelectedObject = null;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    break;
-            }
-            */
         }
 
         private void TreeSource_SelectionChanged(object sender, EventArgs e)
@@ -2688,23 +2594,6 @@ namespace ThreeWorkTool
         {
             if (textureEntry.OutMaps != null)
             {
-                /*
-                PixelFormat PixForm = PixelFormat.Format32bppArgb;
-                //Gets the largest Mip Map Pixel Data.
-                byte[] PData = textureEntry.OutMapsB[0];
-
-                switch (textureEntry.TexType)
-                {
-                    case("13"):
-                        break;
-
-                    case ("17"):
-                        break;
-
-                    default:
-                        break;
-                }
-                */
                 
                 Stream ztrim = new MemoryStream(textureEntry.OutMaps);
                 //From the pfim website.
@@ -3135,7 +3024,6 @@ namespace ThreeWorkTool
 
                 case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
-                    //tentry = new TextureEntry();
                     tentry = TreeSource.SelectedNode.Tag as TextureEntry;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
