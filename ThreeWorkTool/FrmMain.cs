@@ -2503,9 +2503,9 @@ namespace ThreeWorkTool
             {
 
                 TreeNode Texture = new TreeNode();
-                Texture.Name = material.TexEntries[i].FullTexName;
-                Texture.Tag = material.TexEntries[i];
-                Texture.Text = material.TexEntries[i].FullTexName;
+                Texture.Name = material.Textures[i].FullTexName;
+                Texture.Tag = material.Textures[i];
+                Texture.Text = material.Textures[i].FullTexName;
                 TreeSource.SelectedNode.Nodes.Add(Texture);
                 ContextMenu conmenu = new ContextMenu();
                 conmenu.MenuItems.Add(new MenuItem("Change Texture Reference via Rename", MenuItemRenameFile_Click));
@@ -2518,13 +2518,13 @@ namespace ThreeWorkTool
             {
 
                 TreeNode Material = new TreeNode();
-                //Material.Tag = material.TexEntries[i];
+                Material.Tag = material.Textures[i];
 
             }
 
 
         }
-        
+ 
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
         {
 

@@ -18,6 +18,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 {
     public class MaterialEntry
     {
+        public const int SIZE = 0x28;
+        public const int MATSIZE = 0x48;
+        public const int MAX_NAME_LENGTH = 64;
         public string Magic;
         public string Constant;
         public int CSize;
@@ -34,48 +37,17 @@ namespace ThreeWorkTool.Resources.Wrappers
         public string TrueName;
         public string FileExt;
         public static StringBuilder SBname;
+        public int SomethingCount;
         public int TextureCount;
         public int MaterialCount;
-        public Int64 TextureOffset;
-        public Int64 MaterialOffset;
+        public int TextureOffset;
+        public int MaterialOffset;
         public int UnknownField;
         public string WeirdHash;
-        public static string TypeHash = "2749C8A8";
-        public List<MaterialTextureReference> TexEntries;
-        public int CommandBufferIndex;
-        public ModelEntry ModelToReference;
-
-        //Well then.... gotta construct these classes before I put in the code that fills that data in the FillMatEntry function.
-
-        public struct MaterialEntries
-        {
-            public string MatName;
-            public string UnknownField04;
-            public string TypeHash;
-            public string UnknownField;
-            public string NameHash;
-            public int CmdBufferSize;
-            public string MateialinfoFlags;
-            public int UnknownField24;
-            public int UnknownField28;
-            public int UnknownField2C;
-            public int UnknownField30;
-            public int AnimDataSize;
-            public int CmdListOffset;
-            public int AnimDataOffset;
-            public int SomethingLabeledP;
-        }
-
-        public struct MatShaderObject
-        {
-            public int Index;
-            public int Hash;
-        }
-
-        public struct ConstantBufferData
-        {
-            public byte[] BufferRawData;
-        }
+        public string TypeHash;
+        public int Field14;
+        public List<MaterialTextureReference> Textures;
+        public List<MaterialMaterialEntry> Materials;
 
         public static MaterialEntry FillMatEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -87,27 +59,23 @@ namespace ThreeWorkTool.Resources.Wrappers
             MATEntry.EntryID = ID;
             br.BaseStream.Position = MATEntry.OffsetTemp;
             var TempName = Encoding.ASCII.GetString(br.ReadBytes(64)).Trim('\0');
-
-            //Compressed Data size.
             c = c + 68;
             br.BaseStream.Position = c;
+
+            //Compressed Data size. These values from the arc appear to be 32 bits.
             MATEntry.CSize = br.ReadInt32();
 
-            //Uncompressed Data size.
+            //Uncompressed Data size. This value has a 0x40000000 added to the file size count for some reason.
             MATEntry.DSize = br.ReadInt32() - 1073741824;
 
-
             //Data Offset.
-            BTemp = new List<byte>();
-            BTemp.AddRange(br.ReadBytes(4));
-            MATEntry.AOffset = BitConverter.ToInt32(BTemp.ToArray(), 0);
+            MATEntry.AOffset = br.ReadInt32();
+
 
             //Compressed Data.
             BTemp = new List<byte>();
-            c = MATEntry.AOffset;
-            br.BaseStream.Position = c;
-            BTemp.AddRange(br.ReadBytes(MATEntry.CSize));
-            MATEntry.CompressedData = BTemp.ToArray();
+            br.BaseStream.Position = MATEntry.AOffset;
+            MATEntry.CompressedData = br.ReadBytes(MATEntry.CSize);
 
             //Namestuff.
             MATEntry.EntryName = TempName;
@@ -160,272 +128,146 @@ namespace ThreeWorkTool.Resources.Wrappers
             MATEntry.UncompressedData = ZlibStream.UncompressBuffer(MATEntry.CompressedData);
             MATEntry._FileLength = MATEntry.UncompressedData.Length;
 
-
             //Material specific work here.
-            MATEntry.WTemp = new byte[5];
-            Array.Copy(MATEntry.UncompressedData, 0, MATEntry.WTemp, 0, 5);
-            MATEntry.Magic = ByteUtilitarian.BytesToString(MATEntry.WTemp,MATEntry.Magic);
-
-            byte[] MTemp = new byte[4];
-            Array.Copy(MATEntry.UncompressedData, 8, MTemp, 0, 4);
-            MATEntry.MaterialCount = BitConverter.ToInt32(MTemp,0);
-            MATEntry._MaterialTotal = MATEntry.MaterialCount;
-
-            Array.Copy(MATEntry.UncompressedData, 12, MTemp, 0, 4);
-            MATEntry.TextureCount = BitConverter.ToInt32(MTemp,0);
-            MATEntry._TextureTotal = MATEntry.TextureCount;
-
-            Array.Copy(MATEntry.UncompressedData, 16, MTemp, 0, 4);
-            MATEntry.WeirdHash = ByteUtilitarian.BytesToString(MTemp, MATEntry.WeirdHash);
-
-            byte[] SixFourTemp = new byte[8];
-            Array.Copy(MATEntry.UncompressedData, 24, SixFourTemp, 0, 8);
-            MATEntry.TextureOffset = BitConverter.ToInt64(SixFourTemp,0);
-            MATEntry._TextureStartingOffset = Convert.ToInt32(MATEntry.TextureOffset);
-
-            Array.Copy(MATEntry.UncompressedData, 32, SixFourTemp, 0, 8);
-            MATEntry.MaterialOffset = BitConverter.ToInt64(SixFourTemp, 0);
-            MATEntry._MaterialStartingOffset = Convert.ToInt32(MATEntry.MaterialOffset);
-
-            MATEntry.TexEntries = new List<MaterialTextureReference>();
-
-            int j = Convert.ToInt32(MATEntry.TextureOffset);
-            byte[] MENTemp = new byte[64];
-            //Fills in(or at least tries to) fill in each Texture and Material entry.
-            for (int i = 0; i < MATEntry.TextureCount; i++)
+            using (MemoryStream MatStream = new MemoryStream(MATEntry.UncompressedData))
             {
-                j = (Convert.ToInt32(MATEntry.TextureOffset) + i * 88);
-                MaterialTextureReference TexTemp = new MaterialTextureReference();
-                Array.Copy(MATEntry.UncompressedData, j, MTemp, 0, 4);
-                TexTemp.TypeHash = ByteUtilitarian.BytesToString(MTemp, TexTemp.TypeHash);
-                j = j + 24;
-                BTemp.Clear();
-                Array.Copy(MATEntry.UncompressedData, j, MENTemp, 0, 64);
-                BTemp.AddRange(MENTemp);
-                BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
-                ASCIIEncoding asciime = new ASCIIEncoding();
-                TempName = asciime.GetString(BTemp.ToArray());
-                TexTemp.FullTexName = TempName;
-                TexTemp.Index = i;
-                TexTemp._Index = TexTemp.Index;
-                MATEntry.TexEntries.Add(TexTemp);
-            }
-
-            j = Convert.ToInt32(MATEntry.MaterialOffset);
-
-            byte[] XTemp = new byte[4];
-            byte[] XXTemp = new byte[8];
-            string HashTemp = "";
-            string BinTempA = "";
-            string BinTempB = "";
-            /*
-            for (int i=0; i< MATEntry.MaterialCount; i++)
-            {
-                MaterialMaterialEntry MMEntry = new MaterialMaterialEntry();
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                MMEntry.TypeHash = ByteUtilitarian.HashBytesToString(XTemp);
-                j = j + 4;
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                MMEntry.UnknownField04 = ByteUtilitarian.BytesToString(XTemp, MMEntry.UnknownField04);
-                j = j + 4;
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                MMEntry.NameHash = ByteUtilitarian.HashBytesToString(XTemp);
-                j = j + 4;
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                MMEntry.CmdBufferSize = BitConverter.ToInt32(XTemp,0);
-                j = j + 4;
-
-                //This part is for ShaderObjectID Stuff.
-
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                Array.Reverse(XTemp);
-                HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
-                BinTempA = HashTemp.Substring(5,3);
-                BinTempB = HashTemp.Substring(0,5);
-                MMEntry.BlendState = new MaterialMaterialEntry.MatShaderObject();
-                MMEntry.BlendState.Index = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
-                int Num = MMEntry.BlendState.Index;
-                string line = "";
-                try
+                using (BinaryReader MBR = new BinaryReader(MatStream))
                 {
-                    line = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.BlendState.Index).Take(1).First();
-                }
-                catch (Exception xx)
-                {
-                    MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.", "Uh-Oh");
-                    return null;
-                }
+                    //Header variables.
+                    MATEntry.Magic = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(),MATEntry.Magic);
+                    MATEntry.SomethingCount = MBR.ReadInt32();
+                    MATEntry.MaterialCount = MBR.ReadInt32();
+                    MATEntry.TextureCount = MBR.ReadInt32();
+                    MATEntry.WeirdHash = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MATEntry.Magic);
+                    MBR.BaseStream.Position = MBR.BaseStream.Position + 4;
+                    MATEntry.TextureOffset = MBR.ReadInt32();
+                    MBR.BaseStream.Position = MBR.BaseStream.Position + 4;
+                    MATEntry.MaterialOffset = MBR.ReadInt32();
 
-                MMEntry.BlendState.Hash = line;
-                j = j + 4;
+                    //Displayed Data for Header Variables.
+                    MATEntry._TextureTotal= MATEntry.TextureCount;
+                    MATEntry._MaterialTotal= MATEntry.MaterialCount;
+                    MATEntry._MaterialStartingOffset= MATEntry.MaterialOffset;
+                    MATEntry._TextureStartingOffset= MATEntry.TextureOffset;
 
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                Array.Reverse(XTemp);
-                HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
-                BinTempA = HashTemp.Substring(5, 3);
-                BinTempB = HashTemp.Substring(0, 5);
-                MMEntry.DepthStencilState = new MaterialMaterialEntry.MatShaderObject();
-                MMEntry.DepthStencilState.Index = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
-                int Num2 = MMEntry.DepthStencilState.Index;
-                string line2 = "";
-                try
-                {
-                    line2 = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.DepthStencilState.Index).Take(1).First();
-                }
-                catch (Exception xx)
-                {
-                    MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.", "Uh-Oh");
-                    return null;
-                }
-
-                MMEntry.DepthStencilState.Hash = line2;
-                j = j + 4;
-
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                Array.Reverse(XTemp);
-                HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
-                BinTempA = HashTemp.Substring(5, 3);
-                BinTempB = HashTemp.Substring(0, 5);
-                MMEntry.RasterizerState = new MaterialMaterialEntry.MatShaderObject();
-                MMEntry.RasterizerState.Index = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
-                int Num3 = MMEntry.RasterizerState.Index;
-                string line3 = "";
-                try
-                {
-                    line3 = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.RasterizerState.Index).Take(1).First();
-                }
-                catch (Exception xx)
-                {
-                    MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
-                    return null;
-                }
-
-                MMEntry.RasterizerState.Hash = line3;
-                j = j + 4;
-
-                //Material Command List Info.
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                Array.Reverse(XTemp);
-                HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
-                BinTempA = HashTemp.Substring(5, 3);
-                BinTempB = HashTemp.Substring(0, 5);
-                MMEntry.MaterialCommandListInfo = new MaterialMaterialEntry.MaterialCmdListInfo();
-                MMEntry.MaterialCommandListInfo.Count = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
-                MMEntry.MaterialCommandListInfo.Unknown = int.Parse(BinTempB, System.Globalization.NumberStyles.HexNumber); ;
-                j = j + 4;
-
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                MMEntry.MateialinfoFlags = ByteUtilitarian.BytesToString(XTemp, MMEntry.MateialinfoFlags);
-
-                //Time for the weird unknown fields.
-                j = j + 4;
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                MMEntry.UnknownField24 = ByteUtilitarian.BytesToString(XTemp, MMEntry.UnknownField24);
-                j = j + 4;
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                MMEntry.UnknownField28 = ByteUtilitarian.BytesToString(XTemp, MMEntry.UnknownField28);
-                j = j + 4;
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                MMEntry.UnknownField2C = ByteUtilitarian.BytesToString(XTemp, MMEntry.UnknownField2C);
-                j = j + 4;
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                MMEntry.UnknownField30 = ByteUtilitarian.BytesToString(XTemp, MMEntry.UnknownField30);
-
-                //More Parameters yay!
-                j = j + 4;
-                Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                Array.Reverse(XTemp);
-                MMEntry.AnimDataSize = BitConverter.ToInt32(XTemp,0);
-
-                j = j + 4;
-                Array.Copy(MATEntry.UncompressedData, j, XXTemp, 0, 8);
-                //Array.Reverse(XXTemp);
-                MMEntry.CmdListOffset = BitConverter.ToInt32(XXTemp, 0);
-
-                j = j + 8;
-                Array.Copy(MATEntry.UncompressedData, j, XXTemp, 0, 8);
-                Array.Reverse(XXTemp);
-                MMEntry.AnimDataOffset = BitConverter.ToInt32(XXTemp, 0);
-                j = j + 8;
-                MMEntry.SomethingLabeledP = Convert.ToUInt32(j);
-                j = MMEntry.CmdListOffset;
-
-                //If there's no animdata.
-                if (MMEntry.AnimDataSize == 0)
-                {
-                    
-                    //Command List Info.
-                    for (int p = 0; p < MMEntry.MaterialCommandListInfo.Count; p++)
+                    //For the Texture References.
+                    MATEntry.Textures = new List<MaterialTextureReference>();
+                    MBR.BaseStream.Position = MATEntry.TextureOffset;
+                    for (int i = 0; i < MATEntry.TextureCount; i++)
                     {
-                        MatCmd cmd = new MatCmd();
-                        MatCmdInfo cmdInfo = new MatCmdInfo();
-                        Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                        Array.Reverse(XTemp);
-                        HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
-                        BinTempA = HashTemp.Substring(5, 3);
-                        BinTempB = HashTemp.Substring(0, 5);
-                        cmdInfo.SetFlag = 0;
-                        cmdInfo.SomeValue = 0;
-                        cmdInfo.ShaderObjectIndex = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
-                        cmd.MCInfo = cmdInfo;
-                        j = j + 4;
-                        Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                        MMEntry.UnknownField04 = BitConverter.ToString(XTemp, 0);
-                        j = j + 4;
-                        
-                        
-                        //Union Value stuff.
-                        Value val = new Value();
-                        Array.Copy(MATEntry.UncompressedData, j, XXTemp, 0, 8);
-                        j = j + 4;
-                        Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                        Array.Reverse(XXTemp);
-                        Array.Reverse(XTemp);
-                        val.ConstantBufferDataOffset = BitConverter.ToUInt64(XXTemp, 0);
-                        val.TextureIndex = BitConverter.ToUInt16(XTemp,0);
-                        HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
-                        BinTempA = HashTemp.Substring(5, 3);
-                        BinTempB = HashTemp.Substring(0, 5);
-                        val.VShaderObjectID.Index = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
-                        val.VShaderObjectID.Hash = BinTempB;
-                        cmd.MaterialCommandValue = val;
-
-                        j = j + 8;
-
-                        Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                        Array.Reverse(XTemp);
-                        HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
-                        BinTempA = HashTemp.Substring(5, 3);
-                        BinTempB = HashTemp.Substring(0, 5);
-                        cmd.CmdShaderObject.Index = int.Parse(BinTempA, System.Globalization.NumberStyles.HexNumber);
-                        cmd.CmdShaderObject.Hash = BinTempB;
-
-                        j = j + 4;
-                        Array.Copy(MATEntry.UncompressedData, j, XTemp, 0, 4);
-                        Array.Reverse(XTemp);
-                        HashTemp = ByteUtilitarian.BytesToString(XTemp, HashTemp);
-                        cmd.SomeField14 = Convert.ToInt32(HashTemp,16);
-
-                        MMEntry.MaterialCommands = new List<MatCmd>();
-                        MMEntry.MaterialCommands.Add(cmd);
+                        MaterialTextureReference TexTemp = new MaterialTextureReference();
+                        //Typehash.
+                        TexTemp.TypeHash = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), TexTemp.TypeHash);
+                        TexTemp.UnknownParam04 = MBR.ReadInt32();
+                        TexTemp.UnknownParam08 = MBR.ReadInt32();
+                        TexTemp.UnknownParam0C = MBR.ReadInt32();
+                        TexTemp.UnknownParam10 = MBR.ReadInt32();
+                        TexTemp.UnknownParam14 = MBR.ReadInt32();
+                        //Name.
+                        TexTemp.FullTexName = Encoding.ASCII.GetString(MBR.ReadBytes(64)).Trim('\0');
+                        TexTemp.Index = i;
+                        TexTemp._Index = TexTemp.Index;
+                        MATEntry.Textures.Add(TexTemp);
                     }
 
-                   //Now for the CommandBuffer.
-                    MMEntry.CommandBufferIndex = MMEntry.CmdBufferSize - (MMEntry.MaterialCommandListInfo.Count*24);
-                    MMEntry.ConstantBufferData = new byte[MMEntry.CommandBufferIndex];
-                    
-                    
+                    //Now for the Materials themselves.
+                    MATEntry.Materials = new List<MaterialMaterialEntry>();
+                    byte[] ShadeTemp = new byte[4];
+                    uint ShadeUInt;
+                    for (int i = 0; i < MATEntry.MaterialCount; i++)
+                    {
+
+                        MaterialMaterialEntry MMEntry = new MaterialMaterialEntry();
+                        MMEntry.TypeHash = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MMEntry.TypeHash);
+                        MMEntry.UnknownField04 = MBR.ReadInt32();
+                        MMEntry.NameHash = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MMEntry.TypeHash);
+
+                        //ShaderObjects.
+                        MMEntry.BlendState = new MatShaderObject();
+                        MMEntry.DepthStencilState = new MatShaderObject();
+                        MMEntry.RasterizerState = new MatShaderObject();
+                        MMEntry.CmdBufferSize = MBR.ReadInt32();
+                        ShadeTemp = MBR.ReadBytes(4);
+                        ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
+                        MMEntry.BlendState.Index = Convert.ToInt32(ShadeUInt & 0x00000FFF);
+                        MMEntry.BlendState.Hash = "";
+
+                        //Getting The Hash.
+                        string line = "";
+                        try
+                        {
+                            line = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.BlendState.Index).Take(1).First();
+                        }
+                        catch (Exception xx)
+                        {
+                            MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
+                            return null;
+                        }
+                        MMEntry.BlendState.Hash = line;
+
+                        ShadeTemp = MBR.ReadBytes(4);
+                        ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
+                        MMEntry.DepthStencilState.Index = Convert.ToInt32(ShadeUInt & 0x00000FFF);
+                        MMEntry.DepthStencilState.Hash = "";
+
+                        //Getting The Hash.
+                        try
+                        {
+                            line = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.DepthStencilState.Index).Take(1).First();
+                        }
+                        catch (Exception xx)
+                        {
+                            MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
+                            return null;
+                        }
+                        MMEntry.DepthStencilState.Hash = line;
+
+                        ShadeTemp = MBR.ReadBytes(4);
+                        ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
+                        MMEntry.RasterizerState.Index = Convert.ToInt32(ShadeUInt & 0x00000FFF);
+                        MMEntry.RasterizerState.Hash = "";
+
+                        //Getting The Hash.
+                        try
+                        {
+                            line = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.RasterizerState.Index).Take(1).First();
+                        }
+                        catch (Exception xx)
+                        {
+                            MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
+                            return null;
+                        }
+                        MMEntry.RasterizerState.Hash = line;
+                        MMEntry.MaterialCommandListInfo = new MaterialCmdListInfo();
+
+                        //The Material Command List Info.
+                        ShadeTemp = MBR.ReadBytes(4);
+                        ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
+                        MMEntry.MaterialCommandListInfo.Count = Convert.ToInt32(ShadeUInt & 0x0000FFF);
+                        MMEntry.MaterialCommandListInfo.Unknown = Convert.ToInt32(ShadeUInt & 0xFFFF000);
+
+                        MMEntry.MaterialinfoFlags = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MMEntry.MaterialinfoFlags);
+
+                        MMEntry.UnknownField24 = MBR.ReadInt32();
+                        MMEntry.UnknownField28 = MBR.ReadInt32();
+                        MMEntry.UnknownField2C = MBR.ReadInt32();
+                        MMEntry.UnknownField30 = MBR.ReadInt32();
+                        MMEntry.AnimDataSize = MBR.ReadInt32();
+                        MMEntry.CmdListOffset = Convert.ToInt32(MBR.ReadInt64());
+                        MMEntry.AnimDataOffset = Convert.ToInt32(MBR.ReadInt64());
+
+                        MATEntry.Materials.Add(MMEntry);
+                    }
 
                 }
-
-
             }
-            */
+
 
             return MATEntry;
 
         }
 
+        /*
         public static MaterialEntry ReplaceMat(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
         {
             MaterialEntry material = new MaterialEntry();
@@ -561,7 +403,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             return node.entryfile as MaterialEntry;
         }
+        */
 
+            /*
         public static MaterialEntry InsertEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
         {
             MaterialEntry matentry = new MaterialEntry();
@@ -666,7 +510,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             return matentry;
         }
-
+        */
 
         #region Material Properties
 

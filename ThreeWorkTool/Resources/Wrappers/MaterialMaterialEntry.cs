@@ -9,16 +9,16 @@ namespace ThreeWorkTool.Resources.Wrappers
     public class MaterialMaterialEntry
     {
         public string MatName;
-        public string UnknownField04;
+        public int UnknownField04;
         public string TypeHash;
         public string UnknownField;
         public string NameHash;
         public int CmdBufferSize;
-        public string MateialinfoFlags;
-        public string UnknownField24;
-        public string UnknownField28;
-        public string UnknownField2C;
-        public string UnknownField30;
+        public string MaterialinfoFlags;
+        public int UnknownField24;
+        public int UnknownField28;
+        public int UnknownField2C;
+        public int UnknownField30;
         public int AnimDataSize;
         public int CmdListOffset;
         public int AnimDataOffset;
