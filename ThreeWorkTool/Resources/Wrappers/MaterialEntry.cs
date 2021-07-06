@@ -245,9 +245,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
                         MMEntry.MaterialCommandListInfo.Count = Convert.ToInt32(ShadeUInt & 0x0000FFF);
                         MMEntry.MaterialCommandListInfo.Unknown = Convert.ToInt32(ShadeUInt & 0xFFFF000);
-
                         MMEntry.MaterialinfoFlags = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MMEntry.MaterialinfoFlags);
-
                         MMEntry.UnknownField24 = MBR.ReadInt32();
                         MMEntry.UnknownField28 = MBR.ReadInt32();
                         MMEntry.UnknownField2C = MBR.ReadInt32();
@@ -255,9 +253,82 @@ namespace ThreeWorkTool.Resources.Wrappers
                         MMEntry.AnimDataSize = MBR.ReadInt32();
                         MMEntry.CmdListOffset = Convert.ToInt32(MBR.ReadInt64());
                         MMEntry.AnimDataOffset = Convert.ToInt32(MBR.ReadInt64());
+                        MMEntry.SomethingLabeledP = Convert.ToInt32(MBR.BaseStream.Position);
+
+                        //Commands.
+                        MBR.BaseStream.Position = MMEntry.CmdListOffset;
+                        MMEntry.MaterialCommands = new List<MatCmd>();
+                        byte[] InfoTemp = new byte[4];
+                        uint UInfoTemp;
+                        int Uniontemp;
+                        for (int r = 0;r < MMEntry.MaterialCommandListInfo.Count; r++)
+                        {
+                            MatCmd cmd = new MatCmd();
+                            //Command Info.
+                            cmd.MCInfo = new MatCmdInfo();
+                            InfoTemp = MBR.ReadBytes(4);
+                            UInfoTemp = ShadeUInt = BitConverter.ToUInt32(InfoTemp, 0);
+                            cmd.MCInfo.SomeValue = Convert.ToInt32(UInfoTemp & 0x0000000F);
+                            cmd.MCInfo.SetFlag = Convert.ToInt32(UInfoTemp & 0x000FFFF0);
+                            cmd.MCInfo.ShaderObjectIndex = Convert.ToInt32(UInfoTemp & 0xFFF00000);
+                            cmd.SomeField04 = MBR.ReadInt32();
+                            InfoTemp = MBR.ReadBytes(4);
+                            UInfoTemp = BitConverter.ToUInt32(InfoTemp, 0);
+                            Uniontemp = BitConverter.ToInt32(InfoTemp, 0);
+                            //Uniontemp = MBR.ReadInt32();
+                            //Yet another Shader Object ID inside the Value Union.
+                            cmd.MaterialCommandValue = new Value();
+                            cmd.MaterialCommandValue.ConstantBufferDataOffset = Uniontemp;
+                            cmd.MaterialCommandValue.ConstantBufferDataOffset = cmd.MaterialCommandValue.TextureIndex;
+                            cmd.MaterialCommandValue.VShaderObjectID = new MatShaderObject();
+                            //cmd.MaterialCommandValue.VShaderObjectID.Index = Convert.ToInt32(UInfoTemp & 0x00000FFF);
+                            cmd.MaterialCommandValue.VShaderObjectID.Index = Convert.ToInt32(UInfoTemp & 0x00000FFF);
+                            cmd.MaterialCommandValue.VShaderObjectID.Hash = "";
+
+                            //Getting The Hash.
+                            line = "";
+                            try
+                            {
+                                line = File.ReadLines("mvc3shadertypes.cfg").Skip(cmd.MaterialCommandValue.VShaderObjectID.Index).Take(1).First();
+                            }
+                            catch (Exception xx)
+                            {
+                                MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
+                                return null;
+                            }
+                            cmd.MaterialCommandValue.VShaderObjectID.Hash = line;
+                            MBR.BaseStream.Position = MBR.BaseStream.Position + 4;
+                            //Again, but for the Shader Object OUTISDE the Union.
+                            InfoTemp = MBR.ReadBytes(4);
+                            UInfoTemp = BitConverter.ToUInt32(InfoTemp, 0);
+                            cmd.CmdShaderObject = new MatShaderObject();
+                            cmd.CmdShaderObject.Index = Convert.ToInt32(UInfoTemp & 0x00000FFF);
+                            //Getting The Hash.
+                            line = "";
+                            try
+                            {
+                                line = File.ReadLines("mvc3shadertypes.cfg").Skip(cmd.CmdShaderObject.Index).Take(1).First();
+                            }
+                            catch (Exception xx)
+                            {
+                                MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
+                                return null;
+                            }
+                            cmd.CmdShaderObject.Hash = line;
+                            cmd.SomeField14 = MBR.ReadInt32();
+
+                            MMEntry.MaterialCommands.Add(cmd);
+
+                        }
+
+                        MMEntry = MMEntry.FIllProperties(MMEntry);
 
                         MATEntry.Materials.Add(MMEntry);
+                        MBR.BaseStream.Position = MMEntry.SomethingLabeledP;
+
                     }
+
+
 
                 }
             }
