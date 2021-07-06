@@ -126,6 +126,21 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
         }
 
+        private string _Name;
+        [Category("Material Data"), ReadOnlyAttribute(true)]
+        public string Name
+        {
+
+            get
+            {
+                return _Name;
+            }
+            set
+            {
+                _Name = value;
+            }
+        }
+
         #endregion
 
 

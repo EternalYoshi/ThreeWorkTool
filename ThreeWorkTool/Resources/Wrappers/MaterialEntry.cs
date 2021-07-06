@@ -174,13 +174,21 @@ namespace ThreeWorkTool.Resources.Wrappers
                     MATEntry.Materials = new List<MaterialMaterialEntry>();
                     byte[] ShadeTemp = new byte[4];
                     uint ShadeUInt;
+                    byte[] NameHashBytes;
+                    uint NameTemp;
+                    int NTemp;
                     for (int i = 0; i < MATEntry.MaterialCount; i++)
                     {
 
                         MaterialMaterialEntry MMEntry = new MaterialMaterialEntry();
                         MMEntry.TypeHash = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MMEntry.TypeHash);
                         MMEntry.UnknownField04 = MBR.ReadInt32();
-                        MMEntry.NameHash = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MMEntry.TypeHash);
+                        NameHashBytes = MBR.ReadBytes(4);
+                        MMEntry.NameHash = ByteUtilitarian.BytesToStringL2R(NameHashBytes.ToList(), MMEntry.TypeHash);
+
+                        //Name.
+                        NameTemp = BitConverter.ToUInt32(NameHashBytes,0);
+                        NTemp = Convert.ToInt32(NameTemp & 0xFFFFFFFF);
 
                         //ShaderObjects.
                         MMEntry.BlendState = new MatShaderObject();
@@ -255,6 +263,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         MMEntry.AnimDataOffset = Convert.ToInt32(MBR.ReadInt64());
                         MMEntry.SomethingLabeledP = Convert.ToInt32(MBR.BaseStream.Position);
 
+                        #region Commands
                         //Commands.
                         MBR.BaseStream.Position = MMEntry.CmdListOffset;
                         MMEntry.MaterialCommands = new List<MatCmd>();
@@ -317,9 +326,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                             cmd.CmdShaderObject.Hash = line;
                             cmd.SomeField14 = MBR.ReadInt32();
 
+
+
                             MMEntry.MaterialCommands.Add(cmd);
 
                         }
+
+                        #endregion
+
+
 
                         MMEntry = MMEntry.FIllProperties(MMEntry);
 
