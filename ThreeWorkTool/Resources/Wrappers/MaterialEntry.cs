@@ -62,7 +62,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             c = c + 68;
             br.BaseStream.Position = c;
 
-            //Compressed Data size. These values from the arc appear to be 32 bits.
+            //Compressed Data size. These values from the Arc are 32 bits.
             MATEntry.CSize = br.ReadInt32();
 
             //Uncompressed Data size. This value has a 0x40000000 added to the file size count for some reason.
@@ -176,7 +176,6 @@ namespace ThreeWorkTool.Resources.Wrappers
                     uint ShadeUInt;
                     byte[] NameHashBytes;
                     uint NameTemp;
-                    int NTemp;
                     for (int i = 0; i < MATEntry.MaterialCount; i++)
                     {
 
@@ -188,7 +187,6 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         //Name.
                         NameTemp = BitConverter.ToUInt32(NameHashBytes,0);
-                        NTemp = Convert.ToInt32(NameTemp & 0xFFFFFFFF);
 
                         //ShaderObjects.
                         MMEntry.BlendState = new MatShaderObject();
@@ -251,7 +249,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         //The Material Command List Info.
                         ShadeTemp = MBR.ReadBytes(4);
                         ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
-                        MMEntry.MaterialCommandListInfo.Count = Convert.ToInt32(ShadeUInt & 0x0000FFF);
+                        MMEntry.MaterialCommandListInfo.Count = Convert.ToInt32(ShadeUInt & 0xFFF);
                         MMEntry.MaterialCommandListInfo.Unknown = Convert.ToInt32(ShadeUInt & 0xFFFF000);
                         MMEntry.MaterialinfoFlags = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MMEntry.MaterialinfoFlags);
                         MMEntry.UnknownField24 = MBR.ReadInt32();
@@ -276,21 +274,21 @@ namespace ThreeWorkTool.Resources.Wrappers
                             //Command Info.
                             cmd.MCInfo = new MatCmdInfo();
                             InfoTemp = MBR.ReadBytes(4);
-                            UInfoTemp = ShadeUInt = BitConverter.ToUInt32(InfoTemp, 0);
+                            UInfoTemp = BitConverter.ToUInt32(InfoTemp, 0);
                             cmd.MCInfo.SomeValue = Convert.ToInt32(UInfoTemp & 0x0000000F);
                             cmd.MCInfo.SetFlag = Convert.ToInt32(UInfoTemp & 0x000FFFF0);
-                            cmd.MCInfo.ShaderObjectIndex = Convert.ToInt32(UInfoTemp & 0xFFF00000);
+                            cmd.MCInfo.ShaderObjectIndex = Convert.ToInt32(UInfoTemp >> 20);
+
                             cmd.SomeField04 = MBR.ReadInt32();
                             InfoTemp = MBR.ReadBytes(4);
                             UInfoTemp = BitConverter.ToUInt32(InfoTemp, 0);
                             Uniontemp = BitConverter.ToInt32(InfoTemp, 0);
-                            //Uniontemp = MBR.ReadInt32();
+
                             //Yet another Shader Object ID inside the Value Union.
                             cmd.MaterialCommandValue = new Value();
                             cmd.MaterialCommandValue.ConstantBufferDataOffset = Uniontemp;
-                            cmd.MaterialCommandValue.ConstantBufferDataOffset = cmd.MaterialCommandValue.TextureIndex;
+                            cmd.MaterialCommandValue.TextureIndex = cmd.MaterialCommandValue.ConstantBufferDataOffset;
                             cmd.MaterialCommandValue.VShaderObjectID = new MatShaderObject();
-                            //cmd.MaterialCommandValue.VShaderObjectID.Index = Convert.ToInt32(UInfoTemp & 0x00000FFF);
                             cmd.MaterialCommandValue.VShaderObjectID.Index = Convert.ToInt32(UInfoTemp & 0x00000FFF);
                             cmd.MaterialCommandValue.VShaderObjectID.Hash = "";
 
@@ -326,7 +324,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                             cmd.CmdShaderObject.Hash = line;
                             cmd.SomeField14 = MBR.ReadInt32();
 
-
+                            //....Gotta do something about the NameHash. Need to reference the model somehow...
 
                             MMEntry.MaterialCommands.Add(cmd);
 
