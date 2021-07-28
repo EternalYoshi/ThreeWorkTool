@@ -2516,9 +2516,9 @@ namespace ThreeWorkTool
             //Fills in Materials used in the Material Folder.
             for (int i = 0; i < material.MaterialCount; i++)
             {
-
-                TreeNode Material = new TreeNode();
-                Material.Tag = material.Textures[i];
+                //incomplete and Commented Out.
+                //TreeNode Material = new TreeNode();
+                //Material.Tag = material.Textures[i];
 
             }
 

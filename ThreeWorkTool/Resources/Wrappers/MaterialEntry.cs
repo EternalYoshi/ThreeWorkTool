@@ -332,6 +332,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         #endregion
 
+                        //Gotta have SOMETHING here to get the ConstantBufferData.... so how would I associate the floating points to the proper command?
 
 
                         MMEntry = MMEntry.FIllProperties(MMEntry);
