@@ -868,6 +868,7 @@ namespace ThreeWorkTool
             ContextMenu conmenu = new ContextMenu();
 
             conmenu.MenuItems.Add(new MenuItem("Rename Folder", MenuItemRenameFolder_Click));
+            conmenu.MenuItems.Add(new MenuItem("Export All",ExportAllFolder));
             conmenu.MenuItems.Add(new MenuItem("Import Into Folder", MenuItemImportFileInFolder_Click));
             conmenu.MenuItems.Add("Delete Folder", MenuItemDeleteFolder_Click);
 
@@ -2085,6 +2086,131 @@ namespace ThreeWorkTool
             }
 
             
+        }
+
+        private static void ExportAllFolder(Object sender, System.EventArgs e)
+        {
+            //Uses the Save File Dialog for the Export All Folder command since it's less ugly and remembers where your previous directory is.
+            SaveFileDialog EXAllDialog = new SaveFileDialog();
+            EXAllDialog.Title = "Choose a directory. Make sure it's not too many characters in the file path.";
+            EXAllDialog.FileName = "Export Here";
+            EXAllDialog.Filter = "Directory | directory";
+            if (EXAllDialog.ShowDialog() == DialogResult.OK)
+            {
+                //Gets the directory without any of the text the user put in the Save Dialog.
+                int index = EXAllDialog.FileName.LastIndexOf("\\");
+                EXAllDialog.FileName = EXAllDialog.FileName.Substring(0,(index+1));
+                string savePath = Path.GetDirectoryName(EXAllDialog.FileName);
+
+#if DEBUG
+                MessageBox.Show("The Directory chosen is: " + EXAllDialog.FileName + "\n and has this many characters: " + EXAllDialog.FileName.Length, "");
+#endif
+                string BaseDirectory = EXAllDialog.FileName;
+                try
+                {
+
+                    TreeNode TNFolder = frename.Mainfrm.TreeSource.SelectedNode;
+                    string FolderPath = frename.Mainfrm.TreeSource.SelectedNode.FullPath;
+                    int fpindex = FolderPath.LastIndexOf('\\') + 1;
+                    FolderPath = FolderPath.Substring(fpindex);
+                    string ExportPath = "";
+                    string FolderName = frename.Mainfrm.TreeSource.SelectedNode.Text;
+                    int dindex = 0;
+                    //Iterates through all the children and extracts the files tagged in the nodes.
+                    List<TreeNode> Children = new List<TreeNode>();
+                    frename.Mainfrm.AddChildren(Children, frename.Mainfrm.TreeSource.SelectedNode);
+
+                    foreach (TreeNode kid in Children)
+                    {
+                        if (!(kid.Tag is string))
+                        {
+                            ExportPath = "";
+                            dindex = 0;
+                            if (kid.Tag is ArcEntry)
+                            {
+                                ArcEntry AENT = kid.Tag as ArcEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath,"");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0,dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + AENT.FileName;
+                                ExportFileWriter.ArcEntryWriter(ExportPath, AENT);
+                            }
+                            else if (kid.Tag is TextureEntry)
+                            {
+                                TextureEntry TENT = kid.Tag as TextureEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath;
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + TENT.FileName + ".tex";
+                                ExportFileWriter.TexEntryWriter(ExportPath, TENT);
+                            }
+                            else if (kid.Tag is ResourcePathListEntry)
+                            {
+                                ResourcePathListEntry RPNT = kid.Tag as ResourcePathListEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath;
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + RPNT.FileName + ".lrp";
+                                ExportFileWriter.RPListEntryWriter(ExportPath, RPNT);
+                            }
+                            else if (kid.Tag is MaterialEntry)
+                            {
+                                MaterialEntry MTNT = kid.Tag as MaterialEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0,dindex);
+                                ExportPath = BaseDirectory + ExportPath;
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + MTNT.FileName + ".mrl";
+                                ExportFileWriter.MaterialEntryWriter(ExportPath, MTNT);
+                            }
+                            else if (kid.Tag is MSDEntry)
+                            {
+
+                            }
+
+                        }
+                    }
+
+
+                }
+                catch (PathTooLongException)
+                {
+                    MessageBox.Show("THe directory chosen is too long to save all the files. \nChoose a different one closer to the root of the specified drive.","", MessageBoxButtons.OK,MessageBoxIcon.Error);
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Failed to Export All at directory: " + EXAllDialog.FileName + "\nPath was too long.");
+                    }
+                    return;
+                }
+
+
+
+            }
+
         }
 
         private void TreeFill(string D, int E, ArcFile archivearc)
