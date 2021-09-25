@@ -13,6 +13,8 @@
 
         public static string rMaterial = "Material File (*.mrl)|*.mrl";
 
+        public static string rMotionList = "MotionList (*.lmt)|*.lmt";
+
         public static string Etc = "All Files (*.*)|*.*";
         
         public static string GetFilter(string filetype)
@@ -31,6 +33,9 @@
 
                 case ".mrl":
                     return rMaterial;
+
+                case ".lmt":
+                    return rMotionList;
 
                 default:
                     return Etc; 

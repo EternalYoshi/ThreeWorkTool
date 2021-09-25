@@ -132,6 +132,8 @@
     <Compile Include="Resources\Wrappers\DefaultWrapper.cs" />
     <Compile Include="Resources\Wrappers\EffectListEntry.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
+    <Compile Include="Resources\Wrappers\LMTEntry.cs" />
+    <Compile Include="Resources\Wrappers\LMTM3AEntry.cs" />
     <Compile Include="Resources\Wrappers\MaterialEntry.cs" />
     <Compile Include="Resources\Wrappers\MaterialMaterialEntry.cs" />
     <Compile Include="Resources\Wrappers\MaterialTextureReference.cs" />

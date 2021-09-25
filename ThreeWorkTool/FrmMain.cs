@@ -279,6 +279,7 @@ namespace ThreeWorkTool
                                     ResourcePathListEntry lrpenty = new ResourcePathListEntry();
                                     MSDEntry msdenty = new MSDEntry();
                                     MaterialEntry matent = new MaterialEntry();
+                                    LMTEntry lmtenty = new LMTEntry();
                                     //This is for the filenames and everything after.
                                     foreach (TreeNode treno in Nodes)
                                     {
@@ -559,6 +560,71 @@ namespace ThreeWorkTool
                                             DataEntryOffset = DataEntryOffset + ComSize;
 
                                         }
+                                        else if (treno.Tag as LMTEntry != null)
+                                        {
+                                            lmtenty = treno.Tag as LMTEntry;
+                                            exportname = "";
+
+                                            exportname = treno.FullPath;
+                                            int inp = (exportname.IndexOf("\\")) + 1;
+                                            exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                            int NumberChars = exportname.Length;
+                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                            int nblength = namebuffer.Length;
+
+                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                            byte[] writenamedata = new byte[64];
+                                            Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                            for (int i = 0; i < namebuffer.Length; ++i)
+                                            {
+                                                writenamedata[i] = namebuffer[i];
+                                            }
+
+                                            bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                            //For the typehash.
+                                            HashType = "76820D81";
+                                            byte[] HashBrown = new byte[4];
+                                            HashBrown = StringToByteArray(HashType);
+                                            Array.Reverse(HashBrown);
+                                            if (HashBrown.Length < 4)
+                                            {
+                                                byte[] PartHash = new byte[] { };
+                                                PartHash = HashBrown;
+                                                Array.Resize(ref HashBrown, 4);
+                                            }
+                                            bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                            //For the compressed size.
+                                            ComSize = lmtenty.CompressedData.Length;
+                                            string ComSizeHex = ComSize.ToString("X8");
+                                            byte[] ComPacked = new byte[4];
+                                            ComPacked = StringToByteArray(ComSizeHex);
+                                            Array.Reverse(ComPacked);
+                                            bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                            //For the unpacked size. No clue why all the entries "start" with 40.
+                                            DecSize = lmtenty.UncompressedData.Length;
+                                            string DecSizeHex = DecSize.ToString("X8");
+                                            byte[] DePacked = new byte[4];
+                                            DePacked = StringToByteArray(DecSizeHex);
+                                            Array.Reverse(DePacked);
+                                            DePacked[3] = 0x40;
+                                            bwr.Write(DePacked, 0, DePacked.Length);
+
+                                            //Starting Offset.
+                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                            byte[] DEOffed = new byte[4];
+                                            DEOffed = StringToByteArray(DataEntrySizeHex);
+                                            Array.Reverse(DEOffed);
+                                            bwr.Write(DEOffed, 0, DEOffed.Length);
+                                            DataEntryOffset = DataEntryOffset + ComSize;
+
+                                        }
+
                                         else if (treno.Tag as MaterialEntry != null)
                                         {
                                             matent = treno.Tag as MaterialEntry;
@@ -649,6 +715,14 @@ namespace ThreeWorkTool
                                         {
                                             lrpenty = treno.Tag as ResourcePathListEntry;
                                             byte[] CompData = lrpenty.CompressedData;
+                                            bwr.Write(CompData, 0, CompData.Length);
+
+                                        }
+
+                                        else if (treno.Tag as LMTEntry != null)
+                                        {
+                                            lmtenty = treno.Tag as LMTEntry;
+                                            byte[] CompData = lmtenty.CompressedData;
                                             bwr.Write(CompData, 0, CompData.Length);
 
                                         }
@@ -997,6 +1071,28 @@ namespace ThreeWorkTool
                     using (StreamWriter sw = File.AppendText("Log.txt"))
                     {
                         sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
+                    LMTEntry LMTentry = new LMTEntry();
+                    if (tag is LMTEntry)
+                    {
+
+                        LMTentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as LMTEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(LMTentry.FileExt);
+                    }
+                    EXDialog.FileName = LMTentry.FileName + LMTentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.LMTEntryWriter(EXDialog.FileName, LMTentry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a LMT Motion List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -1376,6 +1472,91 @@ namespace ThreeWorkTool
 
 
             }
+            else if (tag is LMTEntry)
+            {
+                LMTEntry LMotTEntry = new LMTEntry();
+                LMotTEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as LMTEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(LMotTEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            LMTEntry Oldaent = new LMTEntry();
+                            LMTEntry Newaent = new LMTEntry();
+                            Oldaent = OldWrapper.entryfile as LMTEntry;
+                            string[] paths = Oldaent.EntryDirs;
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = LMTEntry.ReplaceLMTEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as LMTEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+
+                            //Removes the node and inserts the new one.
+                            //TreeNode node = 
+                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
+                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+
+            }
+
             else
             {
                 Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
@@ -1937,10 +2118,71 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeRPL;
                         break;
-                         
+
+                    case ".lmt":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperLMT = new ArcEntryWrapper();
+                        LMTEntry LMotionEntry = new LMTEntry();
 
 
-                        //break;
+                        //LMotionEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, IMPDialog.FileName);
+                        LMotionEntry = LMTEntry.InsertLMTEntry(frename.Mainfrm.TreeSource, NewWrapperLMT, IMPDialog.FileName);
+                        NewWrapperLMT.Tag = LMotionEntry;
+                        NewWrapperLMT.Text = LMotionEntry.TrueName;
+                        NewWrapperLMT.Name = LMotionEntry.TrueName;
+                        NewWrapperLMT.FileExt = LMotionEntry.FileExt;
+                        NewWrapperLMT.entryData = LMotionEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperLMT, NewWrapperLMT.FileExt);
+
+                        NewWrapperLMT.ContextMenu = GenericFileContextAdder(NewWrapperLMT, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperLMT);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperLMT;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string typeLMT = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeLMT = new TreeNode();
+                        TreeNode selectednodeLMT = new TreeNode();
+                        selectednodeLMT = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeLMT = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeLMT;
+
+                        int filecountLMT = 0;
+
+                        ArcFile rootarcLMT = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcLMT != null)
+                        {
+                            filecountLMT = rootarcLMT.FileCount;
+                            filecountLMT++;
+                            rootarcLMT.FileCount++;
+                            rootarcLMT.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcLMT;
+                        }
+
+
+
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountLMT);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeLMT;
+                        break;
+
+                    //break;
 
 
 
@@ -2186,6 +2428,21 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath + MTNT.FileName + ".mrl";
                                 ExportFileWriter.MaterialEntryWriter(ExportPath, MTNT);
                             }
+                            else if (kid.Tag is LMTEntry)
+                            {
+                                LMTEntry LMTNT = kid.Tag as LMTEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath;
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + LMTNT.FileName + ".lmt";
+                                ExportFileWriter.LMTEntryWriter(ExportPath, LMTNT);
+                            }
                             else if (kid.Tag is MSDEntry)
                             {
 
@@ -2319,6 +2576,61 @@ namespace ThreeWorkTool
                 tcount++;
                 break;
 
+                //For LMT files.
+                case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
+                    ArcEntryWrapper lmtchild = new ArcEntryWrapper();
+
+
+                    TreeSource.BeginUpdate();
+
+                    //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+
+                    lmtchild.Name = I;
+                    lmtchild.Tag = FEntry as LMTEntry;
+                    lmtchild.Text = I;
+                    lmtchild.entryfile = FEntry as LMTEntry;
+                    lmtchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = lmtchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(lmtchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var lmtrootNode = FindRootNode(lmtchild);
+
+                    TreeSource.SelectedNode = lmtchild;
+                    TreeSource.SelectedNode.ImageIndex = 9;
+                    TreeSource.SelectedNode.SelectedImageIndex = 9;
+
+
+                    lmtchild.ContextMenu = GenericFileContextAdder(lmtchild, TreeSource);
+
+                    TreeSource.SelectedNode = lmtrootNode;
+
+                    tcount++;
+                    break;
 
                 //For Resouce Path Lists.
                 case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
@@ -2848,7 +3160,20 @@ namespace ThreeWorkTool
                                                     break;
                                                 }
                         */
-
+                        case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
+                            LMTEntry lmte = new LMTEntry();
+                            lmte = ArcEntry as LMTEntry;
+                            if (lmte != null)
+                            {
+                                TreeChildInsert(NCount, lmte.EntryName, lmte.FileExt, lmte.EntryDirs, lmte.TrueName, lmte);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
 
                         case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
                             MaterialEntry mte = new MaterialEntry();

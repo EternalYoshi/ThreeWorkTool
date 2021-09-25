@@ -13,8 +13,9 @@ using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool.Resources.Archives
 {
-    public class ArcEntry
+    public class ArcEntry : DefaultWrapper
     {
+        /*
         public string EntryName;
         public string TypeHash;
         public string TempStr;
@@ -31,6 +32,7 @@ namespace ThreeWorkTool.Resources.Archives
         public static StringBuilder SBname;
         public string[] EntryDirs;
         public int EntryID;
+        */
 
         public static ArcEntry FillEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {

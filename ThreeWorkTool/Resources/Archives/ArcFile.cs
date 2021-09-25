@@ -153,6 +153,15 @@ namespace ThreeWorkTool.Resources.Archives
                             IDCounter++;
                             break;
 
+                        //LMT Files.
+                        case "76820D81":
+                            LMTEntry LMTen = LMTEntry.FillLMTEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(LMTen);
+                            arcfile.FileList.Add(LMTen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
                         //MSD Files. Commented out until a future release.
                         /*
                         case "5B55F5B1":
