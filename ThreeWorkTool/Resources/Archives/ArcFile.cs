@@ -175,7 +175,7 @@ namespace ThreeWorkTool.Resources.Archives
 
                         default:
                             //Everything not listed above.
-                            ArcEntry newentry = ArcEntry.FillEntry(filename, foldernames, tree, br, j, IDCounter);
+                            ArcEntry newentry = ArcEntry.FillArcEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(newentry);
                             arcfile.FileList.Add(newentry.EntryName);
                             foldernames.Clear();

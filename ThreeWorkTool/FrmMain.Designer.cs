@@ -326,8 +326,8 @@
             this.txtRPList.Size = new System.Drawing.Size(181, 258);
             this.txtRPList.TabIndex = 1;
             this.txtRPList.Visible = false;
-            this.txtRPList.TextChanged += new System.EventHandler(this.txtRPList_TextChanged);
-            this.txtRPList.Leave += new System.EventHandler(this.txtRPList_Leave);
+            this.txtRPList.TextChanged += new System.EventHandler(this.TxtRPList_TextChanged);
+            this.txtRPList.Leave += new System.EventHandler(this.TxtRPList_Leave);
             // 
             // picBoxA
             // 

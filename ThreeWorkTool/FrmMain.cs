@@ -1155,7 +1155,7 @@ namespace ThreeWorkTool
                             string[] paths = Oldaent.EntryDirs;
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
-                            NewWrapper.Tag = ArcEntry.ReplaceEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.Tag = ArcEntry.ReplaceArcEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
                             NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
@@ -1581,7 +1581,7 @@ namespace ThreeWorkTool
                             string[] paths = Oldaent.EntryDirs;
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
-                            NewWrapper.Tag = ArcEntry.ReplaceEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.Tag = ArcEntry.ReplaceArcEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
                             NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
@@ -2267,7 +2267,7 @@ namespace ThreeWorkTool
                         ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
                         ArcEntry NEntry = new ArcEntry();
 
-                        NEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, IMPDialog.FileName);
+                        NEntry = ArcEntry.InsertArcEntry(frename.Mainfrm.TreeSource, NewWrapper, IMPDialog.FileName);
                         NewWrapper.Tag = NEntry;
                         NewWrapper.Text = NEntry.TrueName;
                         NewWrapper.Name = NEntry.TrueName;
@@ -3347,7 +3347,7 @@ namespace ThreeWorkTool
 
         #endregion
 
-        private void txtRPList_TextChanged(object sender, EventArgs e)
+        private void TxtRPList_TextChanged(object sender, EventArgs e)
         {
             if (FinishRPLRead == true)
             {
@@ -3386,7 +3386,7 @@ namespace ThreeWorkTool
             }
         }
 
-        private void txtRPList_Leave(object sender, EventArgs e)
+        private void TxtRPList_Leave(object sender, EventArgs e)
         {
             //TextBoxLeaving();
         }

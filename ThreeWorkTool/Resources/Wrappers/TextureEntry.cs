@@ -11,42 +11,32 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
+using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
-    public class TextureEntry
+    public class TextureEntry : DefaultWrapper
     {
+        public static string TYPEHASH = "241F5DEB";
         public string Magic;
         public int XSize;
         public int YSize;
         public int ZSize;
-        public int CSize;
-        public int DSize;
         public int version;
         public int PixelCount;
         public string TexType;
         public bool HasTransparency;
         public bool HasMips;
         public int Mips;
-        public int EntryID;
         public int PossibleCubeMapFlag;
-        public string TrueName;
         public byte[] WTemp;
-        public byte[] CompressedData;
-        public byte[] UncompressedData;
         public byte[] OutMaps;
         public byte[][] OutMapsB;
         public byte[] OutMapsC;
         public int[] MipOffsets;
         public List<byte> OutTexTest;
-        public static StringBuilder SBname;
-        public string[] EntryDirs;
-        public int OffsetTemp;
-        public string EntryName;
-        public int AOffset;
-        public string FileExt;
-        public static string TypeHash = "241F5DEB";
         public int SizeShift;
 
         public static TextureEntry FillTexEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
@@ -54,84 +44,14 @@ namespace ThreeWorkTool.Resources.Wrappers
             TextureEntry texentry = new TextureEntry();
             List<byte> BTemp = new List<byte>();
 
-            //This block gets the name of the entry.
-            texentry.OffsetTemp = c;
-            texentry.EntryID = ID;
-            br.BaseStream.Position = texentry.OffsetTemp;
-            var Tempname = Encoding.ASCII.GetString(br.ReadBytes(64)).Trim('\0');
-            c = c + 68;
-            br.BaseStream.Position = c;
+            FillEntry(filename, subnames, tree, br, c, ID, texentry, filetype);
 
-            //Compressed Data size. These values from the arc appear to be 32 bits.
-            texentry.CSize = br.ReadInt32();
-
-            //Uncompressed Data size. This value has a 0x40000000 added to the file size count for some reason.
-            texentry.DSize = br.ReadInt32() - 1073741824;
-
-            //Data Offset.
-            texentry.AOffset = br.ReadInt32();
-
-            //Compressed Data.
-            BTemp = new List<byte>();
-            br.BaseStream.Position = texentry.AOffset;
-            texentry.CompressedData = br.ReadBytes(texentry.CSize);
-
-
-            //Namestuff.
-            texentry.EntryName = Tempname;
-
-                //Ensures existing subdirectories are cleared so the directories for files are displayed correctly.
-                if (subnames != null)
-                {
-                    if (subnames.Count > 0)
-                    {
-                        subnames.Clear();
-                    }
-                }
-
-                //Gets the filename without subdirectories.
-                if (texentry.EntryName.Contains("\\"))
-                {
-                    string[] splstr = texentry.EntryName.Split('\\');
-
-                    //foreach (string v in splstr)
-                    for (int v = 0; v < (splstr.Length - 1); v++)
-                    {
-                        if (!subnames.Contains(splstr[v]))
-                        {
-                            subnames.Add(splstr[v]);
-                        }
-                    }
-
-
-                    texentry.TrueName = texentry.EntryName.Substring(texentry.EntryName.IndexOf("\\") + 1);
-                    Array.Clear(splstr, 0, splstr.Length);
-
-                    while (texentry.TrueName.Contains("\\"))
-                    {
-                        texentry.TrueName = texentry.TrueName.Substring(texentry.TrueName.IndexOf("\\") + 1);
-                    }
-                }
-                else
-                {
-                    texentry.TrueName = texentry.EntryName;
-                }
-
-                texentry._FileName = texentry.TrueName;
-
-                texentry.EntryDirs = subnames.ToArray();
-                texentry.FileExt = ".tex";
-                texentry.EntryName = texentry.EntryName + texentry.FileExt;
-
-                //Decompression Time.
-                texentry.UncompressedData = ZlibStream.UncompressBuffer(texentry.CompressedData);
-
-                //Gets the SizeShift.... whatever that is.
-                texentry.SizeShift = texentry.UncompressedData[6];
-
-
+            texentry._FileName = texentry.TrueName;
 
             //Actual Tex Loading work here.
+
+            //Gets the SizeShift.... whatever that is.
+            texentry.SizeShift = texentry.UncompressedData[6];
 
             //Let's try this MemoryStream Stuff.
             byte[] VTemp = new byte[4];
@@ -1490,13 +1410,6 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 }
 
-                /*
-                if(texentry.OutMapsB != null)
-                {
-                    texentry.OutMaps = texentry.OutMapsB[0];
-
-                }
-                */
             }
 
             return texentry;
@@ -1598,7 +1511,6 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         public static Bitmap BitmapBuilder(string filenametest, Stream strim)
         {
-
             #region PNG Stuffs
             //From the pfim website.
             using (var image = Pfim.Pfim.FromStream(strim))

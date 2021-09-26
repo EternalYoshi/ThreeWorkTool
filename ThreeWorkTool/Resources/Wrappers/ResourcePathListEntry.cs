@@ -8,29 +8,21 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
+using ThreeWorkTool.Resources.Wrappers;
+
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
-    public class ResourcePathListEntry
+    public class ResourcePathListEntry : DefaultWrapper
     {
         public string Magic;
         public string Constant;
-        public int CSize;
-        public int DSize;
         public int EntryCount;
-        public int OffsetTemp;
-        public string EntryName;
-        public int AOffset;
-        public int EntryID;
-        public byte[] CompressedData;
-        public byte[] UncompressedData;
-        public static StringBuilder SBname;
-        public string[] EntryDirs;
-        public string TrueName;
         public byte[] WTemp;
-        public string FileExt;
         public List<string> TextBackup;
+        public List<PathEntries> EntryList;
 
         public struct PathEntries
         {
@@ -40,202 +32,99 @@ namespace ThreeWorkTool.Resources.Wrappers
             public string TotalName;
         }
 
-        public List<PathEntries> EntryList;
 
         public static ResourcePathListEntry FillRPLEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
             ResourcePathListEntry RPLentry = new ResourcePathListEntry();
 
+            FillEntry(filename, subnames, tree, br, c, ID, RPLentry, filetype);
 
-            //This block gets the name of the entry.
-            RPLentry.OffsetTemp = c;
-            RPLentry.EntryID = ID;
-            List<byte> BTemp = new List<byte>();
-            br.BaseStream.Position = RPLentry.OffsetTemp;
-            BTemp.AddRange(br.ReadBytes(64));
-            BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
+            RPLentry._FileName = RPLentry.TrueName;
+            RPLentry._FileType = RPLentry.FileExt;
+            RPLentry._FileLength = RPLentry.DSize;
 
-                if (SBname == null)
+            ASCIIEncoding ascii = new ASCIIEncoding();
+
+            //Specific file type work goes here!
+
+            //Gets the Magic.
+            byte[] MTemp = new byte[4];
+            string STemp = " ";
+            Array.Copy(RPLentry.UncompressedData, 0, MTemp, 0, 4);
+            RPLentry.Magic = ByteUtilitarian.BytesToString(MTemp, RPLentry.Magic);
+
+            Array.Copy(RPLentry.UncompressedData, 12, MTemp, 0, 4);
+            Array.Reverse(MTemp);
+            STemp = ByteUtilitarian.BytesToString(MTemp, STemp);
+
+            int ECTemp = Convert.ToInt32(STemp, 16);
+            RPLentry._EntryTotal = ECTemp;
+            RPLentry.EntryCount = ECTemp;
+
+            //Starts occupying the entry list via structs. 
+            RPLentry.EntryList = new List<PathEntries>();
+            byte[] PLName = new byte[] { };
+            byte[] PTHName = new byte[] { };
+
+            int p = 16;
+            string Teme;
+            string Hame;
+
+            for (int g = 0; g < RPLentry.EntryCount; g++)
+            {
+                PathEntries pe = new PathEntries();
+                PLName = RPLentry.UncompressedData.Skip(p).Take(64).Where(x => x != 0x00).ToArray();
+                Teme = ascii.GetString(PLName);
+
+                pe.FullPath = Teme;
+                p = p + 64;
+                PTHName = RPLentry.UncompressedData.Skip(p).Take(4).Where(x => x != 0x00).ToArray();
+                Array.Reverse(PTHName);
+
+                Teme = ByteUtilitarian.BytesToString(PTHName, Teme);
+                pe.TypeHash = Teme;
+
+                try
                 {
-                    SBname = new StringBuilder();
-                }
-                else
-                {
-                    SBname.Clear();
-                }
-
-                string Tempname;
-                ASCIIEncoding ascii = new ASCIIEncoding();
-                Tempname = ascii.GetString(BTemp.ToArray());
-
-            //Compressed Data size.
-            BTemp = new List<byte>();
-            c = c + 68;
-            br.BaseStream.Position = c;
-            BTemp.AddRange(br.ReadBytes(4));
-            RPLentry.CSize = BitConverter.ToInt32(BTemp.ToArray(), 0);
-
-            //Uncompressed Data size.
-            BTemp = new List<byte>();
-            c = c + 4;
-            br.BaseStream.Position = c;
-            BTemp.AddRange(br.ReadBytes(4));
-            BTemp.Reverse();
-            string TempStr = "";
-            TempStr = ByteUtilitarian.BytesToStringL2(BTemp, TempStr);
-            BigInteger BN1, BN2, DIFF;
-            BN2 = BigInteger.Parse("40000000", NumberStyles.HexNumber);
-            BN1 = BigInteger.Parse(TempStr, NumberStyles.HexNumber);
-            DIFF = BN1 - BN2;
-            RPLentry.DSize = (int)DIFF;
-
-            //Data Offset.
-            BTemp = new List<byte>();
-            c = c + 4;
-            br.BaseStream.Position = c;
-            BTemp.AddRange(br.ReadBytes(4));
-            RPLentry.AOffset = BitConverter.ToInt32(BTemp.ToArray(), 0);
-
-            //Compressed Data.
-            BTemp = new List<byte>();
-            c = RPLentry.AOffset;
-            br.BaseStream.Position = c;
-            BTemp.AddRange(br.ReadBytes(RPLentry.CSize));
-            RPLentry.CompressedData = BTemp.ToArray();
-
-
-            //Namestuff.
-            RPLentry.EntryName = Tempname;
-
-                //Ensures existing subdirectories are cleared so the directories for files are displayed correctly.
-                if (subnames != null)
-                {
-                    if (subnames.Count > 0)
+                    using (var sr = new StreamReader("archive_filetypes.cfg"))
                     {
-                        subnames.Clear();
-                    }
-                }
-
-                //Gets the filename without subdirectories.
-                if (RPLentry.EntryName.Contains("\\"))
-                {
-                    string[] splstr = RPLentry.EntryName.Split('\\');
-
-                    //foreach (string v in splstr)
-                    for (int v = 0; v < (splstr.Length - 1); v++)
-                    {
-                        if (!subnames.Contains(splstr[v]))
+                        while (!sr.EndOfStream)
                         {
-                            subnames.Add(splstr[v]);
-                        }
-                    }
-
-
-                    RPLentry.TrueName = RPLentry.EntryName.Substring(RPLentry.EntryName.IndexOf("\\") + 1);
-                    Array.Clear(splstr, 0, splstr.Length);
-
-                    while (RPLentry.TrueName.Contains("\\"))
-                    {
-                        RPLentry.TrueName = RPLentry.TrueName.Substring(RPLentry.TrueName.IndexOf("\\") + 1);
-                    }
-                }
-                else
-                {
-                    RPLentry.TrueName = RPLentry.EntryName;
-                }
-
-                RPLentry._FileName = RPLentry.TrueName;
-
-                RPLentry.EntryDirs = subnames.ToArray();
-                RPLentry.FileExt = ".lrp";
-                RPLentry.EntryName = RPLentry.EntryName + RPLentry.FileExt;
-                RPLentry._FileName = RPLentry.TrueName;
-                RPLentry._FileType = RPLentry.FileExt;
-                RPLentry._FileLength = RPLentry.DSize;
-
-                //Decompression Time.
-                RPLentry.UncompressedData = ZlibStream.UncompressBuffer(RPLentry.CompressedData);
-
-                //Specific file type work goes here!
-
-                //Gets the Magic.
-                byte[] MTemp = new byte[4];
-                string STemp = " ";
-                Array.Copy(RPLentry.UncompressedData,0,MTemp,0,4);
-                RPLentry.Magic = ByteUtilitarian.BytesToString(MTemp, RPLentry.Magic);
-
-                Array.Copy(RPLentry.UncompressedData, 12, MTemp, 0, 4);
-                Array.Reverse(MTemp);
-                STemp = ByteUtilitarian.BytesToString(MTemp,STemp);
-
-                int ECTemp = Convert.ToInt32(STemp, 16);
-                RPLentry._EntryTotal = ECTemp;
-                RPLentry.EntryCount = ECTemp;
-
-                //Starts occupying the entry list via structs. 
-                RPLentry.EntryList = new List<PathEntries>();
-                byte[] PLName = new byte[] { };
-                byte[] PTHName = new byte[] { };
-
-                int p = 16;
-                string Teme;
-                string Hame;
-
-                for (int g = 0; g < RPLentry.EntryCount; g++)
-                {
-                    PathEntries pe = new PathEntries();
-                    PLName = RPLentry.UncompressedData.Skip(p).Take(64).Where(x => x != 0x00).ToArray();                
-                    Teme = ascii.GetString(PLName);
-
-                    pe.FullPath = Teme;
-                    p = p + 64;
-                    PTHName = RPLentry.UncompressedData.Skip(p).Take(4).Where(x => x != 0x00).ToArray();
-                    Array.Reverse(PTHName);
-
-                    Teme = ByteUtilitarian.BytesToString(PTHName, Teme);
-                    pe.TypeHash = Teme;
-
-                    try
-                    {
-                        using (var sr = new StreamReader("archive_filetypes.cfg"))
-                        {
-                            while (!sr.EndOfStream)
+                            var keyword = Console.ReadLine() ?? Teme;
+                            var line = sr.ReadLine();
+                            if (String.IsNullOrEmpty(line)) continue;
+                            if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
                             {
-                                var keyword = Console.ReadLine() ?? Teme;
-                                var line = sr.ReadLine();
-                                if (String.IsNullOrEmpty(line)) continue;
-                                if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
-                                {
-                                    Hame = line;
-                                    Hame = Hame.Split(' ')[1];
-                                    pe.TotalName = pe.FullPath + Hame;
-                                    pe.FileExt = Hame;
-                                    break;
-                                }
+                                Hame = line;
+                                Hame = Hame.Split(' ')[1];
+                                pe.TotalName = pe.FullPath + Hame;
+                                pe.FileExt = Hame;
+                                break;
                             }
                         }
-
                     }
-                    catch (FileNotFoundException)
-                    {
+
+                }
+                catch (FileNotFoundException)
+                {
                     MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
                     using (StreamWriter sw = File.AppendText("Log.txt"))
                     {
                         sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
                     }
                     return null;
-                    }
-
-                    RPLentry.EntryList.Add(pe);
-                    p = p + 4;
-
                 }
 
-                RPLentry.TextBackup = new List<string>();
+                RPLentry.EntryList.Add(pe);
+                p = p + 4;
 
-                return RPLentry;
+            }
 
-            
+            RPLentry.TextBackup = new List<string>();
+
+            return RPLentry;
+
+
         }
 
         #region ResourcePathListEntryProperties
@@ -536,35 +425,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
                 {
-                    //We build the arcentry starting from the uncompressed data.
-                    rplentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
-                    rplentry._FileLength = rplentry.UncompressedData.Length;
-                    rplentry.DSize = rplentry.UncompressedData.Length;
 
-                    //Then Compress.
-                    rplentry.CompressedData = Zlibber.Compressor(rplentry.UncompressedData);
-                    rplentry.CSize = rplentry.CompressedData.Length;
-
-                    //Gets the filename of the file to inject without the directory.
-                    string trname = filename;
-                    while (trname.Contains("\\"))
-                    {
-                        trname = trname.Substring(trname.IndexOf("\\") + 1);
-                    }
-
-                    rplentry.TrueName = trname;
-                    rplentry._FileName = rplentry.TrueName;
-                    rplentry.TrueName = Path.GetFileNameWithoutExtension(trname);
-                    rplentry.FileExt = trname.Substring(trname.LastIndexOf("."));
-                    rplentry._FileType = rplentry.FileExt;
-
-                    //Gets the path of the selected node to inject here.
-                    string nodepath = tree.SelectedNode.FullPath;
-                    nodepath = nodepath.Substring(nodepath.IndexOf("\\") + 1);
-
-                    string[] sepstr = { "\\" };
-                    rplentry.EntryDirs = nodepath.Split(sepstr, StringSplitOptions.RemoveEmptyEntries);
-                    rplentry.EntryName = rplentry.FileName;
+                    InsertKnownEntry(tree,node,filename,rplentry,bnr); 
 
                     //Specific file type work goes here!
                     ASCIIEncoding ascii = new ASCIIEncoding();
@@ -667,55 +529,10 @@ namespace ThreeWorkTool.Resources.Wrappers
             //Gotta Fix this up then test insert and replacing.
             try
             {
-                using (FileStream fs = File.OpenRead(filename))
+                using (BinaryReader br = new BinaryReader(File.OpenRead(filename)))
                 {
-                    //We build the arcentry starting from the uncompressed data.
-                    rpathentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
 
-                    //Then Compress.
-                    rpathentry.CompressedData = Zlibber.Compressor(rpathentry.UncompressedData);
-
-                    //Gets the filename of the file to inject without the directory.
-                    string trname = filename;
-                    while (trname.Contains("\\"))
-                    {
-                        trname = trname.Substring(trname.IndexOf("\\") + 1);
-                    }
-
-                    //Enters name related parameters of the arcentry.
-                    rpathentry.TrueName = trname;
-                    rpathentry._FileName = rpathentry.TrueName;
-                    rpathentry.TrueName = Path.GetFileNameWithoutExtension(trname);
-                    rpathentry.FileExt = trname.Substring(trname.LastIndexOf("."));
-                    rpathentry._FileType = rpathentry.FileExt;
-
-                    string TypeHash = "";
-
-                    //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
-                    try
-                    {
-                        using (var sr2 = new StreamReader("archive_filetypes.cfg"))
-                        {
-                            while (!sr2.EndOfStream)
-                            {
-                                var keyword = Console.ReadLine() ?? rpathentry.FileExt;
-                                var line = sr2.ReadLine();
-                                if (String.IsNullOrEmpty(line)) continue;
-                                if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
-                                {
-                                    TypeHash = line;
-                                    TypeHash = TypeHash.Split(' ')[0];
-                                    //arcentry.TypeHash = TypeHash;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-
-                    }
+                    ReplaceKnownEntry(tree,node,filename,rpathentry,rpoldentry);
 
                     ASCIIEncoding ascii = new ASCIIEncoding();
 
@@ -780,7 +597,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         catch (FileNotFoundException)
                         {
                             MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                            fs.Close();
+                            br.Close();
                         }
 
                         rpathentry.EntryList.Add(pe);
