@@ -11,208 +11,81 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
+using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
-    public class MSDEntry
+    public class MSDEntry : DefaultWrapper
     {
         public string Magic;
         public string Constant;
-        public int CSize;
-        public int DSize;
         public int EntryCount;
-        public int OffsetTemp;
-        public string EntryName;
-        public int AOffset;
-        public int EntryID;
         public byte[] WTemp;
-        public byte[] CompressedData;
-        public byte[] UncompressedData;
-        public string[] EntryDirs;
-        public string TrueName;
-        public string FileExt;
-        public static StringBuilder SBname;
+        public StringBuilder SBTextBuild;
         public List<string> TextBackup;
 
         public struct MessageEntries
         {
             public int MSLength;
-            //public List<string> contents;
             public string contents;
         }
 
         public List<MessageEntries> EntryList;
 
-        public static MSDEntry FillMSDEntry(string filename, List<string> subnames, TreeView tree, byte[] Bytes, int c, int ID, Type filetype = null)
+        public static MSDEntry FillMSDEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, byte[] Bytes, int c, int ID, Type filetype = null)
         {
             MSDEntry MSEntry = new MSDEntry();
 
-            using (FileStream fs = File.OpenRead(filename))
+            FillEntry(filename, subnames, tree, br, c, ID, MSEntry);
+
+            MSEntry._FileType = MSEntry.FileExt;
+            MSEntry._FileName = MSEntry.TrueName;
+
+            //Specific file type work goes here!
+
+            //Gets the Magic.
+            MSEntry.Magic = BitConverter.ToString(MSEntry.UncompressedData, 0,4).Replace("-", string.Empty);
+
+            //Gets Entry count. Apparently it's a 32-bit int and not a 16-bit one here.
+            byte[] FCTemp = new byte[4];
+            Array.Copy(MSEntry.UncompressedData, 4, FCTemp, 0, 4);
+            MSEntry.EntryCount = BitConverter.ToInt32(FCTemp, 0);
+            MSEntry._EntryTotal = MSEntry.EntryCount;
+
+            MSEntry.EntryList = new List<MessageEntries>();
+            int OSTemp = 8;
+
+            //Fills in the Entries.
+            for (int g = 0; g < MSEntry.EntryCount; g++)
             {
-                //This block gets the name of the entry.
+                MessageEntries me = new MessageEntries();
+                Array.Copy(MSEntry.UncompressedData, OSTemp, FCTemp, 0, 4);
+                me.MSLength = BitConverter.ToInt32(FCTemp, 0);
+                OSTemp = OSTemp + 2;
+                StringBuilder SBTextBuild = new StringBuilder();
 
-                MSEntry.OffsetTemp = c;
-                MSEntry.EntryID = ID;
-                byte[] BTemp;
-                BTemp = new byte[] { };
-                BTemp = Bytes.Skip(MSEntry.OffsetTemp).Take(64).Where(x => x != 0x00).ToArray();
-
-                if (SBname == null)
+                //Gets each word and translates it into text.
+                for (int h = 0; h < me.MSLength; h++)
                 {
-                    SBname = new StringBuilder();
-                }
-                else
-                {
-                    SBname.Clear();
-                }
-
-                string Tempname;
-                ASCIIEncoding ascii = new ASCIIEncoding();
-                Tempname = ascii.GetString(BTemp);
-
-                //Compressed Data size.
-                BTemp = new byte[] { };
-                c = c + 68;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                BTemp.Reverse();
-                MSEntry.CSize = BitConverter.ToInt32(BTemp, 0);
-
-                //Uncompressed Data size.
-                BTemp = new byte[] { };
-                c = c + 4;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                Array.Reverse(BTemp);
-                string TempStr = "";
-                TempStr = ByteUtilitarian.BytesToString(BTemp, TempStr);
-                BigInteger BN1, BN2, DIFF;
-                BN2 = BigInteger.Parse("40000000", NumberStyles.HexNumber);
-                BN1 = BigInteger.Parse(TempStr, NumberStyles.HexNumber);
-                DIFF = BN1 - BN2;
-                MSEntry.DSize = (int)DIFF;
-
-                //Data Offset.
-                BTemp = new byte[] { };
-                c = c + 4;
-                BTemp = Bytes.Skip(c).Take(4).ToArray();
-                BTemp.Reverse();
-                MSEntry.AOffset = BitConverter.ToInt32(BTemp, 0);
-
-                //Compressed Data.
-                BTemp = new byte[] { };
-                c = MSEntry.AOffset;
-                BTemp = Bytes.Skip(c).Take(MSEntry.CSize).ToArray();
-                MSEntry.CompressedData = BTemp;
-
-
-                //Namestuff.
-                MSEntry.EntryName = Tempname;
-
-                //Ensures existing subdirectories are cleared so the directories for files are displayed correctly.
-                if (subnames != null)
-                {
-                    if (subnames.Count > 0)
-                    {
-                        subnames.Clear();
-                    }
-                }
-
-                //Gets the filename without subdirectories.
-                if (MSEntry.EntryName.Contains("\\"))
-                {
-                    string[] splstr = MSEntry.EntryName.Split('\\');
-
-                    //foreach (string v in splstr)
-                    for (int v = 0; v < (splstr.Length - 1); v++)
-                    {
-                        if (!subnames.Contains(splstr[v]))
-                        {
-                            subnames.Add(splstr[v]);
-                        }
-                    }
-
-
-                    MSEntry.TrueName = MSEntry.EntryName.Substring(MSEntry.EntryName.IndexOf("\\") + 1);
-                    Array.Clear(splstr, 0, splstr.Length);
-
-                    while (MSEntry.TrueName.Contains("\\"))
-                    {
-                        MSEntry.TrueName = MSEntry.TrueName.Substring(MSEntry.TrueName.IndexOf("\\") + 1);
-                    }
-                }
-                else
-                {
-                    MSEntry.TrueName = MSEntry.EntryName;
-                }
-
-                MSEntry._FileName = MSEntry.TrueName;
-
-                MSEntry.EntryDirs = subnames.ToArray();
-                MSEntry.FileExt = ".msd";
-                MSEntry.EntryName = MSEntry.EntryName + MSEntry.FileExt;
-                MSEntry._FileName = MSEntry.TrueName;
-                MSEntry._FileType = MSEntry.FileExt;
-                MSEntry._FileLength = MSEntry.DSize;
-
-                //Decompression Time.
-                MSEntry.UncompressedData = ZlibStream.UncompressBuffer(MSEntry.CompressedData);
-
-                //Specific file type work goes here!
-
-                //Gets the Magic.
-                byte[] MTemp = new byte[4];
-                string STemp = " ";
-                Array.Copy(MSEntry.UncompressedData, 0, MTemp, 0, 4);
-                MSEntry.Magic = ByteUtilitarian.BytesToString(MTemp, MSEntry.Magic);
-
-                Array.Copy(MSEntry.UncompressedData, 12, MTemp, 0, 4);
-                Array.Reverse(MTemp);
-                STemp = ByteUtilitarian.BytesToString(MTemp, STemp);
-
-                //Gets Entry count. Apparently it's a 32-bit int and not a 16-bit one here.
-                byte[] FCTemp = new byte[4];
-                Array.Copy(MSEntry.UncompressedData, 4, FCTemp, 0, 4);
-                MSEntry.EntryCount = BitConverter.ToInt32(FCTemp, 0);
-                MSEntry._EntryTotal = MSEntry.EntryCount;
-
-                MSEntry.EntryList = new List<MessageEntries>();
-                int OSTemp = 8; 
-
-                //Fills in the Entries.
-                for (int g = 0; g < MSEntry.EntryCount; g++)
-                {
-                    MessageEntries me = new MessageEntries();
-                    byte[] METemp = new byte[2];
-                    Array.Copy(MSEntry.UncompressedData, OSTemp, FCTemp, 0, 4);
-                    me.MSLength = BitConverter.ToInt32(FCTemp,0);
-                    //me.contents = new List<string>();
+                    SBTextBuild.Clear();
+                    byte ByTempA = (byte)(MSEntry.UncompressedData[OSTemp] + 0x20);
                     OSTemp = OSTemp + 2;
-                    StringBuilder SBuild = new StringBuilder();
+                    byte ByTempB = MSEntry.UncompressedData[OSTemp];
 
-                    //Gets each word and translates it into text.
-                    for (int h = 0; h < me.MSLength; h++)
-                    {
-                        SBuild.Clear();
-                        byte ByTempA = (byte)(MSEntry.UncompressedData[OSTemp] + 0x20);
-                        OSTemp = OSTemp + 2;
-                        byte ByTempB = MSEntry.UncompressedData[OSTemp];
+                    SBTextBuild.Append((char)ByTempA);
 
-                        SBuild.Append((char)ByTempA);
-
-                        me.contents = me.contents + SBuild.ToString();
-                        //me.contents.Add(SBuild.ToString());
-
-                        //OSTemp = OSTemp + 2;
-
-                    }
-
-
-                    MSEntry.EntryList.Add(me);
-                    OSTemp = OSTemp + 2;
-
+                    me.contents = me.contents + SBTextBuild.ToString();
                 }
+                
+
+                MSEntry.EntryList.Add(me);
+                OSTemp = OSTemp + 2;
 
             }
+
+
 
             MSEntry.TextBackup = new List<string>();
 
@@ -284,7 +157,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         public static TextBox LoadMSDInTextBox(TextBox texbox, MSDEntry msde)
         {
-            
+
             texbox.Text = "";
 
             bool isEmpty = !msde.TextBackup.Any();
@@ -318,7 +191,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             MSDEntry MSDoldentry = new MSDEntry();
 
             tree.BeginUpdate();
-            
+
             //Gotta Fix this up then test insert and replacing.
             try
             {

@@ -111,6 +111,12 @@
     <Compile Include="FrmTexEncodeDialog.Designer.cs">
       <DependentUpon>FrmTexEncodeDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmTxtEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmTxtEditor.Designer.cs">
+      <DependentUpon>FrmTxtEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Archives\ArcEntry.cs" />
@@ -150,6 +156,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrmTexEncodeDialog.resx">
       <DependentUpon>FrmTexEncodeDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmTxtEditor.resx">
+      <DependentUpon>FrmTxtEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

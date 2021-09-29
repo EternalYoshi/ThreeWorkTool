@@ -161,17 +161,15 @@ namespace ThreeWorkTool.Resources.Archives
                             foldernames.Clear();
                             IDCounter++;
                             break;
-
-                        //MSD Files. Commented out until a future release.
-                        /*
+                        
+                        //MSD Files.
                         case "5B55F5B1":
-                            MSDEntry newmsden = MSDEntry.FillMSDEntry(filename, foldernames, tree, Bytes, j, IDCounter);
+                            MSDEntry newmsden = MSDEntry.FillMSDEntry(filename, foldernames, tree, br, Bytes, j, IDCounter);
                             arcfile.arcfiles.Add(newmsden);
                             arcfile.FileList.Add(newmsden.EntryName);
                             foldernames.Clear();
                             IDCounter++;
-                            break;
-                        */
+                            break;                        
 
                         default:
                             //Everything not listed above.
@@ -184,7 +182,7 @@ namespace ThreeWorkTool.Resources.Archives
                     }
                 }
 
-
+                arcfile._FileAmount = Convert.ToUInt16(IDCounter);
 
                 br.Close();
             }

@@ -42,7 +42,7 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.MenuExit = new System.Windows.Forms.ToolStripMenuItem();
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuAbout = new System.Windows.Forms.ToolStripMenuItem();
@@ -73,7 +73,7 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuFile,
-            this.editToolStripMenuItem,
+            this.MenuEdit,
             this.toolsToolStripMenuItem,
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
@@ -101,48 +101,48 @@
             // MenuNew
             // 
             this.MenuNew.Name = "MenuNew";
-            this.MenuNew.Size = new System.Drawing.Size(136, 22);
+            this.MenuNew.Size = new System.Drawing.Size(180, 22);
             this.MenuNew.Text = "New";
             // 
             // MenuOpen
             // 
             this.MenuOpen.Name = "MenuOpen";
-            this.MenuOpen.Size = new System.Drawing.Size(136, 22);
+            this.MenuOpen.Size = new System.Drawing.Size(180, 22);
             this.MenuOpen.Text = "Open";
             this.MenuOpen.Click += new System.EventHandler(this.MenuOpen_Click);
             // 
             // MenuSave
             // 
             this.MenuSave.Name = "MenuSave";
-            this.MenuSave.Size = new System.Drawing.Size(136, 22);
+            this.MenuSave.Size = new System.Drawing.Size(180, 22);
             this.MenuSave.Text = "Save";
             this.MenuSave.Click += new System.EventHandler(this.MenuSaveAs_Click);
             // 
             // MenuSaveAs
             // 
             this.MenuSaveAs.Name = "MenuSaveAs";
-            this.MenuSaveAs.Size = new System.Drawing.Size(136, 22);
+            this.MenuSaveAs.Size = new System.Drawing.Size(180, 22);
             this.MenuSaveAs.Text = "Save As";
             this.MenuSaveAs.Click += new System.EventHandler(this.MenuSaveAs_Click);
             // 
             // MenuClose
             // 
             this.MenuClose.Name = "MenuClose";
-            this.MenuClose.Size = new System.Drawing.Size(136, 22);
+            this.MenuClose.Size = new System.Drawing.Size(180, 22);
             this.MenuClose.Text = "Close";
             this.MenuClose.Click += new System.EventHandler(this.MenuClose_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(133, 6);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(177, 6);
             // 
             // MenuRecentFiles
             // 
             this.MenuRecentFiles.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripSeparator1});
             this.MenuRecentFiles.Name = "MenuRecentFiles";
-            this.MenuRecentFiles.Size = new System.Drawing.Size(136, 22);
+            this.MenuRecentFiles.Size = new System.Drawing.Size(180, 22);
             this.MenuRecentFiles.Text = "Recent Files";
             // 
             // toolStripSeparator1
@@ -153,20 +153,21 @@
             // exitToolStripMenuItem2
             // 
             this.exitToolStripMenuItem2.Name = "exitToolStripMenuItem2";
-            this.exitToolStripMenuItem2.Size = new System.Drawing.Size(133, 6);
+            this.exitToolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
             // 
             // MenuExit
             // 
             this.MenuExit.Name = "MenuExit";
-            this.MenuExit.Size = new System.Drawing.Size(136, 22);
+            this.MenuExit.Size = new System.Drawing.Size(180, 22);
             this.MenuExit.Text = "Exit";
             this.MenuExit.Click += new System.EventHandler(this.MenuExit_Click);
             // 
-            // editToolStripMenuItem
+            // MenuEdit
             // 
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
-            this.editToolStripMenuItem.Text = "&Edit";
+            this.MenuEdit.Enabled = false;
+            this.MenuEdit.Name = "MenuEdit";
+            this.MenuEdit.Size = new System.Drawing.Size(39, 20);
+            this.MenuEdit.Text = "&Edit";
             // 
             // toolsToolStripMenuItem
             // 
@@ -185,7 +186,7 @@
             // MenuAbout
             // 
             this.MenuAbout.Name = "MenuAbout";
-            this.MenuAbout.Size = new System.Drawing.Size(107, 22);
+            this.MenuAbout.Size = new System.Drawing.Size(180, 22);
             this.MenuAbout.Text = "About";
             this.MenuAbout.Click += new System.EventHandler(this.MenuAbout_Click);
             // 
@@ -382,7 +383,7 @@
         private System.Windows.Forms.ToolStripMenuItem MenuSave;
         private System.Windows.Forms.ToolStripMenuItem MenuSaveAs;
         private System.Windows.Forms.ToolStripMenuItem MenuClose;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem MenuEdit;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem MenuRecentFiles;

@@ -11,32 +11,21 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
 using static ThreeWorkTool.Resources.Wrappers.MaterialMaterialEntry;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
-    public class MaterialEntry
+    public class MaterialEntry : DefaultWrapper
     {
         public const int SIZE = 0x28;
         public const int MATSIZE = 0x48;
         public const int MAX_NAME_LENGTH = 64;
         public string Magic;
         public string Constant;
-        public int CSize;
-        public int DSize;
         public int EntryCount;
-        public int OffsetTemp;
-        public string EntryName;
-        public int AOffset;
-        public int EntryID;
         public byte[] WTemp;
-        public byte[] CompressedData;
-        public byte[] UncompressedData;
-        public string[] EntryDirs;
-        public string TrueName;
-        public string FileExt;
-        public static StringBuilder SBname;
         public int SomethingCount;
         public int TextureCount;
         public int MaterialCount;
@@ -44,7 +33,6 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int MaterialOffset;
         public int UnknownField;
         public string WeirdHash;
-        public string TypeHash;
         public int Field14;
         public List<MaterialTextureReference> Textures;
         public List<MaterialMaterialEntry> Materials;
@@ -54,75 +42,9 @@ namespace ThreeWorkTool.Resources.Wrappers
             var MATEntry = new MaterialEntry();
             List<byte> BTemp = new List<byte>();
 
-            //This block gets the name of the entry.
-            MATEntry.OffsetTemp = c;
-            MATEntry.EntryID = ID;
-            br.BaseStream.Position = MATEntry.OffsetTemp;
-            var TempName = Encoding.ASCII.GetString(br.ReadBytes(64)).Trim('\0');
-            c = c + 68;
-            br.BaseStream.Position = c;
-
-            //Compressed Data size. These values from the Arc are 32 bits.
-            MATEntry.CSize = br.ReadInt32();
-
-            //Uncompressed Data size. This value has a 0x40000000 added to the file size count for some reason.
-            MATEntry.DSize = br.ReadInt32() - 1073741824;
-
-            //Data Offset.
-            MATEntry.AOffset = br.ReadInt32();
-
-
-            //Compressed Data.
-            BTemp = new List<byte>();
-            br.BaseStream.Position = MATEntry.AOffset;
-            MATEntry.CompressedData = br.ReadBytes(MATEntry.CSize);
-
-            //Namestuff.
-            MATEntry.EntryName = TempName;
-            MATEntry._FileType = ".mrl";
-
-            //Ensures existing subdirectories are cleared so the directories for files are displayed correctly.
-            if (subnames != null)
-            {
-                if (subnames.Count > 0)
-                {
-                    subnames.Clear();
-                }
-            }
-
-            //Gets the filename without subdirectories.
-            if (MATEntry.EntryName.Contains("\\"))
-            {
-                string[] splstr = MATEntry.EntryName.Split('\\');
-
-                //foreach (string v in splstr)
-                for (int v = 0; v < (splstr.Length - 1); v++)
-                {
-                    if (!subnames.Contains(splstr[v]))
-                    {
-                        subnames.Add(splstr[v]);
-                    }
-                }
-
-
-                MATEntry.TrueName = MATEntry.EntryName.Substring(MATEntry.EntryName.IndexOf("\\") + 1);
-                Array.Clear(splstr, 0, splstr.Length);
-
-                while (MATEntry.TrueName.Contains("\\"))
-                {
-                    MATEntry.TrueName = MATEntry.TrueName.Substring(MATEntry.TrueName.IndexOf("\\") + 1);
-                }
-            }
-            else
-            {
-                MATEntry.TrueName = MATEntry.EntryName;
-            }
-
+            FillEntry(filename,subnames,tree,br,c,ID,MATEntry);
+            MATEntry._FileType = MATEntry.FileExt;
             MATEntry._FileName = MATEntry.TrueName;
-
-            MATEntry.EntryDirs = subnames.ToArray();
-            MATEntry.FileExt = ".mrl";
-            MATEntry.EntryName = MATEntry.EntryName + MATEntry.FileExt;
 
             //Decompression Time.
             MATEntry.UncompressedData = ZlibStream.UncompressBuffer(MATEntry.CompressedData);

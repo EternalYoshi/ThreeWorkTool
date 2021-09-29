@@ -46,7 +46,6 @@ namespace ThreeWorkTool
         public string Tempname;
         public string ExFilter;
         public FrmMainThree instance;
-        //Variables in Arc stuff.
         public static StringBuilder SBname;
         public object headerer;
         public object pathlist;
@@ -64,7 +63,7 @@ namespace ThreeWorkTool
         public static FrmRename frename;
         public static FrmTexEncodeDialog frmtexencode;
         public string RPLBackup;
-        public bool FinishRPLRead;
+        public bool isFinishRPLRead;
         private Bitmap bmx;
         private TextureEntry tentry;
 
@@ -114,7 +113,7 @@ namespace ThreeWorkTool
                 {
                     NCount = 0;
                     OFilename = OFDialog.FileName;
-                    FinishRPLRead = false;
+                    isFinishRPLRead = false;
                     FilePath = OFilename;
                     OpenDX(FilePath);
 
@@ -128,10 +127,10 @@ namespace ThreeWorkTool
                     if (CExt == ".arc")
                     {
                         ArcFill();
-                    }                    
+                    }
                     else
                     {
-                      MessageBox.Show("I cannot recognize the input file right now.");
+                        MessageBox.Show("I cannot recognize the input file right now.");
                     }
 
                     picBoxA.Visible = false;
@@ -768,7 +767,7 @@ namespace ThreeWorkTool
                                 }
                                 return;
                             }
-                            
+
                         }
 
 
@@ -915,7 +914,7 @@ namespace ThreeWorkTool
         //Function to get TreeNode by name. Searches only in the current directory.
         private TreeNode GetNodeByNameForCurrentDirectoryOnly(TreeNode node, string searchtext)
         {
-            foreach(TreeNode tn in node.Parent.Nodes)
+            foreach (TreeNode tn in node.Parent.Nodes)
             {
                 if (tn.Text == TreeSource.SelectedNode.Text)
                 {
@@ -936,42 +935,42 @@ namespace ThreeWorkTool
         }
 
         //Adds Context Menu for folders.
-        public static ContextMenu FolderContextAdder(TreeNode FolderNode, TreeView TreeV)
+        public static ContextMenuStrip FolderContextAdder(TreeNode FolderNode, TreeView TreeV)
         {
 
-            ContextMenu conmenu = new ContextMenu();
+            ContextMenuStrip conmenu = new ContextMenuStrip();
 
-            conmenu.MenuItems.Add(new MenuItem("Rename Folder", MenuItemRenameFolder_Click));
-            conmenu.MenuItems.Add(new MenuItem("Export All",ExportAllFolder));
-            conmenu.MenuItems.Add(new MenuItem("Import Into Folder", MenuItemImportFileInFolder_Click));
-            conmenu.MenuItems.Add("Delete Folder", MenuItemDeleteFolder_Click);
+            conmenu.Items.Add("Rename Folder", null, MenuItemRenameFolder_Click);
+            conmenu.Items.Add("Export All", null, ExportAllFolder);
+            conmenu.Items.Add("Import Into Folder", null, MenuItemImportFileInFolder_Click);
+            conmenu.Items.Add("Delete Folder", null, MenuItemDeleteFolder_Click);
 
             return conmenu;
 
         }
 
         //Adds Context Menu for Texture files.
-        public static ContextMenu TextureContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        public static ContextMenuStrip TextureContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
-            ContextMenu conmenu = new ContextMenu();
+            ContextMenuStrip conmenu = new ContextMenuStrip();
 
-            conmenu.MenuItems.Add(new MenuItem("Export", MenuExportFile_Click));
-            conmenu.MenuItems.Add(new MenuItem("Replace", MenuReplaceTexture_Click));
-            conmenu.MenuItems.Add(new MenuItem("Rename", MenuItemRenameFile_Click));
-            conmenu.MenuItems.Add(new MenuItem("Delete", MenuItemDeleteFile_Click));
+            conmenu.Items.Add("Export",null,MenuExportFile_Click);
+            conmenu.Items.Add("Replace",null, MenuReplaceTexture_Click);
+            conmenu.Items.Add("Rename",null, MenuItemRenameFile_Click);
+            conmenu.Items.Add("Delete",null, MenuItemDeleteFile_Click);
 
             return conmenu;
         }
-        
-        //Adds Context Menu for undefined files & everything else.
-        public static ContextMenu GenericFileContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
-        {
-            ContextMenu conmenu = new ContextMenu();
 
-            conmenu.MenuItems.Add(new MenuItem("Export", MenuExportFile_Click));
-            conmenu.MenuItems.Add(new MenuItem("Replace", MenuReplaceFile_Click));
-            conmenu.MenuItems.Add(new MenuItem("Rename", MenuItemRenameFile_Click));
-            conmenu.MenuItems.Add(new MenuItem("Delete", MenuItemDeleteFile_Click));
+        //Adds Context Menu for undefined files & everything else.
+        public static ContextMenuStrip GenericFileContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            conmenu.Items.Add("Export",null, MenuExportFile_Click);
+            conmenu.Items.Add("Replace",null, MenuReplaceFile_Click);
+            conmenu.Items.Add("Rename",null, MenuItemRenameFile_Click);
+            conmenu.Items.Add("Delete",null, MenuItemDeleteFile_Click);
 
             return conmenu;
         }
@@ -1000,7 +999,7 @@ namespace ThreeWorkTool
                     {
                         ExportFileWriter.TexEntryWriter(EXDialog.FileName, Tentry);
                     }
-                    
+
                     //Writes to log file.
                     using (StreamWriter sw = File.AppendText("Log.txt"))
                     {
@@ -1010,7 +1009,7 @@ namespace ThreeWorkTool
 
                 case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
                     MaterialEntry Matentry = new MaterialEntry();
-                    if(tag is MaterialEntry)
+                    if (tag is MaterialEntry)
                     {
                         Matentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MaterialEntry;
                         EXDialog.Filter = ExportFilters.GetFilter(Matentry.FileExt);
@@ -1156,7 +1155,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ArcEntry.ReplaceArcEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as ArcEntry;
@@ -1239,7 +1238,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ResourcePathListEntry.ReplaceRPL(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as ResourcePathListEntry;
@@ -1327,7 +1326,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ResourcePathListEntry.ReplaceRPL(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as MaterialEntry;
@@ -1411,7 +1410,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = MSDEntry.ReplaceMSD(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as MSDEntry;
@@ -1499,7 +1498,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = LMTEntry.ReplaceLMTEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as LMTEntry;
@@ -1582,7 +1581,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ArcEntry.ReplaceArcEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as ArcEntry;
@@ -1685,7 +1684,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = TextureEntry.ReplaceTextureEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenu = TextureContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = TextureContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as TextureEntry;
@@ -1759,7 +1758,7 @@ namespace ThreeWorkTool
                                     NewWrapperDDS = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                                     int indexDDS = frename.Mainfrm.TreeSource.SelectedNode.Index;
                                     NewWrapperDDS.Tag = TextureEntry.ReplaceTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS, RPDialog.FileName, frmtexencode, frmtexencode.TexData);
-                                    NewWrapperDDS.ContextMenu = TextureContextAdder(NewWrapperDDS, frename.Mainfrm.TreeSource);
+                                    NewWrapperDDS.ContextMenuStrip = TextureContextAdder(NewWrapperDDS, frename.Mainfrm.TreeSource);
                                     frename.Mainfrm.IconSetter(NewWrapperDDS, NewWrapperDDS.FileExt);
                                     //Takes the path data from the old node and slaps it on the new node.
                                     NewaentDDS = NewWrapperDDS.entryfile as TextureEntry;
@@ -1948,15 +1947,15 @@ namespace ThreeWorkTool
 
                     foreach (TreeNode treno in Nodes)
                     {
-                        if(treno.Tag as string != null && treno.Tag as string == "Folder")
+                        if (treno.Tag as string != null && treno.Tag as string == "Folder")
                         {
-                            
+
                         }
                         else
                         {
                             nowcount++;
                         }
-                    } 
+                    }
 
                     ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
                     if (rootarc != null)
@@ -2004,7 +2003,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperTEX, NewWrapperTEX.FileExt);
 
-                        NewWrapperTEX.ContextMenu = TextureContextAdder(NewWrapperTEX, frename.Mainfrm.TreeSource);
+                        NewWrapperTEX.ContextMenuStrip = TextureContextAdder(NewWrapperTEX, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperTEX);
 
@@ -2068,7 +2067,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperRPL, NewWrapperRPL.FileExt);
 
-                        NewWrapperRPL.ContextMenu = GenericFileContextAdder(NewWrapperRPL, frename.Mainfrm.TreeSource);
+                        NewWrapperRPL.ContextMenuStrip = GenericFileContextAdder(NewWrapperRPL, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperRPL);
 
@@ -2082,7 +2081,7 @@ namespace ThreeWorkTool
 
                         string typeRPL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                         frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-                        
+
                         frename.Mainfrm.TreeSource.EndUpdate();
 
                         TreeNode rootnodeRPL = new TreeNode();
@@ -2135,7 +2134,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperLMT, NewWrapperLMT.FileExt);
 
-                        NewWrapperLMT.ContextMenu = GenericFileContextAdder(NewWrapperLMT, frename.Mainfrm.TreeSource);
+                        NewWrapperLMT.ContextMenuStrip = GenericFileContextAdder(NewWrapperLMT, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperLMT);
 
@@ -2195,14 +2194,14 @@ namespace ThreeWorkTool
 
                         frmtexencode.ShowDialog();
 
-                        if(frmtexencode.DialogResult == DialogResult.OK)
+                        if (frmtexencode.DialogResult == DialogResult.OK)
                         {
                             frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperDDS = new ArcEntryWrapper();
                             TextureEntry DDSentry = new TextureEntry();
 
 
-                            DDSentry = TextureEntry.InsertTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS,IMPDialog.FileName,frmtexencode, frmtexencode.TexData);
+                            DDSentry = TextureEntry.InsertTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS, IMPDialog.FileName, frmtexencode, frmtexencode.TexData);
                             NewWrapperDDS.Tag = DDSentry;
                             NewWrapperDDS.Text = DDSentry.TrueName;
                             NewWrapperDDS.Name = DDSentry.TrueName;
@@ -2211,7 +2210,7 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.IconSetter(NewWrapperDDS, NewWrapperDDS.FileExt);
 
-                            NewWrapperDDS.ContextMenu = TextureContextAdder(NewWrapperDDS, frename.Mainfrm.TreeSource);
+                            NewWrapperDDS.ContextMenuStrip = TextureContextAdder(NewWrapperDDS, frename.Mainfrm.TreeSource);
 
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperDDS);
 
@@ -2276,7 +2275,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
 
-                        NewWrapper.ContextMenu = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                        NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapper);
 
@@ -2327,7 +2326,7 @@ namespace ThreeWorkTool
 
             }
 
-            
+
         }
 
         private static void ExportAllFolder(Object sender, System.EventArgs e)
@@ -2341,7 +2340,7 @@ namespace ThreeWorkTool
             {
                 //Gets the directory without any of the text the user put in the Save Dialog.
                 int index = EXAllDialog.FileName.LastIndexOf("\\");
-                EXAllDialog.FileName = EXAllDialog.FileName.Substring(0,(index+1));
+                EXAllDialog.FileName = EXAllDialog.FileName.Substring(0, (index + 1));
                 string savePath = Path.GetDirectoryName(EXAllDialog.FileName);
 
 #if DEBUG
@@ -2373,11 +2372,11 @@ namespace ThreeWorkTool
                                 ArcEntry AENT = kid.Tag as ArcEntry;
                                 if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
                                 {
-                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath,"");
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
                                     ExportPath = FolderName + ExportPath;
                                 }
                                 dindex = ExportPath.LastIndexOf('\\') + 1;
-                                ExportPath = ExportPath.Substring(0,dindex);
+                                ExportPath = ExportPath.Substring(0, dindex);
                                 ExportPath = BaseDirectory + ExportPath + "\\";
                                 System.IO.Directory.CreateDirectory(ExportPath);
                                 ExportPath = ExportPath + AENT.FileName;
@@ -2422,7 +2421,7 @@ namespace ThreeWorkTool
                                     ExportPath = FolderName + ExportPath;
                                 }
                                 dindex = ExportPath.LastIndexOf('\\') + 1;
-                                ExportPath = ExportPath.Substring(0,dindex);
+                                ExportPath = ExportPath.Substring(0, dindex);
                                 ExportPath = BaseDirectory + ExportPath;
                                 System.IO.Directory.CreateDirectory(ExportPath);
                                 ExportPath = ExportPath + MTNT.FileName + ".mrl";
@@ -2455,7 +2454,7 @@ namespace ThreeWorkTool
                 }
                 catch (PathTooLongException)
                 {
-                    MessageBox.Show("THe directory chosen is too long to save all the files. \nChoose a different one closer to the root of the specified drive.","", MessageBoxButtons.OK,MessageBoxIcon.Error);
+                    MessageBox.Show("THe directory chosen is too long to save all the files. \nChoose a different one closer to the root of the specified drive.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     //Writes to log file.
                     using (StreamWriter sw = File.AppendText("Log.txt"))
                     {
@@ -2522,59 +2521,59 @@ namespace ThreeWorkTool
 
                 //For Textures.
                 case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
-                ArcEntryWrapper tchild = new ArcEntryWrapper();
+                    ArcEntryWrapper tchild = new ArcEntryWrapper();
 
 
-                TreeSource.BeginUpdate();
+                    TreeSource.BeginUpdate();
 
-                //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+                    //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
 
-               tchild.Name = I;
-               tchild.Tag = FEntry as TextureEntry;
-               tchild.Text = I;
-               tchild.entryfile = FEntry as TextureEntry;
-               tchild.FileExt = G;
+                    tchild.Name = I;
+                    tchild.Tag = FEntry as TextureEntry;
+                    tchild.Text = I;
+                    tchild.entryfile = FEntry as TextureEntry;
+                    tchild.FileExt = G;
 
-                //Checks for subdirectories. Makes folder if they don't exist already.
-                foreach (string Folder in H)
-               {
-                   if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                   {
-                       TreeNode folder = new TreeNode();
-                       folder.Name = Folder;
-                        folder.Tag = "Folder";
-                        folder.Text = Folder;
-                        folder.ContextMenu = FolderContextAdder(folder, TreeSource);
-                       TreeSource.SelectedNode.Nodes.Add(folder);
-                        TreeSource.SelectedNode = folder;
-                        TreeSource.SelectedNode.ImageIndex = 2;
-                       TreeSource.SelectedNode.SelectedImageIndex = 2;
-                    }
-                   else
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
                     {
-                        TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
                     }
-                }
 
-                TreeSource.SelectedNode = tchild;
-                        
-                TreeSource.SelectedNode.Nodes.Add(tchild);
+                    TreeSource.SelectedNode = tchild;
 
-                TreeSource.ImageList = imageList1;
+                    TreeSource.SelectedNode.Nodes.Add(tchild);
 
-                var rootNode = FindRootNode(tchild);
+                    TreeSource.ImageList = imageList1;
 
-                TreeSource.SelectedNode = tchild;
-                TreeSource.SelectedNode.ImageIndex = 15;
-                TreeSource.SelectedNode.SelectedImageIndex = 15;
-           
+                    var rootNode = FindRootNode(tchild);
 
-                tchild.ContextMenu = TextureContextAdder(tchild, TreeSource);
+                    TreeSource.SelectedNode = tchild;
+                    TreeSource.SelectedNode.ImageIndex = 15;
+                    TreeSource.SelectedNode.SelectedImageIndex = 15;
 
-                TreeSource.SelectedNode = rootNode;
 
-                tcount++;
-                break;
+                    tchild.ContextMenuStrip = TextureContextAdder(tchild, TreeSource);
+
+                    TreeSource.SelectedNode = rootNode;
+
+                    tcount++;
+                    break;
 
                 //For LMT files.
                 case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
@@ -2600,7 +2599,7 @@ namespace ThreeWorkTool
                             folder.Name = Folder;
                             folder.Tag = "Folder";
                             folder.Text = Folder;
-                            folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
                             TreeSource.SelectedNode.Nodes.Add(folder);
                             TreeSource.SelectedNode = folder;
                             TreeSource.SelectedNode.ImageIndex = 2;
@@ -2625,7 +2624,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 9;
 
 
-                    lmtchild.ContextMenu = GenericFileContextAdder(lmtchild, TreeSource);
+                    lmtchild.ContextMenuStrip = GenericFileContextAdder(lmtchild, TreeSource);
 
                     TreeSource.SelectedNode = lmtrootNode;
 
@@ -2656,7 +2655,7 @@ namespace ThreeWorkTool
                             folder.Name = Folder;
                             folder.Tag = "Folder";
                             folder.Text = Folder;
-                            folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
                             TreeSource.SelectedNode.Nodes.Add(folder);
                             TreeSource.SelectedNode = folder;
                             TreeSource.SelectedNode.ImageIndex = 2;
@@ -2681,8 +2680,8 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 17;
 
 
-                    rplchild.ContextMenu = GenericFileContextAdder(rplchild, TreeSource);
-                    
+                    rplchild.ContextMenuStrip = GenericFileContextAdder(rplchild, TreeSource);
+
                     TreeSource.SelectedNode = rplrootNode;
 
                     tcount++;
@@ -2712,7 +2711,7 @@ namespace ThreeWorkTool
                             folder.Name = Folder;
                             folder.Tag = "Folder";
                             folder.Text = Folder;
-                            folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
                             TreeSource.SelectedNode.Nodes.Add(folder);
                             TreeSource.SelectedNode = folder;
                             TreeSource.SelectedNode.ImageIndex = 2;
@@ -2737,7 +2736,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 17;
 
 
-                    msdchild.ContextMenu = GenericFileContextAdder(msdchild, TreeSource);
+                    msdchild.ContextMenuStrip = GenericFileContextAdder(msdchild, TreeSource);
 
                     TreeSource.SelectedNode = msdrootNode;
 
@@ -2769,7 +2768,7 @@ namespace ThreeWorkTool
                             folder.Name = Folder;
                             folder.Tag = "Folder";
                             folder.Text = Folder;
-                            folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
                             TreeSource.SelectedNode.Nodes.Add(folder);
                             TreeSource.SelectedNode = folder;
                             TreeSource.SelectedNode.ImageIndex = 2;
@@ -2794,7 +2793,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 12;
 
 
-                    matchild.ContextMenu = GenericFileContextAdder(matchild, TreeSource);
+                    matchild.ContextMenuStrip = GenericFileContextAdder(matchild, TreeSource);
 
                     //Makes Child Nodes for Texture references. More to come.
                     MaterialChildrenCreation(E, F, G, H, I, matchild, ment);
@@ -2836,7 +2835,7 @@ namespace ThreeWorkTool
                             folder.Name = Folder;
                             folder.Tag = "Folder";
                             folder.Text = Folder;
-                            folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
                             TreeSource.SelectedNode.Nodes.Add(folder);
                             TreeSource.SelectedNode = folder;
                             TreeSource.SelectedNode.ImageIndex = 2;
@@ -2899,7 +2898,7 @@ namespace ThreeWorkTool
                         TreeSource.SelectedNode.SelectedImageIndex = 16;
                     }
 
-                    child.ContextMenu = GenericFileContextAdder(child, TreeSource);
+                    child.ContextMenuStrip = GenericFileContextAdder(child, TreeSource);
 
                     TreeSource.SelectedNode = trootNode;
 
@@ -2916,7 +2915,7 @@ namespace ThreeWorkTool
             folder.Name = "Materials";
             folder.Tag = "Folder";
             folder.Text = "Materials";
-            //folder.ContextMenu = FolderContextAdder(folder, TreeSource);
+            //folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
 
             TreeSource.SelectedNode.Nodes.Add(folder);
             TreeSource.SelectedNode = folder;
@@ -2930,7 +2929,7 @@ namespace ThreeWorkTool
             foldert.Name = "Textures";
             foldert.Tag = "Folder";
             foldert.Text = "Textures";
-            //foldert.ContextMenu = FolderContextAdder(foldert, TreeSource);
+            //foldert.ContextMenuStrip = FolderContextAdder(foldert, TreeSource);
             TreeSource.SelectedNode.Nodes.Add(foldert);
             TreeSource.SelectedNode = foldert;
             TreeSource.SelectedNode.ImageIndex = 2;
@@ -2945,9 +2944,9 @@ namespace ThreeWorkTool
                 Texture.Tag = material.Textures[i];
                 Texture.Text = material.Textures[i].FullTexName;
                 TreeSource.SelectedNode.Nodes.Add(Texture);
-                ContextMenu conmenu = new ContextMenu();
-                conmenu.MenuItems.Add(new MenuItem("Change Texture Reference via Rename", MenuItemRenameFile_Click));
-                Texture.ContextMenu = conmenu;
+                ContextMenuStrip conmenu = new ContextMenuStrip();
+                conmenu.Items.Add("Change Texture Reference via Rename",null, MenuItemRenameFile_Click);
+                Texture.ContextMenuStrip = conmenu;
 
             }
 
@@ -2962,7 +2961,7 @@ namespace ThreeWorkTool
 
 
         }
- 
+
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
         {
 
@@ -3013,7 +3012,7 @@ namespace ThreeWorkTool
 
         private void TreeSource_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            
+
             TreeSource.SelectedNode = e.Node;
             e.Node.GetType();
 
@@ -3032,7 +3031,7 @@ namespace ThreeWorkTool
         {
             if (textureEntry.OutMaps != null)
             {
-                
+
                 Stream ztrim = new MemoryStream(textureEntry.OutMaps);
                 //From the pfim website.
                 using (var image = Pfim.Pfim.FromStream(ztrim))
@@ -3046,8 +3045,8 @@ namespace ThreeWorkTool
                             format = PixelFormat.Format32bppArgb;
                             break;
                         //case Pfim.ImageFormat.Rgb24:
-                           // format = PixelFormat.Format24bppRgb;
-                            //break;
+                        // format = PixelFormat.Format24bppRgb;
+                        //break;
                         default:
                             // see the sample for more details
                             throw new NotImplementedException();
@@ -3068,8 +3067,8 @@ namespace ThreeWorkTool
                         handle.Free();
                     }
                 }
-                
-                
+
+
 
             }
             else
@@ -3085,12 +3084,12 @@ namespace ThreeWorkTool
             if (bm.Width > pb.Width || bm.Height > pb.Height)
             {
 
-                    int OldX = pb.Width;
-                    int OldY = pb.Height;
-                    pb.Image = bm;
-                    //pb.Size = frename.Mainfrm.pnlNew.Size;
-                    pb.SizeMode = bm.Width > OldX || bm.Height > OldY ?
-                    PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
+                int OldX = pb.Width;
+                int OldY = pb.Height;
+                pb.Image = bm;
+                //pb.Size = frename.Mainfrm.pnlNew.Size;
+                pb.SizeMode = bm.Width > OldX || bm.Height > OldY ?
+                PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
             }
             else
             {
@@ -3143,23 +3142,22 @@ namespace ThreeWorkTool
 
                     switch (type)
                     {
-                        //Commented out until a future release.
-                        /*
-                                            case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
-                                                MSDEntry mse = new MSDEntry();
-                                                mse = ArcEntry as MSDEntry;
-                                                if (mse != null) 
-                                                {
-                                                    TreeChildInsert(NCount, mse.EntryName, mse.FileExt, mse.EntryDirs, mse.TrueName, mse);
-                                                    TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
-                                                    break;
-                                                }
-                                                else
-                                                {
-                                                    MessageBox.Show("We got a read error here!", "YIKES");
-                                                    break;
-                                                }
-                        */
+
+                        case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
+                            MSDEntry mse = new MSDEntry();
+                            mse = ArcEntry as MSDEntry;
+                            if (mse != null)
+                            {
+                                TreeChildInsert(NCount, mse.EntryName, mse.FileExt, mse.EntryDirs, mse.TrueName, mse);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
                         case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
                             LMTEntry lmte = new LMTEntry();
                             lmte = ArcEntry as LMTEntry;
@@ -3274,7 +3272,7 @@ namespace ThreeWorkTool
                 //Outputs name to log.
                 sw.WriteLine(ae.EntryName);
             }
-            else if(WrapNode.Tag is TextureEntry)
+            else if (WrapNode.Tag is TextureEntry)
             {
                 TextureEntry ae = new TextureEntry();
                 ae = WrapNode.Tag as TextureEntry;
@@ -3319,7 +3317,7 @@ namespace ThreeWorkTool
             foreach (TreeNode tn in frename.Mainfrm.TreeSource.SelectedNode.Nodes)
             {
                 if (tn.Tag as string != null && tn.Tag as string == "Folder")
-                {                    
+                {
                     foldercount++;
                     RecursiveFolderCount(tn, foldercount);
                 }
@@ -3349,7 +3347,7 @@ namespace ThreeWorkTool
 
         private void TxtRPList_TextChanged(object sender, EventArgs e)
         {
-            if (FinishRPLRead == true)
+            if (isFinishRPLRead == true)
             {
                 TextBoxUpdating();
             }
@@ -3405,6 +3403,16 @@ namespace ThreeWorkTool
         {
             switch (type)
             {
+                case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
+                    LMTEntry LMTEntryP = new LMTEntry();
+                    LMTEntryP = TreeSource.SelectedNode.Tag as LMTEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
                 case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
                     MaterialEntry MatEntryM = new MaterialEntry();
                     MatEntryM = TreeSource.SelectedNode.Tag as MaterialEntry;
@@ -3412,6 +3420,7 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.MaterialTextureReference":
@@ -3421,10 +3430,11 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    MenuEdit.Enabled = false;
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
-                    FinishRPLRead = false;
+                    isFinishRPLRead = false;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     ResourcePathListEntry rplentry = new ResourcePathListEntry();
                     rplentry = TreeSource.SelectedNode.Tag as ResourcePathListEntry;
@@ -3434,11 +3444,12 @@ namespace ThreeWorkTool
                     txtRPList = ResourcePathListEntry.LoadRPLInTextBox(txtRPList, rplentry);
                     RPLBackup = txtRPList.Text;
                     txtRPList.Visible = true;
-                    FinishRPLRead = true;
+                    isFinishRPLRead = true;
+                    UpdateTheEditMenu();
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
-                    FinishRPLRead = false;
+                    isFinishRPLRead = false;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     MSDEntry msdentry = new MSDEntry();
                     msdentry = TreeSource.SelectedNode.Tag as MSDEntry;
@@ -3448,7 +3459,8 @@ namespace ThreeWorkTool
                     txtRPList = MSDEntry.LoadMSDInTextBox(txtRPList, msdentry);
                     RPLBackup = txtRPList.Text;
                     txtRPList.Visible = true;
-                    FinishRPLRead = true;
+                    isFinishRPLRead = true;
+                    UpdateTheEditMenu();
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
@@ -3460,6 +3472,7 @@ namespace ThreeWorkTool
                     picBoxA.Image = null;
                     picBoxA.Visible = true;
                     bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
+                    UpdateTheEditMenu();
                     if (bmx == null)
                     {
                         picBoxA.Image = picBoxA.ErrorImage;
@@ -3481,6 +3494,7 @@ namespace ThreeWorkTool
                     picBoxA.Image = null;
                     picBoxA.Visible = true;
                     bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
+                    UpdateTheEditMenu();
                     if (bmx == null)
                     {
                         picBoxA.Image = picBoxA.ErrorImage;
@@ -3500,6 +3514,7 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
                     break;
 
                 case "ThreeWorkTool.Resources.Archives.ArcEntry":
@@ -3507,6 +3522,7 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ArcFileWrapper":
@@ -3515,6 +3531,7 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
                     break;
 
                 case "ThreeWorkTool.Resources.Archives.ArcFile":
@@ -3522,17 +3539,35 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
                     break;
                 default:
                     pGrdMain.SelectedObject = null;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
                     break;
             }
         }
 
+        //Updates Edit Menu with Right Click Context Options.
+        public void UpdateTheEditMenu()
+        {
 
+            if (TreeSource.SelectedNode.ContextMenuStrip == null)
+            {
+                MenuEdit.Enabled = false;
+            }
+            else
+            {
+                MenuEdit.Enabled = true;
+                MenuEdit.DropDown = null;
+                MenuEdit.DropDown = TreeSource.SelectedNode.ContextMenuStrip;
+                MenuEdit.DropDown.Refresh();
+            }
+
+        }
 
     }
 }

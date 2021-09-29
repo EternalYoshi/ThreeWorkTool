@@ -48,18 +48,9 @@ namespace ThreeWorkTool.Resources.Wrappers
             //Specific file type work goes here!
 
             //Gets the Magic.
-            byte[] MTemp = new byte[4];
-            string STemp = " ";
-            Array.Copy(RPLentry.UncompressedData, 0, MTemp, 0, 4);
-            RPLentry.Magic = ByteUtilitarian.BytesToString(MTemp, RPLentry.Magic);
-
-            Array.Copy(RPLentry.UncompressedData, 12, MTemp, 0, 4);
-            Array.Reverse(MTemp);
-            STemp = ByteUtilitarian.BytesToString(MTemp, STemp);
-
-            int ECTemp = Convert.ToInt32(STemp, 16);
-            RPLentry._EntryTotal = ECTemp;
-            RPLentry.EntryCount = ECTemp;
+            RPLentry.Magic = BitConverter.ToString(RPLentry.UncompressedData, 0, 4).Replace("-", string.Empty);
+            RPLentry._EntryTotal = BitConverter.ToInt32(RPLentry.UncompressedData, 12);
+            RPLentry.EntryCount = RPLentry._EntryTotal;
 
             //Starts occupying the entry list via structs. 
             RPLentry.EntryList = new List<PathEntries>();
