@@ -7,14 +7,43 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool
 {
     public partial class FrmTxtEditor : Form
     {
+        private static ThreeSourceTree treeview;
+        private static TreeNode nodeTxt;
+        public MSDEntry msd;
+        public FrmMainThree Mainfrm { get; set; }
+        public bool isModified = false;
+
+
         public FrmTxtEditor()
         {
             InitializeComponent();
+        }
+
+        public void ShowTxtEditor()
+        {
+            treeview = Mainfrm.TreeSource;
+            nodeTxt = treeview.SelectedNode;
+            msd = nodeTxt.Tag as MSDEntry;
+            MSDEntry.LoadMSDInTexEditorForm(txtMSDBox,msd);
+            this.Text = this.Text + " - " + nodeTxt.Text;
+            this.ShowDialog();
+        }
+
+        private void FrmTxtEditor_TextChanged(object sender, EventArgs e)
+        {
+            //Mainfrm.OpenFileModified = true;
+        }
+
+        private void txtMSDBox_TextChanged(object sender, EventArgs e)
+        {
+            Mainfrm.OpenFileModified = true;
+            isModified = true;
         }
     }
 }

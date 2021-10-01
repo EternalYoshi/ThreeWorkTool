@@ -39,15 +39,23 @@
             this.txtMSDBox.TabIndex = 0;
             this.txtMSDBox.Text = "";
             this.txtMSDBox.WordWrap = false;
+            this.txtMSDBox.TextChanged += new System.EventHandler(this.txtMSDBox_TextChanged);
             // 
             // FrmTxtEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.ClientSize = new System.Drawing.Size(800, 583);
             this.Controls.Add(this.txtMSDBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "FrmTxtEditor";
+            this.ShowInTaskbar = false;
             this.Text = "MSD Editor";
+            this.TopMost = true;
+            this.TextChanged += new System.EventHandler(this.FrmTxtEditor_TextChanged);
             this.ResumeLayout(false);
 
         }

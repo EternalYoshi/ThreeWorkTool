@@ -61,6 +61,7 @@ namespace ThreeWorkTool
         public List<string> ArcFileList;
         public List<string> RPLNameList;
         public static FrmRename frename;
+        public static FrmTxtEditor frmTxtEdit;
         public static FrmTexEncodeDialog frmtexencode;
         public string RPLBackup;
         public bool isFinishRPLRead;
@@ -934,7 +935,7 @@ namespace ThreeWorkTool
             return treeNode;
         }
 
-        //Adds Context Menu for folders.
+        //Adds Context Menu Strip for folders.
         public static ContextMenuStrip FolderContextAdder(TreeNode FolderNode, TreeView TreeV)
         {
 
@@ -949,7 +950,7 @@ namespace ThreeWorkTool
 
         }
 
-        //Adds Context Menu for Texture files.
+        //Adds Context Menu Strip for Texture files.
         public static ContextMenuStrip TextureContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
@@ -962,6 +963,21 @@ namespace ThreeWorkTool
             return conmenu;
         }
 
+        //Adds Context Menu Strip for MSD Files.
+        public static ContextMenuStrip MSDContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            conmenu.Items.Add("Preview/Edit", null, MenuMSDEdit_Click);
+            conmenu.Items.Add("Export", null, MenuExportFile_Click);
+            conmenu.Items.Add("Replace", null, MenuReplaceFile_Click);
+            conmenu.Items.Add("Rename", null, MenuItemRenameFile_Click);
+            conmenu.Items.Add("Delete", null, MenuItemDeleteFile_Click);
+
+            return conmenu;
+        }
+
+
         //Adds Context Menu for undefined files & everything else.
         public static ContextMenuStrip GenericFileContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
@@ -973,6 +989,17 @@ namespace ThreeWorkTool
             conmenu.Items.Add("Delete",null, MenuItemDeleteFile_Click);
 
             return conmenu;
+        }
+
+        private static void MenuMSDEdit_Click(Object sender, System.EventArgs e)
+        {
+
+
+            FrmTxtEditor frmTxt = new FrmTxtEditor();
+            frmTxt = frmTxtEdit;
+            frmTxtEdit.ShowTxtEditor();
+
+
         }
 
         private static void MenuExportFile_Click(Object sender, System.EventArgs e)
@@ -1846,11 +1873,11 @@ namespace ThreeWorkTool
         private static void MenuItemRenameFile_Click(Object sender, System.EventArgs e)
         {
 
+
             FrmRename frn = new FrmRename();
-            //frename = frn;
             frn = frename;
             frn.ShowItItem();
-            //frn.Show();
+
 
         }
 
@@ -1900,11 +1927,10 @@ namespace ThreeWorkTool
 
         private static void MenuItemRenameFolder_Click(Object sender, System.EventArgs e)
         {
+
             FrmRename frn = new FrmRename();
-            //frename = frn;
             frn = frename;
             frn.ShowIt();
-            //frn.Show();
 
         }
 
@@ -2116,6 +2142,69 @@ namespace ThreeWorkTool
                         }
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeRPL;
+                        break;
+
+                    case ".msd":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperMSD = new ArcEntryWrapper();
+                        MSDEntry MSDEntry = new MSDEntry();
+
+
+                        //RlistEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, IMPDialog.FileName);
+                        MSDEntry = MSDEntry.InsertMSD(frename.Mainfrm.TreeSource, NewWrapperMSD, IMPDialog.FileName);
+                        NewWrapperMSD.Tag = MSDEntry;
+                        NewWrapperMSD.Text = MSDEntry.TrueName;
+                        NewWrapperMSD.Name = MSDEntry.TrueName;
+                        NewWrapperMSD.FileExt = MSDEntry.FileExt;
+                        NewWrapperMSD.entryData = MSDEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperMSD, NewWrapperMSD.FileExt);
+
+                        NewWrapperMSD.ContextMenuStrip = MSDContextAdder(NewWrapperMSD, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperMSD);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperMSD;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string typeMSD = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeMSD = new TreeNode();
+                        TreeNode selectednodeMSD = new TreeNode();
+                        selectednodeMSD = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeMSD = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeMSD;
+
+                        int filecountMSD = 0;
+
+                        ArcFile rootarcMSD = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcMSD != null)
+                        {
+                            filecountMSD = rootarcMSD.FileCount;
+                            filecountMSD++;
+                            rootarcMSD.FileCount++;
+                            rootarcMSD.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcMSD;
+                        }
+
+
+
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountMSD);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeMSD;
                         break;
 
                     case ".lmt":
@@ -2736,7 +2825,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 17;
 
 
-                    msdchild.ContextMenuStrip = GenericFileContextAdder(msdchild, TreeSource);
+                    msdchild.ContextMenuStrip = MSDContextAdder(msdchild, TreeSource);
 
                     TreeSource.SelectedNode = msdrootNode;
 
@@ -3246,6 +3335,11 @@ namespace ThreeWorkTool
                 frn.Mainfrm = this;
                 frename = frn;
 
+                FrmTxtEditor frmTxt = new FrmTxtEditor();
+                frmTxt.Mainfrm = this;
+                frmTxtEdit = frmTxt;
+
+
                 TreeSource.Sort();
 
                 //Writes to log file.
@@ -3454,18 +3548,17 @@ namespace ThreeWorkTool
                     MSDEntry msdentry = new MSDEntry();
                     msdentry = TreeSource.SelectedNode.Tag as MSDEntry;
                     picBoxA.Visible = false;
-                    txtRPList.Text = "";
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
-                    txtRPList = MSDEntry.LoadMSDInTextBox(txtRPList, msdentry);
+                    //txtRPList.Text = "";
+                    //txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
+                    //txtRPList = MSDEntry.LoadMSDInTextBox(txtRPList, msdentry);
                     RPLBackup = txtRPList.Text;
-                    txtRPList.Visible = true;
+                    txtRPList.Visible = false;
                     isFinishRPLRead = true;
                     UpdateTheEditMenu();
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
-                    //tentry = new TextureEntry();
                     tentry = TreeSource.SelectedNode.Tag as TextureEntry;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
@@ -3481,7 +3574,6 @@ namespace ThreeWorkTool
                     else
                     {
                         ImageRescaler(bmx, picBoxA, tentry);
-                        //picBoxA.Image = null;
                         picBoxA.BackColor = Color.Magenta;
                         break;
                     }

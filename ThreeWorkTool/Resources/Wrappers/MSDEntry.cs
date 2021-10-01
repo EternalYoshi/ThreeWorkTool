@@ -23,7 +23,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public string Constant;
         public int EntryCount;
         public byte[] WTemp;
-        public StringBuilder SBTextBuild;
+        //public StringBuilder SBTextBuild;
         public List<string> TextBackup;
 
         public struct MessageEntries
@@ -47,45 +47,17 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //Gets the Magic.
             MSEntry.Magic = BitConverter.ToString(MSEntry.UncompressedData, 0,4).Replace("-", string.Empty);
-
-            //Gets Entry count. Apparently it's a 32-bit int and not a 16-bit one here.
-            byte[] FCTemp = new byte[4];
-            Array.Copy(MSEntry.UncompressedData, 4, FCTemp, 0, 4);
-            MSEntry.EntryCount = BitConverter.ToInt32(FCTemp, 0);
-            MSEntry._EntryTotal = MSEntry.EntryCount;
-
-            MSEntry.EntryList = new List<MessageEntries>();
-            int OSTemp = 8;
-
-            //Fills in the Entries.
-            for (int g = 0; g < MSEntry.EntryCount; g++)
+            using (MemoryStream mstream = new MemoryStream(MSEntry.UncompressedData))
             {
-                MessageEntries me = new MessageEntries();
-                Array.Copy(MSEntry.UncompressedData, OSTemp, FCTemp, 0, 4);
-                me.MSLength = BitConverter.ToInt32(FCTemp, 0);
-                OSTemp = OSTemp + 2;
-                StringBuilder SBTextBuild = new StringBuilder();
-
-                //Gets each word and translates it into text.
-                for (int h = 0; h < me.MSLength; h++)
+                using (BinaryReader bnr = new BinaryReader(mstream))
                 {
-                    SBTextBuild.Clear();
-                    byte ByTempA = (byte)(MSEntry.UncompressedData[OSTemp] + 0x20);
-                    OSTemp = OSTemp + 2;
-                    byte ByTempB = MSEntry.UncompressedData[OSTemp];
-
-                    SBTextBuild.Append((char)ByTempA);
-
-                    me.contents = me.contents + SBTextBuild.ToString();
+                    bnr.BaseStream.Position = 4;
+                    //Apparently the entry count is 32-bit and not 16-bit. Considering that some of these MSDs end up with over 10,000 entries...  yeah.
+                    MSEntry.EntryCount = bnr.ReadInt32();
+                    MSEntry._EntryTotal = MSEntry.EntryCount;
+                    MSEntry._FileLength = MSEntry.UncompressedData.Length;
                 }
-                
-
-                MSEntry.EntryList.Add(me);
-                OSTemp = OSTemp + 2;
-
             }
-
-
 
             MSEntry.TextBackup = new List<string>();
 
@@ -184,150 +156,168 @@ namespace ThreeWorkTool.Resources.Wrappers
             return texbox;
         }
 
+        public static RichTextBox LoadMSDInTexEditorForm(RichTextBox texbox, MSDEntry msde)
+        {
+            texbox.Text = "";
 
-        public static ResourcePathListEntry ReplaceMSD(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+
+            //Fills in the entries using a hopefully more efficient method based on what I see from Anotak and co's MSD Editor from a few years back.
+            using (MemoryStream mstream = new MemoryStream(msde.UncompressedData))
+            {
+                using (BinaryReader bnr = new BinaryReader(mstream))
+                {
+                    bnr.BaseStream.Position = 8;
+                    msde.EntryList = new List<MessageEntries>();
+                    StringBuilder SBuild = new StringBuilder();
+                    msde.TextBackup = new List<string>(msde.EntryCount);
+                    while (bnr.BaseStream.Position < bnr.BaseStream.Length)
+                    {
+                        MessageEntries me = new MessageEntries();
+                        me.MSLength = bnr.ReadInt16();
+                        SBuild.Clear();
+                        for (int i = 0; i < me.MSLength; i++)
+                        {
+                            byte bA = (byte)(bnr.ReadByte() + 0x20);
+                            byte bB = bnr.ReadByte();
+                            if (bB != 0)
+                            {
+
+                            }
+                            SBuild.Append((char)bA);
+                        }
+                        me.contents = SBuild.ToString();
+                        msde.TextBackup.Add((me.contents));
+                        texbox.Text = texbox.Text + me.contents + "\n"; 
+                        short termchar = bnr.ReadInt16();
+                        if (termchar != -1)
+                        {
+
+                        }
+
+                        msde.EntryList.Add(me);
+                    }
+                }
+            }
+
+            return texbox;
+
+
+
+
+        }
+
+        public static MSDEntry InsertMSD(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        {
+            MSDEntry msdentry = new MSDEntry();
+
+            try
+            {
+                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
+                {
+                    InsertKnownEntry(tree, node, filename, msdentry,bnr);
+
+                    //Gets the Magic.
+                    msdentry.Magic = BitConverter.ToString(msdentry.UncompressedData, 0, 4).Replace("-", string.Empty);
+
+                    bnr.BaseStream.Position = 4;
+                    //Apparently the entry count is 32-bit and not 16-bit. Considering that some of these MSDs end up with over 10,000 entries...  yeah.
+                    msdentry.EntryCount = bnr.ReadInt32();
+                    msdentry._EntryTotal = msdentry.EntryCount;
+                    msdentry._FileLength = msdentry.UncompressedData.Length;
+                    msdentry._FileName = msdentry.TrueName;
+                    msdentry._FileType = msdentry.FileExt;
+                    msdentry.EntryName = msdentry.FileName;
+                }
+            }
+            catch (Exception ex)
+            {
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Caught the exception:" + ex);
+                }
+            }
+
+            msdentry.TextBackup = new List<string>();
+
+
+            return msdentry;
+        }
+
+        public static MSDEntry ReplaceMSD(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
         {
             MSDEntry MSDNentry = new MSDEntry();
             MSDEntry MSDoldentry = new MSDEntry();
 
             tree.BeginUpdate();
 
-            //Gotta Fix this up then test insert and replacing.
+            ReplaceKnownEntry(tree,node,filename,MSDNentry,MSDoldentry);
+
+            //Gets the Magic.
+            MSDNentry.Magic = BitConverter.ToString(MSDNentry.UncompressedData, 0, 4).Replace("-", string.Empty);
             try
             {
-                using (FileStream fs = File.OpenRead(filename))
+                using (MemoryStream mstream = new MemoryStream(MSDNentry.UncompressedData))
                 {
-                    //We build the arcentry starting from the uncompressed data.
-                    MSDNentry.UncompressedData = System.IO.File.ReadAllBytes(filename);
-
-                    //Then Compress.
-                    MSDNentry.CompressedData = Zlibber.Compressor(MSDNentry.UncompressedData);
-
-                    //Gets the filename of the file to inject without the directory.
-                    string trname = filename;
-                    while (trname.Contains("\\"))
+                    using (BinaryReader bnr = new BinaryReader(mstream))
                     {
-                        trname = trname.Substring(trname.IndexOf("\\") + 1);
+                        bnr.BaseStream.Position = 4;
+                        //Apparently the entry count is 32-bit and not 16-bit. Considering that some of these MSDs end up with over 10,000 entries...  yeah.
+                        MSDNentry.EntryCount = bnr.ReadInt32();
+                        MSDNentry._EntryTotal = MSDNentry.EntryCount;
+                        MSDNentry._FileLength = MSDNentry.UncompressedData.Length;
                     }
+                }
 
-                    //Enters name related parameters of the arcentry.
-                    MSDNentry.TrueName = trname;
-                    MSDNentry._FileName = MSDNentry.TrueName;
-                    MSDNentry.TrueName = Path.GetFileNameWithoutExtension(trname);
-                    MSDNentry.FileExt = trname.Substring(trname.LastIndexOf("."));
-                    MSDNentry._FileType = MSDNentry.FileExt;
+                MSDNentry.TextBackup = new List<string>();
 
-                    string TypeHash = "";
+                //Hmmm.
 
-                    //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
-                    try
-                    {
-                        using (var sr2 = new StreamReader("archive_filetypes.cfg"))
-                        {
-                            while (!sr2.EndOfStream)
-                            {
-                                var keyword = Console.ReadLine() ?? MSDNentry.FileExt;
-                                var line = sr2.ReadLine();
-                                if (String.IsNullOrEmpty(line)) continue;
-                                if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
-                                {
-                                    TypeHash = line;
-                                    TypeHash = TypeHash.Split(' ')[0];
-                                    //arcentry.TypeHash = TypeHash;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                var tag = node.Tag;
+                if (tag is MSDEntry)
+                {
+                    MSDoldentry = tag as MSDEntry;
+                }
+                string path = "";
+                int index = MSDoldentry.EntryName.LastIndexOf("\\");
+                if (index > 0)
+                {
+                    path = MSDoldentry.EntryName.Substring(0, index);
+                }
 
-                    }
+                MSDNentry.EntryName = path + "\\" + MSDNentry.TrueName;
 
-                    ASCIIEncoding ascii = new ASCIIEncoding();
+                tag = MSDNentry;
 
-                    //Gets the Magic.
-                    byte[] MTemp = new byte[4];
-                    string STemp = " ";
-                    Array.Copy(MSDNentry.UncompressedData, 0, MTemp, 0, 4);
-                    MSDNentry.Magic = ByteUtilitarian.BytesToString(MTemp, MSDNentry.Magic);
-
-                    Array.Copy(MSDNentry.UncompressedData, 12, MTemp, 0, 4);
-                    Array.Reverse(MTemp);
-                    STemp = ByteUtilitarian.BytesToString(MTemp, STemp);
-
-                    int ECTemp = Convert.ToInt32(STemp, 16);
-                    MSDNentry._EntryTotal = ECTemp;
-                    MSDNentry.EntryCount = ECTemp;
-
-                    //Starts occupying the entry list via structs. 
-                    MSDNentry.EntryList = new List<MessageEntries>();
-                    byte[] PLName = new byte[] { };
-                    byte[] PTHName = new byte[] { };
-
-                    int p = 16;
-
-                    for (int g = 0; g < MSDNentry.EntryCount; g++)
-                    {
-                        MessageEntries pe = new MessageEntries();
-                        //Fill in msd populating code.
-
-                    }
-
-                    MSDNentry.TextBackup = new List<string>();
-                    MSDNentry._FileLength = MSDNentry.UncompressedData.Length;
-
-                    var tag = node.Tag;
-                    if (tag is MSDEntry)
-                    {
-                        MSDoldentry = tag as MSDEntry;
-                    }
-                    string path = "";
-                    int index = MSDoldentry.EntryName.LastIndexOf("\\");
-                    if (index > 0)
-                    {
-                        path = MSDoldentry.EntryName.Substring(0, index);
-                    }
-
-                    MSDNentry.EntryName = path + "\\" + MSDNentry.TrueName;
-
-                    tag = MSDNentry;
-
-                    if (node.Tag is ResourcePathListEntry)
-                    {
-                        node.Tag = MSDNentry;
-                        node.Name = Path.GetFileNameWithoutExtension(MSDNentry.EntryName);
-                        node.Text = Path.GetFileNameWithoutExtension(MSDNentry.EntryName);
-
-                    }
-
-                    var aew = node as ArcEntryWrapper;
-
-                    string type = node.GetType().ToString();
-                    if (type == "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper")
-                    {
-                        aew.entryfile = MSDNentry;
-                    }
-
-                    node = aew;
-                    node.entryfile = MSDNentry;
-                    tree.EndUpdate();
+                if (node.Tag is MSDEntry)
+                {
+                    node.Tag = MSDNentry;
+                    node.Name = Path.GetFileNameWithoutExtension(MSDNentry.EntryName);
+                    node.Text = Path.GetFileNameWithoutExtension(MSDNentry.EntryName);
 
                 }
+
+                var aew = node as ArcEntryWrapper;
+
+                string type = node.GetType().ToString();
+                if (type == "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper")
+                {
+                    aew.entryfile = MSDNentry;
+                }
+
+                node = aew;
+                node.entryfile = MSDNentry;
+                tree.EndUpdate();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Read error. Is the file readable?");
                 using (StreamWriter sw = File.AppendText("Log.txt"))
                 {
-                    sw.WriteLine("MSD Replacement failed. Here's details:\n" + ex);
+                    sw.WriteLine("Read error. Cannot access the file:" + filename + "\n" + ex);
                 }
             }
 
-
-
-            return node.entryfile as ResourcePathListEntry;
+            return node.entryfile as MSDEntry;
         }
 
 
