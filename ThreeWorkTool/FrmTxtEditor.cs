@@ -45,5 +45,23 @@ namespace ThreeWorkTool
             Mainfrm.OpenFileModified = true;
             isModified = true;
         }
+
+        private void FrmTxtEditor_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+        }
+
+        private void FrmTxtEditor_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (isModified == true)
+            {
+                Mainfrm.UpdateMSD(txtMSDBox);
+            }
+        }
+
+        private void btnFind_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

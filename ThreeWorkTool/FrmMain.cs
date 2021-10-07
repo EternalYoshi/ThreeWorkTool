@@ -3439,6 +3439,19 @@ namespace ThreeWorkTool
 
         #endregion
 
+        public void UpdateMSD(RichTextBox textBox)
+        {
+
+
+            MSDEntry msdupdated = frename.Mainfrm.TreeSource.SelectedNode.Tag as MSDEntry;
+            if (msdupdated != null)
+            {
+                MSDEntry.UpdateMSDFromTexEditorForm(textBox, msdupdated);
+            }
+
+
+        }
+
         private void TxtRPList_TextChanged(object sender, EventArgs e)
         {
             if (isFinishRPLRead == true)

@@ -170,6 +170,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                     msde.EntryList = new List<MessageEntries>();
                     StringBuilder SBuild = new StringBuilder();
                     msde.TextBackup = new List<string>(msde.EntryCount);
+                    //Encoding ShouldBeShiftJIS = Encoding.GetEncoding(932);
+                    //string Atr = "";
+                    //string AtrB = "";
+                    byte[] TestArray = new byte[2];
                     while (bnr.BaseStream.Position < bnr.BaseStream.Length)
                     {
                         MessageEntries me = new MessageEntries();
@@ -181,7 +185,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                             byte bB = bnr.ReadByte();
                             if (bB != 0)
                             {
-
+                                SBuild.Append("[line break]");
                             }
                             SBuild.Append((char)bA);
                         }
@@ -203,6 +207,71 @@ namespace ThreeWorkTool.Resources.Wrappers
 
 
 
+
+        }
+
+        public static MSDEntry UpdateMSDFromTexEditorForm(RichTextBox texbox, MSDEntry msde)
+        {
+            //This gets the line count of the text box and eliminates the last line if empty.
+            int lineCount = texbox.Lines.Count();
+            lineCount -= String.IsNullOrWhiteSpace(texbox.Lines.Last()) ? 1 : 0;
+
+            //Builds a new MSD File to replace the uncompressed and compressed data variables.
+            List<byte> newMSDData = new List<byte>();
+            byte[] MSDTemp = new byte[4] {0x4D,0x53,0x44,0x00};
+            newMSDData.AddRange(MSDTemp);
+            MSDTemp = BitConverter.GetBytes(lineCount);
+            newMSDData.AddRange(MSDTemp);
+
+            string STemp = "";
+            string HexTemp = "";
+            byte ByTemp;
+            byte[] WTemp = new byte[4];
+            byte[] HTemp = new byte[2];
+            int LTemp;
+
+            Encoding ShouldBeShiftJIS = Encoding.GetEncoding(932);
+
+            for (int i = 0; i < lineCount; i++)
+            {
+                //Gets the line.
+                STemp = texbox.Lines[i];
+                LTemp = texbox.Lines[i].Length;
+                ByTemp = Convert.ToByte(LTemp);
+                newMSDData.Add(ByTemp);
+                newMSDData.Add(0x00);
+
+                //Iterates through each character in the line and does its thing.
+
+                for (int j = 0; j < STemp.Length; j++)
+                {
+                    //This if statement is to check for line breaks in the middle of entries and if so, puts in the appropriate text and skips ahead to the next character.
+                    if (STemp[j] == 91 && STemp[j+1] == 108)
+                    {
+                        newMSDData.Add(0xFE);
+                        newMSDData.Add(0xFF);
+                        j = j + 12;
+                    }
+                    else
+                    {
+                        HexTemp = (Convert.ToByte(STemp[j]) - 32).ToString("X2");
+                        ByTemp = Convert.ToByte(HexTemp, 16);
+                        newMSDData.Add(ByTemp);
+                        newMSDData.Add(0x00);
+                    }
+                }
+
+                byte[] TerTemp = {0xFF, 0xFF};
+                newMSDData.AddRange(TerTemp);
+
+                msde.UncompressedData = newMSDData.ToArray();
+                msde.UncompressedData = Zlibber.Compressor(msde.CompressedData);
+
+
+            }
+
+
+            return msde;
 
         }
 
