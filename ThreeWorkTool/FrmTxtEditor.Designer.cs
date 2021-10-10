@@ -31,7 +31,7 @@
             this.txtMSDBox = new System.Windows.Forms.RichTextBox();
             this.txtFind = new System.Windows.Forms.TextBox();
             this.btnFind = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblFind = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // txtMSDBox
@@ -61,14 +61,14 @@
             this.btnFind.UseVisualStyleBackColor = true;
             this.btnFind.Click += new System.EventHandler(this.btnFind_Click);
             // 
-            // label1
+            // lblFind
             // 
-            this.label1.AutoSize = true;
-            this.label1.ForeColor = System.Drawing.Color.Snow;
-            this.label1.Location = new System.Drawing.Point(281, 7);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(0, 13);
-            this.label1.TabIndex = 3;
+            this.lblFind.AutoSize = true;
+            this.lblFind.ForeColor = System.Drawing.Color.Snow;
+            this.lblFind.Location = new System.Drawing.Point(281, 7);
+            this.lblFind.Name = "lblFind";
+            this.lblFind.Size = new System.Drawing.Size(0, 13);
+            this.lblFind.TabIndex = 3;
             // 
             // FrmTxtEditor
             // 
@@ -76,7 +76,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.ClientSize = new System.Drawing.Size(836, 602);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.lblFind);
             this.Controls.Add(this.btnFind);
             this.Controls.Add(this.txtFind);
             this.Controls.Add(this.txtMSDBox);
@@ -100,6 +100,6 @@
         private System.Windows.Forms.RichTextBox txtMSDBox;
         private System.Windows.Forms.TextBox txtFind;
         private System.Windows.Forms.Button btnFind;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblFind;
     }
 }

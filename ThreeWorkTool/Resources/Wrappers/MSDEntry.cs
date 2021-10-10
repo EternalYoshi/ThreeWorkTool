@@ -174,24 +174,62 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //string Atr = "";
                     //string AtrB = "";
                     byte[] TestArray = new byte[2];
+                    int BPTest = 0;
+                    int ITChar = 0;
+
                     while (bnr.BaseStream.Position < bnr.BaseStream.Length)
                     {
                         MessageEntries me = new MessageEntries();
                         me.MSLength = bnr.ReadInt16();
                         SBuild.Clear();
+
                         for (int i = 0; i < me.MSLength; i++)
                         {
-                            byte bA = (byte)(bnr.ReadByte() + 0x20);
-                            byte bB = bnr.ReadByte();
-                            if (bB != 0)
+                            BPTest = Convert.ToInt32(bnr.BaseStream.Position);
+                            ITChar = bnr.ReadInt16();
+                            string TChar;
+                            if (ITChar == -2)
                             {
-                                SBuild.Append("[line break]");
+                                TChar = "[line break]";
                             }
-                            SBuild.Append((char)bA);
+                            else
+                            {
+                                TChar = ITChar.ToString("X4");
+
+                                try
+                                {
+                                    using (var sr = new StreamReader("MSDTable.cfg"))
+                                    {
+                                        while (!sr.EndOfStream)
+                                        {
+                                            var keyword = Console.ReadLine() ?? TChar;
+                                            var line = sr.ReadLine();
+                                            if (String.IsNullOrEmpty(line)) continue;
+                                            if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                            {
+                                                TChar = line;
+                                                TChar = TChar.Split(' ')[1];
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                }
+                                catch (FileNotFoundException)
+                                {
+                                    MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                    {
+                                        sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
+                                    }
+                                }
+                                if (TChar == "") TChar = " ";
+                            }
+                            SBuild.Append(TChar);
                         }
                         me.contents = SBuild.ToString();
                         msde.TextBackup.Add((me.contents));
-                        texbox.Text = texbox.Text + me.contents + "\n"; 
+                        texbox.Text = texbox.Text + me.contents + "\n";
                         short termchar = bnr.ReadInt16();
                         if (termchar != -1)
                         {
@@ -199,6 +237,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         }
 
                         msde.EntryList.Add(me);
+
                     }
                 }
             }

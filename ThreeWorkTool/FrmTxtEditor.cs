@@ -31,7 +31,7 @@ namespace ThreeWorkTool
             nodeTxt = treeview.SelectedNode;
             msd = nodeTxt.Tag as MSDEntry;
             MSDEntry.LoadMSDInTexEditorForm(txtMSDBox,msd);
-            this.Text = this.Text + " - " + nodeTxt.Text;
+            this.Text = "MSD Editor - " + nodeTxt.Text;
             this.ShowDialog();
         }
 
@@ -52,7 +52,7 @@ namespace ThreeWorkTool
         }
 
         private void FrmTxtEditor_FormClosed(object sender, FormClosedEventArgs e)
-        {
+        {            
             if (isModified == true)
             {
                 Mainfrm.UpdateMSD(txtMSDBox);
@@ -61,6 +61,18 @@ namespace ThreeWorkTool
 
         private void btnFind_Click(object sender, EventArgs e)
         {
+            int indexttotext = txtMSDBox.Find(txtFind.Text);
+            if(indexttotext == -1)
+            {
+                lblFind.Text = "That specified text was not found.";
+            }
+            else
+            {
+                //return indexttotext;
+                lblFind.Text = " ";
+                this.txtMSDBox.Select(indexttotext, txtFind.Text.Length);
+                this.txtMSDBox.Focus();
+            }
 
         }
     }
