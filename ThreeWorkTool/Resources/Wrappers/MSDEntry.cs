@@ -293,10 +293,46 @@ namespace ThreeWorkTool.Resources.Wrappers
                     }
                     else
                     {
+                        HexTemp = STemp[j].ToString();
+                        try
+                        {
+                            using (var sr = new StreamReader("MSDTable.cfg"))
+                            {
+                                while (!sr.EndOfStream)
+                                {
+                                    var keyword = Console.ReadLine() ?? HexTemp;
+                                    var line = sr.ReadLine();
+                                    if (String.IsNullOrEmpty(line)) continue;
+                                    if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                    {
+                                        HexTemp = line;
+                                        HexTemp = HexTemp.Split(' ')[0];
+                                        break;
+                                    }
+                                }
+                            }
+
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
+                            }
+                        }
+                        if (HexTemp == "") HexTemp = "0000";
+                        HTemp[0] = (byte)Int16.Parse(HexTemp.Substring(2,2), System.Globalization.NumberStyles.HexNumber);
+                        HTemp[1] = (byte)Int16.Parse(HexTemp.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+                        newMSDData.AddRange(HTemp);
+
+                        /*
                         HexTemp = (Convert.ToByte(STemp[j]) - 32).ToString("X2");
                         ByTemp = Convert.ToByte(HexTemp, 16);
                         newMSDData.Add(ByTemp);
                         newMSDData.Add(0x00);
+                        */
+
                     }
                 }
 

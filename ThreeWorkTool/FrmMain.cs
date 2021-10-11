@@ -226,11 +226,11 @@ namespace ThreeWorkTool
 
                                     //Determines where to start the compressed data storage based on amount of entries.
                                     int dataoffset = 0x8000;
-                                    if (Nodes.Count < 110)
+                                    if (Nodes.Count < 90)
                                     {
                                         dataoffset = 0x2000;
                                     }
-                                    else if (Nodes.Count < 200)
+                                    else if (Nodes.Count < 180)
                                     {
                                         dataoffset = 0x4000;
                                     }
