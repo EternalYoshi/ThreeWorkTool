@@ -343,12 +343,11 @@ namespace ThreeWorkTool
                                             bwr.Write(ComPacked, 0, ComPacked.Length);
 
                                             //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = enty.UncompressedData.Length;
+                                            DecSize = enty.UncompressedData.Length + 1073741824;
                                             string DecSizeHex = DecSize.ToString("X8");
                                             byte[] DePacked = new byte[4];
                                             DePacked = StringToByteArray(DecSizeHex);
                                             Array.Reverse(DePacked);
-                                            DePacked[3] = 0x40;
                                             bwr.Write(DePacked, 0, DePacked.Length);
 
                                             //Starting Offset.
@@ -416,12 +415,11 @@ namespace ThreeWorkTool
                                             bwr.Write(ComPacked, 0, ComPacked.Length);
 
                                             //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = tenty.UncompressedData.Length;
+                                            DecSize = tenty.UncompressedData.Length + 1073741824;
                                             string DecSizeHex = DecSize.ToString("X8");
                                             byte[] DePacked = new byte[4];
                                             DePacked = StringToByteArray(DecSizeHex);
                                             Array.Reverse(DePacked);
-                                            DePacked[3] = 0x40;
                                             bwr.Write(DePacked, 0, DePacked.Length);
 
                                             //Starting Offset.
@@ -479,12 +477,11 @@ namespace ThreeWorkTool
                                             bwr.Write(ComPacked, 0, ComPacked.Length);
 
                                             //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = lrpenty.UncompressedData.Length;
+                                            DecSize = lrpenty.UncompressedData.Length + 1073741824;
                                             string DecSizeHex = DecSize.ToString("X8");
                                             byte[] DePacked = new byte[4];
                                             DePacked = StringToByteArray(DecSizeHex);
                                             Array.Reverse(DePacked);
-                                            DePacked[3] = 0x40;
                                             bwr.Write(DePacked, 0, DePacked.Length);
 
                                             //Starting Offset.
@@ -543,12 +540,11 @@ namespace ThreeWorkTool
                                             bwr.Write(ComPacked, 0, ComPacked.Length);
 
                                             //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = msdenty.UncompressedData.Length;
+                                            DecSize = msdenty.UncompressedData.Length + 1073741824;
                                             string DecSizeHex = DecSize.ToString("X8");
                                             byte[] DePacked = new byte[4];
                                             DePacked = StringToByteArray(DecSizeHex);
                                             Array.Reverse(DePacked);
-                                            DePacked[3] = 0x40;
                                             bwr.Write(DePacked, 0, DePacked.Length);
 
                                             //Starting Offset.
@@ -607,12 +603,11 @@ namespace ThreeWorkTool
                                             bwr.Write(ComPacked, 0, ComPacked.Length);
 
                                             //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = lmtenty.UncompressedData.Length;
+                                            DecSize = lmtenty.UncompressedData.Length + 1073741824;
                                             string DecSizeHex = DecSize.ToString("X8");
                                             byte[] DePacked = new byte[4];
                                             DePacked = StringToByteArray(DecSizeHex);
                                             Array.Reverse(DePacked);
-                                            DePacked[3] = 0x40;
                                             bwr.Write(DePacked, 0, DePacked.Length);
 
                                             //Starting Offset.
@@ -672,12 +667,11 @@ namespace ThreeWorkTool
                                             bwr.Write(ComPacked, 0, ComPacked.Length);
 
                                             //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = matent.UncompressedData.Length;
+                                            DecSize = matent.UncompressedData.Length + 1073741824;
                                             string DecSizeHex = DecSize.ToString("X8");
                                             byte[] DePacked = new byte[4];
                                             DePacked = StringToByteArray(DecSizeHex);
                                             Array.Reverse(DePacked);
-                                            DePacked[3] = 0x40;
                                             bwr.Write(DePacked, 0, DePacked.Length);
 
                                             //Starting Offset.
