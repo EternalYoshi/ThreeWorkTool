@@ -225,24 +225,13 @@ namespace ThreeWorkTool
                                     frename.Mainfrm.AddChildren(Nodes, frename.Mainfrm.TreeSource.SelectedNode);
 
                                     //Determines where to start the compressed data storage based on amount of entries.
-                                    int dataoffset = 0x8000;
-                                    if (Nodes.Count < 90)
-                                    {
-                                        dataoffset = 0x2000;
-                                    }
-                                    else if (Nodes.Count < 180)
-                                    {
-                                        dataoffset = 0x4000;
-                                    }
-                                    else
-                                    {
-                                        dataoffset = 0x8000;
-                                    }
+                                    //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
+                                    int dataoffset = (Nodes.Count * 80) + 88;
 
                                     int nowcount = 0;
                                     foreach (TreeNode treno in Nodes)
                                     {
-                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag is MaterialTextureReference)
+                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry)
                                         {
 
                                         }
@@ -259,19 +248,7 @@ namespace ThreeWorkTool
                                     string HashType = "";
                                     int ComSize = 0;
                                     int DecSize = 0;
-                                    int DataEntryOffset = 0x8000;
-                                    if (Nodes.Count < 110)
-                                    {
-                                        DataEntryOffset = 0x2000;
-                                    }
-                                    else if (Nodes.Count < 200)
-                                    {
-                                        DataEntryOffset = 0x4000;
-                                    }
-                                    else
-                                    {
-                                        DataEntryOffset = 0x8000;
-                                    }
+                                    int DataEntryOffset = (Nodes.Count * 80) + 88;
 
 
                                     ArcEntry enty = new ArcEntry();
@@ -1047,8 +1024,25 @@ namespace ThreeWorkTool
                         sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
+                
+                    //LMA3.
+                case "ThreeWorkTool.Resources.Wrappers.LMTM3AEntry":
+                    LMTM3AEntry MAThreeentry = new LMTM3AEntry();
+                    if (tag is LMTM3AEntry)
+                    {
 
-                //Normal Entries inside Arc File.
+                        MAThreeentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as LMTM3AEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(".ma3");
+                    }
+                    EXDialog.FileName = MAThreeentry.ShortName;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.MA3EntryWriter(EXDialog.FileName, MAThreeentry);
+                    }
+                    break;
+                
+                    //Normal Entries inside Arc File.
                 case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
                 case "ThreeWorkTool.Resources.Archives.ArcEntry":
                     ArcEntry Aentry = new ArcEntry();
@@ -2602,6 +2596,8 @@ namespace ThreeWorkTool
             switch (type)
             {
 
+                #region Textures
+
                 //For Textures.
                 case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
                     ArcEntryWrapper tchild = new ArcEntryWrapper();
@@ -2658,6 +2654,10 @@ namespace ThreeWorkTool
                     tcount++;
                     break;
 
+                #endregion
+
+                #region LMT
+
                 //For LMT files.
                 case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
                     ArcEntryWrapper lmtchild = new ArcEntryWrapper();
@@ -2709,11 +2709,20 @@ namespace ThreeWorkTool
 
                     lmtchild.ContextMenuStrip = GenericFileContextAdder(lmtchild, TreeSource);
 
+                    LMTEntry lmtent = new LMTEntry();
+                    lmtent = lmtchild.Tag as LMTEntry;
+
+                    //Makes Child Nodes for M3A references.
+                    LMTChildrenCreation(E, F, G, H, I, lmtchild, lmtent);
+
                     TreeSource.SelectedNode = lmtrootNode;
 
                     tcount++;
                     break;
 
+                #endregion
+
+                #region LRP
                 //For Resouce Path Lists.
                 case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
                     ArcEntryWrapper rplchild = new ArcEntryWrapper();
@@ -2770,6 +2779,10 @@ namespace ThreeWorkTool
                     tcount++;
                     break;
 
+                #endregion
+
+                #region MSD Files
+
                 //For MSD Files.
                 case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
                     ArcEntryWrapper msdchild = new ArcEntryWrapper();
@@ -2825,6 +2838,10 @@ namespace ThreeWorkTool
 
                     tcount++;
                     break;
+
+                #endregion
+
+                #region Material Files
 
                 //For Material Files.
                 case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
@@ -2888,6 +2905,8 @@ namespace ThreeWorkTool
 
 
                     break;
+
+#endregion
 
                 //Cases for future file supports go here. For example;
                 //case ".mod":
@@ -3044,6 +3063,42 @@ namespace ThreeWorkTool
 
 
         }
+
+        public void LMTChildrenCreation(int E, string F, string G, string[] H, string I, ArcEntryWrapper MEntry, LMTEntry lmtentry)
+        {
+
+            //Makes the Animation Subfolder.
+            TreeNode folder = new TreeNode();
+            folder.Name = "Animations";
+            folder.Tag = "Folder";
+            folder.Text = "Animations";
+
+            TreeSource.SelectedNode.Nodes.Add(folder);
+            TreeSource.SelectedNode = folder;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+            TreeSource.SelectedNode = MEntry;
+
+            //Fills in MA3 files used in the Animation folder.
+            for (int i = 0; i < lmtentry.LstM3A.Count; i++)
+            {
+
+                TreeNode lma3 = new TreeNode();
+                lma3.Name = lmtentry.LstM3A[i].ShortName;
+                lma3.Tag = lmtentry.LstM3A[i];
+                lma3.Text = lmtentry.LstM3A[i].ShortName;
+                lma3.ImageIndex = 18;
+                lma3.SelectedImageIndex = 18;
+                TreeSource.SelectedNode.Nodes.Add(lma3);
+                ContextMenuStrip conmenu = new ContextMenuStrip();
+                conmenu.Items.Add("Export", null, MenuExportFile_Click);
+                lma3.ContextMenuStrip = conmenu;
+
+            }
+
+        }
+
 
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
         {
@@ -3256,6 +3311,8 @@ namespace ThreeWorkTool
                                 break;
                             }
 
+                            //Maybe next release.
+                            /*
                         case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
                             MaterialEntry mte = new MaterialEntry();
                             mte = ArcEntry as MaterialEntry;
@@ -3270,6 +3327,7 @@ namespace ThreeWorkTool
                                 MessageBox.Show("We got a read error here!", "YIKES");
                                 break;
                             }
+                            */
 
                         case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
                             TextureEntry te = new TextureEntry();
@@ -3507,6 +3565,16 @@ namespace ThreeWorkTool
                 case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
                     LMTEntry LMTEntryP = new LMTEntry();
                     LMTEntryP = TreeSource.SelectedNode.Tag as LMTEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.LMTM3AEntry":
+                    LMTM3AEntry Ma3EntryP = new LMTM3AEntry();
+                    Ma3EntryP = TreeSource.SelectedNode.Tag as LMTM3AEntry;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;

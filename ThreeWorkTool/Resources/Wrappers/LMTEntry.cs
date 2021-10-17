@@ -7,35 +7,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
+using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
-    public class LMTEntry
+    public class LMTEntry : DefaultWrapper
     {
-        public string EntryName;
-        public string TypeHash;
-        public string TempStr;
-        public string FileExt;
-        public string TrueName;
-        public string TempFolder;
-        public int AOffset;
-        public int CSize;
-        public int DSize;
-        public int OffsetTemp;
-        public byte[] TBFlag;
-        public byte[] CompressedData;
-        public byte[] UncompressedData;
-        public static StringBuilder SBname;
-        public string[] EntryDirs;
-        public int EntryID;
         public int SomeNumber;
-        public int OffsetList;
+        //public int OffsetList;
         public int SecondOffsetList;
         public int RowCount;
         public int SomeValue1;
         public int OffsetOfInterest;
         public int Length;
+        public List<int> OffsetList;
+        public List<LMTM3AEntry> LstM3A;
 
         public static LMTEntry FillLMTEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -43,107 +31,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             LMTEntry lmtentry = new LMTEntry();
             List<byte> BTemp = new List<byte>();
 
-            //This block gets the name of the entry.
-            lmtentry.OffsetTemp = c;
-            lmtentry.EntryID = ID;
-            br.BaseStream.Position = lmtentry.OffsetTemp;
-            var TempName = Encoding.ASCII.GetString(br.ReadBytes(64)).Trim('\0');
-
-            //This is for the bytes that have the typehash, the thing that dictates the type of file stored.
-            BTemp = new List<byte>();
-            c = c + 64;
-            br.BaseStream.Position = c;
-            lmtentry.TypeHash = ByteUtilitarian.BytesToStringL2R(br.ReadBytes(4).ToList(), lmtentry.TypeHash);
-
-            //Compressed Data size.
-            lmtentry.CSize = br.ReadInt32();
-
-            //Uncompressed Data size.
-            lmtentry.DSize = br.ReadInt32() - 1073741824;
-
-            //Data Offset.
-            lmtentry.AOffset = br.ReadInt32();
-
-            //Compressed Data.
-            BTemp = new List<byte>();
-            br.BaseStream.Position = lmtentry.AOffset;
-            lmtentry.CompressedData = br.ReadBytes(lmtentry.CSize);
-
-            //Namestuff.
-            lmtentry.EntryName = TempName;
-
-            //Ensures existing subdirectories are cleared so the directories for files are displayed correctly.
-            if (subnames != null)
-            {
-                if (subnames.Count > 0)
-                {
-                    subnames.Clear();
-                }
-            }
-
-            //Gets the filename without subdirectories.
-            if (lmtentry.EntryName.Contains("\\"))
-            {
-                string[] splstr = lmtentry.EntryName.Split('\\');
-
-                //foreach (string v in splstr)
-                for (int v = 0; v < (splstr.Length - 1); v++)
-                {
-                    if (!subnames.Contains(splstr[v]))
-                    {
-                        subnames.Add(splstr[v]);
-                    }
-                }
-
-
-                lmtentry.TrueName = lmtentry.EntryName.Substring(lmtentry.EntryName.IndexOf("\\") + 1);
-                Array.Clear(splstr, 0, splstr.Length);
-
-                while (lmtentry.TrueName.Contains("\\"))
-                {
-                    lmtentry.TrueName = lmtentry.TrueName.Substring(lmtentry.TrueName.IndexOf("\\") + 1);
-                }
-            }
-            else
-            {
-                lmtentry.TrueName = lmtentry.EntryName;
-            }
-
-
-            lmtentry.EntryDirs = subnames.ToArray();
-
-
-            //Looks through the archive_filetypes.cfg file to find the extension associated with the typehash.
-            try
-            {
-                using (var sr = new StreamReader("archive_filetypes.cfg"))
-                {
-                    while (!sr.EndOfStream)
-                    {
-                        var keyword = Console.ReadLine() ?? lmtentry.TypeHash;
-                        var line = sr.ReadLine();
-                        if (String.IsNullOrEmpty(line)) continue;
-                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
-                        {
-                            lmtentry.FileExt = line;
-                            lmtentry.FileExt = lmtentry.FileExt.Split(' ')[1];
-                            lmtentry.EntryName = lmtentry.EntryName + lmtentry.FileExt;
-                            lmtentry._FileType = lmtentry.FileExt;
-                            break;
-                        }
-                    }
-                }
-
-            }
-            catch (FileNotFoundException)
-            {
-                MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
-                {
-                    sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
-                }
-                return null;
-            }
+            FillEntry(filename, subnames, tree, br, c, ID, lmtentry, filetype);
 
             lmtentry._FileName = lmtentry.TrueName + lmtentry.FileExt;
 
@@ -156,74 +44,84 @@ namespace ThreeWorkTool.Resources.Wrappers
             byte[] STemp = new byte[2];
             byte[] OTemp = new byte[4];
 
-            /*
+            lmtentry.LstM3A = new List<LMTM3AEntry>();
             lmtentry.OffsetList = new List<int>();
-            lmtentry.SomeValue1 = new List<int>();
-            lmtentry.RowCount = new List<int>();
-            lmtentry.OffsetOfInterest = new List<int>();
-            lmtentry.Length = new List<int>();
-            lmtentry.SecondOffsetList = new List<int>();
-            */
+            int ProjectedSize = 0;
+            int SecondaryCount = 0;
 
             using (MemoryStream LmtStream = new MemoryStream(lmtentry.UncompressedData))
-
             {
-                LmtStream.Position = 6;
-                LmtStream.Read(STemp, 0,2);
-
-                lmtentry.SomeNumber = BitConverter.ToInt16(STemp,0);
-
-                /*
-                //Cribbed notes from Lean's lmt_extract tool to get the individual animations.
-                while (count < (lmtentry.SomeNumber + 1))
+                using (BinaryReader bnr = new BinaryReader(LmtStream))
                 {
-                    LmtStream.Position = count * 8;
-                    LmtStream.Read(OTemp,0,4);
-                    lmtentry.OffsetTemp = BitConverter.ToInt32(OTemp,0);
-                    if (lmtentry.OffsetTemp == 0)
+                    bnr.BaseStream.Position = 6;
+                    lmtentry.SomeNumber = bnr.ReadInt16();
+                    lmtentry.EntryCount = lmtentry.SomeNumber;
+
+                    //Gets all the offsets. ALL OF THEM.
+                    while (count < (lmtentry.SomeNumber))
                     {
-                        count = count + 1;
-                    }
-                    else
-                    {
-                        LmtStream.Position = Convert.ToInt64(lmtentry.OffsetTemp);
-                        LmtStream.Read(OTemp, 0, 4);
-                        lmtentry.SecondOffsetList = BitConverter.ToInt32(OTemp, 0);
-                        LmtStream.Position = LmtStream.Position + 4;
-                        LmtStream.Read(OTemp, 0, 4);
-                        lmtentry.RowCount = BitConverter.ToInt32(OTemp, 0);
-                        LmtStream.Read(OTemp, 0, 4);
-                        lmtentry.SomeValue1 = BitConverter.ToInt32(OTemp, 0);
-                        LmtStream.Position = LmtStream.Position + 56;
-                        LmtStream.Read(OTemp, 0, 4);
-                        lmtentry.OffsetOfInterest = BitConverter.ToInt32(OTemp, 0);
-                        lmtentry.Length = lmtentry.OffsetOfInterest - lmtentry.SecondOffsetList + 352;
+                        lmtentry.OffsetList.Add(bnr.ReadInt32());
+                        bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                        count++;
 
-                        LmtStream.Position = lmtentry.SecondOffsetList;
-
-                        LMTM3AEntry aEntry = new LMTM3AEntry();
-
-                        //Finish this....
-                        aEntry.FillM3AProprties(aEntry,LmtStream,lmtentry.Length,count,lmtentry.RowCount);
-
-
-
-                        count = count + 1;
                     }
 
+                    count = 0;
+                    //Goes through the offsets to get the data. Ignores offsets of 0.
+                    for(int i =0;i< lmtentry.OffsetList.Count; i++)
+                    {
+                        if(lmtentry.OffsetList[i] != 0)
+                        {
 
-                }
+                            LMTM3AEntry aEntry = new LMTM3AEntry();
+                            aEntry = aEntry.FillM3AProprties(aEntry, LmtStream, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                            lmtentry.LstM3A.Add(aEntry);
 
 
-                */
+                        }
+
+
+                    }
+
+                        //Cribbed notes from Lean's lmt_extract tool to get the individual animations. For Reference Only rn.
+                        /*
+                        while (count < (lmtentry.SomeNumber + 1))
+                        {
+                            bnr.BaseStream.Position = count * 8;
+                            lmtentry.OffsetTemp = bnr.ReadInt32();
+                            if (lmtentry.OffsetTemp == 0)
+                            {
+                                count = count + 1;
+                            }
+                            else
+                            {
+                                bnr.BaseStream.Position = Convert.ToInt64(lmtentry.OffsetTemp);
+                                lmtentry.SecondOffsetList = bnr.ReadInt32();
+                                bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                                lmtentry.RowCount = bnr.ReadInt32();
+                                lmtentry.SomeValue1 = bnr.ReadInt32();
+                                bnr.BaseStream.Position = bnr.BaseStream.Position + 56;
+                                lmtentry.OffsetOfInterest = bnr.ReadInt32();
+                                lmtentry.Length = lmtentry.OffsetOfInterest - lmtentry.SecondOffsetList + 352;
+
+                                bnr.BaseStream.Position = lmtentry.SecondOffsetList;
+
+                                LMTM3AEntry aEntry = new LMTM3AEntry();
+
+                                aEntry = aEntry.FillM3AProprties(aEntry, LmtStream, lmtentry.Length, count, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount);
+                                lmtentry.LstM3A.Add(aEntry);
+                                count = count + 1;
+                            }
+
+
+                        }
+                        */
+
+                    }
+
+                return lmtentry;
 
             }
-
-
-
-            return lmtentry;
-
-
         }
 
         public static LMTEntry ReplaceLMTEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
@@ -497,6 +395,21 @@ namespace ThreeWorkTool.Resources.Wrappers
             set
             {
                 _FileType = value;
+            }
+        }
+
+        private long _EntryCount;
+        [Category("MT ARC Entry"), ReadOnlyAttribute(true)]
+        public long EntryCount
+        {
+
+            get
+            {
+                return _EntryCount;
+            }
+            set
+            {
+                _EntryCount = value;
             }
         }
 

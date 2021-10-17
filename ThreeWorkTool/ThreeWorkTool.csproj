@@ -206,6 +206,7 @@
     <Content Include="Images\FOLDERBASE copy.png" />
     <Content Include="Images\InvalidImage.png" />
     <Content Include="Images\LMT.png" />
+    <Content Include="Images\M3A.png" />
     <Content Include="Images\Mis.png" />
     <Content Include="Images\MOD.png" />
     <Content Include="Images\MRL.png" />

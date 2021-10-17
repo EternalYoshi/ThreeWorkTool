@@ -15,6 +15,8 @@
 
         public static string rMotionList = "MotionList (*.lmt)|*.lmt";
 
+        public static string rMA3 = "MT Animation (*.ma3)|*.ma3";
+
         public static string Etc = "All Files (*.*)|*.*";
         
         public static string GetFilter(string filetype)
@@ -36,6 +38,9 @@
 
                 case ".lmt":
                     return rMotionList;
+
+                case ".ma3":
+                    return rMA3;
 
                 default:
                     return Etc; 

@@ -144,7 +144,9 @@ namespace ThreeWorkTool.Resources.Archives
                             IDCounter++;
                             break;
 
-                        //Materials.
+
+                        //Materials. Next Time.
+                        /*
                         case "2749C8A8":
                             MaterialEntry Maten = MaterialEntry.FillMatEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(Maten);
@@ -152,6 +154,7 @@ namespace ThreeWorkTool.Resources.Archives
                             foldernames.Clear();
                             IDCounter++;
                             break;
+                            */
 
                         //LMT Files.
                         case "76820D81":
