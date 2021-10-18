@@ -224,9 +224,7 @@ namespace ThreeWorkTool
                                     List<TreeNode> Nodes = new List<TreeNode>();
                                     frename.Mainfrm.AddChildren(Nodes, frename.Mainfrm.TreeSource.SelectedNode);
 
-                                    //Determines where to start the compressed data storage based on amount of entries.
-                                    //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
-                                    int dataoffset = (Nodes.Count * 80) + 88;
+
 
                                     int nowcount = 0;
                                     foreach (TreeNode treno in Nodes)
@@ -239,8 +237,11 @@ namespace ThreeWorkTool
                                         { nowcount++; }
                                     }
 
+                                    //Determines where to start the compressed data storage based on amount of entries.
+                                    //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
+                                    int dataoffset = (nowcount * 80) + 352;
+
                                     byte[] EntryTotal = BitConverter.GetBytes(Convert.ToInt16(nowcount));
-                                    //byte[] EntryTotal = { Convert.ToByte(nowcount) , 0x00};
 
                                     bwr.Write(EntryTotal, 0, EntryTotal.Length);
 
@@ -248,7 +249,7 @@ namespace ThreeWorkTool
                                     string HashType = "";
                                     int ComSize = 0;
                                     int DecSize = 0;
-                                    int DataEntryOffset = (Nodes.Count * 80) + 88;
+                                    int DataEntryOffset = (nowcount * 80) + 352;
 
 
                                     ArcEntry enty = new ArcEntry();
