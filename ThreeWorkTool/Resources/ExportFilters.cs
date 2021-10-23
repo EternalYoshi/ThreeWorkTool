@@ -15,7 +15,7 @@
 
         public static string rMotionList = "MotionList (*.lmt)|*.lmt";
 
-        public static string rMA3 = "MT Animation (*.ma3)|*.ma3";
+        public static string rMA3 = "MT Animation (*.m3a)|*.m3a";
 
         public static string Etc = "All Files (*.*)|*.*";
         

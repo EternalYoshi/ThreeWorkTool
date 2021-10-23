@@ -767,7 +767,7 @@ namespace ThreeWorkTool
 
         private void MenuAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("ThreeWork Tool Alpha version 0.2X\n2021 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program", "About", MessageBoxButtons.OK);
+            MessageBox.Show("ThreeWork Tool Alpha version 0.3 Preview\n2021 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program", "About", MessageBoxButtons.OK);
         }
 
         private void MenuClose_Click(object sender, EventArgs e)
@@ -927,10 +927,10 @@ namespace ThreeWorkTool
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
-            conmenu.Items.Add("Export",null,MenuExportFile_Click);
-            conmenu.Items.Add("Replace",null, MenuReplaceTexture_Click);
-            conmenu.Items.Add("Rename",null, MenuItemRenameFile_Click);
-            conmenu.Items.Add("Delete",null, MenuItemDeleteFile_Click);
+            conmenu.Items.Add("Export", null, MenuExportFile_Click);
+            conmenu.Items.Add("Replace", null, MenuReplaceTexture_Click);
+            conmenu.Items.Add("Rename", null, MenuItemRenameFile_Click);
+            conmenu.Items.Add("Delete", null, MenuItemDeleteFile_Click);
 
             return conmenu;
         }
@@ -949,16 +949,29 @@ namespace ThreeWorkTool
             return conmenu;
         }
 
+        //Adds Context Menu Strip for LMT Files.
+        public static ContextMenuStrip LMTContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            conmenu.Items.Add("Export", null, MenuExportFile_Click);
+            conmenu.Items.Add("Export All", null, ExportAllLMT);
+            conmenu.Items.Add("Replace", null, MenuReplaceFile_Click);
+            conmenu.Items.Add("Rename", null, MenuItemRenameFile_Click);
+            conmenu.Items.Add("Delete", null, MenuItemDeleteFile_Click);
+
+            return conmenu;
+        }
 
         //Adds Context Menu for undefined files & everything else.
         public static ContextMenuStrip GenericFileContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
-            conmenu.Items.Add("Export",null, MenuExportFile_Click);
-            conmenu.Items.Add("Replace",null, MenuReplaceFile_Click);
-            conmenu.Items.Add("Rename",null, MenuItemRenameFile_Click);
-            conmenu.Items.Add("Delete",null, MenuItemDeleteFile_Click);
+            conmenu.Items.Add("Export", null, MenuExportFile_Click);
+            conmenu.Items.Add("Replace", null, MenuReplaceFile_Click);
+            conmenu.Items.Add("Rename", null, MenuItemRenameFile_Click);
+            conmenu.Items.Add("Delete", null, MenuItemDeleteFile_Click);
 
             return conmenu;
         }
@@ -1025,8 +1038,8 @@ namespace ThreeWorkTool
                         sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
-                
-                    //LMA3.
+
+                //LMA3.
                 case "ThreeWorkTool.Resources.Wrappers.LMTM3AEntry":
                     LMTM3AEntry MAThreeentry = new LMTM3AEntry();
                     if (tag is LMTM3AEntry)
@@ -1042,8 +1055,8 @@ namespace ThreeWorkTool
                         ExportFileWriter.MA3EntryWriter(EXDialog.FileName, MAThreeentry);
                     }
                     break;
-                
-                    //Normal Entries inside Arc File.
+
+                //Normal Entries inside Arc File.
                 case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
                 case "ThreeWorkTool.Resources.Archives.ArcEntry":
                     ArcEntry Aentry = new ArcEntry();
@@ -1097,7 +1110,7 @@ namespace ThreeWorkTool
                         LMTentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as LMTEntry;
                         EXDialog.Filter = ExportFilters.GetFilter(LMTentry.FileExt);
                     }
-                    EXDialog.FileName = LMTentry.FileName + LMTentry.FileExt;
+                    EXDialog.FileName = LMTentry.FileName;
 
                     if (EXDialog.ShowDialog() == DialogResult.OK)
                     {
@@ -1571,6 +1584,61 @@ namespace ThreeWorkTool
 
 
             }
+
+            else if (tag is LMTM3AEntry)
+            {
+                LMTM3AEntry LMotTEntry = new LMTM3AEntry();
+                LMotTEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as LMTM3AEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(LMotTEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            LMTM3AEntry Oldaent = new LMTM3AEntry();
+                            LMTM3AEntry Newaent = new LMTM3AEntry();
+                            Oldaent = OldWrapper.entryfile as LMTM3AEntry;
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = LMTEntry.ReplaceLMTEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as LMTM3AEntry;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+
+            }
+
 
             else
             {
@@ -2522,7 +2590,18 @@ namespace ThreeWorkTool
                             }
                             else if (kid.Tag is MSDEntry)
                             {
-
+                                MSDEntry MSDENT = kid.Tag as MSDEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + MSDENT.FileName;
+                                ExportFileWriter.MSDEntryWriter(ExportPath, MSDENT);
                             }
 
                         }
@@ -2544,6 +2623,82 @@ namespace ThreeWorkTool
 
 
             }
+
+        }
+
+        private static void ExportAllLMT(Object sender, System.EventArgs e)
+        {
+
+            //Uses the Save File Dialog for the Export All Folder command since it's less ugly and remembers where your previous directory is.
+            SaveFileDialog EXAllDialog = new SaveFileDialog();
+            EXAllDialog.Title = "Choose a directory. Make sure it's not too many characters in the file path.";
+            EXAllDialog.FileName = "Export Here";
+            EXAllDialog.Filter = "Directory | directory";
+            if (EXAllDialog.ShowDialog() == DialogResult.OK)
+            {
+                //Gets the directory without any of the text the user put in the Save Dialog.
+                int index = EXAllDialog.FileName.LastIndexOf("\\");
+                EXAllDialog.FileName = EXAllDialog.FileName.Substring(0, (index + 1));
+                string savePath = Path.GetDirectoryName(EXAllDialog.FileName);
+
+#if DEBUG
+                MessageBox.Show("The Directory chosen is: " + EXAllDialog.FileName + "\n and has this many characters: " + EXAllDialog.FileName.Length, "");
+#endif
+                string BaseDirectory = EXAllDialog.FileName;
+
+
+                try
+                {
+
+                    TreeNode TNLMT = frename.Mainfrm.TreeSource.SelectedNode;
+                    string FolderPath = frename.Mainfrm.TreeSource.SelectedNode.FullPath;
+                    int fpindex = FolderPath.LastIndexOf('\\') + 1;
+                    FolderPath = FolderPath.Substring(fpindex);
+                    string ExportPath = "";
+                    string FolderName = frename.Mainfrm.TreeSource.SelectedNode.Text;
+                    int dindex = 0;
+                    //Iterates through all the children and extracts the files tagged in the nodes.
+                    List<TreeNode> Children = new List<TreeNode>();
+                    frename.Mainfrm.AddChildren(Children, frename.Mainfrm.TreeSource.SelectedNode);
+
+                    ExportPath = "";
+                    dindex = 0;
+
+                    foreach (TreeNode kid in Children)
+                    {
+
+
+                        LMTM3AEntry M3AENT = kid.Tag as LMTM3AEntry;
+                        if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                        {
+                            ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                            ExportPath = FolderName + ExportPath;
+                        }
+                        dindex = ExportPath.LastIndexOf('\\') + 1;
+                        ExportPath = ExportPath.Substring(0, dindex);
+                        ExportPath = BaseDirectory + ExportPath + "\\";
+                        System.IO.Directory.CreateDirectory(ExportPath);
+                        ExportPath = ExportPath + M3AENT.FileName;
+                        ExportFileWriter.MA3EntryWriter(ExportPath, M3AENT);
+                    }
+
+                }
+                catch (PathTooLongException)
+                {
+                    MessageBox.Show("THe directory chosen is too long to save all the files. \nChoose a different one closer to the root of the specified drive.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Failed to Export All at directory: " + EXAllDialog.FileName + "\nPath was too long.");
+                    }
+                    return;
+                }
+
+            }
+
+
+
+
 
         }
 
@@ -2708,7 +2863,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 9;
 
 
-                    lmtchild.ContextMenuStrip = GenericFileContextAdder(lmtchild, TreeSource);
+                    lmtchild.ContextMenuStrip = LMTContextAdder(lmtchild, TreeSource);
 
                     LMTEntry lmtent = new LMTEntry();
                     lmtent = lmtchild.Tag as LMTEntry;
@@ -2907,7 +3062,7 @@ namespace ThreeWorkTool
 
                     break;
 
-#endregion
+                #endregion
 
                 //Cases for future file supports go here. For example;
                 //case ".mod":
@@ -3048,7 +3203,7 @@ namespace ThreeWorkTool
                 Texture.Text = material.Textures[i].FullTexName;
                 TreeSource.SelectedNode.Nodes.Add(Texture);
                 ContextMenuStrip conmenu = new ContextMenuStrip();
-                conmenu.Items.Add("Change Texture Reference via Rename",null, MenuItemRenameFile_Click);
+                conmenu.Items.Add("Change Texture Reference via Rename", null, MenuItemRenameFile_Click);
                 Texture.ContextMenuStrip = conmenu;
 
             }
@@ -3067,7 +3222,7 @@ namespace ThreeWorkTool
 
         public void LMTChildrenCreation(int E, string F, string G, string[] H, string I, ArcEntryWrapper MEntry, LMTEntry lmtentry)
         {
-
+            /*
             //Makes the Animation Subfolder.
             TreeNode folder = new TreeNode();
             folder.Name = "Animations";
@@ -3078,7 +3233,7 @@ namespace ThreeWorkTool
             TreeSource.SelectedNode = folder;
             TreeSource.SelectedNode.ImageIndex = 2;
             TreeSource.SelectedNode.SelectedImageIndex = 2;
-
+            */
             TreeSource.SelectedNode = MEntry;
 
             //Fills in MA3 files used in the Animation folder.
@@ -3094,12 +3249,12 @@ namespace ThreeWorkTool
                 TreeSource.SelectedNode.Nodes.Add(lma3);
                 ContextMenuStrip conmenu = new ContextMenuStrip();
                 conmenu.Items.Add("Export", null, MenuExportFile_Click);
+                conmenu.Items.Add("Replace", null, MenuReplaceFile_Click);
                 lma3.ContextMenuStrip = conmenu;
 
             }
 
         }
-
 
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
         {
@@ -3312,23 +3467,23 @@ namespace ThreeWorkTool
                                 break;
                             }
 
-                            //Maybe next release.
-                            /*
-                        case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
-                            MaterialEntry mte = new MaterialEntry();
-                            mte = ArcEntry as MaterialEntry;
-                            if (mte != null)
-                            {
-                                TreeChildInsert(NCount, mte.EntryName, mte.FileExt, mte.EntryDirs, mte.TrueName, mte);
-                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
-                                break;
-                            }
-                            else
-                            {
-                                MessageBox.Show("We got a read error here!", "YIKES");
-                                break;
-                            }
-                            */
+                        //Maybe next release.
+                        /*
+                    case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
+                        MaterialEntry mte = new MaterialEntry();
+                        mte = ArcEntry as MaterialEntry;
+                        if (mte != null)
+                        {
+                            TreeChildInsert(NCount, mte.EntryName, mte.FileExt, mte.EntryDirs, mte.TrueName, mte);
+                            TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                            break;
+                        }
+                        else
+                        {
+                            MessageBox.Show("We got a read error here!", "YIKES");
+                            break;
+                        }
+                        */
 
                         case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
                             TextureEntry te = new TextureEntry();

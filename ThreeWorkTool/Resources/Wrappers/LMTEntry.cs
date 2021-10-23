@@ -34,19 +34,19 @@ namespace ThreeWorkTool.Resources.Wrappers
             FillEntry(filename, subnames, tree, br, c, ID, lmtentry, filetype);
 
             lmtentry._FileName = lmtentry.TrueName + lmtentry.FileExt;
+            lmtentry._FileType = lmtentry.FileExt;
 
             //Decompression Time.
             lmtentry.UncompressedData = ZlibStream.UncompressBuffer(lmtentry.CompressedData);
             lmtentry._DecompressedFileLength = lmtentry.UncompressedData.Length;
             lmtentry._CompressedFileLength = lmtentry.CompressedData.Length;
 
-            int count = 1;
+            int count = 0;
             byte[] STemp = new byte[2];
             byte[] OTemp = new byte[4];
 
             lmtentry.LstM3A = new List<LMTM3AEntry>();
             lmtentry.OffsetList = new List<int>();
-            int ProjectedSize = 0;
             int SecondaryCount = 0;
 
             using (MemoryStream LmtStream = new MemoryStream(lmtentry.UncompressedData))
@@ -68,9 +68,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     count = 0;
                     //Goes through the offsets to get the data. Ignores offsets of 0.
-                    for(int i =0;i< lmtentry.OffsetList.Count; i++)
+                    for (int i = 0; i < lmtentry.OffsetList.Count; i++)
                     {
-                        if(lmtentry.OffsetList[i] != 0)
+                        if (lmtentry.OffsetList[i] != 0)
                         {
 
                             LMTM3AEntry aEntry = new LMTM3AEntry();
@@ -79,45 +79,17 @@ namespace ThreeWorkTool.Resources.Wrappers
 
 
                         }
-
-
-                    }
-
-                        //Cribbed notes from Lean's lmt_extract tool to get the individual animations. For Reference Only rn.
-                        /*
-                        while (count < (lmtentry.SomeNumber + 1))
+                        else
                         {
-                            bnr.BaseStream.Position = count * 8;
-                            lmtentry.OffsetTemp = bnr.ReadInt32();
-                            if (lmtentry.OffsetTemp == 0)
-                            {
-                                count = count + 1;
-                            }
-                            else
-                            {
-                                bnr.BaseStream.Position = Convert.ToInt64(lmtentry.OffsetTemp);
-                                lmtentry.SecondOffsetList = bnr.ReadInt32();
-                                bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
-                                lmtentry.RowCount = bnr.ReadInt32();
-                                lmtentry.SomeValue1 = bnr.ReadInt32();
-                                bnr.BaseStream.Position = bnr.BaseStream.Position + 56;
-                                lmtentry.OffsetOfInterest = bnr.ReadInt32();
-                                lmtentry.Length = lmtentry.OffsetOfInterest - lmtentry.SecondOffsetList + 352;
-
-                                bnr.BaseStream.Position = lmtentry.SecondOffsetList;
-
-                                LMTM3AEntry aEntry = new LMTM3AEntry();
-
-                                aEntry = aEntry.FillM3AProprties(aEntry, LmtStream, lmtentry.Length, count, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount);
-                                lmtentry.LstM3A.Add(aEntry);
-                                count = count + 1;
-                            }
-
+                            LMTM3AEntry aEntry = new LMTM3AEntry();
+                            aEntry = aEntry.FillBlankM3A(aEntry, LmtStream, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                            lmtentry.LstM3A.Add(aEntry);
 
                         }
-                        */
 
                     }
+
+                }
 
                 return lmtentry;
 
@@ -130,7 +102,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             LMTEntry oldentry = new LMTEntry();
 
             tree.BeginUpdate();
-            
+
             try
             {
                 using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
@@ -190,6 +162,59 @@ namespace ThreeWorkTool.Resources.Wrappers
                         }
                         return null;
                     }
+
+
+                    int count = 0;
+                    int SecondaryCount = 0;
+
+                    using (MemoryStream msm3a = new MemoryStream(lmtentry.UncompressedData))
+                    {
+                        using (BinaryReader brm3a = new BinaryReader(msm3a))
+                        {
+
+                            bnr.BaseStream.Position = 6;
+                            lmtentry.SomeNumber = bnr.ReadInt16();
+                            lmtentry.EntryCount = lmtentry.SomeNumber;
+
+                            //Gets all the offsets. ALL OF THEM.
+                            while (count < (lmtentry.SomeNumber))
+                            {
+                                lmtentry.OffsetList.Add(bnr.ReadInt32());
+                                bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                                count++;
+
+                            }
+
+                            count = 0;
+                            //Goes through the offsets to get the data. Ignores offsets of 0.
+                            for (int i = 0; i < lmtentry.OffsetList.Count; i++)
+                            {
+                                if (lmtentry.OffsetList[i] != 0)
+                                {
+
+                                    LMTM3AEntry aEntry = new LMTM3AEntry();
+                                    aEntry = aEntry.FillM3AProprties(aEntry, msm3a, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                                    lmtentry.LstM3A.Add(aEntry);
+
+
+                                }
+                                else
+                                {
+                                    LMTM3AEntry aEntry = new LMTM3AEntry();
+                                    aEntry = aEntry.FillBlankM3A(aEntry, msm3a, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                                    lmtentry.LstM3A.Add(aEntry);
+
+                                }
+
+                            }
+
+
+                        }
+                    }
+
+
+
+
 
                     var tag = node.Tag;
                     if (tag is LMTEntry)
@@ -336,6 +361,14 @@ namespace ThreeWorkTool.Resources.Wrappers
             return lmtentry;
         }
 
+        public static LMTEntry RebuildLMTEntry(TreeView tree, ArcEntryWrapper node, Type filetype = null)
+        {
+
+            LMTEntry lMT = new LMTEntry();
+
+            return lMT;
+
+        }
 
         #region LMTEntry Properties
         private string _FileName;

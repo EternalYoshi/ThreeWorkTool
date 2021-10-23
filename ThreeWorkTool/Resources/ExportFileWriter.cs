@@ -97,7 +97,7 @@ namespace ThreeWorkTool.Resources
 
                 using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
                 {
-                    bw.Write(entrytowrite.RawData);
+                    bw.Write(entrytowrite.FullData);
                     bw.Close();
                 }
 
