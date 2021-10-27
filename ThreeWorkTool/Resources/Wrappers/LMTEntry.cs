@@ -16,7 +16,6 @@ namespace ThreeWorkTool.Resources.Wrappers
     public class LMTEntry : DefaultWrapper
     {
         public int SomeNumber;
-        //public int OffsetList;
         public int SecondOffsetList;
         public int RowCount;
         public int SomeValue1;
@@ -74,7 +73,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         {
 
                             LMTM3AEntry aEntry = new LMTM3AEntry();
-                            aEntry = aEntry.FillM3AProprties(aEntry, LmtStream, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                            aEntry = aEntry.FillM3AProprties(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
                             lmtentry.LstM3A.Add(aEntry);
 
 
@@ -82,7 +81,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         else
                         {
                             LMTM3AEntry aEntry = new LMTM3AEntry();
-                            aEntry = aEntry.FillBlankM3A(aEntry, LmtStream, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                            aEntry = aEntry.FillBlankM3A(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
                             lmtentry.LstM3A.Add(aEntry);
 
                         }
@@ -193,7 +192,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                                 {
 
                                     LMTM3AEntry aEntry = new LMTM3AEntry();
-                                    aEntry = aEntry.FillM3AProprties(aEntry, msm3a, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                                    aEntry = aEntry.FillM3AProprties(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
                                     lmtentry.LstM3A.Add(aEntry);
 
 
@@ -201,7 +200,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                                 else
                                 {
                                     LMTM3AEntry aEntry = new LMTM3AEntry();
-                                    aEntry = aEntry.FillBlankM3A(aEntry, msm3a, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                                    aEntry = aEntry.FillBlankM3A(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
                                     lmtentry.LstM3A.Add(aEntry);
 
                                 }
@@ -308,6 +307,44 @@ namespace ThreeWorkTool.Resources.Wrappers
                     lmtentry.FileExt = trname.Substring(trname.LastIndexOf("."));
                     lmtentry._FileType = lmtentry.FileExt;
 
+                    bnr.BaseStream.Position = 6;
+                    lmtentry.SomeNumber = bnr.ReadInt16();
+                    lmtentry.EntryCount = lmtentry.SomeNumber;
+
+                    int count = 0;
+                    int SecondaryCount = 0;
+                    //Gets all the offsets. ALL OF THEM.
+                    while (count < (lmtentry.SomeNumber))
+                    {
+                        lmtentry.OffsetList.Add(bnr.ReadInt32());
+                        bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                        count++;
+
+                    }
+
+                    count = 0;
+                    //Goes through the offsets to get the data. Ignores offsets of 0.
+                    for (int i = 0; i < lmtentry.OffsetList.Count; i++)
+                    {
+                        if (lmtentry.OffsetList[i] != 0)
+                        {
+
+                            LMTM3AEntry aEntry = new LMTM3AEntry();
+                            aEntry = aEntry.FillM3AProprties(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                            lmtentry.LstM3A.Add(aEntry);
+
+
+                        }
+                        else
+                        {
+                            LMTM3AEntry aEntry = new LMTM3AEntry();
+                            aEntry = aEntry.FillBlankM3A(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                            lmtentry.LstM3A.Add(aEntry);
+
+                        }
+
+                    }
+
                     //Gets the path of the selected node to inject here.
                     string nodepath = tree.SelectedNode.FullPath;
                     nodepath = nodepath.Substring(nodepath.IndexOf("\\") + 1);
@@ -363,8 +400,203 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         public static LMTEntry RebuildLMTEntry(TreeView tree, ArcEntryWrapper node, Type filetype = null)
         {
-
+            //Gets the nodes and stuff and starts rebuilding from scratch.
             LMTEntry lMT = new LMTEntry();
+
+            int ChildCount = 0;
+
+            //Fetches and Iterates through all the children and extracts the files tagged in the nodes.
+            List<TreeNode> Children = new List<TreeNode>();
+            foreach (TreeNode thisNode in tree.SelectedNode.Nodes)
+            {
+                Children.Add(thisNode);
+                ChildCount++;
+            }
+
+
+
+            //Now to rebuild from scratch.
+            List<byte> NewUncompressedData = new List<byte>();
+            byte[] Header = { 0x4C, 0x4D, 0x54, 0x00, 0x00, 0x00 };
+            byte[] PlaceHolderEntry = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            byte[] BlankLine = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            byte[] BlankHalf = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+            //Gets Entry Count.
+            short Total = Convert.ToInt16(Children.Count);
+            NewUncompressedData.AddRange(Header);
+            NewUncompressedData.AddRange(BitConverter.GetBytes(Total));
+            //Adds in dummy bytes for Entry Offset List based on amount of child nodes of the lmt node. Adds an extra entry because the default LMTs do.
+            NewUncompressedData.AddRange(PlaceHolderEntry);
+            for (int w = 0; w < Children.Count; w++)
+            {
+                NewUncompressedData.AddRange(PlaceHolderEntry);
+            }
+            int MA3DataStart = NewUncompressedData.Count;
+            lMT.OffsetList = new List<int>();
+            List<int> DataOffsetList = new List<int>();
+            List<bool> IsBlank = new List<bool>();
+            //Starts putting in the Block Data and updating the offset list.
+            lMT.OffsetList.Add(NewUncompressedData.Count);
+            for (int x = 0; x < Children.Count; x++)
+            {
+                TreeNode TN = tree.SelectedNode.Nodes.Find(x.ToString(), true)[0];
+                LMTM3AEntry tag = TN.Tag as LMTM3AEntry;
+                if (tag != null)
+                {
+                    IsBlank.Add(tag.IsBlank);
+                    if (tag.IsBlank == false)
+                    {
+                        NewUncompressedData.AddRange(tag.BlockData);
+                        //The ending of the block data segments always has the raw data start on the 8 of the hex instead of the 0 of the hex offset for some reason.
+                        //This is there to preserve that.
+                        if (x == (Children.Count - 1))
+                        {
+                            NewUncompressedData.AddRange(BlankHalf);
+                        }
+                        else
+                        {
+                            NewUncompressedData.AddRange(BlankLine);
+                        }
+                    }
+
+                }
+                lMT.OffsetList.Add(NewUncompressedData.Count);
+            }
+            //Now for the RawData. Oh joy.
+            DataOffsetList.Add(NewUncompressedData.Count);
+            for (int y = 0; y < Children.Count; y++)
+            {
+                TreeNode TN = tree.SelectedNode.Nodes.Find(y.ToString(), true)[0];
+                LMTM3AEntry tag = TN.Tag as LMTM3AEntry;
+                if (tag != null)
+                {
+                    if (IsBlank[y] == false)
+                    {
+                        NewUncompressedData.AddRange(tag.RawData);
+                        DataOffsetList.Add(NewUncompressedData.Count);
+                    }
+                }
+
+            }
+            byte[] UnCompressedBuffer = NewUncompressedData.ToArray();
+            int Capacity = UnCompressedBuffer.Length;
+            int EntryAmount = lMT.OffsetList.Count - 1;
+            List<int> IndexRows = new List<int>();
+            using (MemoryStream ms3 = new MemoryStream(UnCompressedBuffer))
+            {
+                using (BinaryReader br3 = new BinaryReader(ms3))
+                {
+                    using (BinaryWriter bw3 = new BinaryWriter(ms3))
+                    {
+                        bw3.BaseStream.Position = 8;
+                        //Offsets For The Block Data.
+                        for (int z = 0; z < EntryAmount; z++)
+                        {
+
+                            if (IsBlank[z] == false)
+                            {
+                                bw3.Write(lMT.OffsetList[z]);
+                                bw3.BaseStream.Position = bw3.BaseStream.Position + 4;
+                            }
+                            else
+                            {
+                                bw3.BaseStream.Position = bw3.BaseStream.Position + 8;
+                            }
+                        }
+                        //Offsets For the Raw Data.
+                        int EndingOffset = 0;
+                        int OffTemp = 0;
+                        bw3.BaseStream.Position = lMT.OffsetList[0];
+                        for (int zz = 0; zz < DataOffsetList.Count; zz++)
+                        {
+
+
+                            bw3.Write(DataOffsetList[zz]);
+
+                            bw3.BaseStream.Position = bw3.BaseStream.Position + 4;
+                            IndexRows.Add(br3.ReadInt32());
+                            bw3.BaseStream.Position = bw3.BaseStream.Position + 60;
+                            //bw3.BaseStream.Position = bw3.BaseStream.Position + 68;
+                            if (zz == (DataOffsetList.Count - 1))
+                            {
+                                EndingOffset = UnCompressedBuffer.Length;
+                                bw3.Write(EndingOffset);
+                            }
+                            else
+                            {
+                                EndingOffset = (DataOffsetList[zz + 1] - 352);
+                                bw3.Write(EndingOffset);
+                            }
+
+
+                            bw3.BaseStream.Position = bw3.BaseStream.Position + 20;
+
+                        }
+                        //Lastly the offsets in the M3A entries themeslves. Sigh........
+                        bw3.BaseStream.Position = DataOffsetList[0];
+                        int CountTemp = DataOffsetList.Count - 1;
+                        for (int yy = 0; yy < CountTemp; yy++)
+                        {
+                            bw3.BaseStream.Position = DataOffsetList[yy];
+                            //bw3.BaseStream.Position = IndexRows[yy];
+                            for (int xx = 0; xx < IndexRows[yy]; xx++)
+                            {
+                                bw3.BaseStream.Position = DataOffsetList[yy];
+                                bw3.BaseStream.Position = DataOffsetList[yy] + 16 + (48 * xx);
+                                OffTemp = br3.ReadInt32();
+                                bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
+                                if (OffTemp > 0)
+                                {
+                                    OffTemp = OffTemp + DataOffsetList[yy];
+                                    bw3.Write(OffTemp);
+                                }
+                                bw3.BaseStream.Position = DataOffsetList[yy] + 40 + (48 * xx);
+                                OffTemp = br3.ReadInt32();
+                                bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
+                                if (OffTemp > 0)
+                                {
+                                    OffTemp = OffTemp + DataOffsetList[yy];
+                                    bw3.Write(OffTemp);
+                                }
+
+                            }
+
+                            //Footer Things.
+                            bw3.BaseStream.Position = (DataOffsetList[(yy + 1)] - 280);
+                            OffTemp = br3.ReadInt32();
+                            OffTemp = OffTemp + DataOffsetList[yy];
+                            bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
+                            bw3.Write(OffTemp);
+                            bw3.BaseStream.Position = bw3.BaseStream.Position + 76;
+                            OffTemp = br3.ReadInt32();
+                            OffTemp = OffTemp + DataOffsetList[yy];
+                            bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
+                            bw3.Write(OffTemp);
+                            bw3.BaseStream.Position = bw3.BaseStream.Position + 76;
+                            OffTemp = br3.ReadInt32();
+                            OffTemp = OffTemp + DataOffsetList[yy];
+                            bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
+                            bw3.Write(OffTemp);
+                            bw3.BaseStream.Position = bw3.BaseStream.Position + 76;
+                            OffTemp = br3.ReadInt32();
+                            OffTemp = OffTemp + DataOffsetList[yy];
+                            bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
+                            bw3.Write(OffTemp);
+
+                        }
+
+
+                    }
+                }
+            }
+
+            lMT.UncompressedData = UnCompressedBuffer;
+            lMT.CompressedData = Zlibber.Compressor(lMT.UncompressedData);
+            lMT.EntryCount = Children.Count;
+            lMT._EntryCount = Children.Count;
+            lMT._FileType = ".lmt";
+            lMT.FileExt = ".lmt";
 
             return lMT;
 

@@ -39,7 +39,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int AnimDataSize;
         public string FileExt;
 
-        public LMTM3AEntry FillM3AProprties(LMTM3AEntry Anim, MemoryStream ms, int datalength, int ID, int RowTotal, int SecondOffset, BinaryReader bnr, int SecondaryCount, LMTEntry lmtentry)
+        public LMTM3AEntry FillM3AProprties(LMTM3AEntry Anim, int datalength, int ID, int RowTotal, int SecondOffset, BinaryReader bnr, int SecondaryCount, LMTEntry lmtentry)
         {
             LMTM3AEntry M3a = new LMTM3AEntry();
             M3a._FileType = ".m3a";
@@ -72,7 +72,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             M3a.BlockData = new byte[80];
             bnr.BaseStream.Position = lmtentry.OffsetList[ID];
             M3a.BlockData = bnr.ReadBytes(80);
-
+            M3a._MotionID = ID;
             using (MemoryStream msbd3a = new MemoryStream(M3a.BlockData))
             {
                 using (BinaryWriter bwbd3a = new BinaryWriter(msbd3a))
@@ -155,13 +155,14 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //Appends the Animation Block Data to the FullData.
             M3a.FullData = new byte[(M3a.AnimDataSize + 80)];
+            M3a._FileLength = M3a.FullData.LongLength;
             Array.Copy(M3a.RawData, 0, M3a.FullData, 0, M3a.RawData.Length);
             Array.Copy(M3a.BlockData, 0, M3a.FullData, M3a.RawData.Length, M3a.BlockData.Length);
 
             return Anim;
         }
 
-        public LMTM3AEntry FillBlankM3A(LMTM3AEntry Anim, MemoryStream ms, int datalength, int ID, int RowTotal, int SecondOffset, BinaryReader bnr, int SecondaryCount, LMTEntry lmtentry)
+        public LMTM3AEntry FillBlankM3A(LMTM3AEntry Anim, int datalength, int ID, int RowTotal, int SecondOffset, BinaryReader bnr, int SecondaryCount, LMTEntry lmtentry)
         {
             LMTM3AEntry M3a = new LMTM3AEntry();
             M3a._FileType = ".m3a";
@@ -180,25 +181,73 @@ namespace ThreeWorkTool.Resources.Wrappers
             M3a.ShortName = "AnimationID" + M3a.AnimationID;
             M3a.RawData = new byte[1];
             M3a.RawData[0] = 0x00;
+            M3a.BlockData = new byte[1];
             M3a.BlockData[0] = 0x00;
+            M3a.FullData = new byte[1];
             M3a.FullData[0] = 0x00;
             M3a.IsBlank = true;
+            M3a._MotionID = ID;
             Anim = M3a;
             return Anim;
         }
 
-        public static LMTM3AEntry ReplaceLMTEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        public static LMTM3AEntry ReplaceLMTM3AEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
         {
             LMTM3AEntry m3aentry = new LMTM3AEntry();
             LMTM3AEntry oldentry = new LMTM3AEntry();
 
             tree.BeginUpdate();
 
+            var tag = node.Tag;
+            if (tag is LMTM3AEntry)
+            {
+                oldentry = tag as LMTM3AEntry;
+            }
+
             //Builds the ma3entry. FInish This when you see it please.
             m3aentry._FileType = "m3a";
             m3aentry.FileExt = m3aentry._FileType;
+            m3aentry.FullData = System.IO.File.ReadAllBytes(filename);
 
+            using (MemoryStream MAThreeStream = new MemoryStream(m3aentry.FullData))
+            {
+                using (BinaryReader bnr = new BinaryReader(MAThreeStream))
+                {
 
+                    int projdatlength = m3aentry.FullData.Length - 80;
+                    m3aentry.RawData = new byte[(projdatlength)];
+                    Array.Copy(m3aentry.FullData, 0, m3aentry.RawData, 0, projdatlength);
+                    m3aentry.BlockData = new byte[80];
+                    projdatlength = m3aentry.FullData.Length - 80;
+                    Array.Copy(m3aentry.FullData, projdatlength, m3aentry.BlockData, 0, 80);
+                    bnr.BaseStream.Position = 0;
+
+                    bnr.BaseStream.Position = (m3aentry.FullData.Length - 80);
+
+                    m3aentry.AnimStart = bnr.ReadInt32();
+                    bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                    m3aentry.IndexRows = bnr.ReadInt32();
+                    m3aentry.FrameCount = bnr.ReadInt32();
+                    m3aentry._FrameTotal = m3aentry.FrameCount;
+                    m3aentry.UnknownValue10 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue10);
+                    m3aentry.UnknownValue14 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue14);
+                    m3aentry.UnknownValue18 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue18);
+                    m3aentry.UnknownValue1C = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue1C);
+                    m3aentry.UnknownValue20 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue20);
+                    m3aentry.UnknownValue24 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue24);
+                    m3aentry.UnknownValue28 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue28);
+                    m3aentry.UnknownValue2C = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue2C);
+                    m3aentry.UnknownValue30 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue30);
+                    m3aentry.UnknownValue34 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue34);
+                    m3aentry.UnknownValue38 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue38);
+                    m3aentry.UnknownFloat3C = bnr.ReadSingle();
+                    m3aentry.UnknownValue40 = bnr.ReadInt32();
+                    m3aentry.UnknownValue44 = bnr.ReadInt32();
+                    m3aentry.AnimEnd = bnr.ReadInt32();
+                    m3aentry.AnimDataSize = m3aentry.RawData.Length;
+                    m3aentry.AnimationID = oldentry.AnimationID;
+                }
+            }
 
             try
             {
@@ -208,12 +257,13 @@ namespace ThreeWorkTool.Resources.Wrappers
                     m3aentry.RawData = System.IO.File.ReadAllBytes(filename);
 
 
-
+                    /*
                     var tag = node.Tag;
                     if (tag is LMTM3AEntry)
                     {
                         oldentry = tag as LMTM3AEntry;
                     }
+                    */
 
                     tag = m3aentry;
 
@@ -256,6 +306,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             return node.entryfile as LMTM3AEntry;
         }
+
 
 
         #region MA3Entry Properties

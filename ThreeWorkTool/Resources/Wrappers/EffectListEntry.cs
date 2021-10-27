@@ -162,7 +162,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             effectList.Magic = ByteUtilitarian.BytesToString(MTemp, effectList.Magic);
 
             //These values at 0x04 seem identical based on what I've seen so far.
-            string SCTemp = " ";
+            //string SCTemp = " ";
             Array.Copy(effectList.UncompressedData, 4, MTemp, 0, 4);
             effectList.Magic = ByteUtilitarian.BytesToString(MTemp, effectList.WeirdConstant);
 

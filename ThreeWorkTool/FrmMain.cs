@@ -1159,6 +1159,7 @@ namespace ThreeWorkTool
             ArcEntry Aentry = new ArcEntry();
             OpenFileDialog RPDialog = new OpenFileDialog();
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
             if (tag is TextureEntry)
             {
                 Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
@@ -1240,6 +1241,7 @@ namespace ThreeWorkTool
                 }
 
             }
+
             else if (tag is ResourcePathListEntry)
             {
                 ResourcePathListEntry RPListEntry = new ResourcePathListEntry();
@@ -1328,6 +1330,7 @@ namespace ThreeWorkTool
 
 
             }
+
             else if (tag is MaterialEntry)
             {
                 MaterialEntry MatEntEntry = new MaterialEntry();
@@ -1412,6 +1415,7 @@ namespace ThreeWorkTool
 
 
             }
+
             else if (tag is MSDEntry)
             {
                 MSDEntry RPListEntry = new MSDEntry();
@@ -1500,6 +1504,7 @@ namespace ThreeWorkTool
 
 
             }
+
             else if (tag is LMTEntry)
             {
                 LMTEntry LMotTEntry = new LMTEntry();
@@ -1527,7 +1532,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = LMTEntry.ReplaceLMTEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = LMTContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as LMTEntry;
@@ -1610,7 +1615,7 @@ namespace ThreeWorkTool
                             Oldaent = OldWrapper.entryfile as LMTM3AEntry;
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
-                            NewWrapper.Tag = LMTEntry.ReplaceLMTEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.Tag = LMTM3AEntry.ReplaceLMTM3AEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
                             NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
@@ -1632,13 +1637,35 @@ namespace ThreeWorkTool
                     string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                     frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
+                    //Rebuilds the LMT. Hoo Boy.
+
+                    LMTEntry NewaentN = new LMTEntry();
+                    ArcEntryWrapper OutdatedWrapper = new ArcEntryWrapper();
+                    ArcEntryWrapper RebuiltLMTWrapper = new ArcEntryWrapper();
+                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+                    RebuiltLMTWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                    RebuiltLMTWrapper.Tag = LMTEntry.RebuildLMTEntry(frename.Mainfrm.TreeSource, RebuiltLMTWrapper);
+                    RebuiltLMTWrapper.ContextMenuStrip = LMTContextAdder(RebuiltLMTWrapper, frename.Mainfrm.TreeSource);
+                    frename.Mainfrm.IconSetter(RebuiltLMTWrapper, RebuiltLMTWrapper.FileExt);
+                    //Takes the path data from the old node and slaps it on the new node.
+                    OutdatedWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                    LMTEntry OldLMT = new LMTEntry();
+                    OldLMT = OutdatedWrapper.entryfile as LMTEntry;
+                    NewaentN.FileExt = OldLMT.FileExt;
+                    NewaentN.FileName = OldLMT.FileName;
+                    string[] paths = OldLMT.EntryDirs;
+                    NewaentN = RebuiltLMTWrapper.entryfile as LMTEntry;
+                    NewaentN.EntryDirs = paths;
+                    RebuiltLMTWrapper.entryfile = NewaentN;
+                    
+                    frename.Mainfrm.TreeSource.SelectedNode = RebuiltLMTWrapper;
+
                     frename.Mainfrm.TreeSource.EndUpdate();
 
                 }
 
 
             }
-
 
             else
             {
@@ -3222,18 +3249,7 @@ namespace ThreeWorkTool
 
         public void LMTChildrenCreation(int E, string F, string G, string[] H, string I, ArcEntryWrapper MEntry, LMTEntry lmtentry)
         {
-            /*
-            //Makes the Animation Subfolder.
-            TreeNode folder = new TreeNode();
-            folder.Name = "Animations";
-            folder.Tag = "Folder";
-            folder.Text = "Animations";
 
-            TreeSource.SelectedNode.Nodes.Add(folder);
-            TreeSource.SelectedNode = folder;
-            TreeSource.SelectedNode.ImageIndex = 2;
-            TreeSource.SelectedNode.SelectedImageIndex = 2;
-            */
             TreeSource.SelectedNode = MEntry;
 
             //Fills in MA3 files used in the Animation folder.
@@ -3241,7 +3257,7 @@ namespace ThreeWorkTool
             {
 
                 TreeNode lma3 = new TreeNode();
-                lma3.Name = lmtentry.LstM3A[i].ShortName;
+                lma3.Name = Convert.ToString(lmtentry.LstM3A[i].AnimationID);
                 lma3.Tag = lmtentry.LstM3A[i];
                 lma3.Text = lmtentry.LstM3A[i].ShortName;
                 lma3.ImageIndex = 18;
@@ -3288,6 +3304,11 @@ namespace ThreeWorkTool
             {
                 wrapper.ImageIndex = 17;
                 wrapper.SelectedImageIndex = 17;
+            }
+            else if (extension == ".lmt")
+            {
+                wrapper.ImageIndex = 9;
+                wrapper.SelectedImageIndex = 9;
             }
             else
             {
