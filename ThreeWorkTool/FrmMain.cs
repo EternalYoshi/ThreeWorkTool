@@ -1046,7 +1046,7 @@ namespace ThreeWorkTool
                     {
 
                         MAThreeentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as LMTM3AEntry;
-                        EXDialog.Filter = ExportFilters.GetFilter(".ma3");
+                        EXDialog.Filter = ExportFilters.GetFilter(".m3a");
                     }
                     EXDialog.FileName = MAThreeentry.ShortName;
 
@@ -1531,13 +1531,15 @@ namespace ThreeWorkTool
                             string[] paths = Oldaent.EntryDirs;
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
-                            NewWrapper.Tag = LMTEntry.ReplaceLMTEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.Tag = LMTEntry.ReplaceLMTEntry(frename.Mainfrm.TreeSource, NewWrapper, OldWrapper, RPDialog.FileName);
                             NewWrapper.ContextMenuStrip = LMTContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as LMTEntry;
                             Newaent.EntryDirs = paths;
                             NewWrapper.entryfile = Newaent;
+                            NewWrapper.Name = OldWrapper.Name;
+                            NewWrapper.Text = OldWrapper.Text;
 
                             frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
 
@@ -1644,18 +1646,20 @@ namespace ThreeWorkTool
                     ArcEntryWrapper RebuiltLMTWrapper = new ArcEntryWrapper();
                     frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.TreeSource.SelectedNode.Parent;
                     RebuiltLMTWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                    RebuiltLMTWrapper.Tag = LMTEntry.RebuildLMTEntry(frename.Mainfrm.TreeSource, RebuiltLMTWrapper);
+                    NewaentN = RebuiltLMTWrapper.Tag as LMTEntry;
+                    NewaentN = LMTEntry.RebuildLMTEntry(frename.Mainfrm.TreeSource, RebuiltLMTWrapper);
                     RebuiltLMTWrapper.ContextMenuStrip = LMTContextAdder(RebuiltLMTWrapper, frename.Mainfrm.TreeSource);
                     frename.Mainfrm.IconSetter(RebuiltLMTWrapper, RebuiltLMTWrapper.FileExt);
                     //Takes the path data from the old node and slaps it on the new node.
                     OutdatedWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                     LMTEntry OldLMT = new LMTEntry();
                     OldLMT = OutdatedWrapper.entryfile as LMTEntry;
-                    NewaentN.FileExt = OldLMT.FileExt;
-                    NewaentN.FileName = OldLMT.FileName;
+                    //Transfer the LMT's properties that can't really be done outside of that class.
+                    NewaentN = LMTEntry.TransferLMTEntryProperties(OldLMT, NewaentN);
                     string[] paths = OldLMT.EntryDirs;
-                    NewaentN = RebuiltLMTWrapper.entryfile as LMTEntry;
+                    //NewaentN = RebuiltLMTWrapper.entryfile as LMTEntry;
                     NewaentN.EntryDirs = paths;
+                    RebuiltLMTWrapper.Tag = NewaentN;
                     RebuiltLMTWrapper.entryfile = NewaentN;
                     
                     frename.Mainfrm.TreeSource.SelectedNode = RebuiltLMTWrapper;
@@ -3224,7 +3228,7 @@ namespace ThreeWorkTool
             for (int i = 0; i < material.TextureCount; i++)
             {
 
-                TreeNode Texture = new TreeNode();
+                ArcEntryWrapper Texture = new ArcEntryWrapper();
                 Texture.Name = material.Textures[i].FullTexName;
                 Texture.Tag = material.Textures[i];
                 Texture.Text = material.Textures[i].FullTexName;
@@ -3256,7 +3260,7 @@ namespace ThreeWorkTool
             for (int i = 0; i < lmtentry.LstM3A.Count; i++)
             {
 
-                TreeNode lma3 = new TreeNode();
+                ArcEntryWrapper lma3 = new ArcEntryWrapper();
                 lma3.Name = Convert.ToString(lmtentry.LstM3A[i].AnimationID);
                 lma3.Tag = lmtentry.LstM3A[i];
                 lma3.Text = lmtentry.LstM3A[i].ShortName;

@@ -95,10 +95,11 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
         }
 
-        public static LMTEntry ReplaceLMTEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        public static LMTEntry ReplaceLMTEntry(TreeView tree, ArcEntryWrapper node, ArcEntryWrapper OldNode, string filename, Type filetype = null)
         {
             LMTEntry lmtentry = new LMTEntry();
             LMTEntry oldentry = new LMTEntry();
+            oldentry = OldNode.Tag as LMTEntry;
 
             tree.BeginUpdate();
 
@@ -174,6 +175,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                             bnr.BaseStream.Position = 6;
                             lmtentry.SomeNumber = bnr.ReadInt16();
                             lmtentry.EntryCount = lmtentry.SomeNumber;
+                            lmtentry.OffsetList = new List<int>();
+                            lmtentry.LstM3A = new List<LMTM3AEntry>();
 
                             //Gets all the offsets. ALL OF THEM.
                             while (count < (lmtentry.SomeNumber))
@@ -212,7 +215,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                     }
 
 
-
+                    lmtentry.TrueName = oldentry.TrueName;
+                    lmtentry._FileName = oldentry._FileName;
+                    lmtentry.EntryName = oldentry.EntryName;
 
 
                     var tag = node.Tag;
@@ -417,7 +422,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //Now to rebuild from scratch.
             List<byte> NewUncompressedData = new List<byte>();
-            byte[] Header = { 0x4C, 0x4D, 0x54, 0x00, 0x00, 0x00 };
+            byte[] Header = { 0x4C, 0x4D, 0x54, 0x00, 0x43, 0x00 };
             byte[] PlaceHolderEntry = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
             byte[] BlankLine = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
             byte[] BlankHalf = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -564,24 +569,24 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                             //Footer Things.
                             bw3.BaseStream.Position = (DataOffsetList[(yy + 1)] - 280);
-                            OffTemp = br3.ReadInt32();
-                            OffTemp = OffTemp + DataOffsetList[yy];
-                            bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
+                            //OffTemp = br3.ReadInt32();
+                            OffTemp = DataOffsetList[(yy + 1)] - 32;
+                            //bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
                             bw3.Write(OffTemp);
                             bw3.BaseStream.Position = bw3.BaseStream.Position + 76;
-                            OffTemp = br3.ReadInt32();
-                            OffTemp = OffTemp + DataOffsetList[yy];
-                            bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
+                            //OffTemp = br3.ReadInt32();
+                            OffTemp = DataOffsetList[(yy + 1)] - 24;
+                            //bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
                             bw3.Write(OffTemp);
                             bw3.BaseStream.Position = bw3.BaseStream.Position + 76;
-                            OffTemp = br3.ReadInt32();
-                            OffTemp = OffTemp + DataOffsetList[yy];
-                            bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
+                            //OffTemp = br3.ReadInt32();
+                            OffTemp = DataOffsetList[(yy + 1)] - 16;
+                            //bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
                             bw3.Write(OffTemp);
                             bw3.BaseStream.Position = bw3.BaseStream.Position + 76;
-                            OffTemp = br3.ReadInt32();
-                            OffTemp = OffTemp + DataOffsetList[yy];
-                            bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
+                            //OffTemp = br3.ReadInt32();
+                            OffTemp = DataOffsetList[(yy + 1)] - 8;
+                            //bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
                             bw3.Write(OffTemp);
 
                         }
@@ -600,6 +605,23 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             return lMT;
 
+        }
+
+        public static LMTEntry TransferLMTEntryProperties(LMTEntry OldLMT, LMTEntry NewLMT, Type filetype = null)
+        {
+
+            NewLMT._FileName = OldLMT._FileName;
+            NewLMT._CompressedFileLength = NewLMT.CompressedData.Length;
+            NewLMT._DecompressedFileLength = NewLMT.UncompressedData.Length;
+            NewLMT.FileExt = OldLMT.FileExt;
+            NewLMT.FileName = OldLMT.FileName;
+            NewLMT.TrueName = OldLMT.TrueName;
+            NewLMT.EntryDirs = OldLMT.EntryDirs;
+            NewLMT.EntryID = OldLMT.EntryID;
+            NewLMT.TypeHash = OldLMT.TypeHash;
+            NewLMT.EntryName = OldLMT.EntryName;
+
+            return NewLMT;
         }
 
         #region LMTEntry Properties

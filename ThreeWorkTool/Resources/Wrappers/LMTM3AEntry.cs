@@ -128,24 +128,24 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         //Adjusts the offsets in the footer.
                         bwm3a.BaseStream.Position = (bwm3a.BaseStream.Length - 280);
-                        OffTemp = brm3a.ReadInt32();
-                        OffTemp = OffTemp - M3a.AnimStart;
-                        bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
+                        //OffTemp = brm3a.ReadInt32();
+                        OffTemp = M3a.RawData.Length - 32;
+                        //bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
                         bwm3a.Write(OffTemp);
                         bwm3a.BaseStream.Position = bwm3a.BaseStream.Position + 76;
-                        OffTemp = brm3a.ReadInt32();
-                        OffTemp = OffTemp - M3a.AnimStart;
-                        bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
+                        //OffTemp = brm3a.ReadInt32();
+                        OffTemp = M3a.RawData.Length - 24;
+                        //bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
                         bwm3a.Write(OffTemp);
                         bwm3a.BaseStream.Position = bwm3a.BaseStream.Position + 76;
-                        OffTemp = brm3a.ReadInt32();
-                        OffTemp = OffTemp - M3a.AnimStart;
-                        bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
+                        //OffTemp = brm3a.ReadInt32();
+                        OffTemp = M3a.RawData.Length - 16;
+                        //bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
                         bwm3a.Write(OffTemp);
                         bwm3a.BaseStream.Position = bwm3a.BaseStream.Position + 76;
-                        OffTemp = brm3a.ReadInt32();
-                        OffTemp = OffTemp - M3a.AnimStart;
-                        bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
+                        //OffTemp = brm3a.ReadInt32();
+                        OffTemp = M3a.RawData.Length - 8;
+                        //bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
                         bwm3a.Write(OffTemp);
 
                     }

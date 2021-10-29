@@ -15,7 +15,7 @@
 
         public static string rMotionList = "MotionList (*.lmt)|*.lmt";
 
-        public static string rMA3 = "MT Animation (*.m3a)|*.m3a";
+        public static string rM3A = "MT Animation (*.m3a)|*.m3a";
 
         public static string Etc = "All Files (*.*)|*.*";
         
@@ -39,8 +39,8 @@
                 case ".lmt":
                     return rMotionList;
 
-                case ".ma3":
-                    return rMA3;
+                case ".m3a":
+                    return rM3A;
 
                 default:
                     return Etc; 
