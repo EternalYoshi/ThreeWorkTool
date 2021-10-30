@@ -3314,6 +3314,11 @@ namespace ThreeWorkTool
                 wrapper.ImageIndex = 9;
                 wrapper.SelectedImageIndex = 9;
             }
+            else if (extension == ".m3a")
+            {
+                wrapper.ImageIndex = 18;
+                wrapper.SelectedImageIndex = 18;
+            }
             else
             {
                 wrapper.ImageIndex = 16;
@@ -3917,5 +3922,10 @@ namespace ThreeWorkTool
 
         }
 
+        //For Future MRU implementation.
+        private void MenuRecentFiles_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
     }
 }

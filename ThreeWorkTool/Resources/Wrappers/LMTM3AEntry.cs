@@ -88,7 +88,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             M3a.AnimationID = ID;
             M3a.FileName = "AnimationID" + M3a.AnimationID + ".m3a";
             M3a.ShortName = "AnimationID" + M3a.AnimationID;
-            M3a.IsBlank = false;
+            M3a._IsBlank = false;
             Anim = M3a;
 
             //Subtracts pointers in there by the data offset to get their base value.
@@ -229,6 +229,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     m3aentry.IndexRows = bnr.ReadInt32();
                     m3aentry.FrameCount = bnr.ReadInt32();
                     m3aentry._FrameTotal = m3aentry.FrameCount;
+                    m3aentry.IsBlank = false;
                     m3aentry.UnknownValue10 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue10);
                     m3aentry.UnknownValue14 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue14);
                     m3aentry.UnknownValue18 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue18);
@@ -368,6 +369,24 @@ namespace ThreeWorkTool.Resources.Wrappers
             set
             {
                 _FrameTotal = value;
+            }
+
+        }
+
+        [Category("MT ARC Entry"), ReadOnlyAttribute(true)]
+        public int IndexRowTotal
+        {
+
+            get
+            {
+                //return _IndexRowTotal;
+                return IndexRows;
+            }
+            set
+            {
+                //_IndexRowTotal = value;
+                IndexRows = value;
+
             }
 
         }
