@@ -13,6 +13,22 @@ Thanks to TGE and smb123w64gb for assistance and giving me the resources that ma
 By Eternal Yoshi
 
 Current Changelog:
+V0.30
+
+- Reorganized and Rewrote file reading and file writing coding of all types of files to be more stable, optimal, and quicker.
+- Improved error checking:
+- Now detects invalid arc files that are not in the inverse endian.
+- Fixed crashing when trying to open an invalid or unsupported Arc.
+- Fixed crash if Close is selected without opening a file.
+- Fixed an issue causing replaced DDS files to use the newly replaced filename rather than the original.
+- Used the Actual complete Hash List and fixed typos with .ean and .xsew files.
+- Export All Option added(Folders only)
+- Partial MSD Support(Only English Alphabet characters and some accents supported); has a new form that must be loaded to view or edit.
+- The FileAmount parameter on Arc Files actually shows the amount of files inside the .arc file.
+- Fixed an issue with saving arc files with over 300 files that would cause data to overwrite and corrupt the arc.
+- Added the selected Item's Context Menu Options to the Edit button dynamically; anything you have to right click to do can be done in the Edit Menu.
+- LMT support that still needs more testing, right now supports replacing and exporting individual entries in the .LMT files.
+
 V2.1
 - Fixed an issue that prevented Arc files with more than 255 files from being read and saved correctly.
 
@@ -38,3 +54,10 @@ DXT1 and DXT5 have differing compression formulas meaning you can't interchange 
 - Normal Maps in Marvel 3 have their Red and Alpha channels swapped. If you make or edit these normal maps, keep this in mind.
 - Portraits have to be saved DXT5 in your image editing software to work, no need to save it as a DXT1 and then hex edit it to DXT5. In the TexConverter Dialog, select the option that says Problematic Portrait Texture or whatever when importing.
 - This program was designed around DDS files generated from the newer NVIDA Photoshop DDS Plugin found here: https://developer.nvidia.com/2020.1.1/nvidia_texture_tools_exporter_photoshop_plugin
+- MSD files must be viewed and edited by Right Clicking/Selecting Edit and selecting Preview/Edit. The encoding is unknown(it is NOT ASCII)
+and only English Alphabet characters and accents used in French and Spanish are supported. The Line break denotations are there
+for a reason; don't remove them unless you know what you are doing. Edit at your own risk!
+
+- LMT Entry names start from 0, not 1.
+
+- To get this to work I had to redefine the .m3a format. Any .m3a files made from other methods will NOT be compatible with this program.
