@@ -59,9 +59,6 @@ and only English Alphabet characters and accents used in French and Spanish are 
 for a reason; don't remove them unless you know what you are doing. Edit at your own risk!
 
 - LMT Entry names start from 0, not 1. Those using the AnmChr editor have to be aware that the IDs here are written in decimal and not in hex, often going up to 255.
-
 - To get this to work I had to redefine the .m3a format. Any .m3a files made from other methods will NOT be compatible with this program.
-
-- While you can't make new entries in the LMT(yet), you can replace a blank entry in the LMT file just like you would with a populated entry.
-
-- Replacing/injecting entries means the LMT file is going to be rebuilt so replacing will take an extra second or two.
+- While you can't make new entries in an LMT(yet), you can replace a blank entry in the LMT file just like you would with a populated entry.
+- Replacing/injecting m3a entries means the respective LMT file is going to be rebuilt so replacing will take an extra second or two.
