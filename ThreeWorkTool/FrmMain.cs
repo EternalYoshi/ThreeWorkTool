@@ -106,47 +106,37 @@ namespace ThreeWorkTool
 
         private void MenuOpen_Click(object sender, EventArgs e)
         {
-            //This is where the alloted file extensions are chosen.
-            OFDialog.Filter = "MT Framework Archive| *.arc";
-            if (OFDialog.ShowDialog() == DialogResult.OK)
+
+            if (OpenFileModified == true)
             {
-                try
+                DialogResult dlrs = MessageBox.Show("Want to save your changes to this file/n before opening another one?", "Closing", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
+                if (dlrs == DialogResult.Yes)
                 {
-                    NCount = 0;
-                    OFilename = OFDialog.FileName;
-                    isFinishRPLRead = false;
-                    FilePath = OFilename;
-                    OpenDX(FilePath);
-
-                    OpenFileModified = false;
-
-                    //Fills in the Tree node.
-                    CExt = Path.GetExtension(OFDialog.FileName);
-                    txtBoxCurrentFile.Text = OFDialog.FileName;
-
-                    //For Arc files. Function Has a more up to date file reading and writing method. More types will be added soon.
-                    if (CExt == ".arc")
-                    {
-                        ArcFill();
-                    }
-                    else
-                    {
-                        MessageBox.Show("I cannot recognize the input file right now.");
-                    }
-
+                    MenuSaveAs_Click(sender, e);
                     picBoxA.Visible = false;
-
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    MessageBox.Show("Unable to access the file. Maybe it's already in use by something else?", "Oh no it's an error.");
+                    FlushAndClean();
+                    //Writes to log file.
                     using (StreamWriter sw = File.AppendText("Log.txt"))
                     {
-                        sw.WriteLine("Cannot access the file:" + "\nMight be in use by another proccess.");
+                        sw.WriteLine("Closed the Arc file.");
                     }
+                    OpenAFile(sender, e);
+                }
+                if (dlrs == DialogResult.No)
+                {
+                    picBoxA.Visible = false;
+                    FlushAndClean();
+                    OpenAFile(sender, e);
+                }
+                if (dlrs == DialogResult.Cancel)
+                {
                     return;
                 }
-
+            }
+            else
+            {
+                OpenAFile(sender, e);
             }
         }
 
@@ -804,6 +794,53 @@ namespace ThreeWorkTool
             }
         }
 
+        //Open File Code is here now.
+        private void OpenAFile(object sender, EventArgs e)
+        {
+            //This is where the alloted file extensions are chosen.
+            OFDialog.Filter = "MT Framework Archive| *.arc";
+            if (OFDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    NCount = 0;
+                    OFilename = OFDialog.FileName;
+                    isFinishRPLRead = false;
+                    FilePath = OFilename;
+                    OpenDX(FilePath);
+
+                    OpenFileModified = false;
+
+                    //Fills in the Tree node.
+                    CExt = Path.GetExtension(OFDialog.FileName);
+                    txtBoxCurrentFile.Text = OFDialog.FileName;
+
+                    //For Arc files. Function Has a more up to date file reading and writing method. More types will be added soon.
+                    if (CExt == ".arc")
+                    {
+                        ArcFill();
+                    }
+                    else
+                    {
+                        MessageBox.Show("I cannot recognize the input file right now.");
+                    }
+
+                    picBoxA.Visible = false;
+
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    MessageBox.Show("Unable to access the file. Maybe it's already in use by something else?", "Oh no it's an error.");
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Cannot access the file:" + "\nMight be in use by another proccess.");
+                    }
+                    return;
+                }
+
+            }
+        }
+
         //Function for unloading all the assets from the previously open file.
         private static void FlushAndClean()
         {
@@ -822,6 +859,8 @@ namespace ThreeWorkTool
                 frename.Mainfrm.txtBoxCurrentFile.Text = null;
                 frename.Mainfrm.pGrdMain.SelectedObject = null;
                 frename.Mainfrm.picBoxA.Image = null;
+                frename.Mainfrm.Controls.Clear();
+                frename.Mainfrm.InitializeComponent();
             }
         }
 
@@ -1661,7 +1700,7 @@ namespace ThreeWorkTool
                     NewaentN.EntryDirs = paths;
                     RebuiltLMTWrapper.Tag = NewaentN;
                     RebuiltLMTWrapper.entryfile = NewaentN;
-                    
+
                     frename.Mainfrm.TreeSource.SelectedNode = RebuiltLMTWrapper;
 
                     frename.Mainfrm.TreeSource.EndUpdate();
