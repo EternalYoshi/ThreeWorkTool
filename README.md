@@ -62,3 +62,5 @@ for a reason; don't remove them unless you know what you are doing. Edit at your
 - To get this to work I had to redefine the .m3a format. Any .m3a files made from other methods will NOT be compatible with this program.
 - While you can't make new entries in an LMT(yet), you can replace a blank entry in the LMT file just like you would with a populated entry.
 - Replacing/injecting m3a entries means the respective LMT file is going to be rebuilt so replacing will take an extra second or two.
+
+- Remember that you can export textures as .DDS files. You can select the extension between .tex(which is by default), .dds, and .png via the Export option's Dialog.
