@@ -52,9 +52,10 @@ DXT1 and DXT5 have differing compression formulas meaning you can't interchange 
 - DXT1 files can only be imported as regular textures without transparency and specular textures. If you want to save it as other formats, you have to add an alpha channel in your image editing software(if it doesn't exist already) and save it as a DXT5.
 - DXT5 can't be saved as normal textures without transparency and specular textures. Just save it as a DXT1 in your image editing software.
 - Normal Maps in Marvel 3 have their Red and Alpha channels swapped. If you make or edit these normal maps, keep this in mind.
-- Portraits have to be saved DXT5 in your image editing software to work, no need to save it as a DXT1 and then hex edit it to DXT5. In the TexConverter Dialog, select the option that says Problematic Portrait Texture or whatever when importing.
-- This program was designed around DDS files generated from the newer NVIDA Photoshop DDS Plugin found here: https://developer.nvidia.com/2020.1.1/nvidia_texture_tools_exporter_photoshop_plugin
-- MSD files must be viewed and edited by Right Clicking/Selecting Edit and selecting Preview/Edit. The encoding is unknown(it is NOT ASCII)
+- Portraits have to be saved DXT5 in your image editing software to work, no need to save it as a DXT1 and then hex edit it to DXT5. In the TexConverter Dialog, select the option that says ~~Problematic Portrait Texture or whatever~~ DXT5 when importing. Make sure it has an alpha channel in your image editing software before you save it.
+This program was designed around DDS files generated from the newer NVIDA Photoshop DDS Plugin found here: https://developer.nvidia.com/2020.1.1/nvidia_texture_tools_exporter_photoshop_plugin
+
+MSD files must be viewed and edited by Right Clicking/Selecting Edit and selecting Preview/Edit. The encoding is unknown(it is NOT ASCII)
 and only English Alphabet characters and accents used in French and Spanish are supported. The Line break denotations are there
 for a reason; don't remove them unless you know what you are doing. Edit at your own risk!
 
@@ -63,4 +64,4 @@ for a reason; don't remove them unless you know what you are doing. Edit at your
 - While you can't make new entries in an LMT(yet), you can replace a blank entry in the LMT file just like you would with a populated entry.
 - Replacing/injecting m3a entries means the respective LMT file is going to be rebuilt so replacing will take an extra second or two.
 
-- Remember that you can export textures as .DDS files. You can select the extension between .tex(which is by default), .dds, and .png via the Export option's Dialog.
+Remember that you can export textures as .DDS files. You can select the extension between .tex(which is by default), .dds, and .png via the Export option's Dialog.
