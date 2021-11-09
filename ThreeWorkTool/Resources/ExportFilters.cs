@@ -18,7 +18,13 @@
         public static string rM3A = "MT Animation (*.m3a)|*.m3a";
 
         public static string Etc = "All Files (*.*)|*.*";
-        
+
+        public static string rChainSetup = "MT Physics Setup File (*.cst)|*.cst";
+
+        public static string rChain = "MT Physics File (*.chn)|*.chn";
+
+        public static string rChainCollision = "MT Physics Collision File (*.ccl)|*.ccl";
+
         public static string GetFilter(string filetype)
         {
 
@@ -41,6 +47,15 @@
 
                 case ".m3a":
                     return rM3A;
+
+                case ".cst":
+                    return rChainSetup;
+
+                case ".chn":
+                    return rChain;
+
+                case ".ccl":
+                    return rChainCollision;
 
                 default:
                     return Etc; 

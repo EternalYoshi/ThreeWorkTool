@@ -248,6 +248,10 @@ namespace ThreeWorkTool
                                     MSDEntry msdenty = new MSDEntry();
                                     MaterialEntry matent = new MaterialEntry();
                                     LMTEntry lmtenty = new LMTEntry();
+                                    ChainListEntry cstenty = new ChainListEntry();
+                                    ChainEntry chnenty = new ChainEntry();
+                                    ChainCollisionEntry cclentry = new ChainCollisionEntry();
+
                                     //This is for the filenames and everything after.
                                     foreach (TreeNode treno in Nodes)
                                     {
@@ -572,6 +576,195 @@ namespace ThreeWorkTool
 
                                             //For the unpacked size. No clue why all the entries "start" with 40.
                                             DecSize = lmtenty.UncompressedData.Length + 1073741824;
+                                            string DecSizeHex = DecSize.ToString("X8");
+                                            byte[] DePacked = new byte[4];
+                                            DePacked = StringToByteArray(DecSizeHex);
+                                            Array.Reverse(DePacked);
+                                            bwr.Write(DePacked, 0, DePacked.Length);
+
+                                            //Starting Offset.
+                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                            byte[] DEOffed = new byte[4];
+                                            DEOffed = StringToByteArray(DataEntrySizeHex);
+                                            Array.Reverse(DEOffed);
+                                            bwr.Write(DEOffed, 0, DEOffed.Length);
+                                            DataEntryOffset = DataEntryOffset + ComSize;
+
+                                        }
+                                        else if (treno.Tag as ChainListEntry != null)
+                                        {
+                                            cstenty = treno.Tag as ChainListEntry;
+                                            exportname = "";
+
+                                            exportname = treno.FullPath;
+                                            int inp = (exportname.IndexOf("\\")) + 1;
+                                            exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                            int NumberChars = exportname.Length;
+                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                            int nblength = namebuffer.Length;
+
+                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                            byte[] writenamedata = new byte[64];
+                                            Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                            for (int i = 0; i < namebuffer.Length; ++i)
+                                            {
+                                                writenamedata[i] = namebuffer[i];
+                                            }
+
+                                            bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                            //For the typehash.
+                                            HashType = "326F732E";
+                                            byte[] HashBrown = new byte[4];
+                                            HashBrown = StringToByteArray(HashType);
+                                            Array.Reverse(HashBrown);
+                                            if (HashBrown.Length < 4)
+                                            {
+                                                byte[] PartHash = new byte[] { };
+                                                PartHash = HashBrown;
+                                                Array.Resize(ref HashBrown, 4);
+                                            }
+                                            bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                            //For the compressed size.
+                                            ComSize = cstenty.CompressedData.Length;
+                                            string ComSizeHex = ComSize.ToString("X8");
+                                            byte[] ComPacked = new byte[4];
+                                            ComPacked = StringToByteArray(ComSizeHex);
+                                            Array.Reverse(ComPacked);
+                                            bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                            //For the unpacked size. No clue why all the entries "start" with 40.
+                                            DecSize = cstenty.UncompressedData.Length + 1073741824;
+                                            string DecSizeHex = DecSize.ToString("X8");
+                                            byte[] DePacked = new byte[4];
+                                            DePacked = StringToByteArray(DecSizeHex);
+                                            Array.Reverse(DePacked);
+                                            bwr.Write(DePacked, 0, DePacked.Length);
+
+                                            //Starting Offset.
+                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                            byte[] DEOffed = new byte[4];
+                                            DEOffed = StringToByteArray(DataEntrySizeHex);
+                                            Array.Reverse(DEOffed);
+                                            bwr.Write(DEOffed, 0, DEOffed.Length);
+                                            DataEntryOffset = DataEntryOffset + ComSize;
+
+                                        }
+                                        else if (treno.Tag as ChainEntry != null)
+                                        {
+                                            chnenty = treno.Tag as ChainEntry;
+                                            exportname = "";
+
+                                            exportname = treno.FullPath;
+                                            int inp = (exportname.IndexOf("\\")) + 1;
+                                            exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                            int NumberChars = exportname.Length;
+                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                            int nblength = namebuffer.Length;
+
+                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                            byte[] writenamedata = new byte[64];
+                                            Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                            for (int i = 0; i < namebuffer.Length; ++i)
+                                            {
+                                                writenamedata[i] = namebuffer[i];
+                                            }
+
+                                            bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                            //For the typehash.
+                                            HashType = "3E363245";
+                                            byte[] HashBrown = new byte[4];
+                                            HashBrown = StringToByteArray(HashType);
+                                            Array.Reverse(HashBrown);
+                                            if (HashBrown.Length < 4)
+                                            {
+                                                byte[] PartHash = new byte[] { };
+                                                PartHash = HashBrown;
+                                                Array.Resize(ref HashBrown, 4);
+                                            }
+                                            bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                            //For the compressed size.
+                                            ComSize = chnenty.CompressedData.Length;
+                                            string ComSizeHex = ComSize.ToString("X8");
+                                            byte[] ComPacked = new byte[4];
+                                            ComPacked = StringToByteArray(ComSizeHex);
+                                            Array.Reverse(ComPacked);
+                                            bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                            //For the unpacked size. No clue why all the entries "start" with 40.
+                                            DecSize = chnenty.UncompressedData.Length + 1073741824;
+                                            string DecSizeHex = DecSize.ToString("X8");
+                                            byte[] DePacked = new byte[4];
+                                            DePacked = StringToByteArray(DecSizeHex);
+                                            Array.Reverse(DePacked);
+                                            bwr.Write(DePacked, 0, DePacked.Length);
+
+                                            //Starting Offset.
+                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                            byte[] DEOffed = new byte[4];
+                                            DEOffed = StringToByteArray(DataEntrySizeHex);
+                                            Array.Reverse(DEOffed);
+                                            bwr.Write(DEOffed, 0, DEOffed.Length);
+                                            DataEntryOffset = DataEntryOffset + ComSize;
+
+                                        }
+                                        else if (treno.Tag as ChainCollisionEntry != null)
+                                        {
+                                            cclentry = treno.Tag as ChainCollisionEntry;
+                                            exportname = "";
+
+                                            exportname = treno.FullPath;
+                                            int inp = (exportname.IndexOf("\\")) + 1;
+                                            exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                            int NumberChars = exportname.Length;
+                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                            int nblength = namebuffer.Length;
+
+                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                            byte[] writenamedata = new byte[64];
+                                            Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                            for (int i = 0; i < namebuffer.Length; ++i)
+                                            {
+                                                writenamedata[i] = namebuffer[i];
+                                            }
+
+                                            bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                            //For the typehash.
+                                            HashType = "0026E7FF";
+                                            byte[] HashBrown = new byte[4];
+                                            HashBrown = StringToByteArray(HashType);
+                                            Array.Reverse(HashBrown);
+                                            if (HashBrown.Length < 4)
+                                            {
+                                                byte[] PartHash = new byte[] { };
+                                                PartHash = HashBrown;
+                                                Array.Resize(ref HashBrown, 4);
+                                            }
+                                            bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                            //For the compressed size.
+                                            ComSize = cclentry.CompressedData.Length;
+                                            string ComSizeHex = ComSize.ToString("X8");
+                                            byte[] ComPacked = new byte[4];
+                                            ComPacked = StringToByteArray(ComSizeHex);
+                                            Array.Reverse(ComPacked);
+                                            bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                            //For the unpacked size. No clue why all the entries "start" with 40.
+                                            DecSize = cclentry.UncompressedData.Length + 1073741824;
                                             string DecSizeHex = DecSize.ToString("X8");
                                             byte[] DePacked = new byte[4];
                                             DePacked = StringToByteArray(DecSizeHex);
@@ -3134,6 +3327,183 @@ namespace ThreeWorkTool
 
                 #endregion
 
+                #region ChainList Files
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainListEntry":
+                    ArcEntryWrapper cstchild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+
+                    //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+
+                    cstchild.Name = I;
+                    cstchild.Tag = FEntry as ChainListEntry;
+                    cstchild.Text = I;
+                    cstchild.entryfile = FEntry as ChainListEntry;
+                    cstchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = cstchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(cstchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var cstrootNode = FindRootNode(cstchild);
+
+                    TreeSource.SelectedNode = cstchild;
+                    TreeSource.SelectedNode.ImageIndex = 19;
+                    TreeSource.SelectedNode.SelectedImageIndex = 19;
+
+
+                    cstchild.ContextMenuStrip = GenericFileContextAdder(cstchild, TreeSource);
+
+                    TreeSource.SelectedNode = cstrootNode;
+
+                    tcount++;
+
+                    break;
+
+                #endregion
+
+                #region Chain Files
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainEntry":
+                    ArcEntryWrapper chnchild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+
+                    //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+
+                    chnchild.Name = I;
+                    chnchild.Tag = FEntry as ChainEntry;
+                    chnchild.Text = I;
+                    chnchild.entryfile = FEntry as ChainEntry;
+                    chnchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = chnchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(chnchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var chnrootNode = FindRootNode(chnchild);
+
+                    TreeSource.SelectedNode = chnchild;
+                    TreeSource.SelectedNode.ImageIndex = 20;
+                    TreeSource.SelectedNode.SelectedImageIndex = 20;
+
+
+                    chnchild.ContextMenuStrip = GenericFileContextAdder(chnchild, TreeSource);
+
+                    TreeSource.SelectedNode = chnrootNode;
+
+                    tcount++;
+
+                    break;
+
+                #endregion
+
+                #region Chain Collision Files
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainCollisionEntry":
+                    ArcEntryWrapper cclchild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+
+                    //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+
+                    cclchild.Name = I;
+                    cclchild.Tag = FEntry as ChainCollisionEntry;
+                    cclchild.Text = I;
+                    cclchild.entryfile = FEntry as ChainCollisionEntry;
+                    cclchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = cclchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(cclchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var cclrootNode = FindRootNode(cclchild);
+
+                    TreeSource.SelectedNode = cclchild;
+                    TreeSource.SelectedNode.ImageIndex = 21;
+                    TreeSource.SelectedNode.SelectedImageIndex = 21;
+
+
+                    cclchild.ContextMenuStrip = GenericFileContextAdder(cclchild, TreeSource);
+
+                    TreeSource.SelectedNode = cclrootNode;
+
+                    tcount++;
+
+                    break;
+
+                #endregion
+
                 //Cases for future file supports go here. For example;
                 //case ".mod":
 
@@ -3219,6 +3589,21 @@ namespace ThreeWorkTool
                     {
                         TreeSource.SelectedNode.ImageIndex = 13;
                         TreeSource.SelectedNode.SelectedImageIndex = 13;
+                    }
+                    else if (G == ".cst")
+                    {
+                        TreeSource.SelectedNode.ImageIndex = 19;
+                        TreeSource.SelectedNode.SelectedImageIndex = 19;
+                    }
+                    else if (G == ".chn")
+                    {
+                        TreeSource.SelectedNode.ImageIndex = 20;
+                        TreeSource.SelectedNode.SelectedImageIndex = 20;
+                    }
+                    else if (G == ".ccl")
+                    {
+                        TreeSource.SelectedNode.ImageIndex = 21;
+                        TreeSource.SelectedNode.SelectedImageIndex = 21;
                     }
                     else
                     {
@@ -3506,6 +3891,51 @@ namespace ThreeWorkTool
                     switch (type)
                     {
 
+                        case "ThreeWorkTool.Resources.Wrappers.ChainListEntry":
+                            ChainListEntry cle = new ChainListEntry();
+                            cle = ArcEntry as ChainListEntry;
+                            if (cle != null)
+                            {
+                                TreeChildInsert(NCount, cle.EntryName, cle.FileExt, cle.EntryDirs, cle.TrueName, cle);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
+                        case "ThreeWorkTool.Resources.Wrappers.ChainEntry":
+                            ChainEntry chne = new ChainEntry();
+                            chne = ArcEntry as ChainEntry;
+                            if (chne != null)
+                            {
+                                TreeChildInsert(NCount, chne.EntryName, chne.FileExt, chne.EntryDirs, chne.TrueName, chne);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
+                        case "ThreeWorkTool.Resources.Wrappers.ChainCollisionEntry":
+                            ChainCollisionEntry ccle = new ChainCollisionEntry();
+                            ccle = ArcEntry as ChainCollisionEntry;
+                            if (ccle != null)
+                            {
+                                TreeChildInsert(NCount, ccle.EntryName, ccle.FileExt, ccle.EntryDirs, ccle.TrueName, ccle);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
                         case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
                             MSDEntry mse = new MSDEntry();
                             mse = ArcEntry as MSDEntry;
@@ -3741,6 +4171,7 @@ namespace ThreeWorkTool
         {
             ResourcePathListEntry rplentry = new ResourcePathListEntry();
             rplentry = TreeSource.SelectedNode.Tag as ResourcePathListEntry;
+
             if (rplentry != null)
             {
                 rplentry = ResourcePathListEntry.RenewRPLList(txtRPList, rplentry);
@@ -3787,6 +4218,37 @@ namespace ThreeWorkTool
         {
             switch (type)
             {
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainCollisionEntry":
+                    ChainCollisionEntry chainCollEntry = new ChainCollisionEntry();
+                    chainCollEntry = TreeSource.SelectedNode.Tag as ChainCollisionEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainEntry":
+                    ChainEntry chainEntry = new ChainEntry();
+                    chainEntry = TreeSource.SelectedNode.Tag as ChainEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainListEntry":
+                    ChainListEntry chainListEntry = new ChainListEntry();
+                    chainListEntry = TreeSource.SelectedNode.Tag as ChainListEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
                 case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
                     LMTEntry LMTEntryP = new LMTEntry();
                     LMTEntryP = TreeSource.SelectedNode.Tag as LMTEntry;
@@ -3933,6 +4395,7 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
+
                 default:
                     pGrdMain.SelectedObject = null;
                     picBoxA.Visible = false;
@@ -3940,6 +4403,7 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
+
             }
         }
 

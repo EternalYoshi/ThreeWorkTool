@@ -172,7 +172,34 @@ namespace ThreeWorkTool.Resources.Archives
                             arcfile.FileList.Add(newmsden.EntryName);
                             foldernames.Clear();
                             IDCounter++;
-                            break;                        
+                            break;
+
+                        //CST Files.
+                        case "326F732E":
+                            ChainListEntry CSTen = ChainListEntry.FillCSTEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(CSTen);
+                            arcfile.FileList.Add(CSTen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
+                        //CHN Files.
+                        case "3E363245":
+                            ChainEntry CHNen = ChainEntry.FillChainEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(CHNen);
+                            arcfile.FileList.Add(CHNen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
+                        //CCL Files.
+                        case "0026E7FF":
+                            ChainCollisionEntry CCLen = ChainCollisionEntry.FillChainCollEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(CCLen);
+                            arcfile.FileList.Add(CCLen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
 
                         default:
                             //Everything not listed above.

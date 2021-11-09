@@ -141,6 +141,9 @@
     <Compile Include="Resources\Utility\ByteUtilitarian.cs" />
     <Compile Include="Resources\Wrappers\ArcEntryWrapper.cs" />
     <Compile Include="Resources\Wrappers\ArcFileWrapper.cs" />
+    <Compile Include="Resources\Wrappers\ChainCollisionEntry.cs" />
+    <Compile Include="Resources\Wrappers\ChainEntry.cs" />
+    <Compile Include="Resources\Wrappers\ChainListEntry.cs" />
     <Compile Include="Resources\Wrappers\DefaultWrapper.cs" />
     <Compile Include="Resources\Wrappers\EffectListEntry.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
@@ -199,8 +202,11 @@
     <Content Include="Images\ATI.png" />
     <Content Include="Images\Bitmap1.bmp" />
     <Content Include="Images\CAC.png" />
+    <Content Include="Images\CCL.png" />
+    <Content Include="Images\CHN.png" />
     <Content Include="Images\CHS.png" />
     <Content Include="Images\CLI.png" />
+    <Content Include="Images\CST.png" />
     <Content Include="Images\EFL.png" />
     <Content Include="Images\FOLDER.png" />
     <Content Include="Images\FOLDERBASE copy.png" />
