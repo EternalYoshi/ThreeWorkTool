@@ -199,6 +199,62 @@ namespace ThreeWorkTool.Resources
             }
         }
 
+        public static void ChainListEntryWriter(string filename, ChainListEntry entrytowrite)
+        {
+            try
+            {
+
+                using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                {
+                    bw.Write(entrytowrite.UncompressedData);
+                    bw.Close();
+                }
+
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                return;
+            }
+        }
+
+        public static void ChainEntryWriter(string filename, ChainEntry entrytowrite)
+        {
+            try
+            {
+
+                using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                {
+                    bw.Write(entrytowrite.UncompressedData);
+                    bw.Close();
+                }
+
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                return;
+            }
+        }
+
+        public static void ChainCollisionEntryWriter(string filename, ChainCollisionEntry entrytowrite)
+        {
+            try
+            {
+
+                using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                {
+                    bw.Write(entrytowrite.UncompressedData);
+                    bw.Close();
+                }
+
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                return;
+            }
+        }
 
     }
 }

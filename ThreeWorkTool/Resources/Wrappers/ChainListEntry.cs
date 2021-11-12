@@ -103,7 +103,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         }
 
                         cslentry.ChainEntries.Add(cHN);
-                        bnr.BaseStream.Position = bnr.BaseStream.Position = 16;
+                        bnr.BaseStream.Position = bnr.BaseStream.Position + 16;
                     }
 
                     for (int h = 0; h < cslentry.CCLEntryCount; h++)
@@ -145,12 +145,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                         cslentry.ChainCollEntries.Add(cCL);
                     }
 
-
-
                 }
             }
 
-
+            cslentry.TextBackup = new List<string>();
 
 
 
@@ -254,44 +252,87 @@ namespace ThreeWorkTool.Resources.Wrappers
                     chlste.ChainCollEntries.Add(cCL);
                 }
 
-                chlste.CHNEntryCount = chlste.ChainEntries.Count;
-                chlste.CCLEntryCount = chlste.ChainCollEntries.Count;
+            }
 
-                //Rebuilds the raw file itself.
-                List<byte> NEWCST = new List<byte>();
-                byte[] HeaderCST = { 0x43, 0x53, 0x54, 0x00, 0x00, 0x01, 0xFE, 0xFF, 0x00, 0x00, 0x00, 0x00 };
-                NEWCST.AddRange(HeaderCST);
+            chlste.CHNEntryCount = chlste.ChainEntries.Count;
+            chlste.CCLEntryCount = chlste.ChainCollEntries.Count;
 
-                //Converts the CHN and CCL counts and puts them in the array.
-                byte[] BufferA = BitConverter.GetBytes(chlste.ChainEntries.Count);
-                NEWCST.AddRange(BufferA);
+            //Rebuilds the raw file itself.
+            List<byte> NEWCST = new List<byte>();
+            byte[] HeaderCST = { 0x43, 0x53, 0x54, 0x00, 0x00, 0x01, 0xFE, 0xFF, 0x00, 0x00, 0x00, 0x00 };
+            byte[] CHNHash = { 0x45, 0x32, 0x36, 0x3E };
+            byte[] CCLHash = { 0xFF, 0xE7, 0x26, 0x00 };
+            byte[] FillerLine = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
+            byte[] EndingFiller = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-                //Converts the CHN and CCL counts and puts them in the array.
-                byte[] BufferB = BitConverter.GetBytes(chlste.ChainCollEntries.Count);
-                NEWCST.AddRange(BufferA);
 
-                //Inserts the CHN data.
-                int NewEntryCount = chlste.CHNEntryCount;
-                if (string.IsNullOrWhiteSpace(chlste.ChainEntries[(chlste.CHNEntryCount - 1)].TotalName))
+            NEWCST.AddRange(HeaderCST);
+
+            //Converts the CHN and CCL counts and puts them in the array.
+            byte[] BufferA = BitConverter.GetBytes(chlste.ChainEntries.Count);
+            NEWCST.AddRange(BufferA);
+
+            byte[] BufferB = BitConverter.GetBytes(chlste.ChainCollEntries.Count);
+            NEWCST.AddRange(BufferA);
+
+            //Inserts the CHN data.
+            int NewEntryCount = chlste.CHNEntryCount;
+            if (string.IsNullOrWhiteSpace(chlste.ChainEntries[(chlste.CHNEntryCount - 1)].TotalName))
+            {
+                NewEntryCount--;
+            }
+            //int ProjectedSize = NewEntryCount * 84;
+            //int EstimatedSizeCHN = ((int)Math.Round(ProjectedSize / 16.0, MidpointRounding.AwayFromZero) * 16);
+
+            for (int k = 0; k < NewEntryCount; k++)
+            {
+
+                int NumberChars = chlste.ChainEntries[k].FullPath.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(chlste.ChainEntries[k].FullPath);
+                int nblength = namebuffer.Length;
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                for (int l = 0; l < namebuffer.Length; ++l)
                 {
-                    NewEntryCount--;
+                    writenamedata[l] = namebuffer[l];
                 }
-                int ProjectedSize = NewEntryCount * 84;
-                int EstimatedSizeCHN = ((int)Math.Round(ProjectedSize / 16.0, MidpointRounding.AwayFromZero) * 16);
 
-                for (int k = 0; k < NewEntryCount; k++)
+                NEWCST.AddRange(writenamedata);
+                NEWCST.AddRange(CHNHash);
+                NEWCST.AddRange(FillerLine);
+            }
+
+            //Inserts the CCL data.
+            NewEntryCount = chlste.CCLEntryCount;
+            if (string.IsNullOrWhiteSpace(chlste.ChainCollEntries[(chlste.CCLEntryCount - 1)].TotalName))
+            {
+                NewEntryCount--;
+            }
+
+            for (int m = 0; m < NewEntryCount; m++)
+            {
+
+                int NumberChars = chlste.ChainCollEntries[m].FullPath.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(chlste.ChainCollEntries[m].FullPath);
+                int nblength = namebuffer.Length;
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                for (int l = 0; l < namebuffer.Length; ++l)
                 {
-
-                    int NumberChars = chlste.ChainEntries[k].FullPath.Length;
-                    byte[] namebuffer = Encoding.ASCII.GetBytes(chlste.ChainEntries[k].FullPath);
-                    int nblength = namebuffer.Length;
-
+                    writenamedata[l] = namebuffer[l];
                 }
 
-
-
+                NEWCST.AddRange(writenamedata);
+                NEWCST.AddRange(CCLHash);
 
             }
+
+            //Fills in 48 blank bytes at the end.
+            NEWCST.AddRange(EndingFiller);
 
             return chlste;
 
@@ -319,7 +360,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             chlste.ChainCollEntries = new List<CCLEntry>();
 
             string[] lines = texbox.Lines;
-            string ExtTemp = "";
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -331,7 +371,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
 
         }
-
 
         #region CST Properties
         private string _FileName;
@@ -379,7 +418,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
         }
 
-        private string _FileType;
         [Category("Filename"), ReadOnlyAttribute(true)]
         public string FileType
         {

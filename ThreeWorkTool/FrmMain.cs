@@ -1084,6 +1084,20 @@ namespace ThreeWorkTool
 
         #endregion
 
+        #region Key Shortcuts
+
+        private void FrmMainThree_KeyDown(object sender, KeyEventArgs e)
+        {
+            /*
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.O)
+            {
+                MenuOpen_Click(sender, e);
+            }
+            */
+        }
+
+        #endregion
+
         #region Tree Stuffs and Context Menus
 
         //Function to get TreeNode by name. Searches all over.
@@ -1145,10 +1159,29 @@ namespace ThreeWorkTool
 
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
-            conmenu.Items.Add("Rename Folder", null, MenuItemRenameFolder_Click);
+            var rnfitem = new ToolStripMenuItem("Rename Folder", null, MenuItemRenameFolder_Click);
+            rnfitem.ShortcutKeys = Keys.F2;
+            conmenu.Items.Add(rnfitem);
+
             conmenu.Items.Add("Export All", null, ExportAllFolder);
-            conmenu.Items.Add("Import Into Folder", null, MenuItemImportFileInFolder_Click);
-            conmenu.Items.Add("Delete Folder", null, MenuItemDeleteFolder_Click);
+
+            //Import Into Folder.
+            var impitem = new ToolStripMenuItem("Import Into Folder", null, MenuItemImportFileInFolder_Click, Keys.Control | Keys.I);
+            conmenu.Items.Add(impitem);
+
+            //Delete Folder.
+            var delfitem = new ToolStripMenuItem("Delete Folder", null, MenuItemDeleteFolder_Click, Keys.Delete);
+            conmenu.Items.Add(delfitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp, Keys.Control | Keys.Up);
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
+            conmenu.Items.Add(mditem);
 
             return conmenu;
 
@@ -1159,12 +1192,33 @@ namespace ThreeWorkTool
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
-            conmenu.Items.Add("Export", null, MenuExportFile_Click);
-            conmenu.Items.Add("Replace", null, MenuReplaceTexture_Click);
-            conmenu.Items.Add("Rename", null, MenuItemRenameFile_Click);
-            conmenu.Items.Add("Delete", null, MenuItemDeleteFile_Click);
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
 
+            //Replace.
+            var replTexitem = new ToolStripMenuItem("Replace", null, MenuReplaceTexture_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replTexitem);
+            
+            //Rename.
+            var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
+            conmenu.Items.Add(rnitem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click,Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp, Keys.Control | Keys.Up);
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
+            conmenu.Items.Add(mditem);
             return conmenu;
+
         }
 
         //Adds Context Menu Strip for MSD Files.
@@ -1173,10 +1227,34 @@ namespace ThreeWorkTool
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
             conmenu.Items.Add("Preview/Edit", null, MenuMSDEdit_Click);
-            conmenu.Items.Add("Export", null, MenuExportFile_Click);
-            conmenu.Items.Add("Replace", null, MenuReplaceFile_Click);
-            conmenu.Items.Add("Rename", null, MenuItemRenameFile_Click);
-            conmenu.Items.Add("Delete", null, MenuItemDeleteFile_Click);
+
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            //Rename.
+            var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
+            conmenu.Items.Add(rnitem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp);
+            muitem.ShortcutKeys = Keys.Control | Keys.Up;
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown);
+            mditem.ShortcutKeys = Keys.Control | Keys.Down;
+            conmenu.Items.Add(mditem);
 
             return conmenu;
         }
@@ -1186,11 +1264,34 @@ namespace ThreeWorkTool
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
-            conmenu.Items.Add("Export", null, MenuExportFile_Click);
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export",null, MenuExportFile_Click);
+            exportitem.ShortcutKeys = Keys.Control | Keys.E;            
+            conmenu.Items.Add(exportitem);
+
             conmenu.Items.Add("Export All", null, ExportAllLMT);
-            conmenu.Items.Add("Replace", null, MenuReplaceFile_Click);
-            conmenu.Items.Add("Rename", null, MenuItemRenameFile_Click);
-            conmenu.Items.Add("Delete", null, MenuItemDeleteFile_Click);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+            
+            //Rename.
+            var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
+            conmenu.Items.Add(rnitem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp, Keys.Control | Keys.Up);
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
+            conmenu.Items.Add(mditem);
 
             return conmenu;
         }
@@ -1200,10 +1301,30 @@ namespace ThreeWorkTool
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
-            conmenu.Items.Add("Export", null, MenuExportFile_Click);
-            conmenu.Items.Add("Replace", null, MenuReplaceFile_Click);
-            conmenu.Items.Add("Rename", null, MenuItemRenameFile_Click);
-            conmenu.Items.Add("Delete", null, MenuItemDeleteFile_Click);
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
+            conmenu.Items.Add(rnitem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp, Keys.Control | Keys.Up);
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
+            conmenu.Items.Add(mditem);
 
             return conmenu;
         }
@@ -1251,6 +1372,7 @@ namespace ThreeWorkTool
                     }
                     break;
 
+                //Material.
                 case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
                     MaterialEntry Matentry = new MaterialEntry();
                     if (tag is MaterialEntry)
@@ -1325,6 +1447,72 @@ namespace ThreeWorkTool
                     if (EXDialog.ShowDialog() == DialogResult.OK)
                     {
                         ExportFileWriter.RPListEntryWriter(EXDialog.FileName, RPLentry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainListEntry":
+                    ChainListEntry CSLentry = new ChainListEntry();
+                    if (tag is ChainListEntry)
+                    {
+
+                        CSLentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ChainListEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(CSLentry.FileExt);
+                    }
+                    EXDialog.FileName = CSLentry.FileName + CSLentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.ChainListEntryWriter(EXDialog.FileName, CSLentry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainEntry":
+                    ChainEntry CHNentry = new ChainEntry();
+                    if (tag is ChainEntry)
+                    {
+
+                        CHNentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ChainEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(CHNentry.FileExt);
+                    }
+                    EXDialog.FileName = CHNentry.FileName + CHNentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.ChainEntryWriter(EXDialog.FileName, CHNentry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainCollisionEntry":
+                    ChainCollisionEntry CCLentry = new ChainCollisionEntry();
+                    if (tag is ChainCollisionEntry)
+                    {
+
+                        CCLentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ChainCollisionEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(CCLentry.FileExt);
+                    }
+                    EXDialog.FileName = CCLentry.FileName + CCLentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.ChainCollisionEntryWriter(EXDialog.FileName, CCLentry);
                     }
 
                     //Writes to log file.
@@ -2965,6 +3153,67 @@ namespace ThreeWorkTool
 
         }
 
+        private static void MoveNodeUp(Object sender, System.EventArgs e)
+        {
+
+            //Method by Dynami Le Savard... to my knowledge.
+            TreeNode parent = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+            TreeView view = frename.Mainfrm.TreeSource.SelectedNode.TreeView;
+            TreeNode node = frename.Mainfrm.TreeSource.SelectedNode;
+
+            if (parent != null)
+            {
+                int index = parent.Nodes.IndexOf(node);
+                if (index > 0)
+                {
+                    parent.Nodes.RemoveAt(index);
+                    parent.Nodes.Insert(index - 1, node);
+                }
+            }
+            else if (node.TreeView.Nodes.Contains(node)) //root node
+            {
+                int index = view.Nodes.IndexOf(node);
+                if (index > 0)
+                {
+                    view.Nodes.RemoveAt(index);
+                    view.Nodes.Insert(index - 1, node);
+                }
+            }
+
+            frename.Mainfrm.TreeSource.SelectedNode = node;
+            frename.Mainfrm.OpenFileModified = true;
+
+        }
+
+        private static void MoveNodeDown(Object sender, System.EventArgs e)
+        {
+            TreeNode parent = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+            TreeView view = frename.Mainfrm.TreeSource.SelectedNode.TreeView;
+            TreeNode node = frename.Mainfrm.TreeSource.SelectedNode;
+            //Method by Dynami Le Savard... to my knowledge.
+            if (parent != null)
+            {
+                int index = parent.Nodes.IndexOf(node);
+                if (index < parent.Nodes.Count - 1)
+                {
+                    parent.Nodes.RemoveAt(index);
+                    parent.Nodes.Insert(index + 1, node);
+                }
+            }
+            else if (view != null && view.Nodes.Contains(node)) //root node
+            {
+                int index = view.Nodes.IndexOf(node);
+                if (index < view.Nodes.Count - 1)
+                {
+                    view.Nodes.RemoveAt(index);
+                    view.Nodes.Insert(index + 1, node);
+                }
+            }
+
+            frename.Mainfrm.TreeSource.SelectedNode = node;
+            frename.Mainfrm.OpenFileModified = true;
+        }
+
         private void TreeFill(string D, int E, ArcFile archivearc)
         {
             TreeSource.Nodes.Clear();
@@ -4046,8 +4295,8 @@ namespace ThreeWorkTool
                 frmTxt.Mainfrm = this;
                 frmTxtEdit = frmTxt;
 
-
-                TreeSource.Sort();
+                //Sorts Alpabetically.
+                //TreeSource.Sort();
 
                 //Writes to log file.
                 using (StreamWriter sw = new StreamWriter("Log.txt"))
@@ -4178,6 +4427,17 @@ namespace ThreeWorkTool
                 TreeSource.SelectedNode.Tag = rplentry;
                 this.OpenFileModified = true;
             }
+
+            ChainListEntry chainList = new ChainListEntry();
+            chainList = TreeSource.SelectedNode.Tag as ChainListEntry;
+
+            if (chainList != null)
+            {
+                chainList = ChainListEntry.RenewCSTList(txtRPList, chainList);
+                TreeSource.SelectedNode.Tag = chainList;
+                this.OpenFileModified = true;
+            }
+
         }
 
         private void TextBoxLeaving()
@@ -4219,6 +4479,7 @@ namespace ThreeWorkTool
             switch (type)
             {
 
+                #region ChainCollision
                 case "ThreeWorkTool.Resources.Wrappers.ChainCollisionEntry":
                     ChainCollisionEntry chainCollEntry = new ChainCollisionEntry();
                     chainCollEntry = TreeSource.SelectedNode.Tag as ChainCollisionEntry;
@@ -4228,7 +4489,9 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
+                #endregion
 
+                #region Chain
                 case "ThreeWorkTool.Resources.Wrappers.ChainEntry":
                     ChainEntry chainEntry = new ChainEntry();
                     chainEntry = TreeSource.SelectedNode.Tag as ChainEntry;
@@ -4239,16 +4502,26 @@ namespace ThreeWorkTool
                     UpdateTheEditMenu();
                     break;
 
+                #endregion
+
+                #region ChainList
                 case "ThreeWorkTool.Resources.Wrappers.ChainListEntry":
+                    isFinishRPLRead = false;
                     ChainListEntry chainListEntry = new ChainListEntry();
                     chainListEntry = TreeSource.SelectedNode.Tag as ChainListEntry;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    txtRPList.Text = "";
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
+                    txtRPList = ChainListEntry.LoadCSTInTextBox(txtRPList, chainListEntry);
+                    RPLBackup = txtRPList.Text;
+                    txtRPList.Visible = true;
+                    isFinishRPLRead = true;
                     UpdateTheEditMenu();
                     break;
+                #endregion
 
+                #region LMT
                 case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
                     LMTEntry LMTEntryP = new LMTEntry();
                     LMTEntryP = TreeSource.SelectedNode.Tag as LMTEntry;
@@ -4258,7 +4531,9 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
+                #endregion
 
+                #region LMTM3a
                 case "ThreeWorkTool.Resources.Wrappers.LMTM3AEntry":
                     LMTM3AEntry Ma3EntryP = new LMTM3AEntry();
                     Ma3EntryP = TreeSource.SelectedNode.Tag as LMTM3AEntry;
@@ -4268,7 +4543,9 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
+                #endregion
 
+                #region Material
                 case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
                     MaterialEntry MatEntryM = new MaterialEntry();
                     MatEntryM = TreeSource.SelectedNode.Tag as MaterialEntry;
@@ -4278,7 +4555,9 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
+                #endregion
 
+                #region Material Reference
                 case "ThreeWorkTool.Resources.Wrappers.MaterialTextureReference":
                     MaterialTextureReference MTexRefEntry = new MaterialTextureReference();
                     MTexRefEntry = TreeSource.SelectedNode.Tag as MaterialTextureReference;
@@ -4288,7 +4567,9 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     MenuEdit.Enabled = false;
                     break;
+                #endregion
 
+                #region RPL
                 case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
                     isFinishRPLRead = false;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
@@ -4303,7 +4584,9 @@ namespace ThreeWorkTool
                     isFinishRPLRead = true;
                     UpdateTheEditMenu();
                     break;
+                #endregion
 
+                #region MSD
                 case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
                     isFinishRPLRead = false;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
@@ -4318,7 +4601,9 @@ namespace ThreeWorkTool
                     isFinishRPLRead = true;
                     UpdateTheEditMenu();
                     break;
+                #endregion
 
+                #region Texture
                 case "ThreeWorkTool.Resources.Wrappers.TexEntryWrapper":
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     tentry = TreeSource.SelectedNode.Tag as TextureEntry;
@@ -4361,7 +4646,9 @@ namespace ThreeWorkTool
                         picBoxA.BackColor = Color.Magenta;
                         break;
                     }
+                #endregion
 
+                #region ArcEntry & ArcEntryWrapper
                 case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
                     ArcEntry entry = new ArcEntry();
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
@@ -4378,7 +4665,9 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
+                #endregion
 
+                #region ArcFile & ArcFileWrapper
                 case "ThreeWorkTool.Resources.Wrappers.ArcFileWrapper":
                     ArcFile afile = new ArcFile();
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
@@ -4395,6 +4684,7 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
+                #endregion
 
                 default:
                     pGrdMain.SelectedObject = null;
@@ -4430,5 +4720,7 @@ namespace ThreeWorkTool
         {
 
         }
+
+
     }
 }

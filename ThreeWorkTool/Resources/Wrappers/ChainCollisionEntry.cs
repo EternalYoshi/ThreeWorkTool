@@ -14,7 +14,7 @@ using ThreeWorkTool.Resources.Wrappers;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
-    class ChainCollisionEntry : DefaultWrapper
+    public class ChainCollisionEntry : DefaultWrapper
     {
 
         public static ChainCollisionEntry FillChainCollEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)

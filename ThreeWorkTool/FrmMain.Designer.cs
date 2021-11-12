@@ -51,11 +51,11 @@
             this.pGrdMain = new System.Windows.Forms.PropertyGrid();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.pnlNew = new System.Windows.Forms.Panel();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
+            this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -101,48 +101,53 @@
             // MenuNew
             // 
             this.MenuNew.Name = "MenuNew";
-            this.MenuNew.Size = new System.Drawing.Size(136, 22);
+            this.MenuNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
+            this.MenuNew.Size = new System.Drawing.Size(186, 22);
             this.MenuNew.Text = "New";
             // 
             // MenuOpen
             // 
             this.MenuOpen.Name = "MenuOpen";
-            this.MenuOpen.Size = new System.Drawing.Size(136, 22);
+            this.MenuOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.MenuOpen.Size = new System.Drawing.Size(186, 22);
             this.MenuOpen.Text = "Open";
             this.MenuOpen.Click += new System.EventHandler(this.MenuOpen_Click);
             // 
             // MenuSave
             // 
             this.MenuSave.Name = "MenuSave";
-            this.MenuSave.Size = new System.Drawing.Size(136, 22);
+            this.MenuSave.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.MenuSave.Size = new System.Drawing.Size(186, 22);
             this.MenuSave.Text = "Save";
             this.MenuSave.Click += new System.EventHandler(this.MenuSaveAs_Click);
             // 
             // MenuSaveAs
             // 
             this.MenuSaveAs.Name = "MenuSaveAs";
-            this.MenuSaveAs.Size = new System.Drawing.Size(136, 22);
+            this.MenuSaveAs.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.S)));
+            this.MenuSaveAs.Size = new System.Drawing.Size(186, 22);
             this.MenuSaveAs.Text = "Save As";
             this.MenuSaveAs.Click += new System.EventHandler(this.MenuSaveAs_Click);
             // 
             // MenuClose
             // 
             this.MenuClose.Name = "MenuClose";
-            this.MenuClose.Size = new System.Drawing.Size(136, 22);
+            this.MenuClose.Size = new System.Drawing.Size(186, 22);
             this.MenuClose.Text = "Close";
             this.MenuClose.Click += new System.EventHandler(this.MenuClose_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(133, 6);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(183, 6);
             // 
             // MenuRecentFiles
             // 
             this.MenuRecentFiles.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripSeparator1});
             this.MenuRecentFiles.Name = "MenuRecentFiles";
-            this.MenuRecentFiles.Size = new System.Drawing.Size(136, 22);
+            this.MenuRecentFiles.Size = new System.Drawing.Size(186, 22);
             this.MenuRecentFiles.Text = "Recent Files";
             this.MenuRecentFiles.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.MenuRecentFiles_DropDownItemClicked);
             // 
@@ -154,12 +159,13 @@
             // exitToolStripMenuItem2
             // 
             this.exitToolStripMenuItem2.Name = "exitToolStripMenuItem2";
-            this.exitToolStripMenuItem2.Size = new System.Drawing.Size(133, 6);
+            this.exitToolStripMenuItem2.Size = new System.Drawing.Size(183, 6);
             // 
             // MenuExit
             // 
             this.MenuExit.Name = "MenuExit";
-            this.MenuExit.Size = new System.Drawing.Size(136, 22);
+            this.MenuExit.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+            this.MenuExit.Size = new System.Drawing.Size(186, 22);
             this.MenuExit.Text = "Exit";
             this.MenuExit.Click += new System.EventHandler(this.MenuExit_Click);
             // 
@@ -274,26 +280,6 @@
             this.splitContainer1.SplitterDistance = 315;
             this.splitContainer1.TabIndex = 8;
             // 
-            // TreeSource
-            // 
-            this.TreeSource.archivefile = null;
-            this.TreeSource.BackColor = System.Drawing.SystemColors.MenuText;
-            this.TreeSource.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TreeSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TreeSource.ForeColor = System.Drawing.SystemColors.Window;
-            this.TreeSource.HideSelection = false;
-            this.TreeSource.ImageIndex = 0;
-            this.TreeSource.ImageList = this.imageList1;
-            this.TreeSource.ItemHeight = 24;
-            this.TreeSource.Location = new System.Drawing.Point(0, 0);
-            this.TreeSource.Name = "TreeSource";
-            this.TreeSource.SelectedImageIndex = 16;
-            this.TreeSource.Size = new System.Drawing.Size(315, 524);
-            this.TreeSource.TabIndex = 6;
-            this.TreeSource.SelectionChanged += new System.EventHandler(this.TreeSource_SelectionChanged);
-            this.TreeSource.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeSource_AfterSelect);
-            this.TreeSource.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeSource_NodeMouseClick);
-            // 
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -347,6 +333,26 @@
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 
+            // TreeSource
+            // 
+            this.TreeSource.archivefile = null;
+            this.TreeSource.BackColor = System.Drawing.SystemColors.MenuText;
+            this.TreeSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TreeSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TreeSource.ForeColor = System.Drawing.SystemColors.Window;
+            this.TreeSource.HideSelection = false;
+            this.TreeSource.ImageIndex = 0;
+            this.TreeSource.ImageList = this.imageList1;
+            this.TreeSource.ItemHeight = 24;
+            this.TreeSource.Location = new System.Drawing.Point(0, 0);
+            this.TreeSource.Name = "TreeSource";
+            this.TreeSource.SelectedImageIndex = 16;
+            this.TreeSource.Size = new System.Drawing.Size(315, 524);
+            this.TreeSource.TabIndex = 6;
+            this.TreeSource.SelectionChanged += new System.EventHandler(this.TreeSource_SelectionChanged);
+            this.TreeSource.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeSource_AfterSelect);
+            this.TreeSource.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeSource_NodeMouseClick);
+            // 
             // FrmMainThree
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -357,11 +363,13 @@
             this.Controls.Add(this.lblCurrentFile);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
             this.Text = "ThreeWork Tool V0.3";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMainThree_KeyDown);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
