@@ -283,6 +283,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //Inserts the CHN data.
             int NewEntryCount = chlste.CHNEntryCount;
+            int ChainCount = 0; 
+            int ChainColCount = 0;
             if (chlste.CHNEntryCount > 0)
             {
                 if (string.IsNullOrWhiteSpace(chlste.ChainEntries[(chlste.CHNEntryCount - 1)].TotalName))
@@ -309,6 +311,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     NEWCST.AddRange(writenamedata);
                     NEWCST.AddRange(CHNHash);
                     NEWCST.AddRange(FillerLine);
+                    ChainCount++;
                 }
             }
 
@@ -339,11 +342,35 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     NEWCST.AddRange(writenamedata);
                     NEWCST.AddRange(CCLHash);
-
+                    ChainColCount++;
                 }
             }
             //Fills in 48 blank bytes at the end.
             NEWCST.AddRange(EndingFiller);
+
+            //Updates the parameters of the ChainListEntry.
+            chlste.UncompressedData = NEWCST.ToArray();
+
+            //Updates the counts in the byte array.
+            int entrysize = (NEWCST.Count - 20);
+            byte[] ETemp = new byte[4];
+            ETemp = BitConverter.GetBytes(entrysize);
+            Buffer.BlockCopy(ETemp, 0, chlste.UncompressedData, 8, 4);
+
+            ETemp = BitConverter.GetBytes(ChainCount);
+            Buffer.BlockCopy(ETemp, 0, chlste.UncompressedData, 12, 4);
+
+            ETemp = BitConverter.GetBytes(ChainColCount);
+            Buffer.BlockCopy(ETemp, 0, chlste.UncompressedData, 16, 4);
+
+
+            chlste.DSize = chlste.UncompressedData.Length;
+
+            chlste.CompressedData = Zlibber.Compressor(chlste.UncompressedData);
+            chlste.CSize = chlste.CompressedData.Length;
+
+            chlste.CCLEntryCount = ChainColCount;
+            chlste.CHNEntryCount = ChainCount;
 
             return chlste;
 
