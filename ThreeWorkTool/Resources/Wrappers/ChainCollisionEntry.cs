@@ -25,7 +25,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             FillEntry(filename, subnames, tree, br, c, ID, ccolentry, filetype);
 
             ccolentry._FileType = ccolentry.FileExt;
-            ccolentry._FileName = ccolentry.TrueName + ccolentry.FileExt;
+            ccolentry._FileName = ccolentry.TrueName;
             ccolentry._DecompressedFileLength = ccolentry.UncompressedData.Length;
             ccolentry._CompressedFileLength = ccolentry.CompressedData.Length;
 

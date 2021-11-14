@@ -45,7 +45,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             FillEntry(filename, subnames, tree, br, c, ID, cslentry, filetype);
 
-            cslentry._FileName = cslentry.TrueName + cslentry.FileExt;
+            cslentry._FileName = cslentry.TrueName;
             cslentry._DecompressedFileLength = cslentry.UncompressedData.Length;
             cslentry._CompressedFileLength = cslentry.CompressedData.Length;
 
@@ -168,8 +168,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 for (int t = 0; t < chlste.ChainEntries.Count; t++)
                 {
-                    texbox.Text = texbox.Text + chlste.ChainEntries[t].TotalName + System.Environment.NewLine;
-                    chlste.TextBackup.Add(chlste.ChainEntries[t].TotalName + System.Environment.NewLine);
+                    texbox.Text = texbox.Text + chlste.ChainEntries[t].TotalName + Environment.NewLine;
+                    chlste.TextBackup.Add(chlste.ChainEntries[t].TotalName + Environment.NewLine);
                 }
             }
             else
@@ -177,7 +177,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 for (int t = 0; t < chlste.ChainEntries.Count; t++)
                 {
-                    texbox.Text = texbox.Text + chlste.ChainEntries[t].TotalName + System.Environment.NewLine;
+                    texbox.Text = texbox.Text + chlste.ChainEntries[t].TotalName + Environment.NewLine;
                 }
             }
 
@@ -186,8 +186,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 for (int t = 0; t < chlste.ChainCollEntries.Count; t++)
                 {
-                    texbox.Text = texbox.Text + chlste.ChainCollEntries[t].TotalName + System.Environment.NewLine;
-                    chlste.TextBackup.Add(chlste.ChainCollEntries[t].TotalName + System.Environment.NewLine);
+                    texbox.Text = texbox.Text + chlste.ChainCollEntries[t].TotalName + Environment.NewLine;
+                    chlste.TextBackup.Add(chlste.ChainCollEntries[t].TotalName + Environment.NewLine);
                 }
             }
             else
@@ -195,7 +195,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 for (int t = 0; t < chlste.ChainCollEntries.Count; t++)
                 {
-                    texbox.Text = texbox.Text + chlste.ChainCollEntries[t].TotalName + System.Environment.NewLine;
+                    texbox.Text = texbox.Text + chlste.ChainCollEntries[t].TotalName + Environment.NewLine;
                 }
             }
 
@@ -229,29 +229,33 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             for (int i = 0; i < SPLT.Length; i++)
             {
-                index = SPLT[i].LastIndexOf(".");
-                ExtTemp = SPLT[i].Substring(index);
+                bool Isvalidline = SPLT[i].Contains(".");
 
-                if (ExtTemp == ".chn" || ExtTemp == "chn")
+                if (Isvalidline == true)
                 {
-                    CHNEntry cHN = new CHNEntry();
-                    cHN.TotalName = ExtTemp;
-                    cHN.FullPath = SPLT[i].Substring(0, index);
-                    cHN.TypeHash = "3E363245";
-                    cHN.FileExt = SPLT[i].Substring(index);
-                    chlste.ChainEntries.Add(cHN);
+                    index = SPLT[i].LastIndexOf(".");
+                    ExtTemp = SPLT[i].Substring(index,4);
 
-                }
-                else if (ExtTemp == ".ccl" || ExtTemp == "ccl")
-                {
-                    CCLEntry cCL = new CCLEntry();
-                    cCL.TotalName = ExtTemp;
-                    cCL.FullPath = SPLT[i].Substring(0, index);
-                    cCL.TypeHash = "0026E7FF";
-                    cCL.FileExt = SPLT[i].Substring(index);
-                    chlste.ChainCollEntries.Add(cCL);
-                }
+                    if (ExtTemp == ".chn" || ExtTemp == "chn")
+                    {
+                        CHNEntry cHN = new CHNEntry();
+                        cHN.FullPath = SPLT[i].Substring(0, index);
+                        cHN.TypeHash = "3E363245";
+                        cHN.TotalName = cHN.FullPath + ExtTemp;
+                        cHN.FileExt = SPLT[i].Substring((index),4);
+                        chlste.ChainEntries.Add(cHN);
 
+                    }
+                    else if (ExtTemp == ".ccl" || ExtTemp == "ccl")
+                    {
+                        CCLEntry cCL = new CCLEntry();
+                        cCL.FullPath = SPLT[i].Substring(0, index);
+                        cCL.TypeHash = "0026E7FF";
+                        cCL.TotalName = cCL.FullPath + ExtTemp;
+                        cCL.FileExt = SPLT[i].Substring((index),4);
+                        chlste.ChainCollEntries.Add(cCL);
+                    }
+                }
             }
 
             chlste.CHNEntryCount = chlste.ChainEntries.Count;
@@ -279,58 +283,65 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //Inserts the CHN data.
             int NewEntryCount = chlste.CHNEntryCount;
-            if (string.IsNullOrWhiteSpace(chlste.ChainEntries[(chlste.CHNEntryCount - 1)].TotalName))
+            if (chlste.CHNEntryCount > 0)
             {
-                NewEntryCount--;
-            }
-            //int ProjectedSize = NewEntryCount * 84;
-            //int EstimatedSizeCHN = ((int)Math.Round(ProjectedSize / 16.0, MidpointRounding.AwayFromZero) * 16);
-
-            for (int k = 0; k < NewEntryCount; k++)
-            {
-
-                int NumberChars = chlste.ChainEntries[k].FullPath.Length;
-                byte[] namebuffer = Encoding.ASCII.GetBytes(chlste.ChainEntries[k].FullPath);
-                int nblength = namebuffer.Length;
-                byte[] writenamedata = new byte[64];
-                Array.Clear(writenamedata, 0, writenamedata.Length);
-
-                for (int l = 0; l < namebuffer.Length; ++l)
+                if (string.IsNullOrWhiteSpace(chlste.ChainEntries[(chlste.CHNEntryCount - 1)].TotalName))
                 {
-                    writenamedata[l] = namebuffer[l];
+                    NewEntryCount--;
                 }
+                //int ProjectedSize = NewEntryCount * 84;
+                //int EstimatedSizeCHN = ((int)Math.Round(ProjectedSize / 16.0, MidpointRounding.AwayFromZero) * 16);
 
-                NEWCST.AddRange(writenamedata);
-                NEWCST.AddRange(CHNHash);
-                NEWCST.AddRange(FillerLine);
+                for (int k = 0; k < NewEntryCount; k++)
+                {
+
+                    int NumberChars = chlste.ChainEntries[k].FullPath.Length;
+                    byte[] namebuffer = Encoding.ASCII.GetBytes(chlste.ChainEntries[k].FullPath);
+                    int nblength = namebuffer.Length;
+                    byte[] writenamedata = new byte[64];
+                    Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                    for (int l = 0; l < namebuffer.Length; ++l)
+                    {
+                        writenamedata[l] = namebuffer[l];
+                    }
+
+                    NEWCST.AddRange(writenamedata);
+                    NEWCST.AddRange(CHNHash);
+                    NEWCST.AddRange(FillerLine);
+                }
             }
+
 
             //Inserts the CCL data.
             NewEntryCount = chlste.CCLEntryCount;
-            if (string.IsNullOrWhiteSpace(chlste.ChainCollEntries[(chlste.CCLEntryCount - 1)].TotalName))
+
+            if (chlste.CCLEntryCount > 0)
             {
-                NewEntryCount--;
-            }
-
-            for (int m = 0; m < NewEntryCount; m++)
-            {
-
-                int NumberChars = chlste.ChainCollEntries[m].FullPath.Length;
-                byte[] namebuffer = Encoding.ASCII.GetBytes(chlste.ChainCollEntries[m].FullPath);
-                int nblength = namebuffer.Length;
-                byte[] writenamedata = new byte[64];
-                Array.Clear(writenamedata, 0, writenamedata.Length);
-
-                for (int l = 0; l < namebuffer.Length; ++l)
+                if (string.IsNullOrWhiteSpace(chlste.ChainCollEntries[(chlste.CCLEntryCount - 1)].TotalName))
                 {
-                    writenamedata[l] = namebuffer[l];
+                    NewEntryCount--;
                 }
 
-                NEWCST.AddRange(writenamedata);
-                NEWCST.AddRange(CCLHash);
+                for (int m = 0; m < NewEntryCount; m++)
+                {
 
+                    int NumberChars = chlste.ChainCollEntries[m].FullPath.Length;
+                    byte[] namebuffer = Encoding.ASCII.GetBytes(chlste.ChainCollEntries[m].FullPath);
+                    int nblength = namebuffer.Length;
+                    byte[] writenamedata = new byte[64];
+                    Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                    for (int l = 0; l < namebuffer.Length; ++l)
+                    {
+                        writenamedata[l] = namebuffer[l];
+                    }
+
+                    NEWCST.AddRange(writenamedata);
+                    NEWCST.AddRange(CCLHash);
+
+                }
             }
-
             //Fills in 48 blank bytes at the end.
             NEWCST.AddRange(EndingFiller);
 

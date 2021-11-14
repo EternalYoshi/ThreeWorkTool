@@ -201,6 +201,16 @@ namespace ThreeWorkTool.Resources.Archives
                             IDCounter++;
                             break;
 
+                        //New Formats go like this!   
+                        /*
+                        case "********":
+                           *****Entry ****en = *****Entry.Fill*****Entry(filename, foldernames, tree, br, j, IDCounter);
+                           arcfile.arcfiles.Add(*****en);
+                           arcfile.FileList.Add(*****.EntryName);
+                           foldernames.Clear();
+                           IDCounter++;
+                           break;
+                        */
                         default:
                             //Everything not listed above.
                             ArcEntry newentry = ArcEntry.FillArcEntry(filename, foldernames, tree, br, j, IDCounter);

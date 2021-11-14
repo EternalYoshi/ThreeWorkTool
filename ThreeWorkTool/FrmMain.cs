@@ -251,8 +251,12 @@ namespace ThreeWorkTool
                                     ChainListEntry cstenty = new ChainListEntry();
                                     ChainEntry chnenty = new ChainEntry();
                                     ChainCollisionEntry cclentry = new ChainCollisionEntry();
+                                    //New Format should start here!
+                                    /*
+                                    ***** *****enty = new *****();
+                                    */
 
-                                    //This is for the filenames and everything after.
+                                    //This is for the data blocks mapping the filename and offsets for the compressed data. This si after the header.
                                     foreach (TreeNode treno in Nodes)
                                     {
                                         //Saving generic files.
@@ -780,7 +784,6 @@ namespace ThreeWorkTool
                                             DataEntryOffset = DataEntryOffset + ComSize;
 
                                         }
-
                                         else if (treno.Tag as MaterialEntry != null)
                                         {
                                             matent = treno.Tag as MaterialEntry;
@@ -843,11 +846,85 @@ namespace ThreeWorkTool
                                             bwr.Write(DEOffed, 0, DEOffed.Length);
                                             DataEntryOffset = DataEntryOffset + ComSize;
                                         }
+
+                                        #region New Format Code
+                                        //New format Entry data insertion goes like this!
+                                        /*
+                                         
+                                        else if (treno.Tag as ***** != null)
+                                        {
+                                            *****enty = treno.Tag as *****;
+                                            exportname = "";
+
+                                            exportname = treno.FullPath;
+                                            int inp = (exportname.IndexOf("\\")) + 1;
+                                            exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                            int NumberChars = exportname.Length;
+                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                            int nblength = namebuffer.Length;
+
+                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                            byte[] writenamedata = new byte[64];
+                                            Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                            for (int i = 0; i < namebuffer.Length; ++i)
+                                            {
+                                                writenamedata[i] = namebuffer[i];
+                                            }
+
+                                            bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                            //For the typehash.
+                                            HashType = "********";
+                                            byte[] HashBrown = new byte[4];
+                                            HashBrown = StringToByteArray(HashType);
+                                            Array.Reverse(HashBrown);
+                                            if (HashBrown.Length < 4)
+                                            {
+                                                byte[] PartHash = new byte[] { };
+                                                PartHash = HashBrown;
+                                                Array.Resize(ref HashBrown, 4);
+                                            }
+                                            bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                            //For the compressed size.
+                                            ComSize = *****enty.CompressedData.Length;
+                                            string ComSizeHex = ComSize.ToString("X8");
+                                            byte[] ComPacked = new byte[4];
+                                            ComPacked = StringToByteArray(ComSizeHex);
+                                            Array.Reverse(ComPacked);
+                                            bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                            //For the unpacked size. No clue why all the entries "start" with 40.
+                                            DecSize = *****enty.UncompressedData.Length + 1073741824;
+                                            string DecSizeHex = DecSize.ToString("X8");
+                                            byte[] DePacked = new byte[4];
+                                            DePacked = StringToByteArray(DecSizeHex);
+                                            Array.Reverse(DePacked);
+                                            bwr.Write(DePacked, 0, DePacked.Length);
+
+                                            //Starting Offset.
+                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                            byte[] DEOffed = new byte[4];
+                                            DEOffed = StringToByteArray(DataEntrySizeHex);
+                                            Array.Reverse(DEOffed);
+                                            bwr.Write(DEOffed, 0, DEOffed.Length);
+                                            DataEntryOffset = DataEntryOffset + ComSize;
+
+                                        }
+
+                                         
+                                        */
+                                        #endregion
+
+
                                         else
                                         { }
                                     }
 
-                                    //This part goes to where the data offset begins and fills the in between areas with zeroes.
+                                    //This part goes to where the data offset begins, inserts the compressed data, and fills the in between areas with zeroes.
                                     bwr.BaseStream.Position = 0;
                                     long CPos = bwr.Seek(dataoffset, SeekOrigin.Current);
 
@@ -896,6 +973,34 @@ namespace ThreeWorkTool
                                             bwr.Write(CompData, 0, CompData.Length);
 
                                         }
+                                        else if (treno.Tag as ChainListEntry != null)
+                                        {
+                                            cstenty = treno.Tag as ChainListEntry;
+                                            byte[] CompData = cstenty.CompressedData;
+                                            bwr.Write(CompData, 0, CompData.Length);
+                                        }
+                                        else if (treno.Tag as ChainEntry != null)
+                                        {
+                                            chnenty = treno.Tag as ChainEntry;
+                                            byte[] CompData = chnenty.CompressedData;
+                                            bwr.Write(CompData, 0, CompData.Length);
+                                        }
+                                        else if (treno.Tag as ChainCollisionEntry != null)
+                                        {
+                                            cclentry = treno.Tag as ChainCollisionEntry;
+                                            byte[] CompData = cclentry.CompressedData;
+                                            bwr.Write(CompData, 0, CompData.Length);
+                                        }
+                                        
+                                        //New format compression data goes like this!
+                                        /*
+                                        else if(treno.Tag as ***** != null)
+                                        {
+                                            *****enty = treno.Tag as *****;
+                                            byte[] CompData = *****enty.CompressedData;
+                                            bwr.Write(CompData, 0, CompData.Length);
+                                        }
+                                        */
 
                                     }
 
@@ -950,7 +1055,7 @@ namespace ThreeWorkTool
 
         private void MenuAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("ThreeWork Tool Alpha version 0.3 Preview\n2021 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program", "About", MessageBoxButtons.OK);
+            MessageBox.Show("ThreeWork Tool Alpha version 0.31 Preview\n2021 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program.", "About", MessageBoxButtons.OK);
         }
 
         private void MenuClose_Click(object sender, EventArgs e)
@@ -1199,13 +1304,13 @@ namespace ThreeWorkTool
             //Replace.
             var replTexitem = new ToolStripMenuItem("Replace", null, MenuReplaceTexture_Click, Keys.Control | Keys.R);
             conmenu.Items.Add(replTexitem);
-            
+
             //Rename.
             var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
             conmenu.Items.Add(rnitem);
 
             //Delete.
-            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click,Keys.Delete);
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
             conmenu.Items.Add(delitem);
 
             conmenu.Items.Add(new ToolStripSeparator());
@@ -1265,8 +1370,8 @@ namespace ThreeWorkTool
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
             //Export.
-            var exportitem = new ToolStripMenuItem("Export",null, MenuExportFile_Click);
-            exportitem.ShortcutKeys = Keys.Control | Keys.E;            
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click);
+            exportitem.ShortcutKeys = Keys.Control | Keys.E;
             conmenu.Items.Add(exportitem);
 
             conmenu.Items.Add("Export All", null, ExportAllLMT);
@@ -1274,7 +1379,7 @@ namespace ThreeWorkTool
             //Replace.
             var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
             conmenu.Items.Add(replitem);
-            
+
             //Rename.
             var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
             conmenu.Items.Add(rnitem);
@@ -3753,6 +3858,67 @@ namespace ThreeWorkTool
 
                 #endregion
 
+                #region New Formats
+                //New Format go like this!
+                /*
+                    case "ThreeWorkTool.Resources.Wrappers.*****Entry":
+                    ArcEntryWrapper *****child = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+
+                    *****child.Name = I;
+                    *****child.Tag = FEntry as *****Entry;
+                    *****child.Text = I;
+                    *****child.entryfile = FEntry as *****Entry;
+                    *****child.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = *****child;
+
+                    TreeSource.SelectedNode.Nodes.Add(*****child);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var *****rootNode = FindRootNode(*****child);
+
+                    TreeSource.SelectedNode = *****child;
+                    TreeSource.SelectedNode.ImageIndex = **;
+                    TreeSource.SelectedNode.SelectedImageIndex = **;
+
+
+                    cclchild.ContextMenuStrip = GenericFileContextAdder(*****child, TreeSource);
+
+                    TreeSource.SelectedNode = *****rootNode;
+
+                    tcount++;
+
+                    break;
+                */
+
+
+                #endregion
+
+
                 //Cases for future file supports go here. For example;
                 //case ".mod":
 
@@ -4262,6 +4428,24 @@ namespace ThreeWorkTool
                                 MessageBox.Show("We got a read error here!", "YIKES");
                                 break;
                             }
+
+                        //New Formats go like this!
+                        /*
+                           case "ThreeWorkTool.Resources.Wrappers.*****Entry":
+                           *****Entry **** = new *****Entry();
+                           ***** = ArcEntry as *****Entry;
+                           if (***** != null)
+                           {
+                               TreeChildInsert(NCount, *****.EntryName, *****.FileExt, *****.EntryDirs, *****.TrueName, *****);
+                               TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                               break;
+                           }
+                           else
+                           {
+                               MessageBox.Show("We got a read error here!", "YIKES");
+                               break;
+                           }
+                        */
 
                         default:
                             //Fills in child nodes, i.e. the filenames inside the archive.
