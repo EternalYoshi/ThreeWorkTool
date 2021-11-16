@@ -410,6 +410,298 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
+        public static ChainListEntry ReplaceCST(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        {
+            ChainListEntry cstnentry = new ChainListEntry();
+            ChainListEntry cstoldentry = new ChainListEntry();
+
+            tree.BeginUpdate();
+
+            //Gotta Fix this up then test insert and replacing.
+            try
+            {
+                using (BinaryReader br = new BinaryReader(File.OpenRead(filename)))
+                {
+
+                    ReplaceKnownEntry(tree, node, filename, cstnentry, cstoldentry);
+
+                    cstnentry._FileName = cstnentry.TrueName;
+                    cstnentry._DecompressedFileLength = cstnentry.UncompressedData.Length;
+                    cstnentry._CompressedFileLength = cstnentry.CompressedData.Length;
+
+                    cstnentry.TypeHash = "326F732E";
+
+                    //Type specific work here.
+                    using (MemoryStream CslStream = new MemoryStream(cstnentry.UncompressedData))
+                    {
+                        using (BinaryReader bnr = new BinaryReader(CslStream))
+                        {
+
+                            bnr.BaseStream.Position = 4;
+                            cstnentry.Unknown04 = bnr.ReadInt32();
+                            cstnentry.TotalEntrySize = bnr.ReadInt32();
+                            cstnentry.CHNEntryCount = bnr.ReadInt32();
+                            cstnentry.CCLEntryCount = bnr.ReadInt32();
+
+                            cstnentry.ChainEntries = new List<CHNEntry>();
+                            cstnentry.ChainCollEntries = new List<CCLEntry>();
+
+                            for (int g = 0; g < cstnentry.CHNEntryCount; g++)
+                            {
+                                CHNEntry cHN = new CHNEntry();
+                                cHN.FullPath = Encoding.ASCII.GetString(bnr.ReadBytes(64)).Trim('\0');
+                                cHN.TypeHash = ByteUtilitarian.BytesToStringL2R(bnr.ReadBytes(4).ToList(), cHN.TypeHash);
+
+                                try
+                                {
+                                    using (var sr = new StreamReader("archive_filetypes.cfg"))
+                                    {
+                                        while (!sr.EndOfStream)
+                                        {
+                                            var keyword = Console.ReadLine() ?? cHN.TypeHash;
+                                            var line = sr.ReadLine();
+                                            if (String.IsNullOrEmpty(line)) continue;
+                                            if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                            {
+                                                cHN.FileExt = line;
+                                                cHN.FileExt = cHN.FileExt.Split(' ')[1];
+                                                cHN.TotalName = cHN.FullPath + cHN.FileExt;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                }
+                                catch (FileNotFoundException)
+                                {
+                                    MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                    {
+                                        sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
+                                    }
+                                    return null;
+                                }
+
+                                cstnentry.ChainEntries.Add(cHN);
+                                bnr.BaseStream.Position = bnr.BaseStream.Position + 16;
+                            }
+
+                            for (int h = 0; h < cstnentry.CCLEntryCount; h++)
+                            {
+                                CCLEntry cCL = new CCLEntry();
+                                cCL.FullPath = Encoding.ASCII.GetString(bnr.ReadBytes(64)).Trim('\0');
+                                cCL.TypeHash = ByteUtilitarian.BytesToStringL2R(bnr.ReadBytes(4).ToList(), cCL.TypeHash);
+
+                                try
+                                {
+                                    using (var sr = new StreamReader("archive_filetypes.cfg"))
+                                    {
+                                        while (!sr.EndOfStream)
+                                        {
+                                            var keyword = Console.ReadLine() ?? cCL.TypeHash;
+                                            var line = sr.ReadLine();
+                                            if (String.IsNullOrEmpty(line)) continue;
+                                            if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                            {
+                                                cCL.FileExt = line;
+                                                cCL.FileExt = cCL.FileExt.Split(' ')[1];
+                                                cCL.TotalName = cCL.FullPath + cCL.FileExt;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                }
+                                catch (FileNotFoundException)
+                                {
+                                    MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                    {
+                                        sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
+                                    }
+                                    return null;
+                                }
+
+                                cstnentry.ChainCollEntries.Add(cCL);
+                            }
+
+                        }
+                    }
+
+                    cstnentry.TextBackup = new List<string>();
+
+
+                    //Hmmm.
+
+                    var tag = node.Tag;
+                    if (tag is ChainListEntry)
+                    {
+                        cstoldentry = tag as ChainListEntry;
+                    }
+                    string path = "";
+                    int index = cstoldentry.EntryName.LastIndexOf("\\");
+                    if (index > 0)
+                    {
+                        path = cstoldentry.EntryName.Substring(0, index);
+                    }
+
+                    cstnentry.EntryName = path + "\\" + cstnentry.TrueName;
+
+                    tag = cstnentry;
+
+                    if (node.Tag is ChainListEntry)
+                    {
+                        node.Tag = cstnentry;
+                        node.Name = Path.GetFileNameWithoutExtension(cstnentry.EntryName);
+                        node.Text = Path.GetFileNameWithoutExtension(cstnentry.EntryName);
+
+                    }
+
+                    var aew = node as ArcEntryWrapper;
+
+                    string type = node.GetType().ToString();
+                    if (type == "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper")
+                    {
+                        aew.entryfile = cstnentry;
+                    }
+
+                    node = aew;
+                    node.entryfile = cstnentry;
+                    tree.EndUpdate();
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Read error. Is the file readable?");
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Read error. Cannot access the file:" + filename + "\n" + ex);
+                }
+            }
+
+
+
+            return node.entryfile as ChainListEntry;
+        }
+
+        public static ChainListEntry InsertChainListEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        {
+            ChainListEntry clstentry = new ChainListEntry();
+
+            InsertEntry(tree, node, filename, clstentry);
+
+            clstentry.DecompressedFileLength = clstentry.UncompressedData.Length;
+            clstentry._DecompressedFileLength = clstentry.UncompressedData.Length;
+            clstentry.CompressedFileLength = clstentry.CompressedData.Length;
+            clstentry._CompressedFileLength = clstentry.CompressedData.Length;
+            clstentry._FileName = clstentry.TrueName;
+            clstentry.EntryName = clstentry.FileName;
+
+            clstentry.TypeHash = "326F732E";
+
+            //Type specific work here.
+            using (MemoryStream CslStream = new MemoryStream(clstentry.UncompressedData))
+            {
+                using (BinaryReader bnr = new BinaryReader(CslStream))
+                {
+
+                    bnr.BaseStream.Position = 4;
+                    clstentry.Unknown04 = bnr.ReadInt32();
+                    clstentry.TotalEntrySize = bnr.ReadInt32();
+                    clstentry.CHNEntryCount = bnr.ReadInt32();
+                    clstentry.CCLEntryCount = bnr.ReadInt32();
+
+                    clstentry.ChainEntries = new List<CHNEntry>();
+                    clstentry.ChainCollEntries = new List<CCLEntry>();
+
+                    for (int g = 0; g < clstentry.CHNEntryCount; g++)
+                    {
+                        CHNEntry cHN = new CHNEntry();
+                        cHN.FullPath = Encoding.ASCII.GetString(bnr.ReadBytes(64)).Trim('\0');
+                        cHN.TypeHash = ByteUtilitarian.BytesToStringL2R(bnr.ReadBytes(4).ToList(), cHN.TypeHash);
+
+                        try
+                        {
+                            using (var sr = new StreamReader("archive_filetypes.cfg"))
+                            {
+                                while (!sr.EndOfStream)
+                                {
+                                    var keyword = Console.ReadLine() ?? cHN.TypeHash;
+                                    var line = sr.ReadLine();
+                                    if (String.IsNullOrEmpty(line)) continue;
+                                    if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                    {
+                                        cHN.FileExt = line;
+                                        cHN.FileExt = cHN.FileExt.Split(' ')[1];
+                                        cHN.TotalName = cHN.FullPath + cHN.FileExt;
+                                        break;
+                                    }
+                                }
+                            }
+
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
+                            }
+                            return null;
+                        }
+
+                        clstentry.ChainEntries.Add(cHN);
+                        bnr.BaseStream.Position = bnr.BaseStream.Position + 16;
+                    }
+
+                    for (int h = 0; h < clstentry.CCLEntryCount; h++)
+                    {
+                        CCLEntry cCL = new CCLEntry();
+                        cCL.FullPath = Encoding.ASCII.GetString(bnr.ReadBytes(64)).Trim('\0');
+                        cCL.TypeHash = ByteUtilitarian.BytesToStringL2R(bnr.ReadBytes(4).ToList(), cCL.TypeHash);
+
+                        try
+                        {
+                            using (var sr = new StreamReader("archive_filetypes.cfg"))
+                            {
+                                while (!sr.EndOfStream)
+                                {
+                                    var keyword = Console.ReadLine() ?? cCL.TypeHash;
+                                    var line = sr.ReadLine();
+                                    if (String.IsNullOrEmpty(line)) continue;
+                                    if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                    {
+                                        cCL.FileExt = line;
+                                        cCL.FileExt = cCL.FileExt.Split(' ')[1];
+                                        cCL.TotalName = cCL.FullPath + cCL.FileExt;
+                                        break;
+                                    }
+                                }
+                            }
+
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
+                            }
+                            return null;
+                        }
+
+                        clstentry.ChainCollEntries.Add(cCL);
+                    }
+
+                }
+            }
+
+            clstentry.TextBackup = new List<string>();
+
+            return clstentry;
+        }
+
         #region CST Properties
         private string _FileName;
         [Category("Filename"), ReadOnlyAttribute(true)]

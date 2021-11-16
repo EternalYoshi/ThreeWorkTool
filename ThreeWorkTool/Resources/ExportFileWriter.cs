@@ -12,8 +12,6 @@ namespace ThreeWorkTool.Resources
     public static class ExportFileWriter
     {
 
-        //public StreamWriter sw;
-
         public static void ArcEntryWriter(string filename, ArcEntry entrytowrite)
         {
             try
@@ -25,7 +23,7 @@ namespace ThreeWorkTool.Resources
                     bw.Close();
                 }
 
-            }                                
+            }
             catch (UnauthorizedAccessException)
             {
                 MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
@@ -56,7 +54,7 @@ namespace ThreeWorkTool.Resources
         {
             try
             {
-                
+
                 using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
                 {
                     bw.Write(entrytowrite.UncompressedData);
@@ -144,11 +142,11 @@ namespace ThreeWorkTool.Resources
                         var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
                         string ext = Path.GetExtension(filename);
 
-                        if(ext == ".png")
+                        if (ext == ".png")
                         {
                             bitmap.Save(Path.ChangeExtension(filename, ".png"), System.Drawing.Imaging.ImageFormat.Png);
                         }
-                        else if(ext == ".dds")
+                        else if (ext == ".dds")
                         {
                             using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
                             {
@@ -156,7 +154,7 @@ namespace ThreeWorkTool.Resources
                                 bw.Close();
                             }
                         }
-                        else if(ext == ".tex")
+                        else if (ext == ".tex")
                         {
                             using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
                             {
@@ -190,7 +188,7 @@ namespace ThreeWorkTool.Resources
                     bw.Write(entrytowrite.UncompressedData);
                     bw.Close();
                 }
-                
+
             }
             catch (UnauthorizedAccessException)
             {
@@ -255,6 +253,32 @@ namespace ThreeWorkTool.Resources
                 return;
             }
         }
+
+        #region New Entries
+        //New Entries Go like this!
+        /*
+         
+        public static void *****Writer(string filename, ***** entrytowrite)
+        {
+            try
+            {
+
+                using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                {
+                    bw.Write(entrytowrite.UncompressedData);
+                    bw.Close();
+                }
+
+            }                                
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                return;
+            }
+        }
+
+        */
+        #endregion
 
     }
 }
