@@ -13,6 +13,13 @@ Thanks to TGE and smb123w64gb for assistance and giving me the resources that ma
 By Eternal Yoshi
 
 Current Changelog:
+V3.1
+- Fixed an issue resulting in textures failling to load in game.
+- Files/Nodes from Archives that are in the same directory are no longer ordered alphabetically.
+- Added the option to reorder Files in the same directory manually.
+- Keyboard Shortcuts! Actions that have shortcuts will have them displayed next to the command.
+- Added support for .cst files, aka ChainList files.
+
 V0.30
 
 - Reorganized and Rewrote file reading and file writing coding of all types of files to be more stable, optimal, and quicker.
@@ -65,3 +72,7 @@ for a reason; don't remove them unless you know what you are doing. Edit at your
 - Replacing/injecting m3a entries means the respective LMT file is going to be rebuilt so replacing will take an extra second or two.
 
 Remember that you can export textures as .DDS files. You can select the extension between .tex(which is by default), .dds, and .png via the Export option's Dialog.
+
+You can now reorder nodes in the same directory. You can do so by right clicking and selecting move up or move down, or just press CTRL + UP/CTRL + DOWN.
+
+Chain List files control what physics files(.chn and .ccl)are used on the character. Removing an entry will disable that physics file from being used.
