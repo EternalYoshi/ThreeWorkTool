@@ -153,6 +153,8 @@ The Line break denotations are there for a reason; don't remove them unless you 
 
 - Remember that you can export textures as .DDS files. You can select the extension between .tex(which is by default), .dds, and .png via the Export option's Dialog.
 
-- You can now reorder nodes in the same directory. You can do so by right clicking and selecting move up or move down, or just press CTRL + UP/CTRL + DOWN.</value>
+- You can now reorder nodes in the same directory. You can do so by right clicking and selecting move up or move down, or just press CTRL + UP/CTRL + DOWN.
+
+- Chain List files control what physics files(.chn and .ccl)are used on the character. Removing an entry will disable that physics file from being used.</value>
   </data>
 </root>
