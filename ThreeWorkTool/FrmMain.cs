@@ -63,6 +63,7 @@ namespace ThreeWorkTool
         public static FrmRename frename;
         public static FrmTxtEditor frmTxtEdit;
         public static FrmTexEncodeDialog frmtexencode;
+        public static FrmNotes frmNote;
         public string RPLBackup;
         public bool isFinishRPLRead;
         private Bitmap bmx;
@@ -5375,6 +5376,19 @@ namespace ThreeWorkTool
 
         }
 
+        private void MenuSettings_Click(object sender, EventArgs e)
+        {
 
+        }
+
+        private void MenuNotesAndAdvice_Click(object sender, EventArgs e)
+        {
+
+            using (FrmNotes frnot = new FrmNotes())
+            {
+                frnot.ShowDialog();
+            }
+
+        }
     }
 }

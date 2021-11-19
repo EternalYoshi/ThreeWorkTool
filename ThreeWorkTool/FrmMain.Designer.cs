@@ -44,6 +44,7 @@
             this.MenuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.lblCurrentFile = new System.Windows.Forms.Label();
@@ -56,6 +57,7 @@
             this.pnlNew = new System.Windows.Forms.Panel();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
+            this.MenuNotesAndAdvice = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -178,14 +180,25 @@
             // 
             // toolsToolStripMenuItem
             // 
+            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MenuSettings});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
             // 
+            // MenuSettings
+            // 
+            this.MenuSettings.Enabled = false;
+            this.MenuSettings.Name = "MenuSettings";
+            this.MenuSettings.Size = new System.Drawing.Size(116, 22);
+            this.MenuSettings.Text = "Settings";
+            this.MenuSettings.Click += new System.EventHandler(this.MenuSettings_Click);
+            // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.MenuAbout});
+            this.MenuAbout,
+            this.MenuNotesAndAdvice});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "&Help";
@@ -193,7 +206,7 @@
             // MenuAbout
             // 
             this.MenuAbout.Name = "MenuAbout";
-            this.MenuAbout.Size = new System.Drawing.Size(107, 22);
+            this.MenuAbout.Size = new System.Drawing.Size(180, 22);
             this.MenuAbout.Text = "About";
             this.MenuAbout.Click += new System.EventHandler(this.MenuAbout_Click);
             // 
@@ -354,6 +367,13 @@
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 
+            // MenuNotesAndAdvice
+            // 
+            this.MenuNotesAndAdvice.Name = "MenuNotesAndAdvice";
+            this.MenuNotesAndAdvice.Size = new System.Drawing.Size(180, 22);
+            this.MenuNotesAndAdvice.Text = "Notes And Advice";
+            this.MenuNotesAndAdvice.Click += new System.EventHandler(this.MenuNotesAndAdvice_Click);
+            // 
             // FrmMainThree
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -417,6 +437,8 @@
         private System.Windows.Forms.Panel pnlNew;
         private System.Windows.Forms.PictureBox picBoxA;
         private System.Windows.Forms.TextBox txtRPList;
+        private System.Windows.Forms.ToolStripMenuItem MenuSettings;
+        private System.Windows.Forms.ToolStripMenuItem MenuNotesAndAdvice;
     }
 }
 
