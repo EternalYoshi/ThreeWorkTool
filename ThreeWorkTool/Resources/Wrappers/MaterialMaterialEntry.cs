@@ -6,12 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources.Utility;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
     public class MaterialMaterialEntry
     {
         public string MatName;
+        public string MatType;
         public int UnknownField04;
         public string TypeHash;
         public string UnknownField;
@@ -26,7 +28,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int CmdListOffset;
         public int AnimDataOffset;
         public int SomethingLabeledP;
-        public uint Index;
+        public int Index;
+        public uint NameTemp;
         public MatShaderObject BlendState;
         public MatShaderObject DepthStencilState;
         public MatShaderObject RasterizerState;
@@ -70,64 +73,172 @@ namespace ThreeWorkTool.Resources.Wrappers
             public int TextureIndex;
         }
 
-        public MaterialMaterialEntry FIllProperties(MaterialMaterialEntry MME)
+        public MaterialMaterialEntry FIllMatMatEntryPropertiesPart1(MaterialMaterialEntry MME, MaterialEntry ParentMat ,BinaryReader bnr, MemoryStream MatStrim, int OffsetToStart, int ID)
         {
+            MME.Index = ID;
+            MME.TypeHash = ByteUtilitarian.BytesToStringL2R(bnr.ReadBytes(4).ToList(), MME.TypeHash);
+
+            //Gets the Material type.
+            MME.MatType = CFGHandler.ArchiveHashToName(MME.MatType, MME.TypeHash);
+
+            MME.UnknownField04 = bnr.ReadInt32();
+            byte[] NameHashBytes = bnr.ReadBytes(4);
+            MME.NameHash = ByteUtilitarian.BytesToStringL2R(NameHashBytes.ToList(), MME.TypeHash);
+            NameTemp = BitConverter.ToUInt32(NameHashBytes, 0);
+
+            //ShaderObjects.
+            MME.BlendState = new MatShaderObject();
+            MME.DepthStencilState = new MatShaderObject();
+            MME.RasterizerState = new MatShaderObject();
+            MME.CmdBufferSize = bnr.ReadInt32();
+
+            byte[] ShadeTemp = new byte[4];
+            ShadeTemp = bnr.ReadBytes(4);
+            uint ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
+            MME.BlendState.Index = Convert.ToInt32(ShadeUInt & 0x00000FFF);
+            MME.BlendState.Hash = "";
+            MME.BlendState.Hash = CFGHandler.ShaderHashToName(MME.BlendState.Hash, MME.BlendState.Index);
+
+            ShadeTemp = bnr.ReadBytes(4);
+            ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
+            MME.DepthStencilState.Index = Convert.ToInt32(ShadeUInt & 0x00000FFF);
+            MME.DepthStencilState.Hash = "";
+            MME.DepthStencilState.Hash = CFGHandler.ShaderHashToName(MME.DepthStencilState.Hash, MME.DepthStencilState.Index);
 
 
-            string TypeHash = "";
-            string line = "";
-            //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
-            try
-            {
-                using (var sr2 = new StreamReader("archive_filetypes.cfg"))
-                {
-                    while (!sr2.EndOfStream)
-                    {
-                        var keyword = Console.ReadLine() ?? MME.TypeHash;
-                        line = sr2.ReadLine();
-                        if (String.IsNullOrEmpty(line)) continue;
-                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
-                        {
-                            TypeHash = line;
-                            TypeHash = TypeHash.Split(' ')[2];
-                            MME._MaterialType = TypeHash;
-                            break;
-                        }
-                    }
-                }
-            }
-            catch (FileNotFoundException)
-            {
-                MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
-                {
-                    sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
-                }
-                return null;
-            }
+            ShadeTemp = bnr.ReadBytes(4);
+            ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
+            MME.RasterizerState.Index = Convert.ToInt32(ShadeUInt & 0x00000FFF);
+            MME.RasterizerState.Hash = "";
+            MME.RasterizerState.Hash = CFGHandler.ShaderHashToName(MME.RasterizerState.Hash, MME.RasterizerState.Index);
+            MME.MaterialCommandListInfo = new MaterialCmdListInfo();
+
+            //The Material Command List Info.
+            ShadeTemp = bnr.ReadBytes(4);
+            ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
+            MME.MaterialCommandListInfo.Count = Convert.ToInt32(ShadeUInt & 0xFFF);
+            MME.MaterialCommandListInfo.Unknown = Convert.ToInt32(ShadeUInt & 0xFFFF000);
+            MME.MaterialinfoFlags = ByteUtilitarian.BytesToStringL2R(bnr.ReadBytes(4).ToList(), MME.MaterialinfoFlags);
+            MME.UnknownField24 = bnr.ReadInt32();
+            MME.UnknownField28 = bnr.ReadInt32();
+            MME.UnknownField2C = bnr.ReadInt32();
+            MME.UnknownField30 = bnr.ReadInt32();
+            MME.AnimDataSize = bnr.ReadInt32();
+            MME.CmdListOffset = Convert.ToInt32(bnr.ReadInt64());
+            MME.AnimDataOffset = Convert.ToInt32(bnr.ReadInt64());
+            OffsetToStart = Convert.ToInt32(bnr.BaseStream.Position);
 
             return MME;
         }
 
-        #region MaterialMaterialEntry Properties
-        
-        private string _MaterialType;
+        #region MaterialSubEntry Properties
         [Category("Material Data"), ReadOnlyAttribute(true)]
         public string MaterialType
         {
 
             get
             {
-                return _MaterialType;
+                return MatType;
             }
             set
             {
-                _MaterialType = value;
+                MatType = value;
             }
+
+        }
+
+        [Category("Material Data"), ReadOnlyAttribute(true)]
+        public int BlendStateIndex
+        {
+
+            get
+            {
+                return BlendState.Index;
+            }
+            set
+            {
+                BlendState.Index = value;
+            }
+
+        }
+
+        [Category("Material Data"), ReadOnlyAttribute(true)]
+        public string BlendStateType
+        {
+
+            get
+            {
+                return BlendState.Hash;
+            }
+            set
+            {
+                BlendState.Hash = value;
+            }
+
+        }
+
+        [Category("Material Data"), ReadOnlyAttribute(true)]
+        public int DepthStencilStateIndex
+        {
+
+            get
+            {
+                return DepthStencilState.Index;
+            }
+            set
+            {
+                DepthStencilState.Index = value;
+            }
+
+        }
+
+        [Category("Material Data"), ReadOnlyAttribute(true)]
+        public string DepthStencilStateType
+        {
+
+            get
+            {
+                return DepthStencilState.Hash;
+            }
+            set
+            {
+                DepthStencilState.Hash = value;
+            }
+
+        }
+
+        [Category("Material Data"), ReadOnlyAttribute(true)]
+        public int RasterizerStateIndex
+        {
+
+            get
+            {
+                return RasterizerState.Index;
+            }
+            set
+            {
+                RasterizerState.Index = value;
+            }
+
+        }
+
+        [Category("Material Data"), ReadOnlyAttribute(true)]
+        public string RasterizerStateType
+        {
+
+            get
+            {
+                return RasterizerState.Hash;
+            }
+            set
+            {
+                RasterizerState.Hash = value;
+            }
+
         }
 
         private string _Name;
-        [Category("Material Data"), ReadOnlyAttribute(true)]
+        [Category("Misc"), ReadOnlyAttribute(true)]
         public string Name
         {
 
@@ -138,6 +249,48 @@ namespace ThreeWorkTool.Resources.Wrappers
             set
             {
                 _Name = value;
+            }
+        }
+
+        [Category("Misc"), ReadOnlyAttribute(true)]
+        public int CommandListOffset
+        {
+
+            get
+            {
+                return CmdListOffset;
+            }
+            set
+            {
+                CmdListOffset = value;
+            }
+        }
+
+        [Category("Misc"), ReadOnlyAttribute(true)]
+        public int CommandListBufferSize
+        {
+
+            get
+            {
+                return CmdBufferSize;
+            }
+            set
+            {
+                CmdBufferSize = value;
+            }
+        }
+
+        [Category("Index"), ReadOnlyAttribute(true)]
+        public int SubIndex
+        {
+
+            get
+            {
+                return Index;
+            }
+            set
+            {
+                Index = value;
             }
         }
 

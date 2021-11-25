@@ -220,7 +220,7 @@ namespace ThreeWorkTool
                                     int nowcount = 0;
                                     foreach (TreeNode treno in Nodes)
                                     {
-                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry)
+                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry)
                                         {
 
                                         }
@@ -943,7 +943,6 @@ namespace ThreeWorkTool
                                             byte[] CompData = tenty.CompressedData;
                                             bwr.Write(CompData, 0, CompData.Length);
                                         }
-
                                         else if (treno.Tag as ResourcePathListEntry != null)
                                         {
                                             lrpenty = treno.Tag as ResourcePathListEntry;
@@ -951,7 +950,6 @@ namespace ThreeWorkTool
                                             bwr.Write(CompData, 0, CompData.Length);
 
                                         }
-
                                         else if (treno.Tag as LMTEntry != null)
                                         {
                                             lmtenty = treno.Tag as LMTEntry;
@@ -959,7 +957,6 @@ namespace ThreeWorkTool
                                             bwr.Write(CompData, 0, CompData.Length);
 
                                         }
-
                                         else if (treno.Tag as MaterialEntry != null)
                                         {
                                             matent = treno.Tag as MaterialEntry;
@@ -1002,7 +999,6 @@ namespace ThreeWorkTool
                                             bwr.Write(CompData, 0, CompData.Length);
                                         }
                                         */
-
                                     }
 
                                     bwr.Close();
@@ -4314,6 +4310,66 @@ namespace ThreeWorkTool
 
                 #endregion
 
+                #region Model Files
+
+                case "ThreeWorkTool.Resources.Wrappers.ModelEntry":
+                    ArcEntryWrapper modchild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+
+                    //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+                    modchild.Name = I;
+                    modchild.Tag = FEntry as ModelEntry;
+                    modchild.Text = I;
+                    modchild.entryfile = FEntry as ModelEntry;
+                    modchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = modchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(modchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var modrootNode = FindRootNode(modchild);
+
+                    TreeSource.SelectedNode = modchild;
+                    TreeSource.SelectedNode.ImageIndex = 11;
+                    TreeSource.SelectedNode.SelectedImageIndex = 11;
+
+
+                    modchild.ContextMenuStrip = GenericFileContextAdder(modchild, TreeSource);
+
+                    //ModelChildrenCreation(E, F, G, H, I, modchild, modchild.Tag as ModelEntry);
+
+                    TreeSource.SelectedNode = modrootNode;
+
+                    tcount++;
+
+                    break;
+
+                #endregion
+
                 #region New Formats
                 //New Format go like this!
                 /*
@@ -4377,6 +4433,9 @@ namespace ThreeWorkTool
 
                 //Cases for future file supports go here. For example;
                 //case ".mod":
+                //{
+                //}
+                //break;
 
                 //For Undocumented file types. Anything else should have a case above.
                 default:
@@ -4494,21 +4553,9 @@ namespace ThreeWorkTool
         public void MaterialChildrenCreation(int E, string F, string G, string[] H, string I, ArcEntryWrapper MEntry, MaterialEntry material)
         {
 
-            //Makes the Material and Texture Subfolder.
-            TreeNode folder = new TreeNode();
-            folder.Name = "Materials";
-            folder.Tag = "Folder";
-            folder.Text = "Materials";
-            //folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-
-            TreeSource.SelectedNode.Nodes.Add(folder);
-            TreeSource.SelectedNode = folder;
-            TreeSource.SelectedNode.ImageIndex = 2;
-            TreeSource.SelectedNode.SelectedImageIndex = 2;
-
             TreeSource.SelectedNode = MEntry;
 
-            //Makes the Material and Texture Subfolder.
+            //Makes the Material Subfolder.
             TreeNode foldert = new TreeNode();
             foldert.Name = "Textures";
             foldert.Tag = "Folder";
@@ -4529,17 +4576,37 @@ namespace ThreeWorkTool
                 Texture.Text = material.Textures[i].FullTexName;
                 TreeSource.SelectedNode.Nodes.Add(Texture);
                 ContextMenuStrip conmenu = new ContextMenuStrip();
-                conmenu.Items.Add("Change Texture Reference via Rename", null, MenuItemRenameFile_Click);
+
+                var Mrnitem = new ToolStripMenuItem("Change Texture Reference via Rename", null, MenuItemRenameFile_Click, Keys.F2);
+                conmenu.Items.Add(Mrnitem);
                 Texture.ContextMenuStrip = conmenu;
 
             }
 
+            TreeSource.SelectedNode = MEntry;
+
+            //Makes the Texture Subfolder.
+            TreeNode folder = new TreeNode();
+            folder.Name = "Materials";
+            folder.Tag = "Folder";
+            folder.Text = "Materials";
+            //folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+
+            TreeSource.SelectedNode.Nodes.Add(folder);
+            TreeSource.SelectedNode = folder;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
             //Fills in Materials used in the Material Folder.
             for (int i = 0; i < material.MaterialCount; i++)
             {
-                //incomplete and Commented Out.
-                //TreeNode Material = new TreeNode();
-                //Material.Tag = material.Textures[i];
+                
+                ArcEntryWrapper Material = new ArcEntryWrapper();
+                Material.Name = material.Materials[i].NameHash;
+                Material.Tag = material.Materials[i];
+                Material.Text = material.Materials[i].NameHash;
+                TreeSource.SelectedNode.Nodes.Add(Material);
+                ContextMenuStrip conmenu = new ContextMenuStrip();
 
             }
 
@@ -4568,6 +4635,43 @@ namespace ThreeWorkTool
                 lma3.ContextMenuStrip = conmenu;
 
             }
+
+        }
+
+        public void ModelChildrenCreation(int E, string F, string G, string[] H, string I, ArcEntryWrapper MEntry, ModelEntry model)
+        {
+
+            TreeSource.SelectedNode = MEntry;
+
+            //Makes the Texture Subfolder.
+            TreeNode folder = new TreeNode();
+            folder.Name = "Material Names";
+            folder.Tag = "Folder";
+            folder.Text = "Material Names";
+            //folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+
+            TreeSource.SelectedNode.Nodes.Add(folder);
+            TreeSource.SelectedNode = folder;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+
+            for (int v = 0; v < model.MaterialNames.Count; v++)
+            {
+
+                ArcEntryWrapper Material = new ArcEntryWrapper();
+                Material.Name = model.MaterialNames[v];
+                Material.Tag = "Model Material Reference";
+                Material.Text = model.MaterialNames[v];
+                TreeSource.SelectedNode.Nodes.Add(Material);
+                ContextMenuStrip conmenu = new ContextMenuStrip();
+
+                var Mrnitem = new ToolStripMenuItem("Change Texture Reference via Rename", null, MenuItemRenameFile_Click, Keys.F2);
+                conmenu.Items.Add(Mrnitem);
+                Material.ContextMenuStrip = conmenu;
+
+            }
+
 
         }
 
@@ -4777,6 +4881,21 @@ namespace ThreeWorkTool
                     switch (type)
                     {
 
+                        case "ThreeWorkTool.Resources.Wrappers.ModelEntry":
+                            ModelEntry mode = new ModelEntry();
+                            mode = ArcEntry as ModelEntry;
+                            if (mode != null)
+                            {
+                                TreeChildInsert(NCount, mode.EntryName, mode.FileExt, mode.EntryDirs, mode.TrueName, mode);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
                         case "ThreeWorkTool.Resources.Wrappers.ChainListEntry":
                             ChainListEntry cle = new ChainListEntry();
                             cle = ArcEntry as ChainListEntry;
@@ -4852,8 +4971,7 @@ namespace ThreeWorkTool
                                 break;
                             }
 
-                        //Maybe next release.
-                        /*
+
                     case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
                         MaterialEntry mte = new MaterialEntry();
                         mte = ArcEntry as MaterialEntry;
@@ -4868,7 +4986,6 @@ namespace ThreeWorkTool
                             MessageBox.Show("We got a read error here!", "YIKES");
                             break;
                         }
-                        */
 
                         case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
                             TextureEntry te = new TextureEntry();
@@ -4970,25 +5087,79 @@ namespace ThreeWorkTool
         //This is test stuff from the Microsoft website. Modified for my purposes.
         private void PrintRecursive(TreeNode WrapNode, StreamWriter sw, int count)
         {
-            if (WrapNode.Tag is ArcEntry)
-            {
-                ArcEntry ae = new ArcEntry();
-                ae = WrapNode.Tag as ArcEntry;
-                //Outputs name to log.
-                sw.WriteLine(ae.EntryName);
-            }
-            else if (WrapNode.Tag is TextureEntry)
-            {
-                TextureEntry ae = new TextureEntry();
-                ae = WrapNode.Tag as TextureEntry;
-                //Outputs name to log.
-                sw.WriteLine(ae.EntryName);
-            }
-            else
+
+            string type = WrapNode.Tag.GetType().ToString();
+            switch (type)
             {
 
+                case "ThreeWorkTool.Resources.Archives.ArcEntry":
+                    ArcEntry ae = new ArcEntry();
+                    ae = WrapNode.Tag as ArcEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(ae.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
+                    TextureEntry te = new TextureEntry();
+                    te = WrapNode.Tag as TextureEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(te.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.MSDEntry":
+                    MSDEntry msde = new MSDEntry();
+                    msde = WrapNode.Tag as MSDEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(msde.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
+                    ResourcePathListEntry rple = new ResourcePathListEntry();
+                    rple = WrapNode.Tag as ResourcePathListEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(rple.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
+                    MaterialEntry mate = new MaterialEntry();
+                    mate = WrapNode.Tag as MaterialEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(mate.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
+                    LMTEntry lmte = new LMTEntry();
+                    lmte = WrapNode.Tag as LMTEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(lmte.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainListEntry":
+                    ChainListEntry cste = new ChainListEntry();
+                    cste = WrapNode.Tag as ChainListEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(cste.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainEntry":
+                    ChainEntry chne = new ChainEntry();
+                    chne = WrapNode.Tag as ChainEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(chne.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ChainCollisionEntry":
+                    ChainCollisionEntry ccle = new ChainCollisionEntry();
+                    ccle = WrapNode.Tag as ChainCollisionEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(ccle.EntryName);
+                    break;
+
+                default:
+                    break;
 
             }
+
 
             // Print each node recursively.  
             foreach (TreeNode tn in WrapNode.Nodes)
@@ -5052,23 +5223,16 @@ namespace ThreeWorkTool
 
         public void UpdateMSD(RichTextBox textBox)
         {
-
-
             MSDEntry msdupdated = frename.Mainfrm.TreeSource.SelectedNode.Tag as MSDEntry;
             if (msdupdated != null)
             {
                 MSDEntry.UpdateMSDFromTexEditorForm(textBox, msdupdated);
             }
-
-
         }
 
         private void TxtRPList_TextChanged(object sender, EventArgs e)
         {
-            if (isFinishRPLRead == true)
-            {
-                TextBoxUpdating();
-            }
+            if (isFinishRPLRead == true) TextBoxUpdating();
         }
 
         private void TextBoxUpdating()
@@ -5133,6 +5297,19 @@ namespace ThreeWorkTool
         {
             switch (type)
             {
+
+                #region Model
+                case "ThreeWorkTool.Resources.Wrappers.ModelEntry":
+                    ModelEntry modelEntry = new ModelEntry();
+                    modelEntry = TreeSource.SelectedNode.Tag as ModelEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                #endregion
 
                 #region ChainCollision
                 case "ThreeWorkTool.Resources.Wrappers.ChainCollisionEntry":
@@ -5216,6 +5393,18 @@ namespace ThreeWorkTool
                 case "ThreeWorkTool.Resources.Wrappers.MaterialTextureReference":
                     MaterialTextureReference MTexRefEntry = new MaterialTextureReference();
                     MTexRefEntry = TreeSource.SelectedNode.Tag as MaterialTextureReference;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    MenuEdit.Enabled = false;
+                    break;
+                #endregion
+
+                #region Material Sub Entry
+                case "ThreeWorkTool.Resources.Wrappers.MaterialMaterialEntry":
+                    MaterialMaterialEntry MatSubEntry = new MaterialMaterialEntry();
+                    MatSubEntry = TreeSource.SelectedNode.Tag as MaterialMaterialEntry;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
@@ -5383,12 +5572,8 @@ namespace ThreeWorkTool
 
         private void MenuNotesAndAdvice_Click(object sender, EventArgs e)
         {
-
-            using (FrmNotes frnot = new FrmNotes())
-            {
-                frnot.ShowDialog();
-            }
-
+            using (FrmNotes frnot = new FrmNotes()) frnot.ShowDialog();
         }
+
     }
 }

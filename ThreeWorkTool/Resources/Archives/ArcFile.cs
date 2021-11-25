@@ -145,8 +145,7 @@ namespace ThreeWorkTool.Resources.Archives
                             break;
 
 
-                        //Materials. Next Time.
-                        /*
+                        //Materials. Incomplete.                        
                         case "2749C8A8":
                             MaterialEntry Maten = MaterialEntry.FillMatEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(Maten);
@@ -154,7 +153,7 @@ namespace ThreeWorkTool.Resources.Archives
                             foldernames.Clear();
                             IDCounter++;
                             break;
-                            */
+                            
 
                         //LMT Files.
                         case "76820D81":
@@ -197,6 +196,15 @@ namespace ThreeWorkTool.Resources.Archives
                             ChainCollisionEntry CCLen = ChainCollisionEntry.FillChainCollEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(CCLen);
                             arcfile.FileList.Add(CCLen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
+                        //MOD Files.
+                        case "58A15856":
+                            ModelEntry MODen = ModelEntry.FillModelEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(MODen);
+                            arcfile.FileList.Add(MODen.EntryName);
                             foldernames.Clear();
                             IDCounter++;
                             break;

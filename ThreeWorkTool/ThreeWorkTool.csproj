@@ -145,6 +145,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Resources\Utility\ByteUtilitarian.cs" />
+    <Compile Include="Resources\Utility\CFGHandler.cs" />
     <Compile Include="Resources\Wrappers\ArcEntryWrapper.cs" />
     <Compile Include="Resources\Wrappers\ArcFileWrapper.cs" />
     <Compile Include="Resources\Wrappers\ChainCollisionEntry.cs" />
@@ -205,6 +206,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Lib\" />
+    <Folder Include="Resources\Wrappers\ModelNodes\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\Arc.png" />
