@@ -1602,6 +1602,28 @@ namespace ThreeWorkTool
                     }
                     break;
 
+                case "ThreeWorkTool.Resources.Wrappers.ModelEntry":
+                    ModelEntry MODentry = new ModelEntry();
+                    if (tag is ChainEntry)
+                    {
+
+                        MODentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ModelEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(MODentry.FileExt);
+                    }
+                    EXDialog.FileName = MODentry.FileName + MODentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.ModelEntryWriter(EXDialog.FileName, MODentry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
                 case "ThreeWorkTool.Resources.Wrappers.ChainCollisionEntry":
                     ChainCollisionEntry CCLentry = new ChainCollisionEntry();
                     if (tag is ChainCollisionEntry)
@@ -4360,7 +4382,7 @@ namespace ThreeWorkTool
 
                     modchild.ContextMenuStrip = GenericFileContextAdder(modchild, TreeSource);
 
-                    //ModelChildrenCreation(E, F, G, H, I, modchild, modchild.Tag as ModelEntry);
+                    ModelChildrenCreation(E, F, G, H, I, modchild, modchild.Tag as ModelEntry);
 
                     TreeSource.SelectedNode = modrootNode;
 
@@ -4864,6 +4886,10 @@ namespace ThreeWorkTool
             }
             else
             {
+
+                //(Tries to) Get the Materials and matching model name to sync up the names of the textures inside the former.
+                //newArc = ArcFile.SyncMaterialNames(newArc);
+
                 TreeFill(newArc.Tempname, NCount, newArc);
 
                 NCount = 1;

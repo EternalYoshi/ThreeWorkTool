@@ -86,181 +86,26 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //byte[] NameHashBytes;
                     //uint NameTemp;
 
+                    
                     //Part 1 of Materials.
                     for (int i = 0; i < MATEntry.MaterialCount; i++)
                     {
+
                         MaterialMaterialEntry MMEntry = new MaterialMaterialEntry();
-                        MMEntry = MMEntry.FIllMatMatEntryPropertiesPart1(MMEntry, MATEntry,MBR, MatStream, PrevOffset,i);
-                        MATEntry.Materials.Add(MMEntry);
-
-                        /*
-                        MaterialMaterialEntry MMEntry = new MaterialMaterialEntry();
-                        MMEntry.TypeHash = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MMEntry.TypeHash);
-                        MMEntry.UnknownField04 = MBR.ReadInt32();
-                        NameHashBytes = MBR.ReadBytes(4);
-                        MMEntry.NameHash = ByteUtilitarian.BytesToStringL2R(NameHashBytes.ToList(), MMEntry.TypeHash);
-
-                        //Name.
-                        NameTemp = BitConverter.ToUInt32(NameHashBytes,0);
-
-                        //ShaderObjects.
-                        MMEntry.BlendState = new MatShaderObject();
-                        MMEntry.DepthStencilState = new MatShaderObject();
-                        MMEntry.RasterizerState = new MatShaderObject();
-                        MMEntry.CmdBufferSize = MBR.ReadInt32();
-                        ShadeTemp = MBR.ReadBytes(4);
-                        ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
-                        MMEntry.BlendState.Index = Convert.ToInt32(ShadeUInt & 0x00000FFF);
-                        MMEntry.BlendState.Hash = "";
-
-                        //Getting The Hash.
-                        string line = "";
-                        try
-                        {
-                            line = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.BlendState.Index).Take(1).First();
-                        }
-                        catch (Exception xx)
-                        {
-                            MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
-                            return null;
-                        }
-                        MMEntry.BlendState.Hash = line;
-
-                        ShadeTemp = MBR.ReadBytes(4);
-                        ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
-                        MMEntry.DepthStencilState.Index = Convert.ToInt32(ShadeUInt & 0x00000FFF);
-                        MMEntry.DepthStencilState.Hash = "";
-
-                        //Getting The Hash.
-                        try
-                        {
-                            line = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.DepthStencilState.Index).Take(1).First();
-                        }
-                        catch (Exception xx)
-                        {
-                            MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
-                            return null;
-                        }
-                        MMEntry.DepthStencilState.Hash = line;
-
-                        ShadeTemp = MBR.ReadBytes(4);
-                        ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
-                        MMEntry.RasterizerState.Index = Convert.ToInt32(ShadeUInt & 0x00000FFF);
-                        MMEntry.RasterizerState.Hash = "";
-
-                        //Getting The Hash.
-                        try
-                        {
-                            line = File.ReadLines("mvc3shadertypes.cfg").Skip(MMEntry.RasterizerState.Index).Take(1).First();
-                        }
-                        catch (Exception xx)
-                        {
-                            MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
-                            return null;
-                        }
-                        MMEntry.RasterizerState.Hash = line;
-                        MMEntry.MaterialCommandListInfo = new MaterialCmdListInfo();
-
-                        //The Material Command List Info.
-                        ShadeTemp = MBR.ReadBytes(4);
-                        ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
-                        MMEntry.MaterialCommandListInfo.Count = Convert.ToInt32(ShadeUInt & 0xFFF);
-                        MMEntry.MaterialCommandListInfo.Unknown = Convert.ToInt32(ShadeUInt & 0xFFFF000);
-                        MMEntry.MaterialinfoFlags = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MMEntry.MaterialinfoFlags);
-                        MMEntry.UnknownField24 = MBR.ReadInt32();
-                        MMEntry.UnknownField28 = MBR.ReadInt32();
-                        MMEntry.UnknownField2C = MBR.ReadInt32();
-                        MMEntry.UnknownField30 = MBR.ReadInt32();
-                        MMEntry.AnimDataSize = MBR.ReadInt32();
-                        MMEntry.CmdListOffset = Convert.ToInt32(MBR.ReadInt64());
-                        MMEntry.AnimDataOffset = Convert.ToInt32(MBR.ReadInt64());
-                        MMEntry.SomethingLabeledP = Convert.ToInt32(MBR.BaseStream.Position);
-
-                        #region Commands
-                        //Commands.
-                        MBR.BaseStream.Position = MMEntry.CmdListOffset;
-                        MMEntry.MaterialCommands = new List<MatCmd>();
-                        byte[] InfoTemp = new byte[4];
-                        uint UInfoTemp;
-                        int Uniontemp;
-                        for (int r = 0;r < MMEntry.MaterialCommandListInfo.Count; r++)
-                        {
-                            MatCmd cmd = new MatCmd();
-                            //Command Info.
-                            cmd.MCInfo = new MatCmdInfo();
-                            InfoTemp = MBR.ReadBytes(4);
-                            UInfoTemp = BitConverter.ToUInt32(InfoTemp, 0);
-                            cmd.MCInfo.SomeValue = Convert.ToInt32(UInfoTemp & 0x0000000F);
-                            cmd.MCInfo.SetFlag = Convert.ToInt32(UInfoTemp & 0x000FFFF0);
-                            cmd.MCInfo.ShaderObjectIndex = Convert.ToInt32(UInfoTemp >> 20);
-
-                            cmd.SomeField04 = MBR.ReadInt32();
-                            InfoTemp = MBR.ReadBytes(4);
-                            UInfoTemp = BitConverter.ToUInt32(InfoTemp, 0);
-                            Uniontemp = BitConverter.ToInt32(InfoTemp, 0);
-
-                            //Yet another Shader Object ID inside the Value Union.
-                            cmd.MaterialCommandValue = new Value();
-                            cmd.MaterialCommandValue.ConstantBufferDataOffset = Uniontemp;
-                            cmd.MaterialCommandValue.TextureIndex = cmd.MaterialCommandValue.ConstantBufferDataOffset;
-                            cmd.MaterialCommandValue.VShaderObjectID = new MatShaderObject();
-                            cmd.MaterialCommandValue.VShaderObjectID.Index = Convert.ToInt32(UInfoTemp & 0x00000FFF);
-                            cmd.MaterialCommandValue.VShaderObjectID.Hash = "";
-
-                            //Getting The Hash.
-                            line = "";
-                            try
-                            {
-                                line = File.ReadLines("mvc3shadertypes.cfg").Skip(cmd.MaterialCommandValue.VShaderObjectID.Index).Take(1).First();
-                            }
-                            catch (Exception xx)
-                            {
-                                MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
-                                return null;
-                            }
-                            cmd.MaterialCommandValue.VShaderObjectID.Hash = line;
-                            MBR.BaseStream.Position = MBR.BaseStream.Position + 4;
-                            //Again, but for the Shader Object OUTISDE the Union.
-                            InfoTemp = MBR.ReadBytes(4);
-                            UInfoTemp = BitConverter.ToUInt32(InfoTemp, 0);
-                            cmd.CmdShaderObject = new MatShaderObject();
-                            cmd.CmdShaderObject.Index = Convert.ToInt32(UInfoTemp & 0x00000FFF);
-                            //Getting The Hash.
-                            line = "";
-                            try
-                            {
-                                line = File.ReadLines("mvc3shadertypes.cfg").Skip(cmd.CmdShaderObject.Index).Take(1).First();
-                            }
-                            catch (Exception xx)
-                            {
-                                MessageBox.Show("mvc3shadertypes.cfg is missing or not read. Can't continue parsing materials.\n" + xx, "Uh-Oh");
-                                return null;
-                            }
-                            cmd.CmdShaderObject.Hash = line;
-                            cmd.SomeField14 = MBR.ReadInt32();
-
-                            //....Gotta do something about the NameHash. Need to reference the model somehow...
-
-                            MMEntry.MaterialCommands.Add(cmd);
-
-                        }
-
-                        #endregion
-
-                        //Gotta have SOMETHING here to get the ConstantBufferData.... so how would I associate the floating points to the proper command?
-
-
-                        MMEntry = MMEntry.FIllProperties(MMEntry);
+                        MMEntry = MMEntry.FIllMatMatEntryPropertiesPart1(MMEntry, MATEntry,MBR, MatStream, PrevOffset, i);
+                        MMEntry = MMEntry.FIllMatMatEntryPropertiesPart2(MMEntry, MATEntry, MBR, MatStream, PrevOffset, i);
 
                         MATEntry.Materials.Add(MMEntry);
-                        MBR.BaseStream.Position = MMEntry.SomethingLabeledP;
-                        */
+                        PrevOffset = PrevOffset + 72;
+                        MBR.BaseStream.Position = PrevOffset;
+
                     }
-
+                    
 
 
                 }
             }
+
 
 
             return MATEntry;

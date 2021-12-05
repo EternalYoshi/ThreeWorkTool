@@ -15,7 +15,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 {
     public class LMTEntry : DefaultWrapper
     {
-        public int SomeNumber;
+        public int Version;
         public int SecondOffsetList;
         public int RowCount;
         public int SomeValue1;
@@ -53,11 +53,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                 using (BinaryReader bnr = new BinaryReader(LmtStream))
                 {
                     bnr.BaseStream.Position = 6;
-                    lmtentry.SomeNumber = bnr.ReadInt16();
-                    lmtentry.EntryCount = lmtentry.SomeNumber;
+                    lmtentry.Version = bnr.ReadInt16();
+                    lmtentry.EntryCount = lmtentry.Version;
 
                     //Gets all the offsets. ALL OF THEM.
-                    while (count < (lmtentry.SomeNumber))
+                    while (count < (lmtentry.Version))
                     {
                         lmtentry.OffsetList.Add(bnr.ReadInt32());
                         bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
@@ -173,13 +173,13 @@ namespace ThreeWorkTool.Resources.Wrappers
                         {
 
                             bnr.BaseStream.Position = 6;
-                            lmtentry.SomeNumber = bnr.ReadInt16();
-                            lmtentry.EntryCount = lmtentry.SomeNumber;
+                            lmtentry.Version = bnr.ReadInt16();
+                            lmtentry.EntryCount = lmtentry.Version;
                             lmtentry.OffsetList = new List<int>();
                             lmtentry.LstM3A = new List<LMTM3AEntry>();
 
                             //Gets all the offsets. ALL OF THEM.
-                            while (count < (lmtentry.SomeNumber))
+                            while (count < (lmtentry.Version))
                             {
                                 lmtentry.OffsetList.Add(bnr.ReadInt32());
                                 bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
@@ -313,13 +313,13 @@ namespace ThreeWorkTool.Resources.Wrappers
                     lmtentry._FileType = lmtentry.FileExt;
 
                     bnr.BaseStream.Position = 6;
-                    lmtentry.SomeNumber = bnr.ReadInt16();
-                    lmtentry.EntryCount = lmtentry.SomeNumber;
+                    lmtentry.Version = bnr.ReadInt16();
+                    lmtentry.EntryCount = lmtentry.Version;
 
                     int count = 0;
                     int SecondaryCount = 0;
                     //Gets all the offsets. ALL OF THEM.
-                    while (count < (lmtentry.SomeNumber))
+                    while (count < (lmtentry.Version))
                     {
                         lmtentry.OffsetList.Add(bnr.ReadInt32());
                         bnr.BaseStream.Position = bnr.BaseStream.Position + 4;

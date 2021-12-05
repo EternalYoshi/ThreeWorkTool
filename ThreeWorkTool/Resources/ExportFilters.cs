@@ -25,6 +25,8 @@
 
         public static string rChainCollision = "MT Physics Collision File (*.ccl)|*.ccl";
 
+        public static string rModel = "MT Framework Model File (*.mod)|*.mod";
+
         public static string GetFilter(string filetype)
         {
 
@@ -56,6 +58,9 @@
 
                 case ".ccl":
                     return rChainCollision;
+
+                case ".mod":
+                    return rModel;
 
                 default:
                     return Etc; 

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
+using ThreeWorkTool.Resources.Wrappers.ModelNodes;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -46,6 +47,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int Field9C;
         public int PrimitiveJointLinkCount;
         public List<string> MaterialNames;
+        public List<ModelBoneEntry> Bones;
 
         public static ModelEntry FillModelEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {

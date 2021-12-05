@@ -31,6 +31,7 @@ namespace ThreeWorkTool.Resources.Archives
         public int k;
         public int IDCounter;
         public int Totalsize;
+        public int MaterialCount;
         public List<string> subdref;
         public static int EntryStart = 0x08;
         public static int EntrySize = 0x50;
@@ -69,7 +70,7 @@ namespace ThreeWorkTool.Resources.Archives
                 }
 
                 arcfile.HeaderMagic = HeaderMagic;
-
+                arcfile.MaterialCount = 0;
                 arcfile.arctable = new List<ArcEntry>();
                 arcfile.arcfiles = new List<object>();
                 arcfile.FileList = new List<string>();
@@ -152,6 +153,7 @@ namespace ThreeWorkTool.Resources.Archives
                             arcfile.FileList.Add(Maten.EntryName);
                             foldernames.Clear();
                             IDCounter++;
+                            arcfile.MaterialCount++;
                             break;
                             
 
@@ -230,12 +232,36 @@ namespace ThreeWorkTool.Resources.Archives
                     }
                 }
 
-                arcfile._FileAmount = Convert.ToUInt16(IDCounter);
+                arcfile._FileAmount = Convert.ToUInt16(IDCounter);                
 
                 br.Close();
             }
 
             return arcfile;
+        }
+
+        public static ArcFile SyncMaterialNames(ArcFile archive, Type filetype = null)
+        {
+
+            List<int> IndicesOfNote = new List<int>();
+            string FindThis = "mrl";
+            string searchline = "";
+            List<string> MatFileNames = new List<string>();
+            for (int i = 0; i < archive.FileList.Count; i++)
+            {
+
+                searchline = archive.FileList[i].Substring(archive.FileList[i].Length - 3);
+                if (searchline == FindThis)
+                {
+                    MatFileNames.Add(archive.FileList[i]);
+                    IndicesOfNote.Add(i);
+                }
+
+            }
+
+
+
+            return archive;
         }
 
         public static string BytesToString(byte[] bytes)
