@@ -47,6 +47,7 @@
             this.MenuSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuAbout = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuNotesAndAdvice = new System.Windows.Forms.ToolStripMenuItem();
             this.lblCurrentFile = new System.Windows.Forms.Label();
             this.txtBoxCurrentFile = new System.Windows.Forms.TextBox();
             this.pGrdMain = new System.Windows.Forms.PropertyGrid();
@@ -57,7 +58,6 @@
             this.pnlNew = new System.Windows.Forms.Panel();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
-            this.MenuNotesAndAdvice = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -206,9 +206,16 @@
             // MenuAbout
             // 
             this.MenuAbout.Name = "MenuAbout";
-            this.MenuAbout.Size = new System.Drawing.Size(180, 22);
+            this.MenuAbout.Size = new System.Drawing.Size(169, 22);
             this.MenuAbout.Text = "About";
             this.MenuAbout.Click += new System.EventHandler(this.MenuAbout_Click);
+            // 
+            // MenuNotesAndAdvice
+            // 
+            this.MenuNotesAndAdvice.Name = "MenuNotesAndAdvice";
+            this.MenuNotesAndAdvice.Size = new System.Drawing.Size(169, 22);
+            this.MenuNotesAndAdvice.Text = "Notes And Advice";
+            this.MenuNotesAndAdvice.Click += new System.EventHandler(this.MenuNotesAndAdvice_Click);
             // 
             // lblCurrentFile
             // 
@@ -367,13 +374,6 @@
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 
-            // MenuNotesAndAdvice
-            // 
-            this.MenuNotesAndAdvice.Name = "MenuNotesAndAdvice";
-            this.MenuNotesAndAdvice.Size = new System.Drawing.Size(180, 22);
-            this.MenuNotesAndAdvice.Text = "Notes And Advice";
-            this.MenuNotesAndAdvice.Click += new System.EventHandler(this.MenuNotesAndAdvice_Click);
-            // 
             // FrmMainThree
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -388,7 +388,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
-            this.Text = "ThreeWork Tool V0.31";
+            this.Text = "ThreeWork Tool V0.31X";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMainThree_KeyDown);
             this.menuStrip1.ResumeLayout(false);

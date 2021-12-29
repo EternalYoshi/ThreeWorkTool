@@ -31,6 +31,7 @@ namespace ThreeWorkTool
             InitializeComponent();
         }
 
+        public static bool NastyError = false;
         public string[] ArcFileNameListBackup;
         public List<string> subdirs;
         public string CFile;
@@ -68,6 +69,7 @@ namespace ThreeWorkTool
         public bool isFinishRPLRead;
         private Bitmap bmx;
         private TextureEntry tentry;
+        public bool ArcFileIsBigEndian;
 
         //This lets us use the dilogue without having to paste this within each button's function.
         OpenFileDialog OFDialog = new OpenFileDialog();
@@ -1052,7 +1054,7 @@ namespace ThreeWorkTool
 
         private void MenuAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("ThreeWork Tool Alpha version 0.31 Preview\n2021 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program.", "About", MessageBoxButtons.OK);
+            MessageBox.Show("ThreeWork Tool Alpha version 0.31X Preview\n2021 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program.", "About", MessageBoxButtons.OK);
         }
 
         private void MenuClose_Click(object sender, EventArgs e)
@@ -4792,44 +4794,57 @@ namespace ThreeWorkTool
             if (textureEntry.OutMaps != null)
             {
 
-                Stream ztrim = new MemoryStream(textureEntry.OutMaps);
-                //From the pfim website.
-                using (var image = Pfim.Pfim.FromStream(ztrim))
+                if (textureEntry.OutMaps[0] == 137 && textureEntry.OutMaps[1] == 80 && textureEntry.OutMaps[2] == 78 && textureEntry.OutMaps[3] == 71 && textureEntry.OutMaps[4] == 13 && textureEntry.OutMaps[5] == 10 && textureEntry.OutMaps[6] == 26 && textureEntry.OutMaps[7] == 10)
                 {
-                    PixelFormat format;
-
-                    // Convert from Pfim's backend agnostic image format into GDI+'s image format
-                    switch (image.Format)
+                    #region PNG
+                    Bitmap bmp;
+                    using (var ms = new MemoryStream(textureEntry.OutMaps))
                     {
-                        case Pfim.ImageFormat.Rgba32:
-                            format = PixelFormat.Format32bppArgb;
-                            break;
-                        //case Pfim.ImageFormat.Rgb24:
-                        // format = PixelFormat.Format24bppRgb;
-                        //break;
-                        default:
-                            // see the sample for more details
-                            throw new NotImplementedException();
+                        bmp = new Bitmap(ms);
+                        return bmp;
                     }
-
-                    // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
-                    // in this snippet but useful technique if the data was going to be used in
-                    // control like a picture box
-                    var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
-                    try
-                    {
-                        var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
-                        var pmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
-                        return pmap;
-                    }
-                    finally
-                    {
-                        handle.Free();
-                    }
+                    #endregion
                 }
+                else
+                {
+                    #region DDS Files
+                    Stream ztrim = new MemoryStream(textureEntry.OutMaps);
+                    //From the pfim website.
+                    using (var image = Pfim.Pfim.FromStream(ztrim))
+                    {
+                        PixelFormat format;
 
+                        // Convert from Pfim's backend agnostic image format into GDI+'s image format
+                        switch (image.Format)
+                        {
+                            case Pfim.ImageFormat.Rgba32:
+                                format = PixelFormat.Format32bppArgb;
+                                break;
+                            //case Pfim.ImageFormat.Rgb24:
+                            // format = PixelFormat.Format24bppRgb;
+                            //break;
+                            default:
+                                // see the sample for more details
+                                throw new NotImplementedException();
+                        }
 
-
+                        // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
+                        // in this snippet but useful technique if the data was going to be used in
+                        // control like a picture box
+                        var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+                        try
+                        {
+                            var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                            var pmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+                            return pmap;
+                        }
+                        finally
+                        {
+                            handle.Free();
+                        }
+                    }
+                    #endregion
+                }
             }
             else
             {
@@ -4871,8 +4886,9 @@ namespace ThreeWorkTool
 
             List<string> subdirs = new List<String>();
             List<string> RPLNameList = new List<string>();
+            ArcFileIsBigEndian = false;
 
-            ArcFile newArc = ArcFile.LoadArc(TreeSource, FilePath, subdirs, false);
+            ArcFile newArc = ArcFile.LoadArc(TreeSource, FilePath, subdirs, ArcFileIsBigEndian, false);
 
             NCount = 0;
 

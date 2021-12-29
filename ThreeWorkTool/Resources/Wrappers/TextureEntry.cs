@@ -1068,29 +1068,61 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                             Array.Copy(Xbytes2a, 0, texentry.OutMaps, 12, 4);
                             Array.Copy(Ybytes2a, 0, texentry.OutMaps, 16, 4);
- 
-                            /*
-                            //Test to setup a nomip dds file of read texture for preview reasons.
-                            byte[] DHTemp2A =    { 0x44, 0x44, 0x53, 0x20, 0x7c, 0x00, 0x00, 0x00, 0x07, 0x10, 0x08, 0x00, 0x00, 0x04, 0x00, 0x00,
-                                                 0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
-                                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
-                                                 0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
-                                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-                            byte[] LenTemp2A = BitConverter.GetBytes(texentry.YSize);
-                            byte[] WidTemp2A = BitConverter.GetBytes(texentry.XSize);
 
-                            Array.Copy(LenTemp2A, 0, DHTemp2A, 12, 4);
-                            Array.Copy(WidTemp2A, 0, DHTemp2A, 16, 4);
+                            //Time to convert this to png for RGBA related reasons.
+                            byte[] DDSTemp = new byte[] { };
+                            byte[] RGBATemp = new byte[] { };
+                            DDSTemp = texentry.OutMaps;
 
-                            PreviewTemp.AddRange(DHTemp2A);
-                            PreviewTemp.AddRange(texentry.OutMapsB[0]);
+                            using (Stream strim = new MemoryStream(DDSTemp))
+                            {
+                                using (var image = Pfim.Pfim.FromStream(strim))
+                                {
+                                    PixelFormat format;
 
-                            texentry.OutMaps = PreviewTemp.ToArray();
-                            */
+                                    // Convert from Pfim's backend agnostic image format into GDI+'s image format
+                                    switch (image.Format)
+                                    {
+                                        case Pfim.ImageFormat.Rgba32:
+                                            format = PixelFormat.Format32bppArgb;
+                                            break;
+                                        case Pfim.ImageFormat.Rgb24:
+                                            format = PixelFormat.Format24bppRgb;
+                                            break;
+                                        default:
+                                            // see the sample for more details
+                                            throw new NotImplementedException();
+                                    }
+
+                                    // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
+                                    // in this snippet but useful technique if the data was going to be used in
+                                    // control like a picture box
+                                    var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+                                    try
+                                    {
+                                        var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                                        var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+
+
+                                        using (var stream = new MemoryStream())
+                                        {
+                                            bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                                            RGBATemp = stream.ToArray();
+                                        }
+
+
+                                    }
+                                    finally
+                                    {
+                                        handle.Free();
+                                    }
+
+
+                                }
+                            }
+
+                            texentry.OutMaps = RGBATemp;
 
                             break;
 
@@ -1986,7 +2018,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         #endregion
 
                         default:
-                            MessageBox.Show("Either this texture format doesn't seem to be documented or supported, or the texture file seems to be corrupt.","Uhhh");
+                            MessageBox.Show("Either this texture format doesn't seem to be documented or supported, or the texture file seems to be corrupt.", "Uhhh");
                             break;
                     }
 

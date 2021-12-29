@@ -38,7 +38,7 @@ namespace ThreeWorkTool.Resources.Archives
 
         public static string[] RecogExtensions = { ".TEX", ".MOD", ".MRL", ".CHN", ".CCL", ".CST", ".LMT" };
 
-        public static ArcFile LoadArc(TreeView tree, string filename, List<string> foldernames, bool Verifier = false, Type filetype = null, int arcsize = -1)
+        public static ArcFile LoadArc(TreeView tree, string filename, List<string> foldernames, bool IsBigEndian, bool Verifier = false,Type filetype = null, int arcsize = -1)
         {
             
             ArcFile arcfile = new ArcFile();
@@ -57,9 +57,34 @@ namespace ThreeWorkTool.Resources.Archives
                 //Checks file signature/Endianess.
                 if (HeaderMagic[0] == 0x00 && HeaderMagic[1] == 0x43 && HeaderMagic[2] == 0x52 && HeaderMagic[3] == 0x41)
                 {
-                    MessageBox.Show("This .arc file is not in the kind of endian I can deal with right now, so I'm closing it.", "Ummm");
+                    /*
+                    MessageBox.Show("This .arc file is not in the kind of endian I can deal with right now, so these will be in read only.\nDon't expect save to work... or for the program to be stable", "Just so you know....");
+
+                    IsBigEndian = true;
+                    arcfile.HeaderMagic = HeaderMagic;
+                    arcfile.MaterialCount = 0;
+                    arcfile.arctable = new List<ArcEntry>();
+                    arcfile.arcfiles = new List<object>();
+                    arcfile.FileList = new List<string>();
+                    arcfile.TypeHashes = new List<string>();
+
+                    br.BaseStream.Position = 4;
+                    var data = br.ReadBytes(2);
+                    Array.Reverse(data);
+                    arcfile.UnknownFlag = br.ReadByte();
+
+
+
+                    return arcfile;
+
+                    
+                     
+                    */
+
+                    MessageBox.Show("This .arc file is not in the kind of endian I can deal with right now. Closing.", "Just so you know....");
                     br.Close();
                     return null;
+
                 }
 
                 if (HeaderMagic[0] != 0x41 && HeaderMagic[1] != 0x52 && HeaderMagic[2] != 0x43 && HeaderMagic[3] != 0x00)
@@ -69,6 +94,8 @@ namespace ThreeWorkTool.Resources.Archives
                     return null;
                 }
 
+                #region PC Arc
+                IsBigEndian = false;
                 arcfile.HeaderMagic = HeaderMagic;
                 arcfile.MaterialCount = 0;
                 arcfile.arctable = new List<ArcEntry>();
@@ -238,6 +265,9 @@ namespace ThreeWorkTool.Resources.Archives
             }
 
             return arcfile;
+
+            #endregion
+
         }
 
         public static ArcFile SyncMaterialNames(ArcFile archive, Type filetype = null)
