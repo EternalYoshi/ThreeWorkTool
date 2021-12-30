@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
+using ThreeWorkTool.Resources.Wrappers.ModelNodes;
 using static ThreeWorkTool.Resources.Wrappers.MaterialEntry;
 
 namespace ThreeWorkTool
@@ -67,7 +68,7 @@ namespace ThreeWorkTool
         public static FrmNotes frmNote;
         public string RPLBackup;
         public bool isFinishRPLRead;
-        private Bitmap bmx;
+        public bool HasSaved;
         private TextureEntry tentry;
         public bool ArcFileIsBigEndian;
 
@@ -177,7 +178,7 @@ namespace ThreeWorkTool
                     {
 
                         //Literally copies over the open file if not modified.
-                        if (OpenFileModified == false)
+                        if (OpenFileModified == false && HasSaved == false)
                         {
                             byte[] OFBArray = File.ReadAllBytes(OFDialog.FileName);
                             using (MemoryStream stream = new MemoryStream())
@@ -222,7 +223,7 @@ namespace ThreeWorkTool
                                     int nowcount = 0;
                                     foreach (TreeNode treno in Nodes)
                                     {
-                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry)
+                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry ||treno.Tag is MaterialMaterialEntry)
                                         {
 
                                         }
@@ -254,6 +255,7 @@ namespace ThreeWorkTool
                                     ChainListEntry cstenty = new ChainListEntry();
                                     ChainEntry chnenty = new ChainEntry();
                                     ChainCollisionEntry cclentry = new ChainCollisionEntry();
+                                    ModelEntry mdlentry = new ModelEntry();
                                     //New Format should start here!
                                     /*
                                     ***** *****enty = new *****();
@@ -849,7 +851,69 @@ namespace ThreeWorkTool
                                             bwr.Write(DEOffed, 0, DEOffed.Length);
                                             DataEntryOffset = DataEntryOffset + ComSize;
                                         }
+                                        else if (treno.Tag as ModelEntry != null)
+                                        {
+                                            mdlentry = treno.Tag as ModelEntry;
+                                            exportname = "";
 
+                                            exportname = treno.FullPath;
+                                            int inp = (exportname.IndexOf("\\")) + 1;
+                                            exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                            int NumberChars = exportname.Length;
+                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                            int nblength = namebuffer.Length;
+
+                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                            byte[] writenamedata = new byte[64];
+                                            Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                            for (int i = 0; i < namebuffer.Length; ++i)
+                                            {
+                                                writenamedata[i] = namebuffer[i];
+                                            }
+
+                                            bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                            //For the typehash.
+                                            HashType = "58A15856";
+                                            byte[] HashBrown = new byte[4];
+                                            HashBrown = StringToByteArray(HashType);
+                                            Array.Reverse(HashBrown);
+                                            if (HashBrown.Length < 4)
+                                            {
+                                                byte[] PartHash = new byte[] { };
+                                                PartHash = HashBrown;
+                                                Array.Resize(ref HashBrown, 4);
+                                            }
+                                            bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                            //For the compressed size.
+                                            ComSize = mdlentry.CompressedData.Length;
+                                            string ComSizeHex = ComSize.ToString("X8");
+                                            byte[] ComPacked = new byte[4];
+                                            ComPacked = StringToByteArray(ComSizeHex);
+                                            Array.Reverse(ComPacked);
+                                            bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                            //For the unpacked size. No clue why all the entries "start" with 40.
+                                            DecSize = mdlentry.UncompressedData.Length + 1073741824;
+                                            string DecSizeHex = DecSize.ToString("X8");
+                                            byte[] DePacked = new byte[4];
+                                            DePacked = StringToByteArray(DecSizeHex);
+                                            Array.Reverse(DePacked);
+                                            bwr.Write(DePacked, 0, DePacked.Length);
+
+                                            //Starting Offset.
+                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                            byte[] DEOffed = new byte[4];
+                                            DEOffed = StringToByteArray(DataEntrySizeHex);
+                                            Array.Reverse(DEOffed);
+                                            bwr.Write(DEOffed, 0, DEOffed.Length);
+                                            DataEntryOffset = DataEntryOffset + ComSize;
+
+                                        }
                                         #region New Format Code
                                         //New format Entry data insertion goes like this!
                                         /*
@@ -991,6 +1055,12 @@ namespace ThreeWorkTool
                                             byte[] CompData = cclentry.CompressedData;
                                             bwr.Write(CompData, 0, CompData.Length);
                                         }
+                                        else if (treno.Tag as ModelEntry != null)
+                                        {
+                                            mdlentry = treno.Tag as ModelEntry;
+                                            byte[] CompData = mdlentry.CompressedData;
+                                            bwr.Write(CompData, 0, CompData.Length);
+                                        }
                                         
                                         //New format compression data goes like this!
                                         /*
@@ -1005,6 +1075,7 @@ namespace ThreeWorkTool
 
                                     bwr.Close();
                                     OpenFileModified = false;
+                                    HasSaved = true;
 
                                     //Writes to log file.
                                     using (StreamWriter sw = File.AppendText("Log.txt"))
@@ -5111,7 +5182,7 @@ namespace ThreeWorkTool
 
                 //Sorts Alpabetically.
                 //TreeSource.Sort();
-
+                HasSaved = false;
                 //Writes to log file.
                 using (StreamWriter sw = new StreamWriter("Log.txt"))
                 {
@@ -5497,16 +5568,16 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     picBoxA.Image = null;
                     picBoxA.Visible = true;
-                    bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
+                    //bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
                     UpdateTheEditMenu();
-                    if (bmx == null)
+                    if (tentry.Picture == null)
                     {
                         picBoxA.Image = picBoxA.ErrorImage;
                         break;
                     }
                     else
                     {
-                        ImageRescaler(bmx, picBoxA, tentry);
+                        ImageRescaler(tentry.Picture, picBoxA, tentry);
                         picBoxA.BackColor = Color.Magenta;
                         break;
                     }
@@ -5518,16 +5589,16 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     picBoxA.Image = null;
                     picBoxA.Visible = true;
-                    bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
+                    //bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
                     UpdateTheEditMenu();
-                    if (bmx == null)
+                    if (tentry.Picture == null)
                     {
                         picBoxA.Image = picBoxA.ErrorImage;
                         break;
                     }
                     else
                     {
-                        ImageRescaler(bmx, picBoxA, tentry);
+                        ImageRescaler(tentry.Picture, picBoxA, tentry);
                         //picBoxA.Image = null;
                         picBoxA.BackColor = Color.Magenta;
                         break;

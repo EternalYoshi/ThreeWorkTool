@@ -112,7 +112,7 @@ namespace ThreeWorkTool.Resources
 
             try
             {
-                Stream strim = new MemoryStream(entrytowrite.OutMaps);
+                Stream strim = new MemoryStream(entrytowrite.OutTar);
                 //From the pfim website. Modified for my uses.
                 using (var image = Pfim.Pfim.FromStream(strim))
                 {
@@ -150,7 +150,7 @@ namespace ThreeWorkTool.Resources
                         {
                             using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
                             {
-                                bw.Write(entrytowrite.OutMaps);
+                                bw.Write(entrytowrite.OutTar);
                                 bw.Close();
                             }
                         }

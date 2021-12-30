@@ -7,7 +7,10 @@ using Ionic.Zlib;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Numerics;
-
+using System.Drawing;
+using ThreeWorkTool.Resources.Wrappers;
+using System.Windows.Forms;
+using System.Drawing.Imaging;
 
 namespace ThreeWorkTool.Resources.Utility
 {
@@ -441,6 +444,70 @@ namespace ThreeWorkTool.Resources.Utility
                 tru += temps;
             }
             return tru;
+        }
+
+        //Makes Bitmap from byte array containing DDS file.
+        public static Bitmap BitmapBuilderDX(byte[] ddsfile, TextureEntry textureEntry)
+        {
+            if (textureEntry.OutMaps != null)
+            {
+
+                if (textureEntry.OutMaps[0] == 137 && textureEntry.OutMaps[1] == 80 && textureEntry.OutMaps[2] == 78 && textureEntry.OutMaps[3] == 71 && textureEntry.OutMaps[4] == 13 && textureEntry.OutMaps[5] == 10 && textureEntry.OutMaps[6] == 26 && textureEntry.OutMaps[7] == 10)
+                {
+                    #region PNG
+                    Bitmap bmp;
+                    using (var ms = new MemoryStream(textureEntry.OutMaps))
+                    {
+                        bmp = new Bitmap(ms);
+                        return bmp;
+                    }
+                    #endregion
+                }
+                else
+                {
+                    #region DDS Files
+                    Stream ztrim = new MemoryStream(textureEntry.OutMaps);
+                    //From the pfim website.
+                    using (var image = Pfim.Pfim.FromStream(ztrim))
+                    {
+                        PixelFormat format;
+
+                        // Convert from Pfim's backend agnostic image format into GDI+'s image format
+                        switch (image.Format)
+                        {
+                            case Pfim.ImageFormat.Rgba32:
+                                format = PixelFormat.Format32bppArgb;
+                                break;
+                            //case Pfim.ImageFormat.Rgb24:
+                            // format = PixelFormat.Format24bppRgb;
+                            //break;
+                            default:
+                                // see the sample for more details
+                                throw new NotImplementedException();
+                        }
+
+                        // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
+                        // in this snippet but useful technique if the data was going to be used in
+                        // control like a picture box
+                        var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+                        try
+                        {
+                            var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                            var pmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+                            return pmap;
+                        }
+                        finally
+                        {
+                            handle.Free();
+                        }
+                    }
+                    #endregion
+                }
+            }
+            else
+            {
+                return null;
+            }
         }
 
     }
