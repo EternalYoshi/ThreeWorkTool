@@ -129,6 +129,22 @@ namespace ThreeWorkTool.Resources.Wrappers
             return modentry;
         }
 
+        public static ModelEntry ReplaceModelEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        {
+            ModelEntry mdlentry = new ModelEntry();
+            ModelEntry oldentry = new ModelEntry();
+
+            tree.BeginUpdate();
+
+            ReplaceEntry(tree, node, filename, mdlentry, oldentry);
+
+            mdlentry.DecompressedFileLength = mdlentry.UncompressedData.Length;
+            mdlentry.CompressedFileLength = mdlentry.CompressedData.Length;
+
+            return node.entryfile as ModelEntry;
+        }
+
+
         #region Model Entry Properties
         [Category("Filename"), ReadOnlyAttribute(true)]
         public string FileName

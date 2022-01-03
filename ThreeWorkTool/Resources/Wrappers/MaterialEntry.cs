@@ -111,144 +111,21 @@ namespace ThreeWorkTool.Resources.Wrappers
             return MATEntry;
 
         }
-
-        /*
+        
         public static MaterialEntry ReplaceMat(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
         {
-            MaterialEntry material = new MaterialEntry();
+
+            MaterialEntry matentry = new MaterialEntry();
             MaterialEntry oldentry = new MaterialEntry();
 
-            tree.BeginUpdate();
+                tree.BeginUpdate();
 
-            try
-            {
-                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
-                {
-                    //We build the MaterialEntry starting from the uncompressed data.
-                    material.UncompressedData = System.IO.File.ReadAllBytes(filename);
+                ReplaceEntry(tree, node, filename, matentry, oldentry);
 
-                    //Then Compress.
-                    material.CompressedData = Zlibber.Compressor(material.UncompressedData);
+                return node.entryfile as MaterialEntry;
 
-                    //Gets the filename of the file to inject without the directory.
-                    string trname = filename;
-                    while (trname.Contains("\\"))
-                    {
-                        trname = trname.Substring(trname.IndexOf("\\") + 1);
-                    }
-
-                    //Reads and inserts Material data. To be expanded upon later.
-                    List<byte> BTemp = new List<byte>();
-                    string Tempname;
-
-                    material.WTemp = new byte[5];
-                    Array.Copy(material.UncompressedData, 0, material.WTemp, 0, 5);
-                    material.Magic = ByteUtilitarian.BytesToString(material.WTemp, material.Magic);
-
-                    byte[] MTemp = new byte[4];
-                    Array.Copy(material.UncompressedData, 8, MTemp, 0, 4);
-                    material.MaterialCount = BitConverter.ToInt32(MTemp, 0);
-                    material._MaterialTotal = material.MaterialCount;
-
-                    Array.Copy(material.UncompressedData, 12, MTemp, 0, 4);
-                    material.TextureCount = BitConverter.ToInt32(MTemp, 0);
-                    material._TextureTotal = material.TextureCount;
-
-                    Array.Copy(material.UncompressedData, 16, MTemp, 0, 4);
-                    material.WeirdHash = ByteUtilitarian.BytesToString(MTemp, material.WeirdHash);
-
-                    byte[] SixFourTemp = new byte[8];
-                    Array.Copy(material.UncompressedData, 24, SixFourTemp, 0, 8);
-                    material.TextureOffset = BitConverter.ToInt64(SixFourTemp, 0);
-                    material._TextureStartingOffset = Convert.ToInt32(material.TextureOffset);
-
-                    Array.Copy(material.UncompressedData, 32, SixFourTemp, 0, 8);
-                    material.MaterialOffset = BitConverter.ToInt64(SixFourTemp, 0);
-                    material._MaterialStartingOffset = Convert.ToInt32(material.MaterialOffset);
-
-                    material.TexEntries = new List<MaterialTextureReference>();
-
-                    int j = Convert.ToInt32(material.TextureOffset);
-                    byte[] MENTemp = new byte[64];
-                    //Fills in(or at least tries to) fill in each Texture and Material entry.
-                    for (int i = 0; i < material.TextureCount; i++)
-                    {
-                        j = (Convert.ToInt32(material.TextureOffset) + i * 88);
-                        MaterialTextureReference TexTemp = new MaterialTextureReference();
-                        Array.Copy(material.UncompressedData, j, MTemp, 0, 4);
-                        TexTemp.TypeHash = ByteUtilitarian.BytesToString(MTemp, TexTemp.TypeHash);
-                        j = j + 24;
-                        BTemp.Clear();
-                        Array.Copy(material.UncompressedData, j, MENTemp, 0, 64);
-                        BTemp.AddRange(MENTemp);
-                        BTemp.RemoveAll(ByteUtilitarian.IsZeroByte);
-                        ASCIIEncoding asciime = new ASCIIEncoding();
-                        Tempname = asciime.GetString(BTemp.ToArray());
-                        TexTemp.FullTexName = Tempname;
-                        TexTemp.Index = i;
-                        TexTemp._Index = TexTemp.Index;
-                        material.TexEntries.Add(TexTemp);
-                    }
-
-                    //Enters name related parameters of the material.
-                    material.TrueName = trname;
-                    material._FileName = material.TrueName;
-                    material.TrueName = Path.GetFileNameWithoutExtension(trname);
-                    material.FileExt = trname.Substring(trname.LastIndexOf("."));
-                    material._FileType = material.FileExt;
-
-                    var tag = node.Tag;
-                    if (tag is MaterialEntry)
-                    {
-                        oldentry = tag as MaterialEntry;
-                    }
-                    string path = "";
-                    int index = oldentry.EntryName.LastIndexOf("\\");
-                    if (index > 0)
-                    {
-                        path = oldentry.EntryName.Substring(0, index);
-                    }
-
-                    material.EntryName = path + "\\" + material.TrueName;
-
-                    tag = material;
-
-                    if (node.Tag is MaterialEntry)
-                    {
-                        node.Tag = material;
-                        node.Name = Path.GetFileNameWithoutExtension(material.EntryName);
-                        node.Text = Path.GetFileNameWithoutExtension(material.EntryName);
-
-                    }
-
-                    var aew = node as ArcEntryWrapper;
-
-                    string type = node.GetType().ToString();
-                    if (type == "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper")
-                    {
-                        aew.entryfile = material;
-                    }
-
-                    node = aew;
-                    node.entryfile = material;
-                    tree.EndUpdate();
-
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Read error. Is the file readable?");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
-                {
-                    sw.WriteLine("Read Error! Here's the exception info:\n" + ex);
-                }
-            }
-
-
-
-            return node.entryfile as MaterialEntry;
         }
-        */
+
 
         /*
         public static MaterialEntry InsertEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)

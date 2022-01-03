@@ -316,13 +316,13 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         TexStream.Position = 8;
 
-                        texentry = InitializeTextureR(tree, texentry, bnr, filename);
-
                         //Enters name related parameters of the arcentry.
                         texentry.TrueName = trname;
                         texentry._FileName = texentry.TrueName;
                         texentry.TrueName = Path.GetFileNameWithoutExtension(trname);
                         texentry.FileExt = trname.Substring(trname.LastIndexOf("."));
+
+                        texentry = InitializeTextureR(tree, texentry, bnr, filename);
 
                         var tag = node.Tag;
                         if (tag is TextureEntry)
