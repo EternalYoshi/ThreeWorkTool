@@ -132,7 +132,7 @@ This is why there's a failsafe against selecting texture types not compatible wi
 
 - DXT5 can't be saved as normal textures without transparency and specular textures. Just save it as a DXT1 in your image editing software.
 
-- Normal Maps in Marvel 3 have their Red and Alpha channels swapped. If you make or edit these normal maps, keep this in mind.
+- Normal Maps in Marvel 3 have their Red and Alpha channels swapped. They also have their Green Channel inverted. If you make or edit these normal maps, keep this in mind.
 
 - Portraits have to be saved DXT5 in your image editing software to work, no need to save it as a DXT1 and then hex edit it to DXT5. In the TexConverter Dialog, select the option that says DXT5 when importing. 
 Make sure it has an alpha channel in your image editing software before you save it. This program was designed around DDS files generated from the 

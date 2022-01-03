@@ -3793,6 +3793,100 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath + MSDENT.FileName;
                                 ExportFileWriter.MSDEntryWriter(ExportPath, MSDENT);
                             }
+                            else if (kid.Tag is ModelEntry)
+                            {
+                                ModelEntry MODENT = kid.Tag as ModelEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + MODENT.FileName + MODENT.FileExt;
+                                ExportFileWriter.ModelEntryWriter(ExportPath, MODENT);
+                            }
+                            else if (kid.Tag is LMTEntry)
+                            {
+                                LMTEntry LMTENT = kid.Tag as LMTEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + LMTENT.FileName + LMTENT.FileExt;
+                                ExportFileWriter.LMTEntryWriter(ExportPath, LMTENT);
+                            }
+                            else if (kid.Tag is ChainEntry)
+                            {
+                                ChainEntry CHNENT = kid.Tag as ChainEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + CHNENT.FileName + CHNENT.FileExt;
+                                ExportFileWriter.ChainEntryWriter(ExportPath, CHNENT);
+                            }
+                            else if (kid.Tag is ChainListEntry)
+                            {
+                                ChainListEntry CstENT = kid.Tag as ChainListEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + CstENT.FileName + CstENT.FileExt;
+                                ExportFileWriter.ChainListEntryWriter(ExportPath, CstENT);
+                            }
+                            else if (kid.Tag is ChainCollisionEntry)
+                            {
+                                ChainCollisionEntry CCLENT = kid.Tag as ChainCollisionEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + CCLENT.FileName + CCLENT.FileExt;
+                                ExportFileWriter.ChainCollisionEntryWriter(ExportPath, CCLENT);
+                            }
+
+                            /*
+                            //New Formats go like this!
+                            else if (kid.Tag is ****Entry)
+                            {
+                                ****Entry ***ENT = kid.Tag as ****Entry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + CCLENT.FileName + ***ENT.FileExt;
+                                ExportFileWriter.ChainCollisionEntryWriter(ExportPath, ***ENT);
+                            }                         
+                         */
 
                         }
                     }
@@ -3966,6 +4060,9 @@ namespace ThreeWorkTool
             parent.Tag = archivearc;
             parent.Name = CFile;
             parent.archivefile = archivearc;
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+            conmenu.Items.Add("Export All", null, ExportAllFolder);
+            parent.ContextMenuStrip = conmenu;   
             TreeSource.Nodes.Add(parent);
 
             //Extension Checking.
