@@ -201,6 +201,8 @@ namespace ThreeWorkTool.Resources.Archives
                         return;
                     }
 
+
+
                     var tag = node.Tag;
                     if (tag is DefaultWrapper)
                     {
@@ -410,6 +412,8 @@ namespace ThreeWorkTool.Resources.Archives
             //Then Compress.
             entrytobuild.CompressedData = Zlibber.Compressor(entrytobuild.UncompressedData);
 
+            entrytobuild.DSize = entrytobuild.UncompressedData.Length;
+            entrytobuild.CSize = entrytobuild.CompressedData.Length;
 
             //Gets the filename of the file to inject without the directory.
             string trname = filename;

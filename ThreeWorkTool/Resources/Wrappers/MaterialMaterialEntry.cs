@@ -74,7 +74,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             public int TextureIndex;
         }
 
-        public MaterialMaterialEntry FIllMatMatEntryPropertiesPart1(MaterialMaterialEntry MME, MaterialEntry ParentMat ,BinaryReader bnr, MemoryStream MatStrim, int OffsetToStart, int ID)
+        public MaterialMaterialEntry FIllMatMatEntryPropertiesPart1(MaterialMaterialEntry MME, MaterialEntry ParentMat ,BinaryReader bnr, int OffsetToStart, int ID)
         {
             
             MME.Index = ID;
@@ -134,7 +134,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        public MaterialMaterialEntry FIllMatMatEntryPropertiesPart2(MaterialMaterialEntry MME, MaterialEntry ParentMat, BinaryReader bnr, MemoryStream MatStrim, int OffsetToStart, int ID)
+        public MaterialMaterialEntry FIllMatMatEntryPropertiesPart2(MaterialMaterialEntry MME, MaterialEntry ParentMat, BinaryReader bnr, int OffsetToStart, int ID)
         {
 
             bnr.BaseStream.Position = MME.CmdListOffset;

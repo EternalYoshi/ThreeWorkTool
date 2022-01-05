@@ -69,6 +69,7 @@ namespace ThreeWorkTool
         public string RPLBackup;
         public bool isFinishRPLRead;
         public bool HasSaved;
+        public bool InvalidImport;
         private TextureEntry tentry;
         public bool ArcFileIsBigEndian;
 
@@ -223,7 +224,7 @@ namespace ThreeWorkTool
                                     int nowcount = 0;
                                     foreach (TreeNode treno in Nodes)
                                     {
-                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry ||treno.Tag is MaterialMaterialEntry)
+                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry || treno.Tag is MaterialMaterialEntry)
                                         {
 
                                         }
@@ -1061,7 +1062,7 @@ namespace ThreeWorkTool
                                             byte[] CompData = mdlentry.CompressedData;
                                             bwr.Write(CompData, 0, CompData.Length);
                                         }
-                                        
+
                                         //New format compression data goes like this!
                                         /*
                                         else if(treno.Tag as ***** != null)
@@ -1125,7 +1126,7 @@ namespace ThreeWorkTool
 
         private void MenuAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("ThreeWork Tool Alpha version 0.31X Preview\n2021 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program.", "About", MessageBoxButtons.OK);
+            MessageBox.Show("ThreeWork Tool Alpha version 0.35\n2021 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program.", "About", MessageBoxButtons.OK);
         }
 
         private void MenuClose_Click(object sender, EventArgs e)
@@ -1610,7 +1611,7 @@ namespace ThreeWorkTool
                     break;
 
 
-                    //LRP.
+                //LRP.
                 case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
                     ResourcePathListEntry RPLentry = new ResourcePathListEntry();
                     if (tag is ResourcePathListEntry)
@@ -1977,6 +1978,18 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = MaterialEntry.ReplaceMat(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+
+                            //Material specific work here.
+                            MaterialEntry TempMat = new MaterialEntry();
+                            TempMat = NewWrapper.Tag as MaterialEntry;
+                            using (MemoryStream MatStream = new MemoryStream(TempMat.UncompressedData))
+                            {
+                                using (BinaryReader MBR = new BinaryReader(MatStream))
+                                {
+                                    BuildMatEntry(MBR, NewWrapper.Tag as MaterialEntry);
+                                }
+                            }
+
                             NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
@@ -2006,15 +2019,14 @@ namespace ThreeWorkTool
                                 }
                             }
 
-
-
-                            //Removes the node and inserts the new one.
-                            //TreeNode node = 
-                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
-                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
-
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                            //Creates the Material Children of the new node.
+                            frename.Mainfrm.MaterialChildrenCreation(NewWrapper, NewWrapper.Tag as MaterialEntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
                             break;
 
                         default:
@@ -2031,7 +2043,6 @@ namespace ThreeWorkTool
                     frename.Mainfrm.TreeSource.EndUpdate();
 
                 }
-
 
             }
 
@@ -2237,13 +2248,22 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = LMTM3AEntry.ReplaceLMTM3AEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
-                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
-                            //Takes the path data from the old node and slaps it on the new node.
-                            Newaent = NewWrapper.entryfile as LMTM3AEntry;
-                            NewWrapper.entryfile = Newaent;
 
-                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            if (NewWrapper.Tag == null)
+                            {
+                                frename.Mainfrm.InvalidImport = true;
+                            }
+                            else
+                            {
+                                NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                                //Takes the path data from the old node and slaps it on the new node.
+                                Newaent = NewWrapper.entryfile as LMTM3AEntry;
+                                NewWrapper.entryfile = Newaent;
+
+                                frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            }
+
 
                             break;
 
@@ -2251,37 +2271,44 @@ namespace ThreeWorkTool
                             break;
                     }
 
+                    //Checks for valid import. If the import is blank then the following commands are aborted and nothing happens to the LMT or the original M3A entry.
+                    if (frename.Mainfrm.InvalidImport == true)
+                    {
 
-                    frename.Mainfrm.OpenFileModified = true;
-                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+                    }
+                    else
+                    {
+                        frename.Mainfrm.OpenFileModified = true;
+                        frename.Mainfrm.TreeSource.SelectedNode.GetType();
 
-                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
-                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+                        string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                    //Rebuilds the LMT. Hoo Boy.
+                        //Rebuilds the LMT. Hoo Boy.
 
-                    LMTEntry NewaentN = new LMTEntry();
-                    ArcEntryWrapper OutdatedWrapper = new ArcEntryWrapper();
-                    ArcEntryWrapper RebuiltLMTWrapper = new ArcEntryWrapper();
-                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.TreeSource.SelectedNode.Parent;
-                    RebuiltLMTWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                    NewaentN = RebuiltLMTWrapper.Tag as LMTEntry;
-                    NewaentN = LMTEntry.RebuildLMTEntry(frename.Mainfrm.TreeSource, RebuiltLMTWrapper);
-                    RebuiltLMTWrapper.ContextMenuStrip = LMTContextAdder(RebuiltLMTWrapper, frename.Mainfrm.TreeSource);
-                    frename.Mainfrm.IconSetter(RebuiltLMTWrapper, RebuiltLMTWrapper.FileExt);
-                    //Takes the path data from the old node and slaps it on the new node.
-                    OutdatedWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                    LMTEntry OldLMT = new LMTEntry();
-                    OldLMT = OutdatedWrapper.entryfile as LMTEntry;
-                    //Transfer the LMT's properties that can't really be done outside of that class.
-                    NewaentN = LMTEntry.TransferLMTEntryProperties(OldLMT, NewaentN);
-                    string[] paths = OldLMT.EntryDirs;
-                    //NewaentN = RebuiltLMTWrapper.entryfile as LMTEntry;
-                    NewaentN.EntryDirs = paths;
-                    RebuiltLMTWrapper.Tag = NewaentN;
-                    RebuiltLMTWrapper.entryfile = NewaentN;
+                        LMTEntry NewaentN = new LMTEntry();
+                        ArcEntryWrapper OutdatedWrapper = new ArcEntryWrapper();
+                        ArcEntryWrapper RebuiltLMTWrapper = new ArcEntryWrapper();
+                        frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+                        RebuiltLMTWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                        NewaentN = RebuiltLMTWrapper.Tag as LMTEntry;
+                        NewaentN = LMTEntry.RebuildLMTEntry(frename.Mainfrm.TreeSource, RebuiltLMTWrapper);
+                        RebuiltLMTWrapper.ContextMenuStrip = LMTContextAdder(RebuiltLMTWrapper, frename.Mainfrm.TreeSource);
+                        frename.Mainfrm.IconSetter(RebuiltLMTWrapper, RebuiltLMTWrapper.FileExt);
+                        //Takes the path data from the old node and slaps it on the new node.
+                        OutdatedWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                        LMTEntry OldLMT = new LMTEntry();
+                        OldLMT = OutdatedWrapper.entryfile as LMTEntry;
+                        //Transfer the LMT's properties that can't really be done outside of that class.
+                        NewaentN = LMTEntry.TransferLMTEntryProperties(OldLMT, NewaentN);
+                        string[] paths = OldLMT.EntryDirs;
+                        //NewaentN = RebuiltLMTWrapper.entryfile as LMTEntry;
+                        NewaentN.EntryDirs = paths;
+                        RebuiltLMTWrapper.Tag = NewaentN;
+                        RebuiltLMTWrapper.entryfile = NewaentN;
 
-                    frename.Mainfrm.TreeSource.SelectedNode = RebuiltLMTWrapper;
+                        frename.Mainfrm.TreeSource.SelectedNode = RebuiltLMTWrapper;
+                    }
 
                     frename.Mainfrm.TreeSource.EndUpdate();
 
@@ -2379,7 +2406,7 @@ namespace ThreeWorkTool
 
             }
 
-            else if(tag is ChainEntry)
+            else if (tag is ChainEntry)
             {
                 ChainEntry ChnEntry = new ChainEntry();
                 ChnEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ChainEntry;
@@ -2600,13 +2627,13 @@ namespace ThreeWorkTool
                                 }
                             }
 
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
 
-                            //Removes the node and inserts the new one.
-                            //TreeNode node = 
-                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
-                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
-
+                            //Creates the Material Children of the new node.
+                            frename.Mainfrm.ModelChildrenCreation(NewWrapper, NewWrapper.Tag as ModelEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
                             break;
@@ -2627,8 +2654,6 @@ namespace ThreeWorkTool
                 }
 
             }
-
-
 
             else
             {
@@ -2712,17 +2737,23 @@ namespace ThreeWorkTool
 
             }
 
-            //Writes to log file.
-            using (StreamWriter sw = File.AppendText("Log.txt"))
+            if (frename.Mainfrm.InvalidImport == true)
             {
-                sw.WriteLine("Replaced a file: " + RPDialog.FileName + "\nCurrent File List:\n");
-                sw.WriteLine("===============================================================================================================");
-                int entrycount = 0;
-                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                sw.WriteLine("Current file Count: " + entrycount);
-                sw.WriteLine("===============================================================================================================");
+                frename.Mainfrm.InvalidImport = false;
             }
-
+            else
+            {
+                //Writes to log file.
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Replaced a file: " + RPDialog.FileName + "\nCurrent File List:\n");
+                    sw.WriteLine("===============================================================================================================");
+                    int entrycount = 0;
+                    frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                    sw.WriteLine("Current file Count: " + entrycount);
+                    sw.WriteLine("===============================================================================================================");
+                }
+            }
 
         }
 
@@ -3593,7 +3624,21 @@ namespace ThreeWorkTool
 
                         }
 
-                        break; 
+                        break;
+                    #endregion
+
+                    #region Material
+                    case ".mrl":
+
+                        break;
+
+                    #endregion
+
+                    #region Model
+                    case ".mod":
+
+                        break;
+
                     #endregion
 
                     //For everything else.
@@ -3868,9 +3913,9 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath + CCLENT.FileName + CCLENT.FileExt;
                                 ExportFileWriter.ChainCollisionEntryWriter(ExportPath, CCLENT);
                             }
-                 
+
                             /*
-                            //New Formats go like this!
+                            //New Formats go like this!!
                             else if (kid.Tag is ****Entry)
                             {
                                 ****Entry ***ENT = kid.Tag as ****Entry;
@@ -4062,7 +4107,7 @@ namespace ThreeWorkTool
             parent.archivefile = archivearc;
             ContextMenuStrip conmenu = new ContextMenuStrip();
             conmenu.Items.Add("Export All", null, ExportAllFolder);
-            parent.ContextMenuStrip = conmenu;   
+            parent.ContextMenuStrip = conmenu;
             TreeSource.Nodes.Add(parent);
 
             //Extension Checking.
@@ -4400,7 +4445,7 @@ namespace ThreeWorkTool
                     matchild.ContextMenuStrip = GenericFileContextAdder(matchild, TreeSource);
 
                     //Makes Child Nodes for Texture references. More to come.
-                    MaterialChildrenCreation(E, F, G, H, I, matchild, ment);
+                    MaterialChildrenCreation(matchild, ment);
 
                     TreeSource.SelectedNode = matrootNode;
 
@@ -4639,7 +4684,7 @@ namespace ThreeWorkTool
 
                     modchild.ContextMenuStrip = GenericFileContextAdder(modchild, TreeSource);
 
-                    ModelChildrenCreation(E, F, G, H, I, modchild, modchild.Tag as ModelEntry);
+                    ModelChildrenCreation(modchild, modchild.Tag as ModelEntry);
 
                     TreeSource.SelectedNode = modrootNode;
 
@@ -4829,7 +4874,7 @@ namespace ThreeWorkTool
             }
         }
 
-        public void MaterialChildrenCreation(int E, string F, string G, string[] H, string I, ArcEntryWrapper MEntry, MaterialEntry material)
+        public void MaterialChildrenCreation(ArcEntryWrapper MEntry, MaterialEntry material)
         {
 
             TreeSource.SelectedNode = MEntry;
@@ -4879,7 +4924,7 @@ namespace ThreeWorkTool
             //Fills in Materials used in the Material Folder.
             for (int i = 0; i < material.MaterialCount; i++)
             {
-                
+
                 ArcEntryWrapper Material = new ArcEntryWrapper();
                 Material.Name = material.Materials[i].NameHash;
                 Material.Tag = material.Materials[i];
@@ -4917,7 +4962,7 @@ namespace ThreeWorkTool
 
         }
 
-        public void ModelChildrenCreation(int E, string F, string G, string[] H, string I, ArcEntryWrapper MEntry, ModelEntry model)
+        public void ModelChildrenCreation(ArcEntryWrapper MEntry, ModelEntry model)
         {
 
             TreeSource.SelectedNode = MEntry;
@@ -5011,6 +5056,11 @@ namespace ThreeWorkTool
             {
                 wrapper.ImageIndex = 21;
                 wrapper.SelectedImageIndex = 21;
+            }
+            else if (extension == ".mrl")
+            {
+                wrapper.ImageIndex = 12;
+                wrapper.SelectedImageIndex = 12;
             }
             else
             {
@@ -5269,20 +5319,20 @@ namespace ThreeWorkTool
                             }
 
 
-                    case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
-                        MaterialEntry mte = new MaterialEntry();
-                        mte = ArcEntry as MaterialEntry;
-                        if (mte != null)
-                        {
-                            TreeChildInsert(NCount, mte.EntryName, mte.FileExt, mte.EntryDirs, mte.TrueName, mte);
-                            TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
-                            break;
-                        }
-                        else
-                        {
-                            MessageBox.Show("We got a read error here!", "YIKES");
-                            break;
-                        }
+                        case "ThreeWorkTool.Resources.Wrappers.MaterialEntry":
+                            MaterialEntry mte = new MaterialEntry();
+                            mte = ArcEntry as MaterialEntry;
+                            if (mte != null)
+                            {
+                                TreeChildInsert(NCount, mte.EntryName, mte.FileExt, mte.EntryDirs, mte.TrueName, mte);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
 
                         case "ThreeWorkTool.Resources.Wrappers.TextureEntry":
                             TextureEntry te = new TextureEntry();
@@ -5363,6 +5413,8 @@ namespace ThreeWorkTool
                 FrmTxtEditor frmTxt = new FrmTxtEditor();
                 frmTxt.Mainfrm = this;
                 frmTxtEdit = frmTxt;
+
+                InvalidImport = false;
 
                 //Sorts Alpabetically.
                 //TreeSource.Sort();

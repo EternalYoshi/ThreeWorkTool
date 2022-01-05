@@ -60,69 +60,11 @@ namespace ThreeWorkTool.Resources.Wrappers
             modentry.UncompressedData = ZlibStream.UncompressBuffer(modentry.CompressedData);
 
             //Type Specific Work Here.
-
             using (MemoryStream LmtStream = new MemoryStream(modentry.UncompressedData))
             {
                 using (BinaryReader bnr = new BinaryReader(LmtStream))
                 {
-
-                    //Header Stuff. So huge.
-                    modentry.Magic = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), modentry.Magic);
-                    modentry.Version = bnr.ReadInt16();
-                    modentry.JointCount = bnr.ReadInt16();
-                    modentry.PrimitiveCount = bnr.ReadInt16();
-                    modentry.MaterialCount = bnr.ReadInt16();
-                    modentry.VertexCount = bnr.ReadInt32();
-                    modentry.IndexCount = bnr.ReadInt32();
-                    modentry.PolygonCount = bnr.ReadInt32();
-                    modentry.VertexBufferSizeA = bnr.ReadInt32();
-                    modentry.VertexBufferSizeB = bnr.ReadInt32();
-                    modentry.GroupCount = bnr.ReadInt64();
-                    modentry.JointsOffset = Convert.ToInt32(bnr.ReadInt64());
-                    modentry.GroupOffset = Convert.ToInt32(bnr.ReadInt64());
-                    modentry.MaterialsOffset = Convert.ToInt32(bnr.ReadInt64());
-                    modentry.PrimitveOffset = Convert.ToInt32(bnr.ReadInt64());
-                    modentry.VertexBufferOffset = Convert.ToInt32(bnr.ReadInt64());
-                    modentry.IndexBufferOffset = Convert.ToInt32(bnr.ReadInt64());
-                    modentry.ExtraDataOffset = Convert.ToInt32(bnr.ReadInt64());
-
-                    //Bounding Sphere.
-                    modentry.BoundingSphere = new Vector3();
-                    modentry.BoundingSphere.X = bnr.ReadSingle();
-                    modentry.BoundingSphere.Y = bnr.ReadSingle();
-                    modentry.BoundingSphere.Z = bnr.ReadSingle();
-                    modentry.BoundingSphereRadius = bnr.ReadSingle();
-
-                    //Bounding Boxes.
-                    modentry.BoundingBoxMin = new Vector4();
-                    modentry.BoundingBoxMax = new Vector4();
-
-                    modentry.BoundingBoxMin.X = bnr.ReadSingle();
-                    modentry.BoundingBoxMin.Y = bnr.ReadSingle();
-                    modentry.BoundingBoxMin.Z = bnr.ReadSingle();
-                    modentry.BoundingBoxMin.W = bnr.ReadSingle();
-
-                    modentry.BoundingBoxMax.X = bnr.ReadSingle();
-                    modentry.BoundingBoxMax.Y = bnr.ReadSingle();
-                    modentry.BoundingBoxMax.Z = bnr.ReadSingle();
-                    modentry.BoundingBoxMax.W = bnr.ReadSingle();
-
-                    modentry.Field90 = bnr.ReadInt32();
-                    modentry.Field94 = bnr.ReadInt32();
-                    modentry.Field98 = bnr.ReadInt32();
-                    modentry.Field9C = bnr.ReadInt32();
-                    modentry.PrimitiveJointLinkCount = bnr.ReadInt32();
-
-                    //Material Names.
-                    bnr.BaseStream.Position = modentry.MaterialsOffset;
-                    modentry.MaterialNames = new List<string>();
-                    string Stringtemp;
-                    for (int m = 0; m < modentry.MaterialCount; m++)
-                    {
-                        Stringtemp = Encoding.ASCII.GetString(bnr.ReadBytes(128)).Trim('\0');
-                        modentry.MaterialNames.Add(Stringtemp);
-                    }
-
+                    BuildModelEntry(bnr, modentry);
                 }
             }
 
@@ -141,9 +83,112 @@ namespace ThreeWorkTool.Resources.Wrappers
             mdlentry.DecompressedFileLength = mdlentry.UncompressedData.Length;
             mdlentry.CompressedFileLength = mdlentry.CompressedData.Length;
 
+            //Type Specific Work Here.
+            using (MemoryStream LmtStream = new MemoryStream(mdlentry.UncompressedData))
+            {
+                using (BinaryReader bnr = new BinaryReader(LmtStream))
+                {
+                    BuildModelEntry(bnr, mdlentry);
+                }
+            }
+
             return node.entryfile as ModelEntry;
         }
 
+        public static ModelEntry InsertModelEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        {
+
+            ModelEntry model = new ModelEntry();
+
+            InsertEntry(tree, node, filename, model);
+
+            //Decompression Time.
+            model.UncompressedData = ZlibStream.UncompressBuffer(model.CompressedData);
+
+            try
+            {
+                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
+                {
+                    BuildModelEntry(bnr,model);
+                }
+            }
+            catch (Exception ex)
+            {
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Caught an exception using the BinaryReader. Here's the details:\n" + ex);
+                }
+            }
+
+            return model;
+
+        }
+
+        public static ModelEntry BuildModelEntry(BinaryReader bnr, ModelEntry modentry)
+        {
+
+
+            //Header Stuff. So huge.
+            modentry.Magic = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), modentry.Magic);
+            modentry.Version = bnr.ReadInt16();
+            modentry.JointCount = bnr.ReadInt16();
+            modentry.PrimitiveCount = bnr.ReadInt16();
+            modentry.MaterialCount = bnr.ReadInt16();
+            modentry.VertexCount = bnr.ReadInt32();
+            modentry.IndexCount = bnr.ReadInt32();
+            modentry.PolygonCount = bnr.ReadInt32();
+            modentry.VertexBufferSizeA = bnr.ReadInt32();
+            modentry.VertexBufferSizeB = bnr.ReadInt32();
+            modentry.GroupCount = bnr.ReadInt64();
+            modentry.JointsOffset = Convert.ToInt32(bnr.ReadInt64());
+            modentry.GroupOffset = Convert.ToInt32(bnr.ReadInt64());
+            modentry.MaterialsOffset = Convert.ToInt32(bnr.ReadInt64());
+            modentry.PrimitveOffset = Convert.ToInt32(bnr.ReadInt64());
+            modentry.VertexBufferOffset = Convert.ToInt32(bnr.ReadInt64());
+            modentry.IndexBufferOffset = Convert.ToInt32(bnr.ReadInt64());
+            modentry.ExtraDataOffset = Convert.ToInt32(bnr.ReadInt64());
+
+            //Bounding Sphere.
+            modentry.BoundingSphere = new Vector3();
+            modentry.BoundingSphere.X = bnr.ReadSingle();
+            modentry.BoundingSphere.Y = bnr.ReadSingle();
+            modentry.BoundingSphere.Z = bnr.ReadSingle();
+            modentry.BoundingSphereRadius = bnr.ReadSingle();
+
+            //Bounding Boxes.
+            modentry.BoundingBoxMin = new Vector4();
+            modentry.BoundingBoxMax = new Vector4();
+
+            modentry.BoundingBoxMin.X = bnr.ReadSingle();
+            modentry.BoundingBoxMin.Y = bnr.ReadSingle();
+            modentry.BoundingBoxMin.Z = bnr.ReadSingle();
+            modentry.BoundingBoxMin.W = bnr.ReadSingle();
+
+            modentry.BoundingBoxMax.X = bnr.ReadSingle();
+            modentry.BoundingBoxMax.Y = bnr.ReadSingle();
+            modentry.BoundingBoxMax.Z = bnr.ReadSingle();
+            modentry.BoundingBoxMax.W = bnr.ReadSingle();
+
+            modentry.Field90 = bnr.ReadInt32();
+            modentry.Field94 = bnr.ReadInt32();
+            modentry.Field98 = bnr.ReadInt32();
+            modentry.Field9C = bnr.ReadInt32();
+            modentry.PrimitiveJointLinkCount = bnr.ReadInt32();
+
+            //Material Names.
+            bnr.BaseStream.Position = modentry.MaterialsOffset;
+            modentry.MaterialNames = new List<string>();
+            string Stringtemp;
+            for (int m = 0; m < modentry.MaterialCount; m++)
+            {
+                Stringtemp = Encoding.ASCII.GetString(bnr.ReadBytes(128)).Trim('\0');
+                modentry.MaterialNames.Add(Stringtemp);
+            }
+
+
+            return modentry;
+
+        }
 
         #region Model Entry Properties
         [Category("Filename"), ReadOnlyAttribute(true)]

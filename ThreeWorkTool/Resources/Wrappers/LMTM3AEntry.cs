@@ -213,40 +213,47 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 using (BinaryReader bnr = new BinaryReader(MAThreeStream))
                 {
+                    if (bnr.BaseStream.Length < 5)
+                    {
+                        MessageBox.Show("The entry you are trying to import is a blank one,\nso the replace command has been aborted.","We have a problem here.");
+                        return null;
+                    }
+                    else
+                    {
+                        int projdatlength = m3aentry.FullData.Length - 80;
+                        m3aentry.RawData = new byte[(projdatlength)];
+                        Array.Copy(m3aentry.FullData, 0, m3aentry.RawData, 0, projdatlength);
+                        m3aentry.BlockData = new byte[80];
+                        projdatlength = m3aentry.FullData.Length - 80;
+                        Array.Copy(m3aentry.FullData, projdatlength, m3aentry.BlockData, 0, 80);
+                        bnr.BaseStream.Position = 0;
 
-                    int projdatlength = m3aentry.FullData.Length - 80;
-                    m3aentry.RawData = new byte[(projdatlength)];
-                    Array.Copy(m3aentry.FullData, 0, m3aentry.RawData, 0, projdatlength);
-                    m3aentry.BlockData = new byte[80];
-                    projdatlength = m3aentry.FullData.Length - 80;
-                    Array.Copy(m3aentry.FullData, projdatlength, m3aentry.BlockData, 0, 80);
-                    bnr.BaseStream.Position = 0;
+                        bnr.BaseStream.Position = (m3aentry.FullData.Length - 80);
 
-                    bnr.BaseStream.Position = (m3aentry.FullData.Length - 80);
-
-                    m3aentry.AnimStart = bnr.ReadInt32();
-                    bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
-                    m3aentry.IndexRows = bnr.ReadInt32();
-                    m3aentry.FrameCount = bnr.ReadInt32();
-                    m3aentry._FrameTotal = m3aentry.FrameCount;
-                    m3aentry.IsBlank = false;
-                    m3aentry.UnknownValue10 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue10);
-                    m3aentry.UnknownValue14 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue14);
-                    m3aentry.UnknownValue18 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue18);
-                    m3aentry.UnknownValue1C = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue1C);
-                    m3aentry.UnknownValue20 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue20);
-                    m3aentry.UnknownValue24 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue24);
-                    m3aentry.UnknownValue28 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue28);
-                    m3aentry.UnknownValue2C = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue2C);
-                    m3aentry.UnknownValue30 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue30);
-                    m3aentry.UnknownValue34 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue34);
-                    m3aentry.UnknownValue38 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue38);
-                    m3aentry.UnknownFloat3C = bnr.ReadSingle();
-                    m3aentry.UnknownValue40 = bnr.ReadInt32();
-                    m3aentry.UnknownValue44 = bnr.ReadInt32();
-                    m3aentry.AnimEnd = bnr.ReadInt32();
-                    m3aentry.AnimDataSize = m3aentry.RawData.Length;
-                    m3aentry.AnimationID = oldentry.AnimationID;
+                        m3aentry.AnimStart = bnr.ReadInt32();
+                        bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                        m3aentry.IndexRows = bnr.ReadInt32();
+                        m3aentry.FrameCount = bnr.ReadInt32();
+                        m3aentry._FrameTotal = m3aentry.FrameCount;
+                        m3aentry.IsBlank = false;
+                        m3aentry.UnknownValue10 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue10);
+                        m3aentry.UnknownValue14 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue14);
+                        m3aentry.UnknownValue18 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue18);
+                        m3aentry.UnknownValue1C = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue1C);
+                        m3aentry.UnknownValue20 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue20);
+                        m3aentry.UnknownValue24 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue24);
+                        m3aentry.UnknownValue28 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue28);
+                        m3aentry.UnknownValue2C = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue2C);
+                        m3aentry.UnknownValue30 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue30);
+                        m3aentry.UnknownValue34 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue34);
+                        m3aentry.UnknownValue38 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue38);
+                        m3aentry.UnknownFloat3C = bnr.ReadSingle();
+                        m3aentry.UnknownValue40 = bnr.ReadInt32();
+                        m3aentry.UnknownValue44 = bnr.ReadInt32();
+                        m3aentry.AnimEnd = bnr.ReadInt32();
+                        m3aentry.AnimDataSize = m3aentry.RawData.Length;
+                        m3aentry.AnimationID = oldentry.AnimationID;
+                    }
                 }
             }
 
