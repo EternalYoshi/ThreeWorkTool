@@ -162,6 +162,7 @@
     <Compile Include="Resources\Wrappers\MaterialTextureReference.cs" />
     <Compile Include="Resources\Wrappers\ModelEntry.cs" />
     <Compile Include="Resources\Wrappers\ModelNodes\ModelBoneEntry.cs" />
+    <Compile Include="Resources\Wrappers\ModelNodes\ModelGroupEntry.cs" />
     <Compile Include="Resources\Wrappers\MSDEntry.cs" />
     <Compile Include="Resources\Wrappers\ResourcePathListEntry.cs" />
     <Compile Include="Resources\Wrappers\TextureEntry.cs" />
@@ -213,6 +214,7 @@
     <Content Include="Images\Arc.png" />
     <Content Include="Images\ATI.png" />
     <Content Include="Images\Bitmap1.bmp" />
+    <Content Include="Images\Bone.png" />
     <Content Include="Images\CAC.png" />
     <Content Include="Images\CCL.png" />
     <Content Include="Images\CHN.png" />

@@ -282,6 +282,7 @@
             this.imageList1.Images.SetKeyName(19, "CST.png");
             this.imageList1.Images.SetKeyName(20, "CHN.png");
             this.imageList1.Images.SetKeyName(21, "CCL.png");
+            this.imageList1.Images.SetKeyName(22, "Bone.png");
             // 
             // splitContainer1
             // 

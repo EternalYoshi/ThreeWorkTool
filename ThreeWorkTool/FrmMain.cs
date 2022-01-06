@@ -224,7 +224,9 @@ namespace ThreeWorkTool
                                     int nowcount = 0;
                                     foreach (TreeNode treno in Nodes)
                                     {
-                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry || treno.Tag is MaterialMaterialEntry)
+                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" || 
+                                            treno.Tag as string == "Model Primitive Group" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry 
+                                            || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry)
                                         {
 
                                         }
@@ -2200,6 +2202,13 @@ namespace ThreeWorkTool
                             //frename.Mainfrm.TreeSource.SelectedNode.Remove();
                             //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
 
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                            //Builds the new child nodes.
+                            frename.Mainfrm.LMTChildrenCreation(NewWrapper, NewWrapper.Tag as LMTEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
                             break;
@@ -4262,7 +4271,7 @@ namespace ThreeWorkTool
                     lmtent = lmtchild.Tag as LMTEntry;
 
                     //Makes Child Nodes for M3A references.
-                    LMTChildrenCreation(E, F, G, H, I, lmtchild, lmtent);
+                    LMTChildrenCreation(lmtchild, lmtent);
 
                     TreeSource.SelectedNode = lmtrootNode;
 
@@ -4934,10 +4943,9 @@ namespace ThreeWorkTool
 
             }
 
-
         }
 
-        public void LMTChildrenCreation(int E, string F, string G, string[] H, string I, ArcEntryWrapper MEntry, LMTEntry lmtentry)
+        public void LMTChildrenCreation(ArcEntryWrapper MEntry, LMTEntry lmtentry)
         {
 
             TreeSource.SelectedNode = MEntry;
@@ -4967,12 +4975,11 @@ namespace ThreeWorkTool
 
             TreeSource.SelectedNode = MEntry;
 
-            //Makes the Texture Subfolder.
+            //Makes the Material Subfolder.
             TreeNode folder = new TreeNode();
             folder.Name = "Material Names";
             folder.Tag = "Folder";
             folder.Text = "Material Names";
-            //folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
 
             TreeSource.SelectedNode.Nodes.Add(folder);
             TreeSource.SelectedNode = folder;
@@ -4996,6 +5003,55 @@ namespace ThreeWorkTool
 
             }
 
+            TreeSource.SelectedNode = MEntry;
+
+            //Makes the Groups Subfolder.
+            TreeNode folderB = new TreeNode();
+            folderB.Name = "Bones";
+            folderB.Tag = "Folder";
+            folderB.Text = "Bones";
+
+            TreeSource.SelectedNode.Nodes.Add(folderB);
+            TreeSource.SelectedNode = folderB;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+            for (int v = 0; v < model.BoneCount; v++)
+            {
+
+                ArcEntryWrapper ModelB = new ArcEntryWrapper();
+                ModelB.ImageIndex = 22;
+                ModelB.SelectedImageIndex = 22;
+                ModelB.Name = model.Bones[v].ID.ToString();
+                ModelB.Tag = model.Bones[v];
+                ModelB.Text = model.Bones[v].ID.ToString();
+                TreeSource.SelectedNode.Nodes.Add(ModelB);
+
+            }
+
+            TreeSource.SelectedNode = MEntry;
+
+            //Makes the Groups Subfolder.
+            TreeNode folderG = new TreeNode();
+            folderG.Name = "Groups";
+            folderG.Tag = "Folder";
+            folderG.Text = "Groups";
+
+            TreeSource.SelectedNode.Nodes.Add(folderG);
+            TreeSource.SelectedNode = folderG;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+            for (int w = 0; w < model.GroupCount; w++)
+            {
+
+                ArcEntryWrapper Model = new ArcEntryWrapper();
+                Model.Name = model.Groups[w].ID.ToString();
+                Model.Tag = model.Groups[w];
+                Model.Text = model.Groups[w].ID.ToString();
+                TreeSource.SelectedNode.Nodes.Add(Model);
+
+            }
 
         }
 
@@ -5877,6 +5933,20 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
+                #endregion
+
+                #region Bones
+
+                case "ThreeWorkTool.Resources.Wrappers.ModelNodes.ModelBoneEntry":
+                    ModelBoneEntry BonEntryP = new ModelBoneEntry();
+                    BonEntryP = TreeSource.SelectedNode.Tag as ModelBoneEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
                 #endregion
 
                 default:

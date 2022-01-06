@@ -20,7 +20,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public string Constant;
         public byte[] WTemp;
         public int Version;
-        public int JointCount;
+        public int BoneCount;
         public int PrimitiveCount;
         public int MaterialCount;
         public int VertexCount;
@@ -48,6 +48,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int PrimitiveJointLinkCount;
         public List<string> MaterialNames;
         public List<ModelBoneEntry> Bones;
+        public List<ModelGroupEntry> Groups;
 
         public static ModelEntry FillModelEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -109,7 +110,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
                 {
-                    BuildModelEntry(bnr,model);
+                    BuildModelEntry(bnr, model);
                 }
             }
             catch (Exception ex)
@@ -127,11 +128,10 @@ namespace ThreeWorkTool.Resources.Wrappers
         public static ModelEntry BuildModelEntry(BinaryReader bnr, ModelEntry modentry)
         {
 
-
             //Header Stuff. So huge.
             modentry.Magic = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), modentry.Magic);
             modentry.Version = bnr.ReadInt16();
-            modentry.JointCount = bnr.ReadInt16();
+            modentry.BoneCount = bnr.ReadInt16();
             modentry.PrimitiveCount = bnr.ReadInt16();
             modentry.MaterialCount = bnr.ReadInt16();
             modentry.VertexCount = bnr.ReadInt32();
@@ -185,6 +185,33 @@ namespace ThreeWorkTool.Resources.Wrappers
                 modentry.MaterialNames.Add(Stringtemp);
             }
 
+            //Bones.
+            bnr.BaseStream.Position = modentry.JointsOffset;
+            modentry.Bones = new List<ModelBoneEntry>();
+            int PrevOffset = modentry.JointsOffset;
+
+            for (int n = 0; n < modentry.BoneCount; n++)
+            {
+                ModelBoneEntry Bone = new ModelBoneEntry();
+                Bone = Bone.FillModelBoneEntry(Bone, modentry, bnr, PrevOffset, n);
+                modentry.Bones.Add(Bone);
+                PrevOffset = PrevOffset + 24;
+            }
+
+
+            //Groups.
+            bnr.BaseStream.Position = modentry.GroupOffset;
+            modentry.Groups = new List<ModelGroupEntry>();
+            PrevOffset = Convert.ToInt32(bnr.BaseStream.Position);
+
+            for (int o = 0; o < modentry.GroupCount; o++)
+            {
+                ModelGroupEntry Group = new ModelGroupEntry();
+                Group = Group.FillModelGroupEntry(Group, modentry, bnr, PrevOffset, o);
+                modentry.Groups.Add(Group);
+
+                PrevOffset = PrevOffset + 32;
+            }
 
             return modentry;
 
@@ -265,11 +292,11 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
             get
             {
-                return JointCount;
+                return BoneCount;
             }
             set
             {
-                JointCount = value;
+                BoneCount = value;
             }
         }
 
