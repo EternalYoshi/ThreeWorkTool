@@ -13,6 +13,19 @@ Thanks to TGE and smb123w64gb for assistance and giving me the resources that ma
 By Eternal Yoshi
 
 Current Changelog:
+V3.5
+- Wrote and Rewrote Partial Model and Material Support - Not all information is shown but some of it is in Read Only Form.
+- Added a touch more information on LMT files.
+- Made better attempt to log exceptions in log.txt.
+- Rewrote and Refactored how texture previews and stored and made. This improves stability and fixes the random but rare crash 
+when selecting a Texture node.
+- Replace and Insert methods updated to use superior and more stable methods.
+- Fixed an issue preventing .tex files from being replaced as raw .tex files.
+- Updated notes and advice tab.
+- Added Export All option for Arcs.
+- Fixed an issue with Export All not exporting defined extensions correctly.
+- Replacing of LMTs, Materials, and Models now update the child nodes to accurately reflect the new file.
+
 V3.1
 - Fixed an issue resulting in textures failling to load in game.
 - Files/Nodes from Archives that are in the same directory are no longer ordered alphabetically.
@@ -58,7 +71,7 @@ V2.0
 DXT1 and DXT5 have differing compression formulas meaning you can't interchange them or you will get corrupted pixels in game or just straight up crashing.
 - DXT1 files can only be imported as regular textures without transparency and specular textures. If you want to save it as other formats, you have to add an alpha channel in your image editing software(if it doesn't exist already) and save it as a DXT5.
 - DXT5 can't be saved as normal textures without transparency and specular textures. Just save it as a DXT1 in your image editing software.
-- Normal Maps in Marvel 3 have their Red and Alpha channels swapped. If you make or edit these normal maps, keep this in mind.
+- Normal Maps in Marvel 3 have their Red and Alpha channels swapped and the Green Channel inverted. If you make or edit these normal maps, keep this in mind.
 - Portraits have to be saved DXT5 in your image editing software to work, no need to save it as a DXT1 and then hex edit it to DXT5. In the TexConverter Dialog, select the option that says ~~Problematic Portrait Texture or whatever~~ DXT5 when importing. Make sure it has an alpha channel in your image editing software before you save it.
 This program was designed around DDS files generated from the newer NVIDA Photoshop DDS Plugin found here: https://developer.nvidia.com/2020.1.1/nvidia_texture_tools_exporter_photoshop_plugin
 
