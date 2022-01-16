@@ -109,73 +109,93 @@ namespace ThreeWorkTool.Resources
 
         public static void TexEntryWriter(string filename, TextureEntry entrytowrite)
         {
-
-            try
+            if (entrytowrite.IsCubeMap == true)
             {
-                Stream strim = new MemoryStream(entrytowrite.OutTar);
-                //From the pfim website. Modified for my uses.
-                using (var image = Pfim.Pfim.FromStream(strim))
+                try
                 {
-                    PixelFormat format;
-
-                    // Convert from Pfim's backend agnostic image format into GDI+'s image format
-                    switch (image.Format)
+                    MessageBox.Show("CubeMaps aren't currently supported, so only the raw .tex file can be extracted.");
+                    using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
                     {
-                        case Pfim.ImageFormat.Rgba32:
-                            format = PixelFormat.Format32bppArgb;
-                            break;
-                        case Pfim.ImageFormat.Rgb24:
-                            format = PixelFormat.Format24bppRgb;
-                            break;
-                        default:
-                            // see the sample for more details
-                            throw new NotImplementedException();
+                        bw.Write(entrytowrite.UncompressedData);
+                        bw.Close();
                     }
 
-                    // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
-                    // in this snippet but useful technique if the data was going to be used in
-                    // control like a picture box
-                    var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
-                    try
-                    {
-                        var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
-                        var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
-                        string ext = Path.GetExtension(filename);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                    return;
+                }
 
-                        if (ext == ".png")
+            }
+            else
+            {
+                try
+                {
+                    Stream strim = new MemoryStream(entrytowrite.OutTar);
+                    //From the pfim website. Modified for my uses.
+                    using (var image = Pfim.Pfim.FromStream(strim))
+                    {
+                        PixelFormat format;
+
+                        // Convert from Pfim's backend agnostic image format into GDI+'s image format
+                        switch (image.Format)
                         {
-                            bitmap.Save(Path.ChangeExtension(filename, ".png"), System.Drawing.Imaging.ImageFormat.Png);
-                        }
-                        else if (ext == ".dds")
-                        {
-                            using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
-                            {
-                                bw.Write(entrytowrite.OutTar);
-                                bw.Close();
-                            }
-                        }
-                        else if (ext == ".tex")
-                        {
-                            using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
-                            {
-                                bw.Write(entrytowrite.UncompressedData);
-                                bw.Close();
-                            }
+                            case Pfim.ImageFormat.Rgba32:
+                                format = PixelFormat.Format32bppArgb;
+                                break;
+                            case Pfim.ImageFormat.Rgb24:
+                                format = PixelFormat.Format24bppRgb;
+                                break;
+                            default:
+                                // see the sample for more details
+                                throw new NotImplementedException();
                         }
 
-                    }
-                    finally
-                    {
-                        handle.Free();
+                        // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
+                        // in this snippet but useful technique if the data was going to be used in
+                        // control like a picture box
+                        var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+                        try
+                        {
+                            var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                            var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+                            string ext = Path.GetExtension(filename);
+
+                            if (ext == ".png")
+                            {
+                                bitmap.Save(Path.ChangeExtension(filename, ".png"), System.Drawing.Imaging.ImageFormat.Png);
+                            }
+                            else if (ext == ".dds")
+                            {
+                                using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                                {
+                                    bw.Write(entrytowrite.OutTar);
+                                    bw.Close();
+                                }
+                            }
+                            else if (ext == ".tex")
+                            {
+                                using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                                {
+                                    bw.Write(entrytowrite.UncompressedData);
+                                    bw.Close();
+                                }
+                            }
+
+                        }
+                        finally
+                        {
+                            handle.Free();
+                        }
                     }
                 }
+                catch (UnauthorizedAccessException)
+                {
+                    MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                    return;
+                }
             }
-            catch (UnauthorizedAccessException)
-            {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
-                return;
-            }
-
         }
 
         public static void MaterialEntryWriter(string filename, MaterialEntry entrytowrite)

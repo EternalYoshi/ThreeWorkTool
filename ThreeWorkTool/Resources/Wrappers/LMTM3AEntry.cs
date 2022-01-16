@@ -22,7 +22,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int IndexRows;
         public int AnimStart;
         public int AnimEnd;
-        public string UnknownValue10;
+        public int LoopFrame;
         public string UnknownValue14;
         public string UnknownValue18;
         public string UnknownValue1C;
@@ -41,6 +41,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         public LMTM3AEntry FillM3AProprties(LMTM3AEntry Anim, int datalength, int ID, int RowTotal, int SecondOffset, BinaryReader bnr, int SecondaryCount, LMTEntry lmtentry)
         {
+            //Reads the AnnimBlock Header.
             LMTM3AEntry M3a = new LMTM3AEntry();
             M3a._FileType = ".m3a";
             M3a.FileExt = M3a._FileType;
@@ -50,7 +51,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             M3a.IndexRows = bnr.ReadInt32();
             M3a.FrameCount = bnr.ReadInt32();
             M3a._FrameTotal = M3a.FrameCount;
-            M3a.UnknownValue10 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), M3a.UnknownValue10);
+            M3a.LoopFrame = bnr.ReadInt32();
             M3a.UnknownValue14 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), M3a.UnknownValue14);
             M3a.UnknownValue18 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), M3a.UnknownValue18);
             M3a.UnknownValue1C = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), M3a.UnknownValue1C);
@@ -66,6 +67,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             M3a.UnknownValue44 = bnr.ReadInt32();
             M3a.AnimEnd = bnr.ReadInt32();
             M3a.AnimDataSize = (M3a.AnimEnd - M3a.AnimStart) + 352;
+
+            //Gets the Raw Animation data.
             bnr.BaseStream.Position = M3a.AnimStart;
             M3a.RawData = new byte[M3a.AnimDataSize];
             M3a.RawData = bnr.ReadBytes(M3a.AnimDataSize);
@@ -171,7 +174,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             M3a.IndexRows = -1;
             M3a.FrameCount = -1;
             M3a._FrameTotal = -1;
-            M3a.UnknownValue10 = "N/A";
+            M3a.LoopFrame = -1;
             M3a.UnknownFloat3C = -1.0;
             M3a.UnknownValue40 = -1;
             M3a.AnimEnd = -1;
@@ -236,7 +239,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         m3aentry.FrameCount = bnr.ReadInt32();
                         m3aentry._FrameTotal = m3aentry.FrameCount;
                         m3aentry.IsBlank = false;
-                        m3aentry.UnknownValue10 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue10);
+                        m3aentry.LoopFrame = bnr.ReadInt32();
                         m3aentry.UnknownValue14 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue14);
                         m3aentry.UnknownValue18 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue18);
                         m3aentry.UnknownValue1C = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue1C);
@@ -393,6 +396,24 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 //_IndexRowTotal = value;
                 IndexRows = value;
+
+            }
+
+        }
+
+        [Category("MT ARC Entry"), ReadOnlyAttribute(true)]
+        public int AnimationLoopFrame
+        {
+
+            get
+            {
+                //return _IndexRowTotal;
+                return LoopFrame;
+            }
+            set
+            {
+                //_IndexRowTotal = value;
+                LoopFrame = value;
 
             }
 

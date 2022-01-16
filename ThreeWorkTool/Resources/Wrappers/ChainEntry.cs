@@ -17,6 +17,8 @@ namespace ThreeWorkTool.Resources.Wrappers
     public class ChainEntry : DefaultWrapper
     {
 
+        public static int BONEENTRYSIZE = 92;
+
         public static ChainEntry FillChainEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
 

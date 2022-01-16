@@ -40,6 +40,16 @@ namespace ThreeWorkTool.Resources.Wrappers
         public List<byte> OutTexTest;
         public int SizeShift;
         public Bitmap Picture;
+        public bool IsCubeMap = false;
+        public List<Face> CubeFace;
+        public struct Face
+        {
+            public float field00;
+            public Vector3 Negative;
+            public Vector3 Postiive;
+            public Vector2 UV;
+        }
+
 
         public static TextureEntry FillTexEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -962,13 +972,20 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     texentry.MipOffsets = new int[texentry.MipMapCount];
 
+                    #region CubeMaps
                     //For CubeMaps.
                     if (texentry.PossibleCubeMapFlag == 6)
                     {
                         texentry._Format = "Cube Map(Unsupported)";
+                        texentry.IsCubeMap = true;
+
+                        //Faces.
+
+
 
                         return texentry;
                     }
+                    #endregion
 
                     for (int i = 0; i < texentry._MipMapCount; i++)
                     {
