@@ -24,13 +24,14 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int XSize;
         public int YSize;
         public int ZSize;
-        public int version;
+        public int Type;
+        public int Dimension;
         public int PixelCount;
         public string TexType;
         public bool HasTransparency;
         public bool HasMips;
         public int Mips;
-        public int PossibleCubeMapFlag;
+        public int Dimensions;
         public byte[] WTemp;
         public byte[] OutMaps;
         public byte[][] OutMapsB;
@@ -38,7 +39,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public byte[] OutTar;
         public int[] MipOffsets;
         public List<byte> OutTexTest;
-        public int SizeShift;
+        public int Shift;
         public Bitmap Picture;
         public bool IsCubeMap = false;
         public List<Face> CubeFace;
@@ -62,7 +63,9 @@ namespace ThreeWorkTool.Resources.Wrappers
             //Actual Tex Loading work here.
 
             //Gets the SizeShift.... whatever that is.
-            texentry.SizeShift = texentry.UncompressedData[6];
+            texentry.Shift = texentry.UncompressedData[6];
+
+            //texentry.Type = BitConverter.ToInt16(texentry.UncompressedData, 4);
 
             //Let's try this MemoryStream Stuff.
 
@@ -482,7 +485,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //Gets the binary representation into 4 Bytes.
                     TexTemp = ByteUtilitarian.BinaryStringToByteArray(bytesstr);
 
-                    teXentry.SizeShift = 0;
+                    teXentry.Shift = 0;
                     byte[] TEXHeader = { 0x54, 0x45, 0x58, 0x00, 0x9d, 0xa0, 0x00, 0x20 };
 
                     //Starts Building the tex data in this list.
@@ -744,7 +747,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //Gets the binary representation into 4 Bytes.
                     TexTemp = ByteUtilitarian.BinaryStringToByteArray(bytesstr);
 
-                    teXentry.SizeShift = 0;
+                    teXentry.Shift = 0;
                     byte[] TEXHeader = { 0x54, 0x45, 0x58, 0x00, 0x9d, 0xa0, 0x00, 0x20 };
 
                     //Starts Building the tex data in this list.
@@ -968,13 +971,14 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     int v = 0x10;
 
-                    texentry.PossibleCubeMapFlag = Convert.ToInt32(((LWData[0] >> 28) & 0xf));
+                    //Misc Properties in the header.
+                    texentry.Dimensions = Convert.ToInt32(((LWData[0] >> 28) & 0xf));
 
                     texentry.MipOffsets = new int[texentry.MipMapCount];
 
                     #region CubeMaps
                     //For CubeMaps.
-                    if (texentry.PossibleCubeMapFlag == 6)
+                    if (texentry.Dimensions == 6)
                     {
                         texentry._Format = "Cube Map(Unsupported)";
                         texentry.IsCubeMap = true;
@@ -1621,7 +1625,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 #region Weird Toon Shader Textures
                 case "27":
-                    texentry._Format = "????/Toon Shader Picture";
+                    texentry._Format = "RGBA Linear Texture";
 
                     //Gets the unsigned integers which hold data on the texture's dimensions.
                     brStream.BaseStream.Position = 4;
@@ -1934,12 +1938,12 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     Array.Clear(DTemp, 0, 4);
 
-                    texentry.PossibleCubeMapFlag = Convert.ToInt32(((LWData[0] >> 28) & 0xf));
+                    texentry.Dimensions = Convert.ToInt32(((LWData[0] >> 28) & 0xf));
 
                     texentry.MipOffsets = new int[texentry.MipMapCount];
 
                     //For CubeMaps.
-                    if (texentry.PossibleCubeMapFlag == 6)
+                    if (texentry.Dimensions == 6)
                     {
                         texentry._Format = "Cube Map(Unsupported)";
 
@@ -2306,7 +2310,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 #region Specular Tetures
                 case "19":
 
-                    teXentry._Format = "BC4_UNORM/Metalic/Specular Map";
+                    teXentry._Format = "Metalic/Specular Map";
 
                     //Gets the unsigned integers which hold data on the texture's dimensions.
                     bnr.BaseStream.Position = 4;
@@ -2328,7 +2332,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     teXentry.CSize = ((teXentry._X / 4) * (teXentry._Y / 4));
 
-                    teXentry.DSize = 16;
+                    teXentry.DSize = 8;
 
                     Array.Clear(DTemp, 0, 4);
 
@@ -2372,7 +2376,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                             teXentry.WTemp = new byte[(teXentry.MipOffsets[(i + 1)] - teXentry.MipOffsets[i])];
                             teXentry.OutMaps = new byte[(teXentry._MipMapCount)];
                             System.Buffer.BlockCopy(teXentry.UncompressedData, teXentry.MipOffsets[i], teXentry.WTemp, 0, (teXentry.MipOffsets[(i + 1)] - teXentry.MipOffsets[i]));
-                            w = teXentry.WTemp.Length;
+                            w19 = teXentry.WTemp.Length;
                             u19 = u19 + teXentry.WTemp.Length;
 
                             teXentry.OutMaps = teXentry.WTemp;
@@ -2414,7 +2418,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //Time to convert this to png for RGBA related reasons.
                     byte[] DDSTemp19 = new byte[] { };
                     byte[] RGBATemp19 = new byte[] { };
-                    DDSTemp17 = teXentry.OutMaps;
+                    DDSTemp19 = teXentry.OutMaps;
 
                     using (Stream strim = new MemoryStream(DDSTemp19))
                     {
@@ -3042,12 +3046,12 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     int v = 0x10;
 
-                    texentry.PossibleCubeMapFlag = Convert.ToInt32(((LWData[0] >> 28) & 0xf));
+                    texentry.Dimensions = Convert.ToInt32(((LWData[0] >> 28) & 0xf));
 
                     texentry.MipOffsets = new int[texentry.MipMapCount];
 
                     //For CubeMaps.
-                    if (texentry.PossibleCubeMapFlag == 6)
+                    if (texentry.Dimensions == 6)
                     {
                         texentry._Format = "Cube Map(Unsupported)";
 
@@ -3319,12 +3323,12 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     int v19 = 0x10;
 
-                    texentry.PossibleCubeMapFlag = Convert.ToInt32(((LWData[0] >> 28) & 0xf));
+                    texentry.Dimensions = Convert.ToInt32(((LWData[0] >> 28) & 0xf));
 
                     texentry.MipOffsets = new int[texentry.MipMapCount];
 
                     //For CubeMaps.
-                    if (texentry.PossibleCubeMapFlag == 6)
+                    if (texentry.Dimensions == 6)
                     {
                         texentry._Format = "Cube Map(Unsupported)";
 
@@ -3595,12 +3599,12 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     int v1f = 0x10;
 
-                    texentry.PossibleCubeMapFlag = Convert.ToInt32(((LWData[0] >> 28) & 0xf));
+                    texentry.Dimensions = Convert.ToInt32(((LWData[0] >> 28) & 0xf));
 
                     texentry.MipOffsets = new int[texentry.MipMapCount];
 
                     //For CubeMaps.
-                    if (texentry.PossibleCubeMapFlag == 6)
+                    if (texentry.Dimensions == 6)
                     {
                         texentry._Format = "Cube Map(Unsupported)";
 
@@ -3988,7 +3992,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     texentry.MipOffsets = new int[texentry.MipMapCount];
 
                     //For CubeMaps.
-                    if (texentry.PossibleCubeMapFlag == 6)
+                    if (texentry.Dimensions == 6)
                     {
                         texentry._Format = "Cube Map(Unsupported)";
 

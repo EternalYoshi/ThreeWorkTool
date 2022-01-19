@@ -389,7 +389,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
-            this.Text = "ThreeWork Tool V0.35";
+            this.Text = "ThreeWork Tool V0.4";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMainThree_KeyDown);
             this.menuStrip1.ResumeLayout(false);

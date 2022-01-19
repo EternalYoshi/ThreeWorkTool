@@ -91,6 +91,7 @@ namespace ThreeWorkTool
                     se = c.Tag as ArcEntry;
                 }
 
+                /*
                 //Checks the nodes in the same directory for existing name AND extension and will stop if there's a node with the same type in the same directory.
                 if (c.Text == txtRename.Text && c.Tag as string != "MaterialChildTexture")
                 {
@@ -100,6 +101,7 @@ namespace ThreeWorkTool
                         return;
                     }
                 }
+                */
             }
 
             //Changes the name to what was chosen. Should reflect on the Treeview.
@@ -135,7 +137,7 @@ namespace ThreeWorkTool
                     List<byte> NameToInject = new List<byte>();
                     NameToInject.AddRange(Encoding.ASCII.GetBytes(txtRename.Text));
                     int OffsetToUse;
-                    OffsetToUse = 40 + (88 * texref.Index) + 24;
+                    OffsetToUse = 64 + (88 * (texref.Index - 1));
                     byte[] NewName = new byte[64];
                     Array.Copy(NameToInject.ToArray(), 0, NewName, 0, NameToInject.ToArray().Length);
                     Array.Copy(NewName, 0, mentry.UncompressedData, OffsetToUse, NewName.Length);
