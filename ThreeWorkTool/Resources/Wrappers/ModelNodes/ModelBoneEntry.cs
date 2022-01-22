@@ -21,8 +21,20 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
         public float Field4;
         public float Length;
         public Vector3 Offset;
-        public Vector4 LocalMatrix;
-        public Vector4 InvBindMatrix;
+        public struct LocalMatrix
+        {
+            public Vector4 RowA;
+            public Vector4 RowB;
+            public Vector4 RowC;
+            public Vector4 RowD;
+        }
+        public struct InvBindMatrix
+        {
+            public Vector4 RowA;
+            public Vector4 RowB;
+            public Vector4 RowC;
+            public Vector4 RowD;
+        }
         public BoundingSphere SphereBound;
         public struct BoundingSphere
         {
@@ -42,6 +54,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
             MBoneE.Offset.X = bnr.ReadSingle();
             MBoneE.Offset.Y = bnr.ReadSingle();
             MBoneE.Offset.Z = bnr.ReadSingle();
+
             //MBoneE.SphereBound = new BoundingSphere();
 
 

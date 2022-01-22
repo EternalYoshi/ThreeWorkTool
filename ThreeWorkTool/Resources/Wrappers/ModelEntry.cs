@@ -21,6 +21,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         public byte[] WTemp;
         public int Version;
         public int BoneCount;
+        public int BoneLocalMatrixOffset;
+        public int BoneInvBindMatrixOffset;
         public int PrimitiveCount;
         public int MaterialCount;
         public int VertexCount;
@@ -29,7 +31,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int VertexBufferSize;
         public int VertexBufferSecondSize;
         public long GroupCount;
-        public int JointsOffset;
+        public int BonesOffset;
         public int GroupOffset;
         public int MaterialsOffset;
         public int PrimitveOffset;
@@ -140,7 +142,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             modentry.VertexBufferSizeA = bnr.ReadInt32();
             modentry.VertexBufferSizeB = bnr.ReadInt32();
             modentry.GroupCount = bnr.ReadInt64();
-            modentry.JointsOffset = Convert.ToInt32(bnr.ReadInt64());
+            modentry.BonesOffset = Convert.ToInt32(bnr.ReadInt64());
             modentry.GroupOffset = Convert.ToInt32(bnr.ReadInt64());
             modentry.MaterialsOffset = Convert.ToInt32(bnr.ReadInt64());
             modentry.PrimitveOffset = Convert.ToInt32(bnr.ReadInt64());
@@ -186,9 +188,11 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
 
             //Bones.
-            bnr.BaseStream.Position = modentry.JointsOffset;
+            modentry.BoneLocalMatrixOffset = modentry.BonesOffset + (24 * modentry.BoneCount);
+            modentry.BoneInvBindMatrixOffset = modentry.BoneLocalMatrixOffset + (modentry.BoneCount * 64);
+            bnr.BaseStream.Position = modentry.BonesOffset;
             modentry.Bones = new List<ModelBoneEntry>();
-            int PrevOffset = modentry.JointsOffset;
+            int PrevOffset = modentry.BonesOffset;
 
             for (int n = 0; n < modentry.BoneCount; n++)
             {

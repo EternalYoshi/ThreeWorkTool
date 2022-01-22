@@ -2585,64 +2585,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Array.Copy(Xbytes1f, 0, teXentry.OutMaps, 12, 4);
                     Array.Copy(Ybytes1f, 0, teXentry.OutMaps, 16, 4);
 
-                    #region ToRGBAPNG
-                    //Time to convert this to png for RGBA related reasons.
-                    byte[] DDSTemp1f = new byte[] { };
-                    byte[] RGBATemp1f = new byte[] { };
-                    DDSTemp1f = teXentry.OutMaps;
-
-                    using (Stream strim = new MemoryStream(DDSTemp1f))
-                    {
-                        using (var image = Pfim.Pfim.FromStream(strim))
-                        {
-                            PixelFormat format;
-
-                            // Convert from Pfim's backend agnostic image format into GDI+'s image format
-                            switch (image.Format)
-                            {
-                                case Pfim.ImageFormat.Rgba32:
-                                    format = PixelFormat.Format32bppArgb;
-                                    break;
-                                case Pfim.ImageFormat.Rgb24:
-                                    format = PixelFormat.Format24bppRgb;
-                                    break;
-                                default:
-                                    // see the sample for more details
-                                    throw new NotImplementedException();
-                            }
-
-                            // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
-                            // in this snippet but useful technique if the data was going to be used in
-                            // control like a picture box
-                            var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
-                            try
-                            {
-                                var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
-                                var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
-
-
-                                using (var stream = new MemoryStream())
-                                {
-                                    bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                                    RGBATemp1f = stream.ToArray();
-                                }
-
-
-                            }
-                            finally
-                            {
-                                handle.Free();
-                            }
-
-
-                        }
-                    }
-
-                    teXentry.OutMaps = RGBATemp1f;
-
-                    teXentry.Picture = ByteUtilitarian.BitmapBuilderDX(teXentry.OutMaps, teXentry);
-                    #endregion
-
+                    teXentry = DDSToRGBA(teXentry);
 
                     break;
 
@@ -3593,7 +3536,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     texentry.CSize = ((texentry._X / 4) * (texentry._Y / 4));
 
-                    texentry.DSize = 8;
+                    texentry.DSize = 16;
 
                     Array.Clear(DTemp, 0, 4);
 
@@ -3626,34 +3569,27 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     //Extracts and separates the Mip Maps.
                     texentry.OutMapsB = new byte[texentry._MipMapCount][];
-
                     for (int i = 0; i < texentry._MipMapCount; i++)
                     {
-
                         if ((i) == (texentry.MipOffsets.Length - 1))
                         {
-                            texentry.WTemp = new byte[(texentry.UncompressedData.Length - texentry.MipOffsets[i])];
+                            texentry.WTemp = new byte[(Convert.ToInt32(texentry.UncompressedData.Length) - texentry.MipOffsets[i])];
                             texentry.OutMaps = new byte[(texentry._MipMapCount)];
-
                             System.Buffer.BlockCopy(texentry.UncompressedData, texentry.MipOffsets[i], texentry.WTemp, 0, (texentry.UncompressedData.Length - texentry.MipOffsets[i]));
                             w1f = texentry.WTemp.Length;
                             u1f = u1f + texentry.WTemp.Length;
-
                             texentry.OutMaps = texentry.WTemp;
                             texentry.OutMapsB[i] = texentry.OutMaps;
                         }
                         else
                         {
                             texentry.WTemp = new byte[(texentry.MipOffsets[(i + 1)] - texentry.MipOffsets[i])];
-                            texentry.OutMaps = new byte[(texentry._MipMapCount)];
-                            System.Buffer.BlockCopy(texentry.UncompressedData, texentry.MipOffsets[i], texentry.WTemp, 0, (texentry.MipOffsets[(i + 1)] - texentry.MipOffsets[i]));
+                            texentry.OutMaps = new byte[(texentry._MipMapCount)]; Array.Copy(texentry.UncompressedData.ToArray(), texentry.MipOffsets[i], texentry.WTemp, 0, (texentry.MipOffsets[(i + 1)] - texentry.MipOffsets[i]));
                             w1f = texentry.WTemp.Length;
                             u1f = u1f + texentry.WTemp.Length;
-
                             texentry.OutMaps = texentry.WTemp;
                             texentry.OutMapsB[i] = texentry.OutMaps;
                         }
-
                     }
 
                     //Debug Export. Gotta use this for the export as well.
@@ -3665,18 +3601,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
-                                         0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x35, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
-                    if (texentry.FileName.Contains("NOMIP"))
-                    {
-                        DDSHeader1f[28] = Convert.ToByte(1);
-                    }
-                    else
-                    {
-                        DDSHeader1f[28] = Convert.ToByte(texentry.MipMapCount);
-                    }
 
                     texentry.OutTexTest.AddRange(DDSHeader1f);
 
@@ -3699,22 +3626,6 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     Array.Copy(Xbytes1f, 0, texentry.OutMaps, 12, 4);
                     Array.Copy(Ybytes1f, 0, texentry.OutMaps, 16, 4);
-
-                    //Test to setup a nomip dds file of read texture for preview reasons.
-                    byte[] DHTemp1f =    { 0x44, 0x44, 0x53, 0x20, 0x7c, 0x00, 0x00, 0x00, 0x07, 0x10, 0x08, 0x00, 0x00, 0x01, 0x00, 0x00,
-                                         0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
-                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
-                                         0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
-                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
-                    byte[] LenTemp1f = BitConverter.GetBytes(texentry.YSize);
-                    byte[] WidTemp1f = BitConverter.GetBytes(texentry.XSize);
-
-                    Array.Copy(LenTemp1f, 0, DHTemp1f, 12, 4);
-                    Array.Copy(WidTemp1f, 0, DHTemp1f, 16, 4);
 
                     texentry = DDSToRGBA(texentry);
 
