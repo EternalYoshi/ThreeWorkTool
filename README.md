@@ -13,6 +13,13 @@ Thanks to TGE and smb123w64gb for assistance and giving me the resources that ma
 By Eternal Yoshi
 
 Current Changelog:
+V4.0
+- Fixed an issue resulting in Cube Maps crashing on Export/Export All. Can only export them as raw .tex files.
+- Fixed an issue that happens when replacing Normal Maps.
+- Added support for importing multiple raw .tex files simultaneously.
+- No longer will stop you from having multiple Sub-Materials with the same texture reference.
+- Fixed the formula used for "Change Texture Reference Via rename" so it works properly now.
+
 V3.5
 - Wrote and Rewrote Partial Model and Material Support - Not all information is shown but some of it is in Read Only Form.
 - Added a touch more information on LMT files.
