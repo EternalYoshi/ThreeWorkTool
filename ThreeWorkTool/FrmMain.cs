@@ -3861,7 +3861,7 @@ namespace ThreeWorkTool
         {
             ArcEntry Aentry = new ArcEntry();
             OpenFileDialog IMPDialog = new OpenFileDialog();
-            IMPDialog.Filter = "Supported files(*.tex;*.dds)|*.tex;*.dds|Raw Texture File(*.tex)|*.tex|DirectDraw Surface Image(*.dds)| *.dds";
+            IMPDialog.Filter = "MT Texture file (*.tex)|*.tex";
             IMPDialog.Multiselect = true;
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
             //Gotta rewrite this to incorporate Textures.            
