@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -51,6 +52,19 @@ namespace ThreeWorkTool.Resources.Wrappers
             RPLentry.Magic = BitConverter.ToString(RPLentry.UncompressedData, 0, 4).Replace("-", string.Empty);
             RPLentry._EntryTotal = BitConverter.ToInt32(RPLentry.UncompressedData, 12);
             RPLentry.EntryCount = RPLentry._EntryTotal;
+
+            //If the entry count is too high then it means the lrp file is likely corrupted or malinformed, meaning we put out an error message and force a close lest we hang.
+            if (RPLentry.EntryCount > 76310)
+            {
+
+                string errorpath = "";
+                foreach (string s in subnames) { errorpath = errorpath + s + "\\"; }
+                errorpath = errorpath + RPLentry._FileName + ".lrp";
+                MessageBox.Show("The file located at \n" + errorpath + "\nis malinformed and has way too many entries.\nFor this reason, I cannot continue reading this arc file and must close. Sorry." ,"ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Process.GetCurrentProcess().Kill();
+
+            }
+
 
             //Starts occupying the entry list via structs. 
             RPLentry.EntryList = new List<PathEntries>();
@@ -282,7 +296,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             byte[] HashTempDX = new byte[4];
 
             //Starts building the entries.
-            for (int k= 0; k< NewEntryCount; k++)
+            for (int k = 0; k < NewEntryCount; k++)
             {
                 ENTemp = rple.EntryList[k].TotalName;
                 ENTemp = ENTemp.Replace("\r", "");
@@ -354,7 +368,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         return null;
                     }
                 }
-                if(ExtFound == true)
+                if (ExtFound == true)
                 {
                     HashTempDX = ByteUtilitarian.StringToByteArray(HashStr);
                     Array.Reverse(HashTempDX);
@@ -372,9 +386,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             }
 
-            if(EstimatedSize > (NEWLRP.Count - 16))
+            if (EstimatedSize > (NEWLRP.Count - 16))
             {
-                for(int vv=0; EstimatedSize > (NEWLRP.Count - 16); vv++)
+                for (int vv = 0; EstimatedSize > (NEWLRP.Count - 16); vv++)
                 {
                     NEWLRP.Add(0x00);
                 }
@@ -417,7 +431,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
                 {
 
-                    InsertKnownEntry(tree,node,filename,rplentry,bnr); 
+                    InsertKnownEntry(tree, node, filename, rplentry, bnr);
 
                     //Specific file type work goes here!
                     ASCIIEncoding ascii = new ASCIIEncoding();
@@ -523,7 +537,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 using (BinaryReader br = new BinaryReader(File.OpenRead(filename)))
                 {
 
-                    ReplaceKnownEntry(tree,node,filename,rpathentry,rpoldentry);
+                    ReplaceKnownEntry(tree, node, filename, rpathentry, rpoldentry);
 
                     ASCIIEncoding ascii = new ASCIIEncoding();
 

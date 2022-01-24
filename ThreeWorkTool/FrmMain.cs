@@ -3861,7 +3861,7 @@ namespace ThreeWorkTool
         {
             ArcEntry Aentry = new ArcEntry();
             OpenFileDialog IMPDialog = new OpenFileDialog();
-            IMPDialog.Filter = "MT Texture file (*.tex)|*.tex";
+            IMPDialog.Filter = "Supported files(*.tex;*.dds)|*.tex;*.dds|Raw Texture File(*.tex)|*.tex|DirectDraw Surface Image(*.dds)| *.dds";
             IMPDialog.Multiselect = true;
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
             //Gotta rewrite this to incorporate Textures.            
@@ -3942,8 +3942,7 @@ namespace ThreeWorkTool
                         #endregion
 
                         #region DDS
-                        case ".dds":
-                        case ".DDS":
+                        case ".DDS": case ".dds":
 
                             //Creates and Spawns the Texture Encoder Dialog.
                             FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(Filename, IMPDialog);
