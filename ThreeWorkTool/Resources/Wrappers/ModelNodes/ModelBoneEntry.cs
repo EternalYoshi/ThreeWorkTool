@@ -42,6 +42,29 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
             public float Radius;
         }
 
+        public PrimitiveJointLinks JointLinks;        
+        public struct PrimitiveJointLinks
+        {
+            public int curJointIndex;
+            public List<PrimitiveJLink> Links;
+        }
+
+        public struct PrimitiveJLink
+        {
+            public int JointIndex;
+            public int Field04;
+            public int Field08;
+            public int Field0C;
+            public Vector4 Vec10;
+            public Vector4 Vec20;
+            public Vector4 Vec30;
+            public Matrix4x4 Mtx40;
+            public Vector4 Vec80;
+
+
+
+        }
+
         public ModelBoneEntry FillModelBoneEntry(ModelBoneEntry MBoneE, ModelEntry ParentMod, BinaryReader bnr, int OffsetToStart, int ID)
         {
             bnr.BaseStream.Position = OffsetToStart;
@@ -55,9 +78,66 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
             MBoneE.Offset.Y = bnr.ReadSingle();
             MBoneE.Offset.Z = bnr.ReadSingle();
 
-            //MBoneE.SphereBound = new BoundingSphere();
+            MBoneE.JointLinks.Links = new List<PrimitiveJLink>();
+
+            /*
+            //Primitive Joint Links.
+            for(int i = 0; i < ParentMod.PrimitiveJointLinkCount; i++)
+            {
+                bnr.BaseStream.Position = ((ParentMod.PrimitveOffset + ParentMod.PrimitiveCount * 56) + i * 144);
+                MBoneE.JointLinks.curJointIndex = Convert.ToInt32(bnr.BaseStream.Position);
+                if (MBoneE.JointLinks.curJointIndex == MBoneE.ID)
+                {
 
 
+                    
+                    PrimitiveJLink PLink = new PrimitiveJLink();
+                    PLink.JointIndex = bnr.ReadInt32();
+                    PLink.Field04 = bnr.ReadInt32();
+                    PLink.Field08 = bnr.ReadInt32();
+                    PLink.Field0C = bnr.ReadInt32();
+                    PLink.Vec10.X = bnr.ReadSingle();
+                    PLink.Vec10.Y = bnr.ReadSingle();
+                    PLink.Vec10.Z = bnr.ReadSingle();
+                    PLink.Vec10.W = bnr.ReadSingle();
+                    PLink.Vec20.X = bnr.ReadSingle();
+                    PLink.Vec20.Y = bnr.ReadSingle();
+                    PLink.Vec20.Z = bnr.ReadSingle();
+                    PLink.Vec20.W = bnr.ReadSingle();
+                    PLink.Vec30.X = bnr.ReadSingle();
+                    PLink.Vec30.Y = bnr.ReadSingle();
+                    PLink.Vec30.Z = bnr.ReadSingle();
+                    PLink.Vec30.W = bnr.ReadSingle();
+
+                    PLink.Mtx40.M11 = bnr.ReadSingle();
+                    PLink.Mtx40.M12 = bnr.ReadSingle();
+                    PLink.Mtx40.M13 = bnr.ReadSingle();
+                    PLink.Mtx40.M14 = bnr.ReadSingle();
+
+                    PLink.Mtx40.M21 = bnr.ReadSingle();
+                    PLink.Mtx40.M22 = bnr.ReadSingle();
+                    PLink.Mtx40.M23 = bnr.ReadSingle();
+                    PLink.Mtx40.M24 = bnr.ReadSingle();
+
+                    PLink.Mtx40.M31 = bnr.ReadSingle();
+                    PLink.Mtx40.M32 = bnr.ReadSingle();
+                    PLink.Mtx40.M33 = bnr.ReadSingle();
+                    PLink.Mtx40.M34 = bnr.ReadSingle();
+
+                    PLink.Mtx40.M41 = bnr.ReadSingle();
+                    PLink.Mtx40.M42 = bnr.ReadSingle();
+                    PLink.Mtx40.M43 = bnr.ReadSingle();
+                    PLink.Mtx40.M44 = bnr.ReadSingle();
+
+                    PLink.Vec80.X = bnr.ReadSingle();
+                    PLink.Vec80.Y = bnr.ReadSingle();
+                    PLink.Vec80.Z = bnr.ReadSingle();
+                    PLink.Vec80.W = bnr.ReadSingle();
+                    
+                }
+            }
+
+            */
 
             return MBoneE;
 

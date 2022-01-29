@@ -14,6 +14,8 @@ using System.Windows.Forms;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
 using ThreeWorkTool.Resources.Wrappers;
+using SharpDX;
+using SharpDX.Direct3D11;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -46,9 +48,9 @@ namespace ThreeWorkTool.Resources.Wrappers
         public struct Face
         {
             public float field00;
-            public Vector3 Negative;
-            public Vector3 Postiive;
-            public Vector2 UV;
+            public System.Numerics.Vector3 Negative;
+            public System.Numerics.Vector3 Postiive;
+            public System.Numerics.Vector2 UV;
         }
 
 
@@ -87,99 +89,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             return texentry;
 
         }
-
-        #region TextureEntry Properties
-        private string _FileName;
-        [Category("Filename"), ReadOnlyAttribute(true)]
-        public string FileName
-        {
-
-            get
-            {
-                return _FileName;
-            }
-            set
-            {
-                _FileName = value;
-            }
-        }
-
-        private string _TextureType;
-        [Category("Filename"), ReadOnlyAttribute(true)]
-        public string TextureType
-        {
-
-            get
-            {
-                return _TextureType;
-            }
-            set
-            {
-                _TextureType = value;
-            }
-        }
-
-        private int _X;
-        [Category("Filename"), ReadOnlyAttribute(true)]
-        public int X
-        {
-
-            get
-            {
-                return _X;
-            }
-            set
-            {
-                _X = value;
-            }
-        }
-
-        private int _Y;
-        [Category("Filename"), ReadOnlyAttribute(true)]
-        public int Y
-        {
-
-            get
-            {
-                return _Y;
-            }
-            set
-            {
-                _Y = value;
-            }
-        }
-
-        private int _MipMapCount;
-        [Category("Filename"), ReadOnlyAttribute(true)]
-        public int MipMapCount
-        {
-
-            get
-            {
-                return _MipMapCount;
-            }
-            set
-            {
-                _MipMapCount = value;
-            }
-        }
-
-        private string _Format;
-        [Category("Filename"), ReadOnlyAttribute(true)]
-        public string Format
-        {
-
-            get
-            {
-                return _Format;
-            }
-            set
-            {
-                _Format = value;
-            }
-        }
-
-        #endregion
 
         public static Bitmap BitmapBuilder(string filenametest, Stream strim)
         {
@@ -2965,9 +2874,6 @@ namespace ThreeWorkTool.Resources.Wrappers
                     LWData[2] = BitConverter.ToUInt32(bnr.ReadBytes(4), 0);
 
                     byte[] bytemp = { 0x09, 0x80, 0x10, 0x01 };
-                    uint uinttemp;
-                    int inttemp;
-                    int inttempw;
 
                     //X and Y coordinates. This method is borrowed from the old TexCheck.py file.
                     texentry.XSize = Convert.ToInt32(((LWData[1] >> 6) & 0x1fff));
@@ -3242,9 +3148,6 @@ namespace ThreeWorkTool.Resources.Wrappers
                     LWData[2] = BitConverter.ToUInt32(bnr.ReadBytes(4), 0);
 
                     byte[] bytemp19 = { 0x09, 0x80, 0x10, 0x01 };
-                    uint uinttemp19;
-                    int inttemp19;
-                    int inttempw19;
 
                     //X and Y coordinates. This method is borrowed from the old TexCheck.py file.
                     texentry.XSize = Convert.ToInt32(((LWData[1] >> 6) & 0x1fff));
@@ -3518,9 +3421,6 @@ namespace ThreeWorkTool.Resources.Wrappers
                     LWData[2] = BitConverter.ToUInt32(bnr.ReadBytes(4), 0);
 
                     byte[] bytemp1f = { 0x09, 0x80, 0x10, 0x01 };
-                    uint uinttemp1f;
-                    int inttemp1f;
-                    int inttempw1f;
 
                     //X and Y coordinates. This method is borrowed from the old TexCheck.py file.
                     texentry.XSize = Convert.ToInt32(((LWData[1] >> 6) & 0x1fff));
@@ -3898,7 +3798,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     Array.Clear(DTemp, 0, 4);
 
-                    int v2X = 0x10;
+                    //int v2X = 0x10;
 
                     texentry.MipOffsets = new int[texentry.MipMapCount];
 
@@ -3933,6 +3833,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             using (Stream strim = new MemoryStream(DDSTemp13))
             {
+
+                //PixelFormat format = PixelFormat.Format32bppArgb;
                 using (var image = Pfim.Pfim.FromStream(strim))
                 {
                     PixelFormat format;
@@ -3976,6 +3878,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
 
                 }
+
             }
 
             texentry.OutMaps = RGBATemp13;
@@ -3986,6 +3889,100 @@ namespace ThreeWorkTool.Resources.Wrappers
             return texentry;
 
         }
+
+        #region TextureEntry Properties
+        private string _FileName;
+        [Category("Filename"), ReadOnlyAttribute(true)]
+        public string FileName
+        {
+
+            get
+            {
+                return _FileName;
+            }
+            set
+            {
+                _FileName = value;
+            }
+        }
+
+        private string _TextureType;
+        [Category("Filename"), ReadOnlyAttribute(true)]
+        public string TextureType
+        {
+
+            get
+            {
+                return _TextureType;
+            }
+            set
+            {
+                _TextureType = value;
+            }
+        }
+
+        private int _X;
+        [Category("Filename"), ReadOnlyAttribute(true)]
+        public int X
+        {
+
+            get
+            {
+                return _X;
+            }
+            set
+            {
+                _X = value;
+            }
+        }
+
+        private int _Y;
+        [Category("Filename"), ReadOnlyAttribute(true)]
+        public int Y
+        {
+
+            get
+            {
+                return _Y;
+            }
+            set
+            {
+                _Y = value;
+            }
+        }
+
+        private int _MipMapCount;
+        [Category("Filename"), ReadOnlyAttribute(true)]
+        public int MipMapCount
+        {
+
+            get
+            {
+                return _MipMapCount;
+            }
+            set
+            {
+                _MipMapCount = value;
+            }
+        }
+
+        private string _Format;
+        [Category("Filename"), ReadOnlyAttribute(true)]
+        public string Format
+        {
+
+            get
+            {
+                return _Format;
+            }
+            set
+            {
+                _Format = value;
+            }
+        }
+
+        #endregion
+
 
     }
 }
