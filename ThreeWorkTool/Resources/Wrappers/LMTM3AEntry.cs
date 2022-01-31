@@ -551,7 +551,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        public List<Track> TracksInside
+        public List<Track> CollectionTracks
         {
 
             get
@@ -568,7 +568,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        public List<AnimEvent> EventsInside
+        public List<AnimEvent> CollectionEvents
         {
 
             get

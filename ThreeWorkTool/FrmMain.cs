@@ -21,7 +21,7 @@ namespace ThreeWorkTool
 
         private static FrmMainThree _instance;
         public static FrmMainThree Instance { get { return _instance == null ? _instance = new FrmMainThree() : _instance; } }
-
+        private int FileCount;
 
         public FrmMainThree()
         {
@@ -4198,7 +4198,7 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath.Substring(0, dindex);
                                 ExportPath = BaseDirectory + ExportPath;
                                 System.IO.Directory.CreateDirectory(ExportPath);
-                                ExportPath = ExportPath + LMTNT.FileName + ".lmt";
+                                ExportPath = ExportPath + LMTNT.FileName;
                                 ExportFileWriter.LMTEntryWriter(ExportPath, LMTNT);
                             }
                             else if (kid.Tag is MSDEntry)
