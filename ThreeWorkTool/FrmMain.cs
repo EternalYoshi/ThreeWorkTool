@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
@@ -23,6 +24,8 @@ namespace ThreeWorkTool
         public static FrmMainThree Instance { get { return _instance == null ? _instance = new FrmMainThree() : _instance; } }
         private int FileCount;
 
+        private List<string> _MostRecentlyUsedList = new List<string>();
+
         public FrmMainThree()
         {
             ThreeSourceTree TreeSource = new ThreeSourceTree();
@@ -33,6 +36,7 @@ namespace ThreeWorkTool
         }
 
         public static bool NastyError = false;
+        private bool FirstArcFileOpened = false;
         public string[] ArcFileNameListBackup;
         public List<string> subdirs;
         public string CFile;
@@ -1246,15 +1250,21 @@ namespace ThreeWorkTool
                 {
                     //Code to save the file goes here!
                     MenuSaveAs_Click(sender, e);
+                    UpdateTheMostRecentlyUsedList(sender, e);
                 }
                 if (dlrs == DialogResult.No)
                 {
+                    UpdateTheMostRecentlyUsedList(sender, e);
                 }
                 if (dlrs == DialogResult.Cancel)
                 {
                     e.Cancel = true;
                     return;
                 }
+            }
+            else
+            {
+                UpdateTheMostRecentlyUsedList(sender, e);
             }
         }
 
@@ -3942,7 +3952,8 @@ namespace ThreeWorkTool
                         #endregion
 
                         #region DDS
-                        case ".DDS": case ".dds":
+                        case ".DDS":
+                        case ".dds":
 
                             //Creates and Spawns the Texture Encoder Dialog.
                             FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(Filename, IMPDialog);
@@ -5841,9 +5852,11 @@ namespace ThreeWorkTool
 
                 InvalidImport = false;
 
-                //Sorts Alpabetically.
-                //TreeSource.Sort();
                 HasSaved = false;
+
+                _MostRecentlyUsedList.Insert(0, FilePath);
+                FirstArcFileOpened = true;
+
                 //Writes to log file.
                 using (StreamWriter sw = new StreamWriter("Log.txt"))
                 {
@@ -6353,6 +6366,22 @@ namespace ThreeWorkTool
 
         }
 
+        //Updates the MRU as the program closes.
+        private void UpdateTheMostRecentlyUsedList(object sender, FormClosingEventArgs e)
+        {
+            var appDataPath = Application.UserAppDataPath;
+            //var myAppDataPath = Path.Combine(appDataPath, "ThreeWorkTool");
+            var mruFilePath = Path.Combine(appDataPath, "MRU.txt");
+            if (!Directory.Exists(mruFilePath) && !String.IsNullOrEmpty(txtBoxCurrentFile.Text))
+            {
+                
+                //Checks Text File for lines matching incoming line and deletes duplicate.
+                List<string> FilePaths = _MostRecentlyUsedList.Distinct().ToList();
+                File.WriteAllLines(mruFilePath, FilePaths.ToArray());
+
+            }
+        }
+
         private void MenuSettings_Click(object sender, EventArgs e)
         {
 
@@ -6362,6 +6391,80 @@ namespace ThreeWorkTool
         {
             using (FrmNotes frnot = new FrmNotes()) frnot.ShowDialog();
         }
+
+        //For MRU Implementation.
+        private void FrmMainThree_Load(object sender, EventArgs e)
+        {
+            var appDataPath = Application.UserAppDataPath;
+            //var myAppDataPath = Path.Combine(appDataPath, "ThreeWorkTool");
+            var mruFilePath = Path.Combine(appDataPath, "MRU.txt");
+            if (File.Exists(mruFilePath))
+                _MostRecentlyUsedList.AddRange(File.ReadAllLines(mruFilePath));
+
+            foreach (var path in _MostRecentlyUsedList)
+            {
+
+                var item = new ToolStripMenuItem(path);
+                item.Tag = path;
+                item.Click += OpenRecentFile;
+                MenuRecentFiles.DropDownItems.Add(item);
+
+            }
+
+
+
+
+
+        }
+
+        //Opens the file if chosen from the Recently Used Files list.
+        void OpenRecentFile(object sender, EventArgs e)
+        {
+            var menuItem = (ToolStripMenuItem)sender;
+            var filepath = (string)menuItem.Tag;
+
+            try
+            {
+                NCount = 0;
+                OFilename = filepath;
+                isFinishRPLRead = false;
+                FilePath = OFilename;
+                OpenDX(FilePath);
+
+                OpenFileModified = false;
+
+                //Fills in the Tree node.
+                CExt = Path.GetExtension(filepath);
+                txtBoxCurrentFile.Text = filepath;
+
+                //For Arc files. Function Has a more up to date file reading and writing method. More types will be added soon.
+                if (CExt == ".arc")
+                {
+                    ArcFill();
+                }
+                else
+                {
+                    MessageBox.Show("I cannot recognize the input file right now.");
+                }
+
+                picBoxA.Visible = false;
+
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Unable to access the file. Maybe it's already in use by something else?", "Oh no it's an error.");
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Cannot access the file:" + "\nMight be in use by another proccess.");
+                }
+                return;
+            }
+
+
+        }
+
+
+
 
     }
 }
