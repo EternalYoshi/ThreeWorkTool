@@ -6430,7 +6430,7 @@ namespace ThreeWorkTool
                 isFinishRPLRead = false;
                 FilePath = OFilename;
                 OpenDX(FilePath);
-
+                OFDialog.FileName = filepath;
                 OpenFileModified = false;
 
                 //Fills in the Tree node.
@@ -6463,7 +6463,29 @@ namespace ThreeWorkTool
 
         }
 
+        private void emptyListToolStripMenuItem_Click(object sender, EventArgs e)
+        {
 
+            _MostRecentlyUsedList.Clear();
+            var appDataPath = Application.UserAppDataPath;
+            var mruFilePath = Path.Combine(appDataPath, "MRU.txt");
+            if (File.Exists(mruFilePath))
+            {
+                File.WriteAllText(mruFilePath, String.Empty);
+            }
+
+            int RecentFileCount = MenuRecentFiles.DropDownItems.Count;
+
+            if (RecentFileCount > 2)
+            {
+                for(int i = RecentFileCount; i > 2; i--)
+                {
+                    MenuRecentFiles.DropDownItems.RemoveAt(i - 1);
+                }
+            }
+
+
+        }
 
 
     }

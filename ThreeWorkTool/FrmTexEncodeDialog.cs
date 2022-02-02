@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources;
+using ThreeWorkTool.Resources.Utility;
 
 namespace ThreeWorkTool
 {
@@ -41,7 +42,7 @@ namespace ThreeWorkTool
         public bool IsDXT1;
         public bool Dialoginit;
         public string DXType;
-        
+
         public static FrmTexEncodeDialog LoadDDSData(string openedfile, OpenFileDialog ofd)
         {
             FrmTexEncodeDialog fted = new FrmTexEncodeDialog();
@@ -50,11 +51,12 @@ namespace ThreeWorkTool
             {
                 using (FileStream fs = File.OpenRead(openedfile))
                 {
+
                     //Checks Magic.
                     byte[] Magic = new byte[4];
-                    fs.Read(Magic,0,4);
+                    fs.Read(Magic, 0, 4);
 
-                    if(Magic[0] == 0x44 && Magic[1] == 0x44 && Magic[2] == 0x53 && Magic[3] == 0x20)
+                    if (Magic[0] == 0x44 && Magic[1] == 0x44 && Magic[2] == 0x53 && Magic[3] == 0x20)
                     {
                         //Gets Dimensions.
                         byte[] DimTemp = new byte[4];
@@ -112,7 +114,7 @@ namespace ThreeWorkTool
                         fted.lblX.Text = Convert.ToString(fted.TXx);
                         fted.lblY.Text = Convert.ToString(fted.TXy);
                         fted.TXfilename = openedfile;
-                        
+
                         //Gets Filename without the extension and the previous directories.
                         while (fted.TXfilename.Contains("\\"))
                         {
@@ -158,7 +160,7 @@ namespace ThreeWorkTool
 
                                 byte[] MipPix = new byte[FirstMipSize];
 
-                                Array.Copy(fted.DDSData,128, MipPix,0, FirstMipSize);
+                                Array.Copy(fted.DDSData, 128, MipPix, 0, FirstMipSize);
 
 
                                 PrevTemp.AddRange(DHTemp);
@@ -210,6 +212,64 @@ namespace ThreeWorkTool
                                 break;
                         }
 
+                        //Time to convert this to png for RGBA related reasons.
+                        byte[] DDSTemp = new byte[fted.DDSData.Length];
+                        DDSTemp = fted.DDSData;
+                        byte[] RGBATemp13 = new byte[] { };
+
+                        using (Stream strim = new MemoryStream(DDSTemp))
+                        {
+
+                            //PixelFormat format = PixelFormat.Format32bppArgb;
+                            using (var image = Pfim.Pfim.FromStream(strim))
+                            {
+                                PixelFormat format;
+
+                                // Convert from Pfim's backend agnostic image format into GDI+'s image format
+                                switch (image.Format)
+                                {
+                                    case Pfim.ImageFormat.Rgba32:
+                                        format = PixelFormat.Format32bppArgb;
+                                        break;
+                                    case Pfim.ImageFormat.Rgb24:
+                                        format = PixelFormat.Format24bppRgb;
+                                        break;
+                                    default:
+                                        // see the sample for more details
+                                        throw new NotImplementedException();
+                                }
+
+                                // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
+                                // in this snippet but useful technique if the data was going to be used in
+                                // control like a picture box
+                                var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+                                try
+                                {
+                                    var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                                    var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+
+
+                                    using (var stream = new MemoryStream())
+                                    {
+                                        bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                                        RGBATemp13 = stream.ToArray();
+                                    }
+
+
+                                }
+                                finally
+                                {
+                                    handle.Free();
+                                }
+
+
+                            }
+
+                        }
+
+
+                        /*
+
                         Stream ztrim = new MemoryStream(fted.FirstMip);
                         byte[] TexData = new byte[] { };
                         Bitmap pmap;
@@ -253,26 +313,30 @@ namespace ThreeWorkTool
                             }
                         }
 
-                        fted.txtTexConvFile.Text = openedfile;
+                        */
 
-                        if (pmap == null)
+                        fted.txtTexConvFile.Text = openedfile;
+                        fted.TXpreview = ByteUtilitarian.BitmapBuilderDXEncode(fted.DDSData, fted);
+
+
+                        if (fted.TXpreview == null)
                         {
                             fted.PicBoxTex.Image = fted.PicBoxTex.ErrorImage;
                         }
                         else
                         {
-                            if (pmap.Width > fted.PicBoxTex.Width || pmap.Height > fted.PicBoxTex.Height)
+                            if (fted.TXpreview.Width > fted.PicBoxTex.Width || fted.TXpreview.Height > fted.PicBoxTex.Height)
                             {
                                 int OldX = fted.PicBoxTex.Width;
                                 int OldY = fted.PicBoxTex.Height;
-                                fted.PicBoxTex.Image = pmap;
-                                fted.PicBoxTex.SizeMode = pmap.Width > OldX || pmap.Height > OldY ?
+                                fted.PicBoxTex.Image = fted.TXpreview;
+                                fted.PicBoxTex.SizeMode = fted.TXpreview.Width > OldX || fted.TXpreview.Height > OldY ?
                                 PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
                             }
                             else
                             {
-                                fted.PicBoxTex.Image = pmap;
-                                fted.PicBoxTex.SizeMode = pmap.Width < fted.PicBoxTex.Width || pmap.Height < fted.PicBoxTex.Height ?
+                                fted.PicBoxTex.Image = fted.TXpreview;
+                                fted.PicBoxTex.SizeMode = fted.TXpreview.Width < fted.PicBoxTex.Width || fted.TXpreview.Height < fted.PicBoxTex.Height ?
                                 PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
                             }
                         }
@@ -388,7 +452,7 @@ namespace ThreeWorkTool
         }
 
         private void btnTexOK_Click(object sender, EventArgs e)
-        {                                  
+        {
             //Closes form with changes made above.
             DialogResult = DialogResult.OK;
             Hide();
@@ -520,7 +584,7 @@ namespace ThreeWorkTool
 
                     if (this.IsDXT1 == true && this.DXType == "44585431")
                     {
-                        MessageBox.Show("This texture was saved as a DXT1 .DDS file, meaning the DXT compression method used for this is not compatible with this texture type.\nIf you want to import this as this type of texture, return to the image editing software you used to save this and make sure to save it as a DXT5 instead.","Hold it!");
+                        MessageBox.Show("This texture was saved as a DXT1 .DDS file, meaning the DXT compression method used for this is not compatible with this texture type.\nIf you want to import this as this type of texture, return to the image editing software you used to save this and make sure to save it as a DXT5 instead.", "Hold it!");
                         cmBoxTextureType.SelectedIndex = 0;
                         return;
                     }
@@ -1082,6 +1146,83 @@ namespace ThreeWorkTool
                     break;
 
             }
+        }
+
+        private void btnInvertGreen_Click(object sender, EventArgs e)
+        {
+            //Inverts Green Channel on Preview. Only works with DXT5/BC3 images.
+            if (DDSData == null)
+            {
+                MessageBox.Show("This isn't supposed to be empty", "Uhhhh");
+                return;
+            }
+            if (this.IsDXT1 == true)
+            {
+                MessageBox.Show("This feature supports Only DXT5 Textures", "Hmmmm");
+                return;
+            }
+
+            Bitmap pic = new Bitmap(PicBoxTex.Image);
+            for (int y = 0; (y <= (pic.Height - 1)); y++)
+            {
+                for (int x = 0; (x <= (pic.Width - 1)); x++)
+                {
+                    Color inv = pic.GetPixel(x, y);
+                    inv = Color.FromArgb(inv.A, (inv.R), (255 - inv.G), (inv.B));
+                    pic.SetPixel(x, y, inv);
+                }
+            }
+            PicBoxTex.Image = pic;
+
+            //Now for the DDS Data itself.
+            
+
+
+            using (MemoryStream TexStream = new MemoryStream(DDSData))
+            {
+                using (BinaryWriter brStream = new BinaryWriter(TexStream))
+                {
+                    brStream.BaseStream.Position = 128;
+
+
+
+
+                }
+            }
+            
+
+
+
+        }
+
+        private void btnRedAlphaSwap_Click(object sender, EventArgs e)
+        {
+
+            //Swaps Red and Alpha channels on Preview. Only works with DXT5/BC3 images.
+            if (DDSData == null)
+            {
+                MessageBox.Show("This isn't supposed to be empty", "Uhhhh");
+                return;
+            }
+            if (this.IsDXT1 == true)
+            {
+                MessageBox.Show("This feature supports Only DXT5 Textures", "Hmmmm");
+                return;
+            }
+
+            Bitmap pic = new Bitmap(PicBoxTex.Image);
+            for (int y = 0; (y <= (pic.Height - 1)); y++)
+            {
+                for (int x = 0; (x <= (pic.Width - 1)); x++)
+                {
+                    Color inv = pic.GetPixel(x, y);
+                    inv = Color.FromArgb(inv.R, (inv.A), (255 - inv.G), (inv.B));
+                    pic.SetPixel(x, y, inv);
+                }
+            }
+            PicBoxTex.Image = pic;
+
+
         }
     }
 

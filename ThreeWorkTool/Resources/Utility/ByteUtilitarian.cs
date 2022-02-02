@@ -510,5 +510,69 @@ namespace ThreeWorkTool.Resources.Utility
             }
         }
 
+        public static Bitmap BitmapBuilderDXEncode(byte[] ddsfile, FrmTexEncodeDialog fted)
+        {
+            if (fted.DDSData != null)
+            {
+
+                if (fted.DDSData[0] == 137 && fted.DDSData[1] == 80 && fted.DDSData[2] == 78 && fted.DDSData[3] == 71 && fted.DDSData[4] == 13 && fted.DDSData[5] == 10 && fted.DDSData[6] == 26 && fted.DDSData[7] == 10)
+                {
+                    #region PNG
+                    Bitmap bmp;
+                    using (var ms = new MemoryStream(fted.DDSData))
+                    {
+                        bmp = new Bitmap(ms);
+                        return bmp;
+                    }
+                    #endregion
+                }
+                else
+                {
+                    #region DDS Files
+                    Stream ztrim = new MemoryStream(fted.DDSData);
+                    //From the pfim website.
+                    using (var image = Pfim.Pfim.FromStream(ztrim))
+                    {
+                        PixelFormat format;
+
+                        // Convert from Pfim's backend agnostic image format into GDI+'s image format
+                        switch (image.Format)
+                        {
+                            case Pfim.ImageFormat.Rgba32:
+                                format = PixelFormat.Format32bppArgb;
+                                break;
+                            //case Pfim.ImageFormat.Rgb24:
+                            // format = PixelFormat.Format24bppRgb;
+                            //break;
+                            default:
+                                // see the sample for more details
+                                throw new NotImplementedException();
+                        }
+
+                        // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
+                        // in this snippet but useful technique if the data was going to be used in
+                        // control like a picture box
+                        var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+                        try
+                        {
+                            var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                            var pmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+                            return pmap;
+                        }
+                        finally
+                        {
+                            handle.Free();
+                        }
+                    }
+                    #endregion
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
     }
 }
