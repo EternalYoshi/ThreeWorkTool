@@ -5603,7 +5603,7 @@ namespace ThreeWorkTool
                 int OldX = pb.Width;
                 int OldY = pb.Height;
                 pb.Image = bm;
-                //pb.Size = frename.Mainfrm.pnlNew.Size;
+
                 pb.SizeMode = bm.Width > OldX || bm.Height > OldY ?
                 PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
             }
@@ -6242,8 +6242,8 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     picBoxA.Image = null;
                     picBoxA.Visible = true;
-                    //bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
                     UpdateTheEditMenu();
+
                     if (tentry.Picture == null)
                     {
                         picBoxA.Image = picBoxA.ErrorImage;
@@ -6252,7 +6252,27 @@ namespace ThreeWorkTool
                     else
                     {
                         ImageRescaler(tentry.Picture, picBoxA, tentry);
-                        picBoxA.BackColor = Color.Magenta;
+
+                        //Creates Background Checkerboard for PictureBox. Thank you TaW.
+
+                        if (picBoxA.BackgroundImage != null)
+                        {
+                            picBoxA.BackgroundImage.Dispose();
+                            picBoxA.BackgroundImage = null;
+                            //return;
+                        }
+                        int size = picBoxA.Height;
+                        Bitmap bmp = new Bitmap(size * 2, size * 2);
+                        using (SolidBrush brush = new SolidBrush(Color.LightGray))
+                        using (Graphics G = Graphics.FromImage(bmp))
+                        {
+                            G.FillRectangle(brush, 0, 0, size, size);
+                            G.FillRectangle(brush, size, size, size, size);
+                        }
+                        picBoxA.BackgroundImage = bmp;
+                        picBoxA.BackgroundImageLayout = ImageLayout.Tile;
+
+                        //picBoxA.BackColor = Color.Magenta;
                         break;
                     }
 
@@ -6263,7 +6283,6 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     picBoxA.Image = null;
                     picBoxA.Visible = true;
-                    //bmx = BitmapBuilderDX(tentry.OutMaps, tentry, picBoxA);
                     UpdateTheEditMenu();
                     if (tentry.Picture == null)
                     {
@@ -6273,8 +6292,27 @@ namespace ThreeWorkTool
                     else
                     {
                         ImageRescaler(tentry.Picture, picBoxA, tentry);
-                        //picBoxA.Image = null;
-                        picBoxA.BackColor = Color.Magenta;
+
+                        //Creates Background Checkerboard for PictureBox. Thank you TaW.
+
+                        if (picBoxA.BackgroundImage != null)
+                        {
+                            picBoxA.BackgroundImage.Dispose();
+                            picBoxA.BackgroundImage = null;
+                            //return;
+                        }
+                        int size = 16;
+                        Bitmap bmp = new Bitmap(size * 2, size * 2);
+                        using (SolidBrush brush = new SolidBrush(Color.LightGray))
+                        using (Graphics G = Graphics.FromImage(bmp))
+                        {
+                            G.FillRectangle(brush, 0, 0, size, size);
+                            G.FillRectangle(brush, size, size, size, size);
+                        }
+                        picBoxA.BackgroundImage = bmp;
+                        picBoxA.BackgroundImageLayout = ImageLayout.Tile;
+
+                        //picBoxA.BackColor = Color.Magenta;
                         break;
                     }
                 #endregion
@@ -6341,6 +6379,27 @@ namespace ThreeWorkTool
 
             }
         }
+
+        //Creates Background Checkerboard for PictureBox. Thank you TaW.
+        void setBackGround(PictureBox pb, int size, Color col)
+        {
+            if (size == 0 && pb.BackgroundImage != null)
+            {
+                pb.BackgroundImage.Dispose();
+                pb.BackgroundImage = null;
+                return;
+            }
+            Bitmap bmp = new Bitmap(size * 2, size * 2);
+            using (SolidBrush brush = new SolidBrush(col))
+            using (Graphics G = Graphics.FromImage(bmp))
+            {
+                G.FillRectangle(brush, 0, 0, size, size);
+                G.FillRectangle(brush, size, size, size, size);
+            }
+            pb.BackgroundImage = bmp;
+            pb.BackgroundImageLayout = ImageLayout.Tile;
+        }
+
 
         //Updates Edit Menu with Right Click Context Options.
         public void UpdateTheEditMenu()
@@ -6411,10 +6470,6 @@ namespace ThreeWorkTool
 
             }
 
-
-
-
-
         }
 
         //Opens the file if chosen from the Recently Used Files list.
@@ -6463,9 +6518,10 @@ namespace ThreeWorkTool
 
         }
 
+        //For purging the Recently Used Files list.
         private void emptyListToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            //Empties the MRU .txt file.
             _MostRecentlyUsedList.Clear();
             var appDataPath = Application.UserAppDataPath;
             var mruFilePath = Path.Combine(appDataPath, "MRU.txt");
@@ -6474,8 +6530,8 @@ namespace ThreeWorkTool
                 File.WriteAllText(mruFilePath, String.Empty);
             }
 
+            //Empties the MRU list in the currently running program.
             int RecentFileCount = MenuRecentFiles.DropDownItems.Count;
-
             if (RecentFileCount > 2)
             {
                 for(int i = RecentFileCount; i > 2; i--)

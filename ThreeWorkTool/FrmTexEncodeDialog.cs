@@ -268,53 +268,6 @@ namespace ThreeWorkTool
                         }
 
 
-                        /*
-
-                        Stream ztrim = new MemoryStream(fted.FirstMip);
-                        byte[] TexData = new byte[] { };
-                        Bitmap pmap;
-                        //From the pfim website. Modified for my uses.
-                        using (var image = Pfim.Pfim.FromStream(ztrim))
-                        {
-                            PixelFormat format;
-
-                            // Convert from Pfim's backend agnostic image format into GDI+'s image format
-                            switch (image.Format)
-                            {
-                                case Pfim.ImageFormat.Rgba32:
-                                    format = PixelFormat.Format32bppArgb;
-                                    break;
-                                case Pfim.ImageFormat.Rgb24:
-                                    format = PixelFormat.Format24bppRgb;
-                                    break;
-                                default:
-                                    // see the sample for more details
-                                    throw new NotImplementedException();
-                            }
-
-                            // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
-                            // in this snippet but useful technique if the data was going to be used in
-                            // control like a picture box
-                            var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
-                            try
-                            {
-                                var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
-                                var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
-
-
-
-                                var datai = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
-                                pmap = new Bitmap(fted.TXx, fted.TXy, image.Stride, format, datai);
-
-                            }
-                            finally
-                            {
-                                handle.Free();
-                            }
-                        }
-
-                        */
-
                         fted.txtTexConvFile.Text = openedfile;
                         fted.TXpreview = ByteUtilitarian.BitmapBuilderDXEncode(fted.DDSData, fted);
 
@@ -332,6 +285,7 @@ namespace ThreeWorkTool
                                 fted.PicBoxTex.Image = fted.TXpreview;
                                 fted.PicBoxTex.SizeMode = fted.TXpreview.Width > OldX || fted.TXpreview.Height > OldY ?
                                 PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
+
                             }
                             else
                             {
@@ -340,6 +294,25 @@ namespace ThreeWorkTool
                                 PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
                             }
                         }
+
+                        //Creates Background Checkerboard for PictureBox. Thank you TaW.
+
+                        if (fted.PicBoxTex.BackgroundImage != null)
+                        {
+                            fted.PicBoxTex.BackgroundImage.Dispose();
+                            fted.PicBoxTex.BackgroundImage = null;
+                            //return;
+                        }
+                        int size = 16;
+                        Bitmap bmp = new Bitmap(size * 2, size * 2);
+                        using (SolidBrush brush = new SolidBrush(Color.Gray))
+                        using (Graphics G = Graphics.FromImage(bmp))
+                        {
+                            G.FillRectangle(brush, 0, 0, size, size);
+                            G.FillRectangle(brush, size, size, size, size);
+                        }
+                        fted.PicBoxTex.BackgroundImage = bmp;
+                        fted.PicBoxTex.BackgroundImageLayout = ImageLayout.Tile;
 
                         //fted.PicBoxTex
 
@@ -1153,12 +1126,12 @@ namespace ThreeWorkTool
             //Inverts Green Channel on Preview. Only works with DXT5/BC3 images.
             if (DDSData == null)
             {
-                MessageBox.Show("This isn't supposed to be empty", "Uhhhh");
+                MessageBox.Show("This isn't supposed to be empty...", "Uhhhh");
                 return;
             }
             if (this.IsDXT1 == true)
             {
-                MessageBox.Show("This feature supports Only DXT5 Textures", "Hmmmm");
+                MessageBox.Show("This feature supports Only DXT5 Textures.", "Hmmmm");
                 return;
             }
 
@@ -1175,18 +1148,17 @@ namespace ThreeWorkTool
             PicBoxTex.Image = pic;
 
             //Now for the DDS Data itself.
-            
-
-
+            int max = (DDSData.Length - 128)/16;
             using (MemoryStream TexStream = new MemoryStream(DDSData))
             {
-                using (BinaryWriter brStream = new BinaryWriter(TexStream))
+                using (BinaryWriter bwStream = new BinaryWriter(TexStream))
                 {
-                    brStream.BaseStream.Position = 128;
+                    bwStream.BaseStream.Position = 128;
 
+                    for(int w = 0; w > max; w++)
+                    {
 
-
-
+                    }
                 }
             }
             
@@ -1201,12 +1173,12 @@ namespace ThreeWorkTool
             //Swaps Red and Alpha channels on Preview. Only works with DXT5/BC3 images.
             if (DDSData == null)
             {
-                MessageBox.Show("This isn't supposed to be empty", "Uhhhh");
+                MessageBox.Show("This isn't supposed to be empty.", "Uhhhh");
                 return;
             }
             if (this.IsDXT1 == true)
             {
-                MessageBox.Show("This feature supports Only DXT5 Textures", "Hmmmm");
+                MessageBox.Show("This feature supports Only DXT5 Textures.", "Hmmmm");
                 return;
             }
 

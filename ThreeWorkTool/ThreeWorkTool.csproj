@@ -175,6 +175,7 @@
     <Compile Include="Resources\Wrappers\ModelEntry.cs" />
     <Compile Include="Resources\Wrappers\ModelNodes\ModelBoneEntry.cs" />
     <Compile Include="Resources\Wrappers\ModelNodes\ModelGroupEntry.cs" />
+    <Compile Include="Resources\Wrappers\ModelNodes\ModelPrimitiveEntry.cs" />
     <Compile Include="Resources\Wrappers\MSDEntry.cs" />
     <Compile Include="Resources\Wrappers\ResourcePathListEntry.cs" />
     <Compile Include="Resources\Wrappers\TextureEntry.cs" />

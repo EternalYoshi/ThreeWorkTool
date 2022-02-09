@@ -177,6 +177,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             modentry.Field9C = bnr.ReadInt32();
             modentry.PrimitiveJointLinkCount = bnr.ReadInt32();
 
+
+
             //Material Names.
             bnr.BaseStream.Position = modentry.MaterialsOffset;
             modentry.MaterialNames = new List<string>();
