@@ -57,6 +57,14 @@ namespace ThreeWorkTool.Resources.Wrappers
             public float ExtremesPointer;
             public byte[] buffer;
         }
+        
+        public List<KeyFrame> KeyFrames;
+        public struct KeyFrame
+        {
+            public Vector3 Coordinates;
+            public int Frame;
+            public int BoneID;
+        }
 
         public struct AnimEvent
         {
@@ -449,6 +457,23 @@ namespace ThreeWorkTool.Resources.Wrappers
                 AnimationID = value;
             }
         }
+
+        /*
+        [Category("Motion"), ReadOnlyAttribute(true)]
+        public int BufferSize
+        {
+
+            get
+            {
+                return AnimationID;
+            }
+            set
+            {
+                AnimationID = value;
+            }
+
+        }
+        */
 
         private long _FileLength;
         [Category("File Entry"), ReadOnlyAttribute(true)]

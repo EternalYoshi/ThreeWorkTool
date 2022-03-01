@@ -177,18 +177,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             modentry.Field9C = bnr.ReadInt32();
             modentry.PrimitiveJointLinkCount = bnr.ReadInt32();
 
-
-
-            //Material Names.
-            bnr.BaseStream.Position = modentry.MaterialsOffset;
-            modentry.MaterialNames = new List<string>();
-            string Stringtemp;
-            for (int m = 0; m < modentry.MaterialCount; m++)
-            {
-                Stringtemp = Encoding.ASCII.GetString(bnr.ReadBytes(128)).Trim('\0');
-                modentry.MaterialNames.Add(Stringtemp);
-            }
-
             //Bones.
             modentry.BoneLocalMatrixOffset = modentry.BonesOffset + (24 * modentry.BoneCount);
             modentry.BoneInvBindMatrixOffset = modentry.BoneLocalMatrixOffset + (modentry.BoneCount * 64);
@@ -202,6 +190,16 @@ namespace ThreeWorkTool.Resources.Wrappers
                 Bone = Bone.FillModelBoneEntry(Bone, modentry, bnr, PrevOffset, n);
                 modentry.Bones.Add(Bone);
                 PrevOffset = PrevOffset + 24;
+            }
+
+            //Material Names.
+            bnr.BaseStream.Position = modentry.MaterialsOffset;
+            modentry.MaterialNames = new List<string>();
+            string Stringtemp;
+            for (int m = 0; m < modentry.MaterialCount; m++)
+            {
+                Stringtemp = Encoding.ASCII.GetString(bnr.ReadBytes(128)).Trim('\0');
+                modentry.MaterialNames.Add(Stringtemp);
             }
 
 

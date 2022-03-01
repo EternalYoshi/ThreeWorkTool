@@ -39,6 +39,7 @@
             this.MenuClose = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripSeparator();
             this.MenuRecentFiles = new System.Windows.Forms.ToolStripMenuItem();
+            this.emptyListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.MenuExit = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,7 +59,6 @@
             this.pnlNew = new System.Windows.Forms.Panel();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
-            this.emptyListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -155,10 +155,17 @@
             this.MenuRecentFiles.Text = "Recent Files";
             this.MenuRecentFiles.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.MenuRecentFiles_DropDownItemClicked);
             // 
+            // emptyListToolStripMenuItem
+            // 
+            this.emptyListToolStripMenuItem.Name = "emptyListToolStripMenuItem";
+            this.emptyListToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.emptyListToolStripMenuItem.Text = "Clear List";
+            this.emptyListToolStripMenuItem.Click += new System.EventHandler(this.emptyListToolStripMenuItem_Click);
+            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(119, 6);
             // 
             // exitToolStripMenuItem2
             // 
@@ -377,13 +384,6 @@
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 
-            // emptyListToolStripMenuItem
-            // 
-            this.emptyListToolStripMenuItem.Name = "emptyListToolStripMenuItem";
-            this.emptyListToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.emptyListToolStripMenuItem.Text = "Clear List";
-            this.emptyListToolStripMenuItem.Click += new System.EventHandler(this.emptyListToolStripMenuItem_Click);
-            // 
             // FrmMainThree
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -398,7 +398,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
-            this.Text = "ThreeWork Tool V0.41";
+            this.Text = "ThreeWork Tool V0.4X";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
             this.Load += new System.EventHandler(this.FrmMainThree_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMainThree_KeyDown);

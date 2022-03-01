@@ -80,7 +80,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 
             MBoneE.JointLinks.Links = new List<PrimitiveJLink>();
 
-            /*
+            ///*
             //Primitive Joint Links.
             for(int i = 0; i < ParentMod.PrimitiveJointLinkCount; i++)
             {
@@ -137,7 +137,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
                 }
             }
 
-            */
+            //*/
 
             return MBoneE;
 

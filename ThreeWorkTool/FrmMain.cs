@@ -5498,6 +5498,11 @@ namespace ThreeWorkTool
                 wrapper.ImageIndex = 12;
                 wrapper.SelectedImageIndex = 12;
             }
+            else if (extension == ".m3a")
+            {
+                wrapper.ImageIndex = 18;
+                wrapper.SelectedImageIndex = 18;
+            }
             else
             {
                 wrapper.ImageIndex = 16;
