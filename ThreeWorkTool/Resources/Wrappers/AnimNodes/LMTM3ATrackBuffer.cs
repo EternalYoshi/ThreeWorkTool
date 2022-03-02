@@ -1,4 +1,4 @@
-
+//This is from EddieLopesRJ. Thank you very much.
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -171,8 +171,8 @@ class LMTM3ATrackBuffer
 
         while (pos != buffer.Length)
         {
-            var buffer_value = new BigInteger(new ReadOnlySpan<byte>(buffer, pos, conversor.buffer_size));
-
+            var segment = new ArraySegment<byte>(buffer, pos, conversor.buffer_size);
+            var buffer_value = new BigInteger(segment.Array);
             yield return conversor.Process(buffer_value, extremes);
 
             pos += conversor.buffer_size;

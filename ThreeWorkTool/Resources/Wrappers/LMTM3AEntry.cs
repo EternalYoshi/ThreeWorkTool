@@ -35,8 +35,6 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int Unknown58;
         public float Unknown5C;
         public string FileExt;
-        public byte[] Buffer;
-        public byte[] Extremes;
         public List<AnimEvent> Events;
         public int PrevOffset;
         public int PrevOffsetTwo;
@@ -55,7 +53,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             public int BufferPointer;
             public Vector4 ReferenceData;
             public float ExtremesPointer;
-            public byte[] buffer;
+            public byte[] Buffer;
+            public Extremes extremes;
         }
         
         public List<KeyFrame> KeyFrames;
@@ -73,6 +72,23 @@ namespace ThreeWorkTool.Resources.Wrappers
             public int EventsPointer;
             public int EventBit;
             public int FrameNumber;
+        }
+        
+        public class Extremes
+        {
+            public Vector4 min;
+            public Vector4 max;
+        }
+
+        enum BufferType
+        {
+            singlevector3 = 1,
+            singlerotationquat3,
+            linearvector3,
+            bilinearvector3_16bit,
+            bilinearvector3_8bit,
+            linearrotationquat4_14bit,
+            bilinearrotationquat4_7bit
         }
 
         public LMTM3AEntry FillM3AProprties(LMTM3AEntry Anim, int datalength, int ID, int RowTotal, int SecondOffset, BinaryReader bnr, int SecondaryCount, LMTEntry lmtentry)
@@ -93,15 +109,15 @@ namespace ThreeWorkTool.Resources.Wrappers
             M3a.UnknownValue18 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), M3a.UnknownValue18);
             M3a.UnknownValue1C = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), M3a.UnknownValue1C);
 
+            M3a.EndFramesAdditiveScenePosition.W = bnr.ReadSingle();
             M3a.EndFramesAdditiveScenePosition.X = bnr.ReadSingle();
             M3a.EndFramesAdditiveScenePosition.Y = bnr.ReadSingle();
             M3a.EndFramesAdditiveScenePosition.Z = bnr.ReadSingle();
-            M3a.EndFramesAdditiveScenePosition.W = bnr.ReadSingle();
 
+            M3a.EndFramesAdditiveSceneRotation.W = bnr.ReadSingle();
             M3a.EndFramesAdditiveSceneRotation.X = bnr.ReadSingle();
             M3a.EndFramesAdditiveSceneRotation.Y = bnr.ReadSingle();
             M3a.EndFramesAdditiveSceneRotation.Z = bnr.ReadSingle();
-            M3a.EndFramesAdditiveSceneRotation.W = bnr.ReadSingle();
 
             M3a.AnimationFlags = bnr.ReadInt64();
 
@@ -130,7 +146,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             for (int j = 0; j < M3a.TrackCount; j++)
             {
 
-
                 Track track = new Track();
                 track.BufferType = bnr.ReadByte();
                 track.TrackType = bnr.ReadByte();
@@ -141,25 +156,47 @@ namespace ThreeWorkTool.Resources.Wrappers
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
                 track.BufferPointer = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                track.ReferenceData.W = bnr.ReadSingle();
                 track.ReferenceData.X = bnr.ReadSingle();
                 track.ReferenceData.Y = bnr.ReadSingle();
                 track.ReferenceData.Z = bnr.ReadSingle();
-                track.ReferenceData.W = bnr.ReadSingle();
                 track.ExtremesPointer = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
                 PrevOffset = Convert.ToInt32(bnr.BaseStream.Position);
 
-                if (track.BufferSize == 0)
+
+                if (track.BufferSize != 0)
                 {
+
+                    //MessageBox.Show("Track #" + j + " inside " + lmtentry.EntryName + "\nhas a buffer size that is NOT ZERO.", "Debug Note");
+                    bnr.BaseStream.Position = track.BufferPointer;
+                    track.Buffer = bnr.ReadBytes(track.BufferSize);
 
                 }
 
-                if (track.ExtremesPointer == 0)
+                if (track.ExtremesPointer != 0)
                 {
+
+                    //MessageBox.Show("Track # " + j + " inside " + lmtentry.EntryName + "\nhas an actual extremes pointer.", "Debug Note");
+                    bnr.BaseStream.Position = Convert.ToInt32(track.ExtremesPointer);
+
+                    track.extremes = new Extremes();
+
+                    track.extremes.min.W = bnr.ReadSingle();
+                    track.extremes.min.X = bnr.ReadSingle();
+                    track.extremes.min.Y = bnr.ReadSingle();
+                    track.extremes.min.Z = bnr.ReadSingle();
+
+                    track.extremes.max.W = bnr.ReadSingle();
+                    track.extremes.max.X = bnr.ReadSingle();
+                    track.extremes.max.Y = bnr.ReadSingle();
+                    track.extremes.max.Z = bnr.ReadSingle();
+
 
                 }
                 bnr.BaseStream.Position = PrevOffset;
                 M3a.Tracks.Add(track);
+
             }
 
             bnr.BaseStream.Position = M3a.EventClassesPointer;
