@@ -1,5 +1,4 @@
-
-
+//From EddieLopesRJ. Thank you very much for this class file.
 using System;
 using System.Collections.Generic;
 using System.Numerics;
