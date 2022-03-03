@@ -123,7 +123,7 @@
 - LRP files are formatted the way they are for a reason. If you wish to add a file, follow the syntax and do not make typos 
 in the extension or you will have problems. It's always path then filename then extension.
 
-- Transparency is expressed as a very obvious Magenta background. This can make some semi-transparent textures a bit hard to see in the preview.
+- Transparency is now expressed with a checkerboard background, similar to photoshop.
 
  -DXT1 and DXT5 have differing compression formulas meaning you can't interchange them or you will get corrupted pixels in game or just straight up crashing.
 This is why there's a failsafe against selecting texture types not compatible with the texture compression algorithm of the chosen file.
@@ -145,7 +145,7 @@ The Line break denotations are there for a reason; don't remove them unless you 
 
 - LMT Entry names start from 0, not 1. Those using the AnmChr editor have to be aware that the IDs here are written in decimal and not in hex, often going up to 255.
 
-- To get this to work I had to redefine the .m3a format. Any .m3a files made from other methods will NOT be compatible with this program.
+- To get this to work I had to redefine the .m3a format. Any .m3a files made from other methods such as with Lean's tool will NOT be compatible with this program.
 
 - While you can't make new entries in an LMT(yet), you can replace a blank entry in the LMT file just like you would with a populated entry.
 
@@ -155,6 +155,9 @@ The Line break denotations are there for a reason; don't remove them unless you 
 
 - You can now reorder nodes in the same directory. You can do so by right clicking and selecting move up or move down, or just press CTRL + UP/CTRL + DOWN.
 
-- Chain List files control what physics files(.chn and .ccl)are used on the character. Removing an entry will disable that physics file from being used.</value>
+- Chain List files control what physics files(.chn and .ccl)are used on the character. Removing an entry will disable that physics file from being used.
+
+- You can do quick reordering of files with CTRL+UP and CTRL+DOWN. Make sure to follow this order for files:
+Textures(.tex), then Materials(.mrl), then Model files(.mod).</value>
   </data>
 </root>

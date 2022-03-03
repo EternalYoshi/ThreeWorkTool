@@ -2271,7 +2271,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = LMTM3AEntry.ReplaceLMTM3AEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-
+                            NewWrapper.FileExt = ".m3a";
                             if (NewWrapper.Tag == null)
                             {
                                 frename.Mainfrm.InvalidImport = true;

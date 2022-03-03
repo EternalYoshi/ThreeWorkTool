@@ -1,4 +1,5 @@
-//This is from EddieLopesRJ. Thank you very much.
+
+
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -14,15 +15,15 @@ enum BufferType
     bilinearrotationquat4_7bit
 }
 
-class Vector4X
+public class Vector4
 {
     public float[] data;
 }
 
 class Extremes
 {
-    public Vector4X min;
-    public Vector4X max;
+    public Vector4 min;
+    public Vector4 max;
 }
 
 class BufferConversor
@@ -39,7 +40,7 @@ class BufferConversor
     {
         var frame_value = frames(value);
 
-        Vector4X data = new Vector4X()
+        Vector4 data = new Vector4()
         {
             data = new float[4]
         };
@@ -71,7 +72,7 @@ class BufferConversor
 
 class KeyFrame
 {
-    public Vector4X data;
+    public Vector4 data;
     public int frame;
 }
 
@@ -81,7 +82,7 @@ class LMTM3ATrackBuffer
     {
         BufferConversor conversor;
 
-        Func<BigInteger, float> BI2Float = (bi) => { return System.BitConverter.ToSingle(BitConverter.GetBytes((int)bi),0); };
+        Func<BigInteger, float> BI2Float = (bi) => { return System.BitConverter.ToSingle(BitConverter.GetBytes((int)bi), 0); };
 
         Func<int, Func<BigInteger, float>> BI2Unsigned = (bit_size) => (bi) => ((float)bi) / ((float)((1 << bit_size) - 1));
 
@@ -181,5 +182,3 @@ class LMTM3ATrackBuffer
         //yield return new KeyFrame();
     }
 }
-
-

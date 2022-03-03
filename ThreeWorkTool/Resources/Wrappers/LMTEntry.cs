@@ -453,6 +453,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     if (tag.IsBlank == false)
                     {
                         NewUncompressedData.AddRange(tag.MotionData);
+                        /*
                         //The ending of the block data segments always has the raw data start on the 8 of the hex instead of the 0 of the hex offset for some reason.
                         //This is there to preserve that.
                         if (x == (Children.Count - 1))
@@ -463,6 +464,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         {
                             NewUncompressedData.AddRange(BlankLine);
                         }
+                        */
                     }
 
                 }
