@@ -63,7 +63,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         
         public class KeyFrame
         {
-            public Vector4X data;
+            public Vector4 data;
             public int frame;
             public int BoneID;
         }
@@ -179,12 +179,12 @@ namespace ThreeWorkTool.Resources.Wrappers
                     track.Buffer = bnr.ReadBytes(track.BufferSize);
 
                 }
-                /*
+                
                 else
                 {
                     track.Buffer = new byte[0];
                 }
-                */
+                
 
                 if (track.ExtremesPointer != 0)
                 {
@@ -219,14 +219,13 @@ namespace ThreeWorkTool.Resources.Wrappers
                     M3a.KeyFrames.AddRange(Key.ToList());
 
                 }
-                //Trying to go through with this with a track that lacks extremes results in this part to hang so it's been commented out.
-                /*
+                
                 else
                 {
                     IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID);
                     M3a.KeyFrames.AddRange(Key.ToList());
                 }
-                */
+                
                 bnr.BaseStream.Position = PrevOffset;
                 M3a.Tracks.Add(track);
 

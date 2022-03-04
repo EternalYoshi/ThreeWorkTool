@@ -307,10 +307,9 @@ namespace ThreeWorkTool.Resources
                     {
                         linetowrite = "";
                         linetowrite = "Bone ID: " + kf.BoneID + "\nFrame: " + kf.frame + "\n"; 
-                        foreach(float fl in kf.data.data)
-                        {
-                            linetowrite = linetowrite + fl + " ";
-                        }
+
+                            linetowrite = linetowrite + kf.data.W + " " + kf.data.X + " " + kf.data.Y + " " + kf.data.Z;
+                        
                         linetowrite = linetowrite + "\n_____________________________________________________________________________\n";
                         sw.WriteLine(linetowrite);
                     }

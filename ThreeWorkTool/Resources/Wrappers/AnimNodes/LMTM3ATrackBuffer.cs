@@ -16,15 +16,17 @@ enum BufferType
     bilinearrotationquat4_7bit
 }
 
+/*
 public class Vector4X
 {
     public float[] data;
 }
+*/
 
 class Extremes
 {
-    public Vector4X min;
-    public Vector4X max;
+    public Vector4 min;
+    public Vector4 max;
 }
 
 class BufferConversor
@@ -41,17 +43,14 @@ class BufferConversor
     {
         var frame_value = frames(value);
 
-        Vector4X data = new Vector4X()
-        {
-            data = new float[4]
-        };
+        var data = new float[4];
 
         int pos = 0;
         foreach (var stride in strides)
         {
             var curr_value = (value >> stride) & ((1 << bit_size) - 1);
             Console.Write($"{curr_value} ");
-            data.data[pos++] = convert(curr_value);
+            data[pos++] = convert(curr_value);
         }
         Console.WriteLine();
 
@@ -59,13 +58,13 @@ class BufferConversor
         {
             for (int i = 0; i < 4; i++)
             {
-                data.data[i] = extremes[i + 4] + extremes[i] * data.data[i];
+                data[i] = extremes[i + 4] + extremes[i] * data[i];
             }
         }
 
         return new KeyFrame()
         {
-            data = data,
+            data = new Vector4(data[0], data[1], data[2], data[3]),
             frame = frame_value,
             BoneID = Boneid
         };
