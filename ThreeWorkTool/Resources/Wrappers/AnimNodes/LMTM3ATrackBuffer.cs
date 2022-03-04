@@ -1,7 +1,9 @@
 //From EddieLopesRJ. Thank you very much for this class file.
+//Had to modify a few things to fix conflicts with custom Vector4 implementation & have Keyframes retain the bone ID for later.
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using static ThreeWorkTool.Resources.Wrappers.LMTM3AEntry;
 
 enum BufferType
 {
@@ -14,15 +16,15 @@ enum BufferType
     bilinearrotationquat4_7bit
 }
 
-public class Vector4
+public class Vector4X
 {
     public float[] data;
 }
 
 class Extremes
 {
-    public Vector4 min;
-    public Vector4 max;
+    public Vector4X min;
+    public Vector4X max;
 }
 
 class BufferConversor
@@ -35,11 +37,11 @@ class BufferConversor
 
     //int bit_mask;
 
-    public KeyFrame Process(BigInteger value, float[] extremes)
+    public KeyFrame Process(BigInteger value, float[] extremes, int Boneid)
     {
         var frame_value = frames(value);
 
-        Vector4 data = new Vector4()
+        Vector4X data = new Vector4X()
         {
             data = new float[4]
         };
@@ -64,20 +66,21 @@ class BufferConversor
         return new KeyFrame()
         {
             data = data,
-            frame = frame_value
+            frame = frame_value,
+            BoneID = Boneid
         };
     }
 }
-
-class KeyFrame
+/*
+public class KeyFrame
 {
-    public Vector4 data;
+    public Vector4X data;
     public int frame;
 }
-
+*/
 class LMTM3ATrackBuffer
 {
-    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, float[] extremes)
+    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, float[] extremes, int BoneID)
     {
         BufferConversor conversor;
 
@@ -173,7 +176,7 @@ class LMTM3ATrackBuffer
         {
             var segment = new ArraySegment<byte>(buffer, pos, conversor.buffer_size);
             var buffer_value = new BigInteger(segment.Array);
-            yield return conversor.Process(buffer_value, extremes);
+            yield return conversor.Process(buffer_value, extremes, BoneID);
 
             pos += conversor.buffer_size;
         }

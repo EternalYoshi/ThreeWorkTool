@@ -4420,6 +4420,33 @@ namespace ThreeWorkTool
 
         }
 
+        private static void ExtractKeyFrames_Click(Object sender, System.EventArgs e)
+        {
+
+            //First we ask the user where they want to save the file, then start getting the selectednode's keyframes and outputting them in text format.
+            SaveFileDialog EXDialog = new SaveFileDialog();
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+            string extension = tag.GetType().ToString();
+
+            LMTM3AEntry MAThreeentry = new LMTM3AEntry();
+            if (tag is LMTM3AEntry)
+            {
+
+                MAThreeentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as LMTM3AEntry;
+                EXDialog.Filter = "Text Files (*.txt)|*.txt";
+                EXDialog.FileName = MAThreeentry.FileName;
+            }
+            EXDialog.FileName = MAThreeentry.ShortName;
+
+            if (EXDialog.ShowDialog() == DialogResult.OK)
+            {
+                //Work is done in here.
+                ExportFileWriter.KeyFrameWriter(EXDialog.FileName, MAThreeentry);
+            }
+
+        }
+
         private static void MoveNodeUp(Object sender, System.EventArgs e)
         {
 
@@ -5344,6 +5371,8 @@ namespace ThreeWorkTool
                 ContextMenuStrip conmenu = new ContextMenuStrip();
                 conmenu.Items.Add("Export", null, MenuExportFile_Click);
                 conmenu.Items.Add("Replace", null, MenuReplaceFile_Click);
+                conmenu.Items.Add("Extract KeyFrames(Beta)", null, ExtractKeyFrames_Click);
+
                 lma3.ContextMenuStrip = conmenu;
 
             }

@@ -27,6 +27,8 @@
 
         public static string rModel = "MT Framework Model File (*.mod)|*.mod";
 
+        public static string KeyFrameTest = ".txt";
+
         public static string GetFilter(string filetype)
         {
 

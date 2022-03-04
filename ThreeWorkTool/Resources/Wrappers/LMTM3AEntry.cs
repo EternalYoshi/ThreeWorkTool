@@ -60,12 +60,14 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         public List<KeyFrame> KeyFrames;
-        public struct KeyFrame
+        
+        public class KeyFrame
         {
-            public Vector3 Coordinates;
-            public int Frame;
+            public Vector4X data;
+            public int frame;
             public int BoneID;
         }
+        
 
         public struct AnimEvent
         {
@@ -177,6 +179,12 @@ namespace ThreeWorkTool.Resources.Wrappers
                     track.Buffer = bnr.ReadBytes(track.BufferSize);
 
                 }
+                /*
+                else
+                {
+                    track.Buffer = new byte[0];
+                }
+                */
 
                 if (track.ExtremesPointer != 0)
                 {
@@ -206,11 +214,19 @@ namespace ThreeWorkTool.Resources.Wrappers
                     track.ExtremesArray[7] = track.Extremes.max.Z;
 
                     //Keyframes Take 1.
-                    
-                    KeyFrame key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray);
-                    
+
+                    IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID);
+                    M3a.KeyFrames.AddRange(Key.ToList());
 
                 }
+                //Trying to go through with this with a track that lacks extremes results in this part to hang so it's been commented out.
+                /*
+                else
+                {
+                    IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID);
+                    M3a.KeyFrames.AddRange(Key.ToList());
+                }
+                */
                 bnr.BaseStream.Position = PrevOffset;
                 M3a.Tracks.Add(track);
 

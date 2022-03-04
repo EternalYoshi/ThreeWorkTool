@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
+using static ThreeWorkTool.Resources.Wrappers.LMTM3AEntry;
 
 namespace ThreeWorkTool.Resources
 {
@@ -283,6 +284,36 @@ namespace ThreeWorkTool.Resources
                 {
                     bw.Write(entrytowrite.UncompressedData);
                     bw.Close();
+                }
+
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                return;
+            }
+        }
+
+        public static void KeyFrameWriter(string filename, LMTM3AEntry entrytowrite)
+        {
+            try
+            {
+
+                //Time to start getting the data from the M3A Entry. For Testing Purposes.
+                using (StreamWriter sw = new StreamWriter(File.Open(filename, FileMode.Create)))
+                {
+                    string linetowrite = "";
+                    foreach(KeyFrame kf in entrytowrite.KeyFrames)
+                    {
+                        linetowrite = "";
+                        linetowrite = "Bone ID: " + kf.BoneID + "\nFrame: " + kf.frame + "\n"; 
+                        foreach(float fl in kf.data.data)
+                        {
+                            linetowrite = linetowrite + fl + " ";
+                        }
+                        linetowrite = linetowrite + "\n_____________________________________________________________________________\n";
+                        sw.WriteLine(linetowrite);
+                    }
                 }
 
             }
