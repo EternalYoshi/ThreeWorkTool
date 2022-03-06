@@ -8,15 +8,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources.Utility;
-
+using YamlDotNet.Serialization;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
     public class LMTM3AEntry
     {
-        public byte[] FullData;
-        public byte[] RawData;
-        public byte[] MotionData;
+        [YamlIgnore] public byte[] FullData;
+        [YamlIgnore] public byte[] RawData;
+        [YamlIgnore] public byte[] MotionData;
         public int AnimationID;
         public string FileName;
         public string ShortName;
@@ -37,15 +37,27 @@ namespace ThreeWorkTool.Resources.Wrappers
         public float Unknown5C;
         public string FileExt;
         public List<AnimEvent> Events;
-        public int PrevOffset;
-        public int PrevOffsetTwo;
-        public int PrevOffsetThree;
+        [YamlIgnore] public int PrevOffset;
+        [YamlIgnore] public int PrevOffsetTwo;
+        [YamlIgnore] public int PrevOffsetThree;
 
-        public List<Track> Tracks;
+        public enum BufferType
+        {
+            singlevector3 = 1,
+            singlerotationquat3,
+            linearvector3,
+            bilinearvector3_16bit,
+            bilinearvector3_8bit,
+            linearrotationquat4_14bit,
+            bilinearrotationquat4_7bit
+        }
+
+        [YamlMember()]public List<Track> Tracks;
         public struct Track
         {
-
-            public int BufferType;
+            public int TrackNumber;
+            [YamlIgnore] public int BufferType;
+            public string BufferKind;
             public int TrackType;
             public int BoneType;
             public int BoneID;
@@ -56,7 +68,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             public float ExtremesPointer;
             public byte[] Buffer;
             public Extremes Extremes;
-            public float[] ExtremesArray;
+            [YamlIgnore] public float[] ExtremesArray;
         }
 
         public List<KeyFrame> KeyFrames;
@@ -69,30 +81,68 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
         
 
-        public struct AnimEvent
+        public class AnimEvent
         {
             public List<int> EventRemap;
             public int EventCount;
             public int EventsPointer;
             public int EventBit;
             public int FrameNumber;
+
+            [YamlIgnore][Category("Event"), ReadOnlyAttribute(true)]
+            [DisplayName("Event Count")]
+            public int EventsTotal
+            {
+
+                get
+                {
+                    return EventCount;
+                }
+                set
+                {
+                    EventCount = value;
+                }
+
+            }
+
+            [YamlIgnore][Category("Event"), ReadOnlyAttribute(true)]
+            [DisplayName("Event Offset")]
+            public int EventOffset
+            {
+
+                get
+                {
+                    return EventsPointer;
+                }
+                set
+                {
+                    EventsPointer = value;
+                }
+
+            }
+
+            [YamlIgnore][Category("Event"), ReadOnlyAttribute(true)]
+            [DisplayName("Frame")]
+            public int Frame
+            {
+
+                get
+                {
+                    return FrameNumber;
+                }
+                set
+                {
+                    FrameNumber = value;
+                }
+
+            }
+
         }
 
         public class Extremes
         {
             public Vector4 min;
             public Vector4 max;
-        }
-
-        enum BufferType
-        {
-            singlevector3 = 1,
-            singlerotationquat3,
-            linearvector3,
-            bilinearvector3_16bit,
-            bilinearvector3_8bit,
-            linearrotationquat4_14bit,
-            bilinearrotationquat4_7bit
         }
 
         public LMTM3AEntry FillM3AProprties(LMTM3AEntry Anim, int datalength, int ID, int RowTotal, int SecondOffset, BinaryReader bnr, int SecondaryCount, LMTEntry lmtentry)
@@ -152,8 +202,11 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
 
                 Track track = new Track();
+                track.TrackNumber = j;
                 track.ExtremesArray = new float[8];
                 track.BufferType = bnr.ReadByte();
+                BufferType type = (BufferType)track.BufferType;
+                track.BufferKind = type.ToString();
                 track.TrackType = bnr.ReadByte();
                 track.BoneType = bnr.ReadByte();
                 track.BoneID = bnr.ReadByte();
@@ -464,7 +517,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                     {
 
                         Track track = new Track();
+                        track.TrackNumber = j;
                         track.BufferType = bnr.ReadByte();
+                        BufferType type = (BufferType)track.BufferType;
+                        track.BufferKind = type.ToString();
                         track.TrackType = bnr.ReadByte();
                         track.BoneType = bnr.ReadByte();
                         track.BoneID = bnr.ReadByte();
@@ -689,12 +745,12 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         private string _FileType;
         [Category("Filename"), ReadOnlyAttribute(true)]
-        public string FileType
+        [YamlIgnore]public string FileType
         {
 
             get
             {
-                return _FileType;
+                return FileExt;
             }
             set
             {
@@ -703,7 +759,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        public int MotionID
+        [YamlIgnore]public int MotionID
         {
 
             get
@@ -715,27 +771,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                 AnimationID = value;
             }
         }
-
-        /*
-        [Category("Motion"), ReadOnlyAttribute(true)]
-        public int BufferSize
-        {
-
-            get
-            {
-                return AnimationID;
-            }
-            set
-            {
-                AnimationID = value;
-            }
-
-        }
-        */
 
         private long _FileLength;
         [Category("File Entry"), ReadOnlyAttribute(true)]
-        public long FileLength
+        [YamlIgnore]public long FileLength
         {
 
             get
@@ -750,7 +789,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         private long _FrameTotal;
         [Category("Motion"), ReadOnlyAttribute(true)]
-        public long FrameTotal
+        [YamlIgnore]public long FrameTotal
         {
 
             get
@@ -765,7 +804,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        public int NumberOfTracks
+        [YamlIgnore]public int NumberOfTracks
         {
 
             get
@@ -783,7 +822,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        public int AnimationLoopFrame
+        [YamlIgnore]public int AnimationLoopFrame
         {
 
             get
@@ -802,7 +841,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         private bool _IsBlank;
         [Category("File Entry"), ReadOnlyAttribute(true)]
-        public bool IsBlank
+        [YamlIgnore]public bool IsBlank
         {
 
             get
@@ -817,7 +856,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        public long MotionFlags
+        [YamlIgnore]public long MotionFlags
         {
 
             get
@@ -834,7 +873,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        public List<Track> CollectionTracks
+        [YamlIgnore]public List<Track> CollectionTracks
         {
 
             get
@@ -851,7 +890,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        public List<AnimEvent> CollectionEvents
+        [YamlIgnore] public List<AnimEvent> CollectionEvents
         {
 
             get

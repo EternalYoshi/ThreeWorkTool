@@ -4434,7 +4434,7 @@ namespace ThreeWorkTool
             {
 
                 MAThreeentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as LMTM3AEntry;
-                EXDialog.Filter = "Text Files (*.txt)|*.txt";
+                EXDialog.Filter = "Yaml M3A File (*.yml)|*.yml";
                 EXDialog.FileName = MAThreeentry.FileName;
             }
             EXDialog.FileName = MAThreeentry.ShortName;

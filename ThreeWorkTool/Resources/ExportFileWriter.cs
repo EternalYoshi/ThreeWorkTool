@@ -302,17 +302,12 @@ namespace ThreeWorkTool.Resources
                 //Time to start getting the data from the M3A Entry. For Testing Purposes.
                 using (StreamWriter sw = new StreamWriter(File.Open(filename, FileMode.Create)))
                 {
-                    string linetowrite = "";
-                    foreach(KeyFrame kf in entrytowrite.KeyFrames)
-                    {
-                        linetowrite = "";
-                        linetowrite = "Bone ID: " + kf.BoneID + "\nFrame: " + kf.frame + "\n"; 
 
-                            linetowrite = linetowrite + kf.data.W + " " + kf.data.X + " " + kf.data.Y + " " + kf.data.Z;
-                        
-                        linetowrite = linetowrite + "\n_____________________________________________________________________________\n";
-                        sw.WriteLine(linetowrite);
-                    }
+                    var serializer = new YamlDotNet.Serialization.Serializer();
+                    
+                    // Save Changes
+                    serializer.Serialize(sw, entrytowrite);
+
                 }
 
             }
