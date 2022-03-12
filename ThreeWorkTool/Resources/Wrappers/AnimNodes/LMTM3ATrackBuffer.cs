@@ -39,7 +39,7 @@ class BufferConversor
 
     //int bit_mask;
 
-    public KeyFrame Process(BigInteger value, float[] extremes, int Boneid)
+    public KeyFrame Process(BigInteger value, float[] extremes, int Boneid, string KeyKind)
     {
         var frame_value = frames(value);
 
@@ -66,7 +66,8 @@ class BufferConversor
         {
             data = new Vector4(data[0], data[1], data[2], data[3]),
             frame = frame_value,
-            BoneID = Boneid
+            BoneID = Boneid,
+            KeyType = KeyKind
         };
     }
 }
@@ -79,7 +80,7 @@ public class KeyFrame
 */
 class LMTM3ATrackBuffer
 {
-    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, float[] extremes, int BoneID)
+    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, float[] extremes, int BoneID, string KeyKind)
     {
         BufferConversor conversor;
 
@@ -175,7 +176,7 @@ class LMTM3ATrackBuffer
         {
             var segment = new ArraySegment<byte>(buffer, pos, conversor.buffer_size);
             var buffer_value = new BigInteger(segment.Array);
-            yield return conversor.Process(buffer_value, extremes, BoneID);
+            yield return conversor.Process(buffer_value, extremes, BoneID, KeyKind);
 
             pos += conversor.buffer_size;
         }

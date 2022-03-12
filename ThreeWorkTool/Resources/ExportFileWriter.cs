@@ -6,7 +6,9 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
-using static ThreeWorkTool.Resources.Wrappers.LMTM3AEntry;
+using YamlDotNet.Core;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace ThreeWorkTool.Resources
 {
@@ -303,8 +305,8 @@ namespace ThreeWorkTool.Resources
                 using (StreamWriter sw = new StreamWriter(File.Open(filename, FileMode.Create)))
                 {
 
-                    var serializer = new YamlDotNet.Serialization.Serializer();
-                    
+                    var serializer = new SerializerBuilder().DisableAliases().EnsureRoundtrip().WithTagMapping("!LMTM3AEntry", typeof(ThreeWorkTool.Resources.Wrappers.LMTM3AEntry)).Build();
+
                     // Save Changes
                     serializer.Serialize(sw, entrytowrite);
 

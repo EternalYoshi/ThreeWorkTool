@@ -1353,6 +1353,10 @@ namespace ThreeWorkTool
 
             conmenu.Items.Add("Export All", null, ExportAllFolder);
 
+            //Creates New Folder.
+            var nfitem = new ToolStripMenuItem("New Folder", null, NewFolderNode, Keys.Control | Keys.N);
+            conmenu.Items.Add(nfitem);
+
             //Import Into Folder.
             var impitem = new ToolStripMenuItem("Import Into Folder", null, MenuItemImportFileInFolder_Click, Keys.Control | Keys.I);
             conmenu.Items.Add(impitem);
@@ -1373,7 +1377,7 @@ namespace ThreeWorkTool
 
             //Move Down.
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
-            conmenu.Items.Add(mditem);
+            conmenu.Items.Add(mditem);            
 
             return conmenu;
 
@@ -4508,6 +4512,25 @@ namespace ThreeWorkTool
             frename.Mainfrm.OpenFileModified = true;
         }
 
+        private static void NewFolderNode(Object sender, System.EventArgs e)
+        {
+
+            //Adds a folder.
+            frename.Mainfrm.TreeSource.BeginUpdate();
+            TreeNode folder = new TreeNode();
+            folder.Name = "New Folder";
+            folder.Tag = "Folder";
+            folder.Text = "New Folder";
+            folder.ContextMenuStrip = FolderContextAdder(folder, frename.Mainfrm.TreeSource);
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+            frename.Mainfrm.TreeSource.SelectedNode = folder;
+            frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+            frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+            frename.Mainfrm.TreeSource.SelectedNode = folder;
+
+        }
+
         private void TreeFill(string D, int E, ArcFile archivearc)
         {
             TreeSource.Nodes.Clear();
@@ -4523,6 +4546,7 @@ namespace ThreeWorkTool
             parent.archivefile = archivearc;
             ContextMenuStrip conmenu = new ContextMenuStrip();
             conmenu.Items.Add("Export All", null, ExportAllFolder);
+            conmenu.Items.Add("New Folder", null, NewFolderNode);
             parent.ContextMenuStrip = conmenu;
             TreeSource.Nodes.Add(parent);
 

@@ -8,7 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources.Utility;
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -17,29 +19,31 @@ namespace ThreeWorkTool.Resources.Wrappers
         [YamlIgnore] public byte[] FullData;
         [YamlIgnore] public byte[] RawData;
         [YamlIgnore] public byte[] MotionData;
-        public int AnimationID;
-        public string FileName;
-        public string ShortName;
+        [YamlIgnore] public int AnimationID;
+        public int version = 1;
+        [YamlIgnore] public string FileName;
+        [YamlMember(Alias = "Name")] public string ShortName;
         public int FrameCount;
-        public int TrackCount;
-        public int TrackPointer;
-        public int EventClassesPointer;
-        public int LoopFrame;
-        public string UnknownValue14;
-        public string UnknownValue18;
-        public string UnknownValue1C;
-        public Vector4 EndFramesAdditiveScenePosition;
-        public Vector4 EndFramesAdditiveSceneRotation;
-        public long AnimationFlags;
-        public int AnimDataSize;
-        public int FloatTracksPointer;
-        public int Unknown58;
-        public float Unknown5C;
-        public string FileExt;
-        public List<AnimEvent> Events;
+        [YamlIgnore] public int TrackCount;
+        [YamlIgnore] public int TrackPointer;
+        [YamlIgnore] public int EventClassesPointer;
+        [YamlIgnore] public int LoopFrame;
+        [YamlIgnore] public string UnknownValue14;
+        [YamlIgnore] public string UnknownValue18;
+        [YamlIgnore] public string UnknownValue1C;
+        [YamlIgnore] public Vector4 EndFramesAdditiveScenePosition;
+        [YamlIgnore] public Vector4 EndFramesAdditiveSceneRotation;
+        [YamlIgnore] public long AnimationFlags;
+        [YamlIgnore] public int AnimDataSize;
+        [YamlIgnore] public int FloatTracksPointer;
+        [YamlIgnore] public int Unknown58;
+        [YamlIgnore] public float Unknown5C;
+        [YamlIgnore] public string FileExt;
         [YamlIgnore] public int PrevOffset;
         [YamlIgnore] public int PrevOffsetTwo;
         [YamlIgnore] public int PrevOffsetThree;
+
+        [YamlIgnore] public List<AnimEvent> Events;
 
         public enum BufferType
         {
@@ -52,7 +56,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             bilinearrotationquat4_7bit
         }
 
-        [YamlMember()]public List<Track> Tracks;
+        [YamlIgnore] public List<Track> Tracks;
         public struct Track
         {
             public int TrackNumber;
@@ -78,16 +82,17 @@ namespace ThreeWorkTool.Resources.Wrappers
             public Vector4 data;
             public int frame;
             public int BoneID;
+            public string KeyType;
         }
         
 
         public class AnimEvent
         {
-            public List<int> EventRemap;
-            public int EventCount;
-            public int EventsPointer;
-            public int EventBit;
-            public int FrameNumber;
+            [YamlMember()]public List<int> EventRemap;
+            [YamlMember()] public int EventCount;
+            [YamlMember()] public int EventsPointer;
+            [YamlMember()] public int EventBit;
+            [YamlMember()] public int FrameNumber;
 
             [YamlIgnore][Category("Event"), ReadOnlyAttribute(true)]
             [DisplayName("Event Count")]
@@ -268,14 +273,14 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     //Keyframes Take 1.
 
-                    IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID);
+                    IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
                     M3a.KeyFrames.AddRange(Key.ToList());
 
                 }
                 
                 else
                 {
-                    IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID);
+                    IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
                     M3a.KeyFrames.AddRange(Key.ToList());
                 }
                 
