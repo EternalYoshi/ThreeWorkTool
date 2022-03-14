@@ -320,6 +320,27 @@ namespace ThreeWorkTool.Resources
             }
         }
 
+        public static void MissionWriter(string filename, MissionEntry entrytowrite)
+        {
+            try
+            {
+
+                using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                {
+                    bw.Write(entrytowrite.UncompressedData);
+                    bw.Close();
+                }
+
+            }                                
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                return;
+            }
+        }
+
+        
+
         #region New Entries
         //New Entries Go like this!
         /*

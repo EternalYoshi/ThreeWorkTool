@@ -196,12 +196,14 @@
     <Compile Include="Resources\Wrappers\ChainListEntry.cs" />
     <Compile Include="Resources\Wrappers\DefaultWrapper.cs" />
     <Compile Include="Resources\Wrappers\EffectListEntry.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\Mission.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
     <Compile Include="Resources\Wrappers\LMTEntry.cs" />
     <Compile Include="Resources\Wrappers\LMTM3AEntry.cs" />
     <Compile Include="Resources\Wrappers\MaterialEntry.cs" />
     <Compile Include="Resources\Wrappers\MaterialMaterialEntry.cs" />
     <Compile Include="Resources\Wrappers\MaterialTextureReference.cs" />
+    <Compile Include="Resources\Wrappers\MissionEntry.cs" />
     <Compile Include="Resources\Wrappers\ModelEntry.cs" />
     <Compile Include="Resources\Wrappers\ModelNodes\ModelBoneEntry.cs" />
     <Compile Include="Resources\Wrappers\ModelNodes\ModelGroupEntry.cs" />

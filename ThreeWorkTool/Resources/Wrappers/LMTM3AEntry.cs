@@ -273,15 +273,15 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     //Keyframes Take 1.
 
-                    IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
-                    M3a.KeyFrames.AddRange(Key.ToList());
+                    //IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
+                    //M3a.KeyFrames.AddRange(Key.ToList());
 
                 }
                 
                 else
                 {
-                    IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
-                    M3a.KeyFrames.AddRange(Key.ToList());
+                    //IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
+                    //M3a.KeyFrames.AddRange(Key.ToList());
                 }
                 
                 bnr.BaseStream.Position = PrevOffset;
