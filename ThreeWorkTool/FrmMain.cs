@@ -11,7 +11,6 @@ using System.Windows.Forms;
 using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
-using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using ThreeWorkTool.Resources.Wrappers.ModelNodes;
 using static ThreeWorkTool.Resources.Wrappers.MaterialEntry;
 
@@ -231,7 +230,7 @@ namespace ThreeWorkTool
                                     {
                                         if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" ||
                                             treno.Tag as string == "Model Primitive Group" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
-                                            || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission)
+                                            || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry)
                                         {
 
                                         }
@@ -264,8 +263,6 @@ namespace ThreeWorkTool
                                     ChainEntry chnenty = new ChainEntry();
                                     ChainCollisionEntry cclentry = new ChainCollisionEntry();
                                     ModelEntry mdlentry = new ModelEntry();
-                                    MissionEntry misenty = new MissionEntry();
-
                                     //New Format should start here!
                                     /*
                                     ***** *****enty = new *****();
@@ -924,74 +921,6 @@ namespace ThreeWorkTool
                                             DataEntryOffset = DataEntryOffset + ComSize;
 
                                         }
-                                        else if (treno.Tag as MissionEntry != null)
-                                        {
-                                            misenty = treno.Tag as MissionEntry;
-
-                                            //Gotta Update The Mission File First.
-                                            misenty = MissionEntry.SaveMissionEntry(misenty, treno);
-
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "361EA2A5";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = misenty.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = misenty.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-
-                                        }
-
                                         #region New Format Code
                                         //New format Entry data insertion goes like this!
                                         /*
@@ -1137,12 +1066,6 @@ namespace ThreeWorkTool
                                         {
                                             mdlentry = treno.Tag as ModelEntry;
                                             byte[] CompData = mdlentry.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-                                        }
-                                        else if (treno.Tag as MissionEntry != null)
-                                        {
-                                            misenty = treno.Tag as MissionEntry;
-                                            byte[] CompData = misenty.CompressedData;
                                             bwr.Write(CompData, 0, CompData.Length);
                                         }
 
@@ -1862,55 +1785,6 @@ namespace ThreeWorkTool
                         sw.WriteLine("Exported a Message Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
-
-                case "ThreeWorkTool.Resources.Wrappers.MissionEntry":
-                    MissionEntry MISentry = new MissionEntry();
-                    if (tag is MissionEntry)
-                    {
-
-                        MISentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MissionEntry;
-                        EXDialog.Filter = ExportFilters.GetFilter(MISentry.FileExt);
-                    }
-                    EXDialog.FileName = MISentry.FileName + MISentry.FileExt;
-
-                    if (EXDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        ExportFileWriter.MissionWriter(EXDialog.FileName, MISentry);
-                    }
-
-                    //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
-                    {
-                        sw.WriteLine("Exported a Mission Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
-                    break;
-
-
-                /*
-                 * New Formats Go Like This!
-                case "ThreeWorkTool.Resources.Wrappers.*****Entry":
-                *****Entry *****entry = new *****Entry();
-                if (tag is *****Entry)
-                {
-
-                    ***entry = frename.Mainfrm.TreeSource.SelectedNode.Tag as *****Entry;
-                    EXDialog.Filter = ExportFilters.GetFilter(***entry.FileExt);
-                }
-                EXDialog.FileName = ***entry.FileName + ***entry.FileExt;
-
-                if (EXDialog.ShowDialog() == DialogResult.OK)
-                {
-                    ExportFileWriter.*****Writer(EXDialog.FileName, ***entry);
-                }
-
-                //Writes to log file.
-                using (StreamWriter sw = File.AppendText("Log.txt"))
-                {
-                    sw.WriteLine("Exported a ***** Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                }
-                break;
-                 */
-
 
                 default:
                     break;
@@ -2787,90 +2661,6 @@ namespace ThreeWorkTool
 
                             //Creates the Material Children of the new node.
                             frename.Mainfrm.ModelChildrenCreation(NewWrapper, NewWrapper.Tag as ModelEntry);
-                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
-
-                            break;
-
-                        default:
-                            break;
-                    }
-
-
-                    frename.Mainfrm.OpenFileModified = true;
-                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
-
-                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
-                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                    frename.Mainfrm.TreeSource.EndUpdate();
-
-                }
-
-            }
-
-            else if (tag is MissionEntry)
-            {
-                MissionEntry MisEntry = new MissionEntry();
-                MisEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MissionEntry;
-                RPDialog.Filter = ExportFilters.GetFilter(MisEntry.FileExt);
-                if (RPDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
-
-                    frename.Mainfrm.TreeSource.BeginUpdate();
-
-                    switch (helper)
-                    {
-                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
-                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
-                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
-
-                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                            string oldname = OldWrapper.Name;
-                            MissionEntry Oldaent = new MissionEntry();
-                            MissionEntry Newaent = new MissionEntry();
-                            Oldaent = OldWrapper.entryfile as MissionEntry;
-                            string[] paths = Oldaent.EntryDirs;
-                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
-                            NewWrapper.Tag = MissionEntry.ReplaceMIS(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
-                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
-                            //Takes the path data from the old node and slaps it on the new node.
-                            Newaent = NewWrapper.entryfile as MissionEntry;
-                            Newaent.EntryDirs = paths;
-                            NewWrapper.entryfile = Newaent;
-
-                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-
-                            //Pathing.
-                            foreach (string Folder in paths)
-                            {
-                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                                {
-                                    TreeNode folder = new TreeNode();
-                                    folder.Name = Folder;
-                                    folder.Tag = Folder;
-                                    folder.Text = Folder;
-                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
-                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
-                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
-                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
-                                }
-                                else
-                                {
-                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
-                                }
-                            }
-
-                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
-
-
-                            //Removes the old child nodes.
-                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
-
-                            //Builds the new child nodes.
-                            frename.Mainfrm.MissionChildrenCreation(NewWrapper, NewWrapper.Tag as MissionEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
                             break;
@@ -4012,79 +3802,6 @@ namespace ThreeWorkTool
 
                     #endregion
 
-                    #region Missions
-                    case ".mis":
-                        frename.Mainfrm.TreeSource.BeginUpdate();
-                        ArcEntryWrapper NewWrapperMIS = new ArcEntryWrapper();
-                        MissionEntry MISEntry = new MissionEntry();
-
-                        MISEntry = MissionEntry.InsertMissionEntry(frename.Mainfrm.TreeSource, NewWrapperMIS, IMPDialog.FileName);
-                        NewWrapperMIS.Tag = MISEntry;
-                        NewWrapperMIS.Text = MISEntry.TrueName;
-                        NewWrapperMIS.Name = MISEntry.TrueName;
-                        NewWrapperMIS.FileExt = MISEntry.FileExt;
-                        NewWrapperMIS.entryData = MISEntry;
-                        NewWrapperMIS.entryfile = MISEntry;
-
-                        frename.Mainfrm.IconSetter(NewWrapperMIS, NewWrapperMIS.FileExt);
-
-                        NewWrapperMIS.ContextMenuStrip = GenericFileContextAdder(NewWrapperMIS, frename.Mainfrm.TreeSource);
-
-                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperMIS);
-
-                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperMIS;
-
-                        frename.Mainfrm.OpenFileModified = true;
-
-                        string typeMIS = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
-                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                        frename.Mainfrm.TreeSource.EndUpdate();
-
-                        TreeNode MISrootnode = new TreeNode();
-                        TreeNode MISselectednode = new TreeNode();
-                        MISselectednode = frename.Mainfrm.TreeSource.SelectedNode;
-                        MISrootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-                        frename.Mainfrm.TreeSource.SelectedNode = MISrootnode;
-
-                        int MISfilecount = 0;
-
-                        ArcFile MISrootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
-                        if (MISrootarc != null)
-                        {
-                            MISfilecount = MISrootarc.FileCount;
-                            MISfilecount++;
-                            MISrootarc.FileCount++;
-                            MISrootarc.FileAmount++;
-                            frename.Mainfrm.TreeSource.SelectedNode.Tag = MISrootarc;
-                        }
-
-
-
-                        //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + MISfilecount);
-                            sw.WriteLine("===============================================================================================================");
-                        }
-
-                        frename.Mainfrm.TreeSource.SelectedNode = MISselectednode;
-
-                        //Removes the old child nodes.
-                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
-
-                        //Creates the Material Children of the new node.
-                        frename.Mainfrm.MissionChildrenCreation(MISselectednode, MISselectednode.Tag as MissionEntry);
-                        frename.Mainfrm.TreeSource.SelectedNode = MISselectednode;
-
-                        break;
-
-                    #endregion
-
                     //For everything else.
                     default:
                         frename.Mainfrm.TreeSource.BeginUpdate();
@@ -4589,22 +4306,6 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath + CCLENT.FileName + CCLENT.FileExt;
                                 ExportFileWriter.ChainCollisionEntryWriter(ExportPath, CCLENT);
                             }
-                            else if (kid.Tag is MissionEntry)
-                            {
-                                MissionEntry MISENT = kid.Tag as MissionEntry;
-                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
-                                {
-                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
-                                    ExportPath = FolderName + ExportPath;
-                                }
-                                dindex = ExportPath.LastIndexOf('\\') + 1;
-                                ExportPath = ExportPath.Substring(0, dindex);
-                                ExportPath = BaseDirectory + ExportPath + "\\";
-                                System.IO.Directory.CreateDirectory(ExportPath);
-                                ExportPath = ExportPath + MISENT.FileName + MISENT.FileExt;
-                                ExportFileWriter.MissionWriter(ExportPath, MISENT);
-                            }
-
 
                             /*
                             //New Formats go like this!!
@@ -4620,8 +4321,8 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath.Substring(0, dindex);
                                 ExportPath = BaseDirectory + ExportPath + "\\";
                                 System.IO.Directory.CreateDirectory(ExportPath);
-                                ExportPath = ExportPath + ***ENT.FileName + ***ENT.FileExt;
-                                ExportFileWriter.*****EntryWriter(ExportPath, ***ENT);
+                                ExportPath = ExportPath + CCLENT.FileName + ***ENT.FileExt;
+                                ExportFileWriter.ChainCollisionEntryWriter(ExportPath, ***ENT);
                             }                         
                          */
 
@@ -5493,70 +5194,6 @@ namespace ThreeWorkTool
 
                 #endregion
 
-                #region Mission Files
-
-                case "ThreeWorkTool.Resources.Wrappers.MissionEntry":
-                    ArcEntryWrapper mischild = new ArcEntryWrapper();
-
-                    TreeSource.BeginUpdate();
-
-                    //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
-
-                    mischild.Name = I;
-                    mischild.Tag = FEntry as MissionEntry;
-                    mischild.Text = I;
-                    mischild.entryfile = FEntry as MissionEntry;
-                    mischild.FileExt = G;
-
-                    //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
-
-                    TreeSource.SelectedNode = mischild;
-
-                    TreeSource.SelectedNode.Nodes.Add(mischild);
-
-                    TreeSource.ImageList = imageList1;
-
-                    var misrootNode = FindRootNode(mischild);
-
-                    TreeSource.SelectedNode = mischild;
-                    TreeSource.SelectedNode.ImageIndex = 10;
-                    TreeSource.SelectedNode.SelectedImageIndex = 10;
-
-
-                    mischild.ContextMenuStrip = GenericFileContextAdder(mischild, TreeSource);
-
-                    MissionEntry misent = new MissionEntry();
-                    misent = mischild.Tag as MissionEntry;
-
-                    //Makes Child Nodes.
-                    MissionChildrenCreation(mischild, misent);
-
-                    TreeSource.SelectedNode = misrootNode;
-
-                    tcount++;
-
-                    break;
-
-                #endregion
 
                 //Cases for future file supports go here. For example;
                 //case ".mod":
@@ -5846,26 +5483,6 @@ namespace ThreeWorkTool
                 Model.Tag = model.Groups[w];
                 Model.Text = model.Groups[w].ID.ToString();
                 TreeSource.SelectedNode.Nodes.Add(Model);
-
-            }
-
-        }
-
-        public void MissionChildrenCreation(TreeNode MEntry, MissionEntry missionentry)
-        {
-
-            TreeSource.SelectedNode = MEntry;
-
-            //Fills in Mission.
-            for (int i = 0; i < missionentry.Missions.Count; i++)
-            {
-                ArcEntryWrapper misn = new ArcEntryWrapper();
-                misn.Name = Convert.ToString(missionentry.Missions[i].ID);
-                misn.Tag = missionentry.Missions[i];
-                misn.Text = Convert.ToString(missionentry.Missions[i].ID);
-                misn.ImageIndex = 16;
-                misn.SelectedImageIndex = 16;
-                TreeSource.SelectedNode.Nodes.Add(misn);
 
             }
 
@@ -6241,21 +5858,6 @@ namespace ThreeWorkTool
                                 break;
                             }
 
-                        case "ThreeWorkTool.Resources.Wrappers.MissionEntry":
-                            MissionEntry mise = new MissionEntry();
-                            mise = ArcEntry as MissionEntry;
-                            if (mise != null)
-                            {
-                                TreeChildInsert(NCount, mise.EntryName, mise.FileExt, mise.EntryDirs, mise.TrueName, mise);
-                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
-                                break;
-                            }
-                            else
-                            {
-                                MessageBox.Show("We got a read error here!", "YIKES");
-                                break;
-                            }
-
                         //New Formats go like this!
                         /*
                            case "ThreeWorkTool.Resources.Wrappers.*****Entry":
@@ -6545,32 +6147,6 @@ namespace ThreeWorkTool
                 case "ThreeWorkTool.Resources.Wrappers.ModelEntry":
                     ModelEntry modelEntry = new ModelEntry();
                     modelEntry = TreeSource.SelectedNode.Tag as ModelEntry;
-                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    UpdateTheEditMenu();
-                    break;
-
-                #endregion
-
-                #region Mission Entries
-                case "ThreeWorkTool.Resources.Wrappers.MissionEntry":
-                    MissionEntry missionEntry = new MissionEntry();
-                    missionEntry = TreeSource.SelectedNode.Tag as MissionEntry;
-                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
-                    picBoxA.Visible = false;
-                    txtRPList.Visible = false;
-                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
-                    UpdateTheEditMenu();
-                    break;
-
-                #endregion
-
-                #region Mission
-                case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.Mission":
-                    Mission mission = new Mission();
-                    mission = TreeSource.SelectedNode.Tag as Mission;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
@@ -7025,9 +6601,6 @@ namespace ThreeWorkTool
 
         }
 
-        private void pGrdMain_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
-        {
-            frename.Mainfrm.OpenFileModified = true;
-        }
+
     }
 }

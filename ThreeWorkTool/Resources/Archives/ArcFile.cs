@@ -238,14 +238,6 @@ namespace ThreeWorkTool.Resources.Archives
                             IDCounter++;
                             break;
 
-                        case "361EA2A5":
-                            MissionEntry MISen = MissionEntry.FillMissionEntry(filename, foldernames, tree, br, j, IDCounter);
-                            arcfile.arcfiles.Add(MISen);
-                            arcfile.FileList.Add(MISen.EntryName);
-                            foldernames.Clear();
-                            IDCounter++;
-                            break;
-
                         //New Formats go like this!   
                         /*
                         case "********":
