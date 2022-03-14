@@ -27,6 +27,8 @@
 
         public static string rModel = "MT Framework Model File (*.mod)|*.mod";
 
+        public static string rMission = "MT Mission File (*.mis)|*.mis";
+
         public static string KeyFrameTest = ".txt";
 
         public static string GetFilter(string filetype)
@@ -63,6 +65,9 @@
 
                 case ".mod":
                     return rModel;
+
+                case ".mis": 
+                    return rMission;
 
                 default:
                     return Etc; 
