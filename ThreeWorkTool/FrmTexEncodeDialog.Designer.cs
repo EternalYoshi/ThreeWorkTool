@@ -156,7 +156,7 @@
             "BC4_UNORM/Metalic/Specular Map",
             "BC5/Normal Map",
             "????/Toon Shader Picture",
-            "????/Problematic Portrait Picture"});
+            "LAB Color/Problematic Portrait Picture"});
             this.cmBoxTextureType.Location = new System.Drawing.Point(13, 151);
             this.cmBoxTextureType.Name = "cmBoxTextureType";
             this.cmBoxTextureType.Size = new System.Drawing.Size(196, 21);

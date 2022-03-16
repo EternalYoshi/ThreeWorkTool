@@ -65,12 +65,14 @@ namespace ThreeWorkTool
         public int Arcsize;
         public int foldercount;
         public bool OpenFileModified;
-        public List<string> ArcFileList;
+        public List<string> Manifest;
         public List<string> RPLNameList;
+        public bool UseManifest;
         public static FrmRename frename;
         public static FrmTxtEditor frmTxtEdit;
         public static FrmTexEncodeDialog frmtexencode;
         public static FrmNotes frmNote;
+        public static FrmManifestEditor frmManiEditor;
         public string RPLBackup;
         public bool isFinishRPLRead;
         public bool HasSaved;
@@ -206,969 +208,1118 @@ namespace ThreeWorkTool
                         {
                             try
                             {
-                                using (BinaryWriter bwr = new BinaryWriter(File.OpenWrite(SFDialog.FileName)))
+
+                                //Falls back to old save coding if Manifest is not used.
+                                if (UseManifest == true)
                                 {
-                                    //Header that has the magic, version number and entry count.
-                                    byte[] ArcHeader = { 0x41, 0x52, 0x43, 0x00 };
-                                    byte[] ArcVersion = { 0x07, 0x00 };
-                                    //int arcentryoffset = 0x04;
-                                    bwr.Write(ArcHeader, 0, 4);
-
-                                    bwr.Seek(0x04, SeekOrigin.Begin);
-                                    bwr.Write(ArcVersion, 0, ArcVersion.Length);
-
-                                    //Goes to top node to begin iteration.
-                                    TreeNode tn = FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-                                    frename.Mainfrm.TreeSource.SelectedNode = tn;
-
-                                    List<TreeNode> Nodes = new List<TreeNode>();
-                                    frename.Mainfrm.AddChildren(Nodes, frename.Mainfrm.TreeSource.SelectedNode);
-
-
-
-                                    int nowcount = 0;
-                                    foreach (TreeNode treno in Nodes)
+                                    using (BinaryWriter bwr = new BinaryWriter(File.OpenWrite(SFDialog.FileName)))
                                     {
-                                        if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" ||
-                                            treno.Tag as string == "Model Primitive Group" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
-                                            || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission)
+                                        //Header that has the magic, version number and entry count.
+                                        byte[] ArcHeader = { 0x41, 0x52, 0x43, 0x00 };
+                                        byte[] ArcVersion = { 0x07, 0x00 };
+                                        //int arcentryoffset = 0x04;
+                                        bwr.Write(ArcHeader, 0, 4);
+
+                                        bwr.Seek(0x04, SeekOrigin.Begin);
+                                        bwr.Write(ArcVersion, 0, ArcVersion.Length);
+                                        int nowcount = 0;
+                                        string exportname = "";
+                                        string HashType = "";
+                                        int ComSize = 0;
+                                        int DecSize = 0;
+                                        int DataEntryOffset = (nowcount * 80) + 352;
+                                        TreeNode treno = new TreeNode();
+
+                                        //Gets the manifest to begin iteration.
+                                        foreach (string str in Manifest)
                                         {
+                                            string[] SearchTerms = str.Split(new string[] { "\\", ".", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                                            //Starts from the top of the TreeNodes.
+                                            TreeNode tn = FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                            frename.Mainfrm.TreeSource.SelectedNode = tn;
+                                            TreeNode[] tna = new TreeNode[] { };
+                                            for (int i = 0; i < (SearchTerms.Length - 1); i++)
+                                            {
+                                                TreeNodeCollection tnc = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
+                                                tna = tnc.Find(SearchTerms[i], false);
+                                                frename.Mainfrm.TreeSource.SelectedNode = tna[0];
+                                            }
+
+                                            //TreeNodeCollection tcoll = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
+                                            //tna = tcoll.Find(SearchTerms[SearchTerms.Length - 1], false);
+                                            //frename.Mainfrm.TreeSource.SelectedNode = tna[0];
+
+                                            SearchTerms[SearchTerms.Length - 1] = "." + SearchTerms[SearchTerms.Length - 1];
+
+                                            ArcEntryWrapper AWrap = new ArcEntryWrapper();
+
+
+                                            //Determines where to start the compressed data storage based on amount of entries.
+                                            //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
+                                            int dataoffset = (nowcount * 80) + 352;
+
+                                            byte[] EntryTotal = BitConverter.GetBytes(Convert.ToInt16(nowcount));
+
+                                            bwr.Write(EntryTotal, 0, EntryTotal.Length);
+
+
+
+                                            foreach (TreeNode tno in tna)
+                                            {
+                                                AWrap = tno as ArcEntryWrapper;
+                                                //Checks nodes for file with same extension.
+                                                if (AWrap.FileExt == SearchTerms[SearchTerms.Length - 1])
+                                                {
+                                                    WriteBlockToArchive(bwr, tno, exportname, HashType, ComSize, DecSize, DataEntryOffset);
+                                                }
+                                            }
+
+
+
+                                            if (tna[0] == null)
+                                            {
+                                                MessageBox.Show("I cannot find\n" + str + "\n Either check to see if the file exists or edit the manifests to fix any possible errors.", "FILE NOT FOUND!");
+                                                return;
+                                            }
+                                            else
+                                            {
+
+                                            }
+
 
                                         }
-                                        else
-                                        { nowcount++; }
+
+                                        //Goes through the manifest yet again.
+                                        foreach (string str in Manifest)
+                                        {
+                                            string[] SearchTerms = str.Split(new string[] { "\\", ".", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                                            //Starts from the top of the TreeNodes.
+                                            TreeNode tn = FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                            frename.Mainfrm.TreeSource.SelectedNode = tn;
+                                            TreeNode[] tna = new TreeNode[] { };
+                                            for (int i = 0; i < (SearchTerms.Length - 1); i++)
+                                            {
+                                                TreeNodeCollection tnc = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
+                                                tna = tnc.Find(SearchTerms[i], false);
+                                                frename.Mainfrm.TreeSource.SelectedNode = tna[0];
+                                            }
+
+                                            //TreeNodeCollection tcoll = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
+                                            //tna = tcoll.Find(SearchTerms[SearchTerms.Length - 1], false);
+                                            //frename.Mainfrm.TreeSource.SelectedNode = tna[0];
+
+                                            SearchTerms[SearchTerms.Length - 1] = "." + SearchTerms[SearchTerms.Length - 1];
+
+                                            ArcEntryWrapper AWrap = new ArcEntryWrapper();
+
+
+                                            //Determines where to start the compressed data storage based on amount of entries.
+                                            //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
+                                            int dataoffset = (nowcount * 80) + 352;
+
+                                            byte[] EntryTotal = BitConverter.GetBytes(Convert.ToInt16(nowcount));
+
+                                            bwr.Write(EntryTotal, 0, EntryTotal.Length);
+
+
+
+                                            foreach (TreeNode tno in tna)
+                                            {
+                                                AWrap = tno as ArcEntryWrapper;
+                                                //Checks nodes for file with same extension.
+                                                if (AWrap.FileExt == SearchTerms[SearchTerms.Length - 1])
+                                                {
+                                                    WriteCompressedDataToArchive(bwr, tno, exportname, HashType, ComSize, DecSize, dataoffset);
+                                                }
+                                            }
+
+
+
+                                            if (tna[0] == null)
+                                            {
+                                                MessageBox.Show("I cannot find\n" + str + "\n Either check to see if the file exists or edit the manifests to fix any possible errors.", "FILE NOT FOUND!");
+                                                return;
+                                            }
+                                            else
+                                            {
+
+                                            }
+
+
+                                        }
+
                                     }
-
-                                    //Determines where to start the compressed data storage based on amount of entries.
-                                    //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
-                                    int dataoffset = (nowcount * 80) + 352;
-
-                                    byte[] EntryTotal = BitConverter.GetBytes(Convert.ToInt16(nowcount));
-
-                                    bwr.Write(EntryTotal, 0, EntryTotal.Length);
-
-                                    string exportname = "";
-                                    string HashType = "";
-                                    int ComSize = 0;
-                                    int DecSize = 0;
-                                    int DataEntryOffset = (nowcount * 80) + 352;
-
-
-                                    ArcEntry enty = new ArcEntry();
-                                    TextureEntry tenty = new TextureEntry();
-                                    ResourcePathListEntry lrpenty = new ResourcePathListEntry();
-                                    MSDEntry msdenty = new MSDEntry();
-                                    MaterialEntry matent = new MaterialEntry();
-                                    LMTEntry lmtenty = new LMTEntry();
-                                    ChainListEntry cstenty = new ChainListEntry();
-                                    ChainEntry chnenty = new ChainEntry();
-                                    ChainCollisionEntry cclentry = new ChainCollisionEntry();
-                                    ModelEntry mdlentry = new ModelEntry();
-                                    MissionEntry misenty = new MissionEntry();
-
-                                    //New Format should start here!
-                                    /*
-                                    ***** *****enty = new *****();
-                                    */
-
-                                    //This is for the data blocks mapping the filename and offsets for the compressed data. This si after the header.
-                                    foreach (TreeNode treno in Nodes)
-                                    {
-                                        //Saving generic files.
-                                        if (treno.Tag as ArcEntry != null)
-                                        {
-                                            enty = treno.Tag as ArcEntry;
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-                                            /*
-                                            foreach (string s in enty.EntryDirs)
-                                            {
-                                                exportname = exportname + s + "\\";
-                                            }
-                                            */
-
-                                            //exportname = exportname + enty.TrueName;
-
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //Gotta finish writing the data for the Entries of the arc. First the TypeHash,
-                                            //then compressed size, decompressed size, and lastly starting data offset.
-
-                                            //For the typehash.
-                                            HashType = ArcEntry.TypeHashFinder(enty);
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = enty.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = enty.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-                                        }
-                                        //Saving Textures.
-                                        else if (treno.Tag as TextureEntry != null)
-                                        {
-                                            tenty = treno.Tag as TextureEntry;
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-                                            /*
-                                            foreach (string s in enty.EntryDirs)
-                                            {
-                                                exportname = exportname + s + "\\";
-                                            }
-                                            */
-
-                                            //exportname = exportname + enty.TrueName;
-
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "241F5DEB";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = tenty.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = tenty.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-                                        }
-                                        else if (treno.Tag as ResourcePathListEntry != null)
-                                        {
-                                            lrpenty = treno.Tag as ResourcePathListEntry;
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "357EF6D4";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = lrpenty.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = lrpenty.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-
-                                        }
-                                        else if (treno.Tag as MSDEntry != null)
-                                        {
-                                            msdenty = treno.Tag as MSDEntry;
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "5B55F5B1";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = msdenty.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = msdenty.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-
-                                        }
-                                        else if (treno.Tag as LMTEntry != null)
-                                        {
-                                            lmtenty = treno.Tag as LMTEntry;
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "76820D81";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = lmtenty.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = lmtenty.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-
-                                        }
-                                        else if (treno.Tag as ChainListEntry != null)
-                                        {
-                                            cstenty = treno.Tag as ChainListEntry;
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "326F732E";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = cstenty.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = cstenty.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-
-                                        }
-                                        else if (treno.Tag as ChainEntry != null)
-                                        {
-                                            chnenty = treno.Tag as ChainEntry;
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "3E363245";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = chnenty.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = chnenty.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-
-                                        }
-                                        else if (treno.Tag as ChainCollisionEntry != null)
-                                        {
-                                            cclentry = treno.Tag as ChainCollisionEntry;
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "0026E7FF";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = cclentry.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = cclentry.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-
-                                        }
-                                        else if (treno.Tag as MaterialEntry != null)
-                                        {
-                                            matent = treno.Tag as MaterialEntry;
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "2749C8A8";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = matent.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = matent.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-                                        }
-                                        else if (treno.Tag as ModelEntry != null)
-                                        {
-                                            mdlentry = treno.Tag as ModelEntry;
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "58A15856";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = mdlentry.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = mdlentry.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-
-                                        }
-                                        else if (treno.Tag as MissionEntry != null)
-                                        {
-                                            misenty = treno.Tag as MissionEntry;
-
-                                            //Gotta Update The Mission File First.
-                                            misenty = MissionEntry.SaveMissionEntry(misenty, treno);
-
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "361EA2A5";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = misenty.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = misenty.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-
-                                        }
-
-                                        #region New Format Code
-                                        //New format Entry data insertion goes like this!
-                                        /*
-                                         
-                                        else if (treno.Tag as ***** != null)
-                                        {
-                                            *****enty = treno.Tag as *****;
-                                            exportname = "";
-
-                                            exportname = treno.FullPath;
-                                            int inp = (exportname.IndexOf("\\")) + 1;
-                                            exportname = exportname.Substring(inp, exportname.Length - inp);
-
-                                            int NumberChars = exportname.Length;
-                                            byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
-                                            int nblength = namebuffer.Length;
-
-                                            //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
-                                            byte[] writenamedata = new byte[64];
-                                            Array.Clear(writenamedata, 0, writenamedata.Length);
-
-
-                                            for (int i = 0; i < namebuffer.Length; ++i)
-                                            {
-                                                writenamedata[i] = namebuffer[i];
-                                            }
-
-                                            bwr.Write(writenamedata, 0, writenamedata.Length);
-
-                                            //For the typehash.
-                                            HashType = "********";
-                                            byte[] HashBrown = new byte[4];
-                                            HashBrown = StringToByteArray(HashType);
-                                            Array.Reverse(HashBrown);
-                                            if (HashBrown.Length < 4)
-                                            {
-                                                byte[] PartHash = new byte[] { };
-                                                PartHash = HashBrown;
-                                                Array.Resize(ref HashBrown, 4);
-                                            }
-                                            bwr.Write(HashBrown, 0, HashBrown.Length);
-
-                                            //For the compressed size.
-                                            ComSize = *****enty.CompressedData.Length;
-                                            string ComSizeHex = ComSize.ToString("X8");
-                                            byte[] ComPacked = new byte[4];
-                                            ComPacked = StringToByteArray(ComSizeHex);
-                                            Array.Reverse(ComPacked);
-                                            bwr.Write(ComPacked, 0, ComPacked.Length);
-
-                                            //For the unpacked size. No clue why all the entries "start" with 40.
-                                            DecSize = *****enty.UncompressedData.Length + 1073741824;
-                                            string DecSizeHex = DecSize.ToString("X8");
-                                            byte[] DePacked = new byte[4];
-                                            DePacked = StringToByteArray(DecSizeHex);
-                                            Array.Reverse(DePacked);
-                                            bwr.Write(DePacked, 0, DePacked.Length);
-
-                                            //Starting Offset.
-                                            string DataEntrySizeHex = DataEntryOffset.ToString("X8");
-                                            byte[] DEOffed = new byte[4];
-                                            DEOffed = StringToByteArray(DataEntrySizeHex);
-                                            Array.Reverse(DEOffed);
-                                            bwr.Write(DEOffed, 0, DEOffed.Length);
-                                            DataEntryOffset = DataEntryOffset + ComSize;
-
-                                        }
-
-                                         
-                                        */
-                                        #endregion
-
-
-                                        else
-                                        { }
-                                    }
-
-                                    //This part goes to where the data offset begins, inserts the compressed data, and fills the in between areas with zeroes.
-                                    bwr.BaseStream.Position = 0;
-                                    long CPos = bwr.Seek(dataoffset, SeekOrigin.Current);
-
-                                    foreach (TreeNode treno in Nodes)
-                                    {
-                                        if (treno.Tag as ArcEntry != null)
-                                        {
-                                            enty = treno.Tag as ArcEntry;
-                                            byte[] CompData = enty.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-                                        }
-                                        else if (treno.Tag as TextureEntry != null)
-                                        {
-                                            tenty = treno.Tag as TextureEntry;
-                                            byte[] CompData = tenty.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-                                        }
-                                        else if (treno.Tag as ResourcePathListEntry != null)
-                                        {
-                                            lrpenty = treno.Tag as ResourcePathListEntry;
-                                            byte[] CompData = lrpenty.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-
-                                        }
-                                        else if (treno.Tag as LMTEntry != null)
-                                        {
-                                            lmtenty = treno.Tag as LMTEntry;
-                                            byte[] CompData = lmtenty.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-
-                                        }
-                                        else if (treno.Tag as MaterialEntry != null)
-                                        {
-                                            matent = treno.Tag as MaterialEntry;
-                                            byte[] CompData = matent.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-
-                                        }
-                                        else if (treno.Tag as MSDEntry != null)
-                                        {
-                                            msdenty = treno.Tag as MSDEntry;
-                                            byte[] CompData = msdenty.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-
-                                        }
-                                        else if (treno.Tag as ChainListEntry != null)
-                                        {
-                                            cstenty = treno.Tag as ChainListEntry;
-                                            byte[] CompData = cstenty.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-                                        }
-                                        else if (treno.Tag as ChainEntry != null)
-                                        {
-                                            chnenty = treno.Tag as ChainEntry;
-                                            byte[] CompData = chnenty.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-                                        }
-                                        else if (treno.Tag as ChainCollisionEntry != null)
-                                        {
-                                            cclentry = treno.Tag as ChainCollisionEntry;
-                                            byte[] CompData = cclentry.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-                                        }
-                                        else if (treno.Tag as ModelEntry != null)
-                                        {
-                                            mdlentry = treno.Tag as ModelEntry;
-                                            byte[] CompData = mdlentry.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-                                        }
-                                        else if (treno.Tag as MissionEntry != null)
-                                        {
-                                            misenty = treno.Tag as MissionEntry;
-                                            byte[] CompData = misenty.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-                                        }
-
-                                        //New format compression data goes like this!
-                                        /*
-                                        else if(treno.Tag as ***** != null)
-                                        {
-                                            *****enty = treno.Tag as *****;
-                                            byte[] CompData = *****enty.CompressedData;
-                                            bwr.Write(CompData, 0, CompData.Length);
-                                        }
-                                        */
-                                    }
-
-                                    bwr.Close();
-                                    OpenFileModified = false;
-                                    HasSaved = true;
-
-                                    //Writes to log file.
-                                    using (StreamWriter sw = File.AppendText("Log.txt"))
-                                    {
-                                        sw.WriteLine("Successfully Saved: " + SFDialog.FileName);
-                                        sw.WriteLine("===============================================================================================================");
-                                    }
-
                                 }
+                                else
+                                {
+                                    using (BinaryWriter bwr = new BinaryWriter(File.OpenWrite(SFDialog.FileName)))
+                                    {
+                                        //Header that has the magic, version number and entry count.
+                                        byte[] ArcHeader = { 0x41, 0x52, 0x43, 0x00 };
+                                        byte[] ArcVersion = { 0x07, 0x00 };
+                                        //int arcentryoffset = 0x04;
+                                        bwr.Write(ArcHeader, 0, 4);
+
+                                        bwr.Seek(0x04, SeekOrigin.Begin);
+                                        bwr.Write(ArcVersion, 0, ArcVersion.Length);
+
+                                        //Goes to top node to begin iteration.
+                                        TreeNode tn = FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                        frename.Mainfrm.TreeSource.SelectedNode = tn;
+
+                                        List<TreeNode> Nodes = new List<TreeNode>();
+                                        frename.Mainfrm.AddChildren(Nodes, frename.Mainfrm.TreeSource.SelectedNode);
+
+
+
+                                        int nowcount = 0;
+                                        foreach (TreeNode treno in Nodes)
+                                        {
+                                            if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" ||
+                                                treno.Tag as string == "Model Primitive Group" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
+                                                || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission)
+                                            {
+
+                                            }
+                                            else
+                                            { nowcount++; }
+                                        }
+
+                                        //Determines where to start the compressed data storage based on amount of entries.
+                                        //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
+                                        int dataoffset = (nowcount * 80) + 352;
+
+                                        byte[] EntryTotal = BitConverter.GetBytes(Convert.ToInt16(nowcount));
+
+                                        bwr.Write(EntryTotal, 0, EntryTotal.Length);
+
+                                        string exportname = "";
+                                        string HashType = "";
+                                        int ComSize = 0;
+                                        int DecSize = 0;
+                                        int DataEntryOffset = (nowcount * 80) + 352;
+
+
+                                        ArcEntry enty = new ArcEntry();
+                                        TextureEntry tenty = new TextureEntry();
+                                        ResourcePathListEntry lrpenty = new ResourcePathListEntry();
+                                        MSDEntry msdenty = new MSDEntry();
+                                        MaterialEntry matent = new MaterialEntry();
+                                        LMTEntry lmtenty = new LMTEntry();
+                                        ChainListEntry cstenty = new ChainListEntry();
+                                        ChainEntry chnenty = new ChainEntry();
+                                        ChainCollisionEntry cclentry = new ChainCollisionEntry();
+                                        ModelEntry mdlentry = new ModelEntry();
+                                        MissionEntry misenty = new MissionEntry();
+
+                                        //New Format should start here!
+                                        /*
+                                        ***** *****enty = new *****();
+                                        */
+
+                                        //This is for the data blocks mapping the filename and offsets for the compressed data. This si after the header.
+                                        foreach (TreeNode treno in Nodes)
+                                        {
+                                            //Saving generic files.
+                                            if (treno.Tag as ArcEntry != null)
+                                            {
+                                                enty = treno.Tag as ArcEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+                                                /*
+                                                foreach (string s in enty.EntryDirs)
+                                                {
+                                                    exportname = exportname + s + "\\";
+                                                }
+                                                */
+
+                                                //exportname = exportname + enty.TrueName;
+
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //Gotta finish writing the data for the Entries of the arc. First the TypeHash,
+                                                //then compressed size, decompressed size, and lastly starting data offset.
+
+                                                //For the typehash.
+                                                HashType = ArcEntry.TypeHashFinder(enty);
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = enty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = enty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+                                            }
+                                            //Saving Textures.
+                                            else if (treno.Tag as TextureEntry != null)
+                                            {
+                                                tenty = treno.Tag as TextureEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+                                                /*
+                                                foreach (string s in enty.EntryDirs)
+                                                {
+                                                    exportname = exportname + s + "\\";
+                                                }
+                                                */
+
+                                                //exportname = exportname + enty.TrueName;
+
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "241F5DEB";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = tenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = tenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+                                            }
+                                            else if (treno.Tag as ResourcePathListEntry != null)
+                                            {
+                                                lrpenty = treno.Tag as ResourcePathListEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "357EF6D4";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = lrpenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = lrpenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+                                            else if (treno.Tag as MSDEntry != null)
+                                            {
+                                                msdenty = treno.Tag as MSDEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "5B55F5B1";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = msdenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = msdenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+                                            else if (treno.Tag as LMTEntry != null)
+                                            {
+                                                lmtenty = treno.Tag as LMTEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "76820D81";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = lmtenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = lmtenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+                                            else if (treno.Tag as ChainListEntry != null)
+                                            {
+                                                cstenty = treno.Tag as ChainListEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "326F732E";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = cstenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = cstenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+                                            else if (treno.Tag as ChainEntry != null)
+                                            {
+                                                chnenty = treno.Tag as ChainEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "3E363245";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = chnenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = chnenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+                                            else if (treno.Tag as ChainCollisionEntry != null)
+                                            {
+                                                cclentry = treno.Tag as ChainCollisionEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "0026E7FF";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = cclentry.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = cclentry.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+                                            else if (treno.Tag as MaterialEntry != null)
+                                            {
+                                                matent = treno.Tag as MaterialEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "2749C8A8";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = matent.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = matent.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+                                            }
+                                            else if (treno.Tag as ModelEntry != null)
+                                            {
+                                                mdlentry = treno.Tag as ModelEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "58A15856";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = mdlentry.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = mdlentry.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+                                            else if (treno.Tag as MissionEntry != null)
+                                            {
+                                                misenty = treno.Tag as MissionEntry;
+
+                                                //Gotta Update The Mission File First.
+                                                misenty = MissionEntry.SaveMissionEntry(misenty, treno);
+
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "361EA2A5";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = misenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = misenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+
+                                            #region New Format Code
+                                            //New format Entry data insertion goes like this!
+                                            /*
+
+                                            else if (treno.Tag as ***** != null)
+                                            {
+                                                *****enty = treno.Tag as *****;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "********";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = *****enty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = *****enty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+
+
+                                            */
+                                            #endregion
+
+
+                                            else
+                                            { }
+                                        }
+
+                                        //This part goes to where the data offset begins, inserts the compressed data, and fills the in between areas with zeroes.
+                                        bwr.BaseStream.Position = 0;
+                                        long CPos = bwr.Seek(dataoffset, SeekOrigin.Current);
+
+                                        foreach (TreeNode treno in Nodes)
+                                        {
+                                            if (treno.Tag as ArcEntry != null)
+                                            {
+                                                enty = treno.Tag as ArcEntry;
+                                                byte[] CompData = enty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                            }
+                                            else if (treno.Tag as TextureEntry != null)
+                                            {
+                                                tenty = treno.Tag as TextureEntry;
+                                                byte[] CompData = tenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                            }
+                                            else if (treno.Tag as ResourcePathListEntry != null)
+                                            {
+                                                lrpenty = treno.Tag as ResourcePathListEntry;
+                                                byte[] CompData = lrpenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+
+                                            }
+                                            else if (treno.Tag as LMTEntry != null)
+                                            {
+                                                lmtenty = treno.Tag as LMTEntry;
+                                                byte[] CompData = lmtenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+
+                                            }
+                                            else if (treno.Tag as MaterialEntry != null)
+                                            {
+                                                matent = treno.Tag as MaterialEntry;
+                                                byte[] CompData = matent.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+
+                                            }
+                                            else if (treno.Tag as MSDEntry != null)
+                                            {
+                                                msdenty = treno.Tag as MSDEntry;
+                                                byte[] CompData = msdenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+
+                                            }
+                                            else if (treno.Tag as ChainListEntry != null)
+                                            {
+                                                cstenty = treno.Tag as ChainListEntry;
+                                                byte[] CompData = cstenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                            }
+                                            else if (treno.Tag as ChainEntry != null)
+                                            {
+                                                chnenty = treno.Tag as ChainEntry;
+                                                byte[] CompData = chnenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                            }
+                                            else if (treno.Tag as ChainCollisionEntry != null)
+                                            {
+                                                cclentry = treno.Tag as ChainCollisionEntry;
+                                                byte[] CompData = cclentry.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                            }
+                                            else if (treno.Tag as ModelEntry != null)
+                                            {
+                                                mdlentry = treno.Tag as ModelEntry;
+                                                byte[] CompData = mdlentry.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                            }
+                                            else if (treno.Tag as MissionEntry != null)
+                                            {
+                                                misenty = treno.Tag as MissionEntry;
+                                                byte[] CompData = misenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                            }
+
+                                            //New format compression data goes like this!
+                                            /*
+                                            else if(treno.Tag as ***** != null)
+                                            {
+                                                *****enty = treno.Tag as *****;
+                                                byte[] CompData = *****enty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                            }
+                                            */
+                                        }
+
+                                        bwr.Close();
+                                        OpenFileModified = false;
+                                        HasSaved = true;
+
+                                        //Writes to log file.
+                                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                                        {
+                                            sw.WriteLine("Successfully Saved: " + SFDialog.FileName);
+                                            sw.WriteLine("===============================================================================================================");
+                                        }
+
+                                    }
+                                }
+
+
                             }
                             catch (Exception ex)
                             {
@@ -1205,6 +1356,925 @@ namespace ThreeWorkTool
             {
                 MessageBox.Show("Save What? You don't have a file open.");
             }
+        }
+
+        public void WriteBlockToArchive(BinaryWriter bwr, TreeNode treno, string exportname, string HashType, int ComSize, int DecSize, int DataEntryOffset)
+        {
+
+            ArcEntry enty = new ArcEntry();
+            TextureEntry tenty = new TextureEntry();
+            ResourcePathListEntry lrpenty = new ResourcePathListEntry();
+            MSDEntry msdenty = new MSDEntry();
+            MaterialEntry matent = new MaterialEntry();
+            LMTEntry lmtenty = new LMTEntry();
+            ChainListEntry cstenty = new ChainListEntry();
+            ChainEntry chnenty = new ChainEntry();
+            ChainCollisionEntry cclentry = new ChainCollisionEntry();
+            ModelEntry mdlentry = new ModelEntry();
+            MissionEntry misenty = new MissionEntry();
+
+            //Saving generic files.
+            if (treno.Tag as ArcEntry != null)
+            {
+                enty = treno.Tag as ArcEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+                /*
+                foreach (string s in enty.EntryDirs)
+                {
+                    exportname = exportname + s + "\\";
+                }
+                */
+
+                //exportname = exportname + enty.TrueName;
+
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //Gotta finish writing the data for the Entries of the arc. First the TypeHash,
+                //then compressed size, decompressed size, and lastly starting data offset.
+
+                //For the typehash.
+                HashType = ArcEntry.TypeHashFinder(enty);
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = enty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = enty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+            }
+            //Saving Textures.
+            else if (treno.Tag as TextureEntry != null)
+            {
+                tenty = treno.Tag as TextureEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+                /*
+                foreach (string s in enty.EntryDirs)
+                {
+                    exportname = exportname + s + "\\";
+                }
+                */
+
+                //exportname = exportname + enty.TrueName;
+
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "241F5DEB";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = tenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = tenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+            }
+            else if (treno.Tag as ResourcePathListEntry != null)
+            {
+                lrpenty = treno.Tag as ResourcePathListEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "357EF6D4";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = lrpenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = lrpenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+            else if (treno.Tag as MSDEntry != null)
+            {
+                msdenty = treno.Tag as MSDEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "5B55F5B1";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = msdenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = msdenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+            else if (treno.Tag as LMTEntry != null)
+            {
+                lmtenty = treno.Tag as LMTEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "76820D81";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = lmtenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = lmtenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+            else if (treno.Tag as ChainListEntry != null)
+            {
+                cstenty = treno.Tag as ChainListEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "326F732E";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = cstenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = cstenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+            else if (treno.Tag as ChainEntry != null)
+            {
+                chnenty = treno.Tag as ChainEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "3E363245";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = chnenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = chnenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+            else if (treno.Tag as ChainCollisionEntry != null)
+            {
+                cclentry = treno.Tag as ChainCollisionEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "0026E7FF";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = cclentry.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = cclentry.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+            else if (treno.Tag as MaterialEntry != null)
+            {
+                matent = treno.Tag as MaterialEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "2749C8A8";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = matent.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = matent.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+            }
+            else if (treno.Tag as ModelEntry != null)
+            {
+                mdlentry = treno.Tag as ModelEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "58A15856";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = mdlentry.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = mdlentry.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+            else if (treno.Tag as MissionEntry != null)
+            {
+                misenty = treno.Tag as MissionEntry;
+
+                //Gotta Update The Mission File First.
+                misenty = MissionEntry.SaveMissionEntry(misenty, treno);
+
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "361EA2A5";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = misenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = misenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+
+            #region New Format Code
+            //New format Entry data insertion goes like this!
+            /*
+
+            else if (treno.Tag as ***** != null)
+            {
+                *****enty = treno.Tag as *****;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "********";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = *****enty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = *****enty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+
+
+            */
+            #endregion
+
+
+            else
+            { }
+
+        }
+
+        public void WriteCompressedDataToArchive(BinaryWriter bwr, TreeNode treno, string exportname, string HashType, int ComSize, int DecSize, int dataoffset)
+        {
+
+            //This part goes to where the data offset begins, inserts the compressed data, and fills the in between areas with zeroes.
+            bwr.BaseStream.Position = 0;
+            long CPos = bwr.Seek(dataoffset, SeekOrigin.Current);
+
+
+            ArcEntry enty = new ArcEntry();
+            TextureEntry tenty = new TextureEntry();
+            ResourcePathListEntry lrpenty = new ResourcePathListEntry();
+            MSDEntry msdenty = new MSDEntry();
+            MaterialEntry matent = new MaterialEntry();
+            LMTEntry lmtenty = new LMTEntry();
+            ChainListEntry cstenty = new ChainListEntry();
+            ChainEntry chnenty = new ChainEntry();
+            ChainCollisionEntry cclentry = new ChainCollisionEntry();
+            ModelEntry mdlentry = new ModelEntry();
+            MissionEntry misenty = new MissionEntry();
+
+            if (treno.Tag as ArcEntry != null)
+            {
+                enty = treno.Tag as ArcEntry;
+                byte[] CompData = enty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as TextureEntry != null)
+            {
+                tenty = treno.Tag as TextureEntry;
+                byte[] CompData = tenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as ResourcePathListEntry != null)
+            {
+                lrpenty = treno.Tag as ResourcePathListEntry;
+                byte[] CompData = lrpenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+
+            }
+            else if (treno.Tag as LMTEntry != null)
+            {
+                lmtenty = treno.Tag as LMTEntry;
+                byte[] CompData = lmtenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+
+            }
+            else if (treno.Tag as MaterialEntry != null)
+            {
+                matent = treno.Tag as MaterialEntry;
+                byte[] CompData = matent.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+
+            }
+            else if (treno.Tag as MSDEntry != null)
+            {
+                msdenty = treno.Tag as MSDEntry;
+                byte[] CompData = msdenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+
+            }
+            else if (treno.Tag as ChainListEntry != null)
+            {
+                cstenty = treno.Tag as ChainListEntry;
+                byte[] CompData = cstenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as ChainEntry != null)
+            {
+                chnenty = treno.Tag as ChainEntry;
+                byte[] CompData = chnenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as ChainCollisionEntry != null)
+            {
+                cclentry = treno.Tag as ChainCollisionEntry;
+                byte[] CompData = cclentry.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as ModelEntry != null)
+            {
+                mdlentry = treno.Tag as ModelEntry;
+                byte[] CompData = mdlentry.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as MissionEntry != null)
+            {
+                misenty = treno.Tag as MissionEntry;
+                byte[] CompData = misenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+
+            //New format compression data goes like this!
+            /*
+            else if(treno.Tag as ***** != null)
+            {
+                *****enty = treno.Tag as *****;
+                byte[] CompData = *****enty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            */
+
+
+            bwr.Close();
+            OpenFileModified = false;
+            HasSaved = true;
+
         }
 
         private void MenuAbout_Click(object sender, EventArgs e)
@@ -1409,7 +2479,7 @@ namespace ThreeWorkTool
         }
 
         //Function to find root node.
-        private TreeNode FindRootNode(TreeNode treeNode)
+        public TreeNode FindRootNode(TreeNode treeNode)
         {
             while (treeNode.Parent != null)
             {
@@ -1454,7 +2524,7 @@ namespace ThreeWorkTool
 
             //Move Down.
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
-            conmenu.Items.Add(mditem);            
+            conmenu.Items.Add(mditem);
 
             return conmenu;
 
@@ -6305,13 +7375,18 @@ namespace ThreeWorkTool
                 FrmTxtEditor frmTxt = new FrmTxtEditor();
                 frmTxt.Mainfrm = this;
                 frmTxtEdit = frmTxt;
-
+                UseManifest = false;
                 InvalidImport = false;
 
                 HasSaved = false;
 
                 _MostRecentlyUsedList.Insert(0, FilePath);
                 FirstArcFileOpened = true;
+
+                //After this list is populated the Manifest Editor opens and loads the text.
+                FrmManifestEditor Maneditor = new FrmManifestEditor();
+                frmManiEditor = Maneditor;
+                Manifest = newArc.FileList;
 
                 //Writes to log file.
                 using (StreamWriter sw = new StreamWriter("Log.txt"))
@@ -6915,7 +7990,7 @@ namespace ThreeWorkTool
             var mruFilePath = Path.Combine(appDataPath, "MRU.txt");
             if (!Directory.Exists(mruFilePath) && !String.IsNullOrEmpty(txtBoxCurrentFile.Text))
             {
-                
+
                 //Checks Text File for lines matching incoming line and deletes duplicate.
                 List<string> FilePaths = _MostRecentlyUsedList.Distinct().ToList();
                 File.WriteAllLines(mruFilePath, FilePaths.ToArray());
@@ -7016,7 +8091,7 @@ namespace ThreeWorkTool
             int RecentFileCount = MenuRecentFiles.DropDownItems.Count;
             if (RecentFileCount > 2)
             {
-                for(int i = RecentFileCount; i > 2; i--)
+                for (int i = RecentFileCount; i > 2; i--)
                 {
                     MenuRecentFiles.DropDownItems.RemoveAt(i - 1);
                 }
@@ -7028,6 +8103,48 @@ namespace ThreeWorkTool
         private void pGrdMain_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
         {
             frename.Mainfrm.OpenFileModified = true;
+        }
+
+        //Scrounges up existing nodes to make a manifest list.
+        private void manifestToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //Checks if a file is open.
+            if (frename == null)
+            {
+                MessageBox.Show("You need an arc file open before you can create or edit a manifest.");
+                return;
+            }
+
+            //Starts building the list.
+
+            if (frename.Mainfrm.Manifest == null)
+            {
+                frename.Mainfrm.Manifest = new List<string>();
+
+            }
+
+            //After this list is populated the Manifest Editor opens and loads the text.
+            FrmManifestEditor Maneditor = new FrmManifestEditor();
+            frmManiEditor = Maneditor;
+            Maneditor.LoadText(frename.Mainfrm.Manifest, this);
+
+        }
+
+        private void useManifestToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            if (MenuUseManifest.Checked == false)
+            {
+                MenuUseManifest.Checked = true;
+                UseManifest = true;
+            }
+            else
+            {
+                MenuUseManifest.Checked = false;
+                UseManifest = false;
+            }
+
+
         }
     }
 }

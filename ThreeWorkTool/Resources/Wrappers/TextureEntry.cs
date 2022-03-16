@@ -495,7 +495,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         #region Weird Toon Shader Textures
                         case "27":
-                            teXentry._Format = "????/Problematic Portrait Picture";
+                            teXentry._Format = "LAB Color/Problematic Portrait Picture";
 
                             byte[] HeaderTwo27 = { 0x01, 0x27, 0x01, 0x01 };
                             TBuffer.AddRange(HeaderTwo27);
@@ -514,7 +514,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         #region Weirdo Problematic Portrait Textures
                         case "2A":
-                            teXentry._Format = "????/Problematic Portrait Picture";
+                            teXentry._Format = "LAB Color/Problematic Portrait Picture";
 
                             byte[] HeaderTwo2A = { 0x01, 0x2A, 0x01, 0x01 };
                             TBuffer.AddRange(HeaderTwo2A);
@@ -764,7 +764,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         #region Weird Toon Shader Textures
                         case "27":
-                            teXentry._Format = "????/Problematic Portrait Picture";
+                            teXentry._Format = "LAB Color/Problematic Portrait Picture";
 
                             byte[] HeaderTwo27 = { 0x01, 0x27, 0x01, 0x01 };
                             TBuffer.AddRange(HeaderTwo27);
@@ -783,7 +783,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         #region Weirdo Problematic Portrait Textures
                         case "2A":
-                            teXentry._Format = "????/Problematic Portrait Picture";
+                            teXentry._Format = "LAB Color/Problematic Portrait Picture";
 
                             byte[] HeaderTwo2A = { 0x01, 0x2A, 0x01, 0x01 };
                             TBuffer.AddRange(HeaderTwo2A);
@@ -1688,7 +1688,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 #region Weirdo Problematic Portrait Textures
                 case "2A":
 
-                    texentry._Format = "????/Problematic Portrait Picture";
+                    texentry._Format = "LAB Color/Problematic Portrait Picture";
 
                     //Gets the unsigned integers which hold data on the texture's dimensions.
                     brStream.BaseStream.Position = 4;
@@ -2503,7 +2503,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 #region Weird Toon Shader Textures
                 case "27":
-                    teXentry._Format = "????/Problematic Portrait Picture";
+                    teXentry._Format = "LAB Color/Problematic Portrait Picture";
 
                     //Gets the unsigned integers which hold data on the texture's dimensions.
                     bnr.BaseStream.Position = 4;
@@ -2673,7 +2673,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 #region Weirdo Problematic Portrait Textures
                 case "2A":
 
-                    teXentry._Format = "????/Problematic Portrait Picture";
+                    teXentry._Format = "LAB Color/Problematic Portrait Picture";
 
                     //Gets the unsigned integers which hold data on the texture's dimensions.
                     bnr.BaseStream.Position = 4;
@@ -3654,7 +3654,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 #region Weirdo Problematic Portrait Textures
                 case "2A":
 
-                    texentry._Format = "????/Problematic Portrait Picture";
+                    texentry._Format = "LAB Color/Problematic Portrait Picture";
 
                     //Gets the unsigned integers which hold data on the texture's dimensions.
                     bnr.BaseStream.Position = 4;
