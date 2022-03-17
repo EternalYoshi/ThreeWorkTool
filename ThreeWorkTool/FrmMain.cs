@@ -214,6 +214,9 @@ namespace ThreeWorkTool
                                 {
                                     using (BinaryWriter bwr = new BinaryWriter(File.OpenWrite(SFDialog.FileName)))
                                     {
+
+                                        TreeSource.Update();
+                                        
                                         //Header that has the magic, version number and entry count.
                                         byte[] ArcHeader = { 0x41, 0x52, 0x43, 0x00 };
                                         byte[] ArcVersion = { 0x07, 0x00 };
@@ -222,13 +225,21 @@ namespace ThreeWorkTool
 
                                         bwr.Seek(0x04, SeekOrigin.Begin);
                                         bwr.Write(ArcVersion, 0, ArcVersion.Length);
-                                        int nowcount = 0;
                                         string exportname = "";
                                         string HashType = "";
                                         int ComSize = 0;
                                         int DecSize = 0;
-                                        int DataEntryOffset = (nowcount * 80) + 352;
+                                        int DataEntryOffset = (Manifest.Count * 80) + 352;
+
                                         TreeNode treno = new TreeNode();
+
+                                        //Determines where to start the compressed data storage based on amount of entries.
+                                        //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
+                                        int dataoffsetMani = (Manifest.Count * 80) + 352;
+
+                                        byte[] EntryTotalManifest = BitConverter.GetBytes(Convert.ToInt16(Manifest.Count));
+
+                                        bwr.Write(EntryTotalManifest, 0, EntryTotalManifest.Length);
 
                                         //Gets the manifest to begin iteration.
                                         foreach (string str in Manifest)
@@ -254,25 +265,18 @@ namespace ThreeWorkTool
 
                                             ArcEntryWrapper AWrap = new ArcEntryWrapper();
 
-
-                                            //Determines where to start the compressed data storage based on amount of entries.
-                                            //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
-                                            int dataoffset = (nowcount * 80) + 352;
-
-                                            byte[] EntryTotal = BitConverter.GetBytes(Convert.ToInt16(nowcount));
-
-                                            bwr.Write(EntryTotal, 0, EntryTotal.Length);
-
-
-
                                             foreach (TreeNode tno in tna)
                                             {
                                                 AWrap = tno as ArcEntryWrapper;
-                                                //Checks nodes for file with same extension.
-                                                if (AWrap.FileExt == SearchTerms[SearchTerms.Length - 1])
+                                                if (tno.Tag as string == null)
                                                 {
-                                                    WriteBlockToArchive(bwr, tno, exportname, HashType, ComSize, DecSize, DataEntryOffset);
+                                                    //Checks nodes for file with same extension.
+                                                    if (AWrap.FileExt == SearchTerms[SearchTerms.Length - 1])
+                                                    {
+                                                        DataEntryOffset = WriteBlockToArchive(bwr, tno, exportname, HashType, ComSize, DecSize, DataEntryOffset);
+                                                    }
                                                 }
+
                                             }
 
 
@@ -314,24 +318,16 @@ namespace ThreeWorkTool
 
                                             ArcEntryWrapper AWrap = new ArcEntryWrapper();
 
-
-                                            //Determines where to start the compressed data storage based on amount of entries.
-                                            //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
-                                            int dataoffset = (nowcount * 80) + 352;
-
-                                            byte[] EntryTotal = BitConverter.GetBytes(Convert.ToInt16(nowcount));
-
-                                            bwr.Write(EntryTotal, 0, EntryTotal.Length);
-
-
-
                                             foreach (TreeNode tno in tna)
                                             {
                                                 AWrap = tno as ArcEntryWrapper;
                                                 //Checks nodes for file with same extension.
-                                                if (AWrap.FileExt == SearchTerms[SearchTerms.Length - 1])
+                                                if (tno.Tag as string == null)
                                                 {
-                                                    WriteCompressedDataToArchive(bwr, tno, exportname, HashType, ComSize, DecSize, dataoffset);
+                                                    if (AWrap.FileExt == SearchTerms[SearchTerms.Length - 1])
+                                                    {
+                                                        WriteCompressedDataToArchive(bwr, tno, exportname, HashType, ComSize, DecSize, dataoffsetMani);
+                                                    }
                                                 }
                                             }
 
@@ -349,6 +345,10 @@ namespace ThreeWorkTool
 
 
                                         }
+
+                                        bwr.Close();
+                                        OpenFileModified = false;
+                                        HasSaved = true;
 
                                     }
                                 }
@@ -1306,6 +1306,7 @@ namespace ThreeWorkTool
                                         }
 
                                         bwr.Close();
+                                        TreeSource.EndUpdate();
                                         OpenFileModified = false;
                                         HasSaved = true;
 
@@ -1330,6 +1331,7 @@ namespace ThreeWorkTool
                                     sw.WriteLine("Save failed!\n");
                                     sw.WriteLine("Exception info:" + ex);
                                     sw.WriteLine("===============================================================================================================");
+                                    TreeSource.EndUpdate();
                                 }
                                 return;
                             }
@@ -1347,6 +1349,7 @@ namespace ThreeWorkTool
                             sw.WriteLine("Save failed!\n");
                             sw.WriteLine("Exception info:" + Ex);
                             sw.WriteLine("===============================================================================================================");
+                            TreeSource.EndUpdate();
                         }
                         return;
                     }
@@ -1358,7 +1361,7 @@ namespace ThreeWorkTool
             }
         }
 
-        public void WriteBlockToArchive(BinaryWriter bwr, TreeNode treno, string exportname, string HashType, int ComSize, int DecSize, int DataEntryOffset)
+        public int WriteBlockToArchive(BinaryWriter bwr, TreeNode treno, string exportname, string HashType, int ComSize, int DecSize, int DataEntryOffset)
         {
 
             ArcEntry enty = new ArcEntry();
@@ -2156,7 +2159,6 @@ namespace ThreeWorkTool
                 Array.Reverse(DEOffed);
                 bwr.Write(DEOffed, 0, DEOffed.Length);
                 DataEntryOffset = DataEntryOffset + ComSize;
-
             }
 
 
@@ -2166,7 +2168,7 @@ namespace ThreeWorkTool
 
             else
             { }
-
+            return DataEntryOffset;
         }
 
         public void WriteCompressedDataToArchive(BinaryWriter bwr, TreeNode treno, string exportname, string HashType, int ComSize, int DecSize, int dataoffset)
@@ -2269,11 +2271,6 @@ namespace ThreeWorkTool
                 bwr.Write(CompData, 0, CompData.Length);
             }
             */
-
-
-            bwr.Close();
-            OpenFileModified = false;
-            HasSaved = true;
 
         }
 
