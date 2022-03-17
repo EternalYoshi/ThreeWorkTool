@@ -326,14 +326,28 @@ namespace ThreeWorkTool
 
                 }
             }
-            catch (Exception vi)
+            catch (Exception ex)
             {
-                MessageBox.Show("Either this file isn't a proper DDS file or I can't read it because it's in use by some other proccess.", "Hey.");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+
+                if (ex is IOException)
                 {
-                    sw.WriteLine("Texture reading from .DDS file failed. Here's details:\n" + vi);
+                    MessageBox.Show("Unable to import because another proccess is using it.");
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
+                    }
+                    return null;
                 }
-                return null;
+                else
+                {
+                    MessageBox.Show("The DDS file is either malinformed or is not the correct format/kind.");
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Cannot import: " + "\nbecause it's an invalid dds file.");
+                    }
+                    return null;
+                }
+
             }
 
             fted.Dialoginit = false;

@@ -1328,14 +1328,31 @@ namespace ThreeWorkTool
                             {
                                 Console.WriteLine("Exception caught in process: {0}", ex);
                                 //Writes to log file.
-                                using (StreamWriter sw = File.AppendText("Log.txt"))
+
+                                if (ex is IOException)
                                 {
-                                    sw.WriteLine("Save failed!\n");
-                                    sw.WriteLine("Exception info:" + ex);
-                                    sw.WriteLine("===============================================================================================================");
-                                    TreeSource.EndUpdate();
+                                    MessageBox.Show("The save failed because the chosen file is already in use by another proccess.");
+
+                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                    {
+                                        sw.WriteLine("Save failed!\n");
+                                        sw.WriteLine("Exception info:" + ex);
+                                        sw.WriteLine("===============================================================================================================");
+                                        TreeSource.EndUpdate();
+                                        return;
+                                    }
                                 }
-                                return;
+                                else
+                                {
+                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                    {
+                                        sw.WriteLine("Save failed!\n");
+                                        sw.WriteLine("Exception info:" + ex);
+                                        sw.WriteLine("===============================================================================================================");
+                                        TreeSource.EndUpdate();
+                                    }
+                                    return;
+                                }
                             }
 
                         }
@@ -2344,14 +2361,34 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
 
                 }
-                catch (UnauthorizedAccessException)
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Unable to access the file. Maybe it's already in use by something else?", "Oh no it's an error.");
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    if (ex is IOException)
                     {
-                        sw.WriteLine("Cannot access the file:" + "\nMight be in use by another proccess.");
+                        MessageBox.Show("Unable to access the file. It's already in use by something else...", "");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
+                        }
+                        return;
                     }
-                    return;
+                    else if (ex is UnauthorizedAccessException)
+                    {
+                        MessageBox.Show("Unable to access the file. Maybe it's in a directory you need admininstrative permissions to use?", "Oh no it's an error.");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot access the file:" + "\nMight be in a place you need admin privliges for.");
+                        }
+                        return;
+                    }
+                    else
+                    {
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Unknown exception trying to open:" + "\n");
+                        }
+                        return;
+                    }
                 }
 
             }
@@ -4042,6 +4079,7 @@ namespace ThreeWorkTool
             {
                 frename.Mainfrm.InvalidImport = false;
             }
+
             else
             {
                 //Writes to log file.
@@ -4145,61 +4183,91 @@ namespace ThreeWorkTool
                         case ".dds":
                         case ".DDS":
                             {
-                                //Creates and Spawns the Texture Encoder Dialog.
-                                FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(RPDialog.FileName, RPDialog);
-                                frmtexencode.IsReplacing = true;
-                                frmtexencode.ShowDialog();
-
-                                if (frmtexencode.DialogResult == DialogResult.OK)
+                                try
                                 {
-                                    ArcEntryWrapper NewWrapperDDS = new ArcEntryWrapper();
-                                    ArcEntryWrapper OldWrapperDDS = new ArcEntryWrapper();
-
-                                    OldWrapperDDS = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                                    string oldnameDDS = OldWrapperDDS.Name;
-                                    TextureEntry OldaentDDS = new TextureEntry();
-                                    TextureEntry NewaentDDS = new TextureEntry();
-                                    OldaentDDS = OldWrapperDDS.entryfile as TextureEntry;
-                                    string[] pathsDDS = OldaentDDS.EntryDirs;
-                                    NewWrapperDDS = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                                    int indexDDS = frename.Mainfrm.TreeSource.SelectedNode.Index;
-                                    NewWrapperDDS.Tag = TextureEntry.ReplaceTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS, RPDialog.FileName, frmtexencode, frmtexencode.TexData);
-                                    NewWrapperDDS.ContextMenuStrip = TextureContextAdder(NewWrapperDDS, frename.Mainfrm.TreeSource);
-                                    frename.Mainfrm.IconSetter(NewWrapperDDS, NewWrapperDDS.FileExt);
-                                    //Takes the path data from the old node and slaps it on the new node.
-                                    NewaentDDS = NewWrapperDDS.entryfile as TextureEntry;
-                                    NewaentDDS.EntryDirs = pathsDDS;
-                                    NewWrapperDDS.entryfile = NewaentDDS;
-
-                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-
-                                    //Pathing.
-                                    foreach (string Folder in pathsDDS)
+                                    //Creates and Spawns the Texture Encoder Dialog.
+                                    FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(RPDialog.FileName, RPDialog);
+                                    if (frmtexencode == null)
                                     {
-                                        if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        frmtexencode.IsReplacing = true;
+                                        frmtexencode.ShowDialog();
+
+                                        if (frmtexencode.DialogResult == DialogResult.OK)
                                         {
-                                            TreeNode folder = new TreeNode();
-                                            folder.Name = Folder;
-                                            folder.Tag = Folder;
-                                            folder.Text = Folder;
-                                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
-                                            frename.Mainfrm.TreeSource.SelectedNode = folder;
-                                            frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
-                                            frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                            ArcEntryWrapper NewWrapperDDS = new ArcEntryWrapper();
+                                            ArcEntryWrapper OldWrapperDDS = new ArcEntryWrapper();
+
+                                            OldWrapperDDS = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                            string oldnameDDS = OldWrapperDDS.Name;
+                                            TextureEntry OldaentDDS = new TextureEntry();
+                                            TextureEntry NewaentDDS = new TextureEntry();
+                                            OldaentDDS = OldWrapperDDS.entryfile as TextureEntry;
+                                            string[] pathsDDS = OldaentDDS.EntryDirs;
+                                            NewWrapperDDS = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                            int indexDDS = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                                            NewWrapperDDS.Tag = TextureEntry.ReplaceTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS, RPDialog.FileName, frmtexencode, frmtexencode.TexData);
+                                            NewWrapperDDS.ContextMenuStrip = TextureContextAdder(NewWrapperDDS, frename.Mainfrm.TreeSource);
+                                            frename.Mainfrm.IconSetter(NewWrapperDDS, NewWrapperDDS.FileExt);
+                                            //Takes the path data from the old node and slaps it on the new node.
+                                            NewaentDDS = NewWrapperDDS.entryfile as TextureEntry;
+                                            NewaentDDS.EntryDirs = pathsDDS;
+                                            NewWrapperDDS.entryfile = NewaentDDS;
+
+                                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                                            //Pathing.
+                                            foreach (string Folder in pathsDDS)
+                                            {
+                                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                                {
+                                                    TreeNode folder = new TreeNode();
+                                                    folder.Name = Folder;
+                                                    folder.Tag = Folder;
+                                                    folder.Text = Folder;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                                }
+                                                else
+                                                {
+                                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                                }
+                                            }
+
+                                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperDDS;
+
                                         }
-                                        else
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (ex is IOException)
+                                    {
+                                        MessageBox.Show("Unable to import because another proccess is using it.");
+                                        using (StreamWriter sw = File.AppendText("Log.txt"))
                                         {
-                                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                            sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
+                                        }
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("The DDS file is either malinformed or is not the correct format/kind.");
+                                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                                        {
+                                            sw.WriteLine("Cannot import: " + "\nbecause it's an invalid dds file.");
                                         }
                                     }
 
-                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperDDS;
-
-
                                 }
-
-
                                 break;
+
+
                             }
 
                         default:
