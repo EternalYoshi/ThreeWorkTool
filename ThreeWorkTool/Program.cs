@@ -13,14 +13,28 @@ namespace ThreeWorkTool
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
+
+            //Checks for arguments and opens arc file if valid.
+            //if (args.Length >= 1)
+            //{
+            //    string fileName = args[0];
+            //    //Check file exists
+            //    if (File.Exists(fileName))
+            //    {
+            //        //OpenFromStart(fileName);
+            //    }
+            //}
+            //else
+            //{
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             //Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.Run(new FrmMainThree());
+            //}
         }
 
         //Puts up an error message box, writes the exception to the log, and closes the program.

@@ -2394,6 +2394,12 @@ namespace ThreeWorkTool
             }
         }
 
+        //Open File from associated file upon startup part 2
+        private void OpenFromStart(string filename)
+        {
+
+        }
+
         //Function for unloading all the assets from the previously open file.
         private static void FlushAndClean()
         {

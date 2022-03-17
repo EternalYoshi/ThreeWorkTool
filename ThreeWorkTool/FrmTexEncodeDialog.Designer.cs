@@ -278,6 +278,12 @@
             this.btnInvertGreen.Text = "Invert Green Channel";
             this.btnInvertGreen.UseVisualStyleBackColor = true;
             this.btnInvertGreen.Click += new System.EventHandler(this.btnInvertGreen_Click);
+            this.btnInvertGreen.Visible = false;
+            this.btnInvertGreen.Enabled = false;
+#if DEBUG
+            this.btnInvertGreen.Visible = true;
+            this.btnInvertGreen.Enabled = true;
+#endif
             // 
             // btnRedAlphaSwap
             // 
@@ -288,6 +294,12 @@
             this.btnRedAlphaSwap.Text = "Red/Alpha Swap";
             this.btnRedAlphaSwap.UseVisualStyleBackColor = true;
             this.btnRedAlphaSwap.Click += new System.EventHandler(this.btnRedAlphaSwap_Click);
+            this.btnRedAlphaSwap.Visible = false;
+            this.btnRedAlphaSwap.Enabled = false;
+#if DEBUG
+            this.btnRedAlphaSwap.Visible = true;
+            this.btnRedAlphaSwap.Enabled = true;
+#endif
             // 
             // lblMoreOptions
             // 
@@ -297,6 +309,12 @@
             this.lblMoreOptions.Size = new System.Drawing.Size(74, 13);
             this.lblMoreOptions.TabIndex = 3;
             this.lblMoreOptions.Text = "Quick Options";
+            this.lblMoreOptions.Visible = false;
+            this.lblMoreOptions.Enabled = false;
+#if DEBUG
+            this.lblMoreOptions.Visible = true;
+            this.lblMoreOptions.Enabled = true;
+#endif
             // 
             // FrmTexEncodeDialog
             // 
