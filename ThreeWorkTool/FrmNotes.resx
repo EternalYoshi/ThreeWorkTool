@@ -161,10 +161,11 @@ The Line break denotations are there for a reason; don't remove them unless you 
 Textures(.tex), then Materials(.mrl), then Model files(.mod).
 
 - The Manifest Editor is an optional Editor allows you greater control of the ordering of files that will be saved. 
-Whenever you open the Editor a new Manifest file is created listing all the files existing in the nodes of the currently opened Arc file based on node order.
-You should probably only edit it after you are finished reordering/editing the nodes but before you save.
-Make sure that:
-Uou follow the syntax properly, as it is case sensitive. 
-All files listed in the Manifest file exist in the arc currently being edited before saving.</value>
+It's generated as the file opens to preserve the orgiinal file order.
+You are free to add and subtract, but make sure that anything you add exists. Otherwise the file will be skipped and NOT put in the arc file upon saving.
+
+- Refreshing Manifest will get all the existing files inside the arc, added and original, but the original order will be lost.
+
+- If you want to use the Manifest while saving, make sure that Use Manifest in the settings is checked. Otherwise it will just use the original save coding and save files in the order displayed on the TreeView.</value>
   </data>
 </root>

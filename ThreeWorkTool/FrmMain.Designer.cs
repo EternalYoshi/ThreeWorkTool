@@ -46,6 +46,7 @@
             this.MenuEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuUseManifest = new System.Windows.Forms.ToolStripMenuItem();
             this.manifestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuAbout = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,7 +61,6 @@
             this.pnlNew = new System.Windows.Forms.Panel();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
-            this.MenuUseManifest = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -203,14 +203,21 @@
             this.MenuSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuUseManifest});
             this.MenuSettings.Name = "MenuSettings";
-            this.MenuSettings.Size = new System.Drawing.Size(180, 22);
+            this.MenuSettings.Size = new System.Drawing.Size(120, 22);
             this.MenuSettings.Text = "Settings";
             this.MenuSettings.Click += new System.EventHandler(this.MenuSettings_Click);
+            // 
+            // MenuUseManifest
+            // 
+            this.MenuUseManifest.Name = "MenuUseManifest";
+            this.MenuUseManifest.Size = new System.Drawing.Size(142, 22);
+            this.MenuUseManifest.Text = "Use Manifest";
+            this.MenuUseManifest.Click += new System.EventHandler(this.useManifestToolStripMenuItem_Click);
             // 
             // manifestToolStripMenuItem
             // 
             this.manifestToolStripMenuItem.Name = "manifestToolStripMenuItem";
-            this.manifestToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.manifestToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
             this.manifestToolStripMenuItem.Text = "Manifest";
             this.manifestToolStripMenuItem.Click += new System.EventHandler(this.manifestToolStripMenuItem_Click);
             // 
@@ -226,14 +233,14 @@
             // MenuAbout
             // 
             this.MenuAbout.Name = "MenuAbout";
-            this.MenuAbout.Size = new System.Drawing.Size(180, 22);
+            this.MenuAbout.Size = new System.Drawing.Size(169, 22);
             this.MenuAbout.Text = "About";
             this.MenuAbout.Click += new System.EventHandler(this.MenuAbout_Click);
             // 
             // MenuNotesAndAdvice
             // 
             this.MenuNotesAndAdvice.Name = "MenuNotesAndAdvice";
-            this.MenuNotesAndAdvice.Size = new System.Drawing.Size(180, 22);
+            this.MenuNotesAndAdvice.Size = new System.Drawing.Size(169, 22);
             this.MenuNotesAndAdvice.Text = "Notes And Advice";
             this.MenuNotesAndAdvice.Click += new System.EventHandler(this.MenuNotesAndAdvice_Click);
             // 
@@ -396,13 +403,6 @@
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 
-            // MenuUseManifest
-            // 
-            this.MenuUseManifest.Name = "MenuUseManifest";
-            this.MenuUseManifest.Size = new System.Drawing.Size(180, 22);
-            this.MenuUseManifest.Text = "Use Manifest";
-            this.MenuUseManifest.Click += new System.EventHandler(this.useManifestToolStripMenuItem_Click);
-            // 
             // FrmMainThree
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -417,7 +417,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
-            this.Text = "ThreeWork Tool V0.4X";
+            this.Text = "ThreeWork Tool VAlmost 5.0";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
             this.Load += new System.EventHandler(this.FrmMainThree_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMainThree_KeyDown);
