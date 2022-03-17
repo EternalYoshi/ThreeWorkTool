@@ -212,11 +212,10 @@ namespace ThreeWorkTool
                                 //Falls back to old save coding if Manifest is not used.
                                 if (UseManifest == true)
                                 {
+
                                     using (BinaryWriter bwr = new BinaryWriter(File.OpenWrite(SFDialog.FileName)))
                                     {
 
-                                        TreeSource.Update();
-                                        
                                         //Header that has the magic, version number and entry count.
                                         byte[] ArcHeader = { 0x41, 0x52, 0x43, 0x00 };
                                         byte[] ArcVersion = { 0x07, 0x00 };
@@ -231,126 +230,129 @@ namespace ThreeWorkTool
                                         int DecSize = 0;
                                         int DataEntryOffset = (Manifest.Count * 80) + 352;
 
-                                        TreeNode treno = new TreeNode();
+                                        //Goes to top node to begin iteration.
+                                        TreeNode tn = FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                        frename.Mainfrm.TreeSource.SelectedNode = tn;
+
+                                        List<TreeNode> Nodes = new List<TreeNode>();
+                                        frename.Mainfrm.AddChildren(Nodes, frename.Mainfrm.TreeSource.SelectedNode);
 
                                         //Determines where to start the compressed data storage based on amount of entries.
                                         //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
-                                        int dataoffsetMani = (Manifest.Count * 80) + 352;
 
+                                        int dataoffset = (Manifest.Count * 80) + 352;
                                         byte[] EntryTotalManifest = BitConverter.GetBytes(Convert.ToInt16(Manifest.Count));
 
                                         bwr.Write(EntryTotalManifest, 0, EntryTotalManifest.Length);
 
-                                        //Gets the manifest to begin iteration.
+                                        //Uses the List to search for specific nodes via the Manifest file.
                                         foreach (string str in Manifest)
                                         {
-                                            string[] SearchTerms = str.Split(new string[] { "\\", ".", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                                            //Gets the paths of each entry, the filename, and the file extension as search terms.
+                                            string[] SearchTerms = str.Split(new string[] { ".", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-                                            //Starts from the top of the TreeNodes.
-                                            TreeNode tn = FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-                                            frename.Mainfrm.TreeSource.SelectedNode = tn;
-                                            TreeNode[] tna = new TreeNode[] { };
-                                            for (int i = 0; i < (SearchTerms.Length - 1); i++)
+                                            foreach (TreeNode tno in Nodes)
                                             {
-                                                TreeNodeCollection tnc = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
-                                                tna = tnc.Find(SearchTerms[i], false);
-                                                frename.Mainfrm.TreeSource.SelectedNode = tna[0];
-                                            }
+                                                //Gets the node as a ArcEntryWrapper to allow access to all the variables and data.
+                                                ArcEntryWrapper awrapper = tno as ArcEntryWrapper;
 
-                                            //TreeNodeCollection tcoll = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
-                                            //tna = tcoll.Find(SearchTerms[SearchTerms.Length - 1], false);
-                                            //frename.Mainfrm.TreeSource.SelectedNode = tna[0];
-
-                                            SearchTerms[SearchTerms.Length - 1] = "." + SearchTerms[SearchTerms.Length - 1];
-
-                                            ArcEntryWrapper AWrap = new ArcEntryWrapper();
-
-                                            foreach (TreeNode tno in tna)
-                                            {
-                                                AWrap = tno as ArcEntryWrapper;
-                                                if (tno.Tag as string == null)
+                                                if (awrapper != null)
                                                 {
-                                                    //Checks nodes for file with same extension.
-                                                    if (AWrap.FileExt == SearchTerms[SearchTerms.Length - 1])
+                                                    if (awrapper.Tag as string == null)
                                                     {
-                                                        DataEntryOffset = WriteBlockToArchive(bwr, tno, exportname, HashType, ComSize, DecSize, DataEntryOffset);
-                                                    }
-                                                }
+                                                        if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
+                                                        || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null)
+                                                        {
+                                                            {
+                                                                //Removes the archive name from the FullPath for a proper search.
+                                                                string FullPathSearch = awrapper.FullPath;
+                                                                int sindex = FullPathSearch.IndexOf("\\");
+                                                                FullPathSearch = FullPathSearch.Substring(sindex + 1);
 
-                                            }
+                                                                if (!SearchTerms[SearchTerms.Length - 1].Contains("."))
+                                                                {
+                                                                    //Adds the dot for the extension to search for.
+                                                                    SearchTerms[SearchTerms.Length - 1] = "." + SearchTerms[SearchTerms.Length - 1];
+                                                                }
 
+                                                                //Looks for matching path.
+                                                                if (FullPathSearch == SearchTerms[0])
+                                                                {
+                                                                    if (awrapper.FileExt == SearchTerms[1])
+                                                                    {
+                                                                        DataEntryOffset = WriteBlockToArchive(bwr, tno, exportname, HashType, ComSize, DecSize, DataEntryOffset);
+                                                                    }
 
+                                                                }
+                                                            }
 
-                                            if (tna[0] == null)
-                                            {
-                                                MessageBox.Show("I cannot find\n" + str + "\n Either check to see if the file exists or edit the manifests to fix any possible errors.", "FILE NOT FOUND!");
-                                                return;
-                                            }
-                                            else
-                                            {
+                                                        }
 
-                                            }
-
-
-                                        }
-
-                                        //Goes through the manifest yet again.
-                                        foreach (string str in Manifest)
-                                        {
-                                            string[] SearchTerms = str.Split(new string[] { "\\", ".", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
-                                            //Starts from the top of the TreeNodes.
-                                            TreeNode tn = FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-                                            frename.Mainfrm.TreeSource.SelectedNode = tn;
-                                            TreeNode[] tna = new TreeNode[] { };
-                                            for (int i = 0; i < (SearchTerms.Length - 1); i++)
-                                            {
-                                                TreeNodeCollection tnc = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
-                                                tna = tnc.Find(SearchTerms[i], false);
-                                                frename.Mainfrm.TreeSource.SelectedNode = tna[0];
-                                            }
-
-                                            //TreeNodeCollection tcoll = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
-                                            //tna = tcoll.Find(SearchTerms[SearchTerms.Length - 1], false);
-                                            //frename.Mainfrm.TreeSource.SelectedNode = tna[0];
-
-                                            SearchTerms[SearchTerms.Length - 1] = "." + SearchTerms[SearchTerms.Length - 1];
-
-                                            ArcEntryWrapper AWrap = new ArcEntryWrapper();
-
-                                            foreach (TreeNode tno in tna)
-                                            {
-                                                AWrap = tno as ArcEntryWrapper;
-                                                //Checks nodes for file with same extension.
-                                                if (tno.Tag as string == null)
-                                                {
-                                                    if (AWrap.FileExt == SearchTerms[SearchTerms.Length - 1])
-                                                    {
-                                                        WriteCompressedDataToArchive(bwr, tno, exportname, HashType, ComSize, DecSize, dataoffsetMani);
                                                     }
                                                 }
                                             }
+                                        }
 
+                                        bwr.BaseStream.Position = 0;
+                                        long CPos = bwr.Seek(dataoffset, SeekOrigin.Current);
 
+                                        foreach (string str in Manifest)
+                                        {
+                                            //Gets the paths of each entry, the filename, and the file extension as search terms.
+                                            string[] SearchTerms = str.Split(new string[] { ".", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-                                            if (tna[0] == null)
+                                            foreach (TreeNode tno in Nodes)
                                             {
-                                                MessageBox.Show("I cannot find\n" + str + "\n Either check to see if the file exists or edit the manifests to fix any possible errors.", "FILE NOT FOUND!");
-                                                return;
-                                            }
-                                            else
-                                            {
+                                                //Gets the node as a ArcEntryWrapper to allow access to all the variables and data.
+                                                ArcEntryWrapper awrapper = tno as ArcEntryWrapper;
+                                                if (awrapper != null)
+                                                {
+                                                    if (awrapper.Tag as string == null)
+                                                    {
+                                                        if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
+                                                        || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null)
+                                                        {
+                                                            //Removes the archive name from the FullPath for a proper search.
+                                                            string FullPathSearch = awrapper.FullPath;
+                                                            int sindex = FullPathSearch.IndexOf("\\");
+                                                            FullPathSearch = FullPathSearch.Substring(sindex + 1);
 
-                                            }
+                                                            if (!SearchTerms[SearchTerms.Length - 1].Contains("."))
+                                                            {
+                                                                //Adds the dot for the extension to search for.
+                                                                SearchTerms[SearchTerms.Length - 1] = "." + SearchTerms[SearchTerms.Length - 1];
+                                                            }
 
+                                                            //Looks for matching path.
+                                                            if (FullPathSearch == SearchTerms[0])
+                                                            {
+                                                                if (awrapper.FileExt == SearchTerms[1])
+                                                                {
+                                                                    WriteCompressedDataToArchive(bwr, tno, exportname, HashType, ComSize, DecSize, DataEntryOffset);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
 
                                         }
+
 
                                         bwr.Close();
+                                        TreeSource.EndUpdate();
                                         OpenFileModified = false;
                                         HasSaved = true;
 
+                                        //Writes to log file.
+                                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                                        {
+                                            sw.WriteLine("Successfully Saved: " + SFDialog.FileName);
+                                            sw.WriteLine("===============================================================================================================");
+                                        }
+
                                     }
+
                                 }
                                 else
                                 {
@@ -2173,11 +2175,6 @@ namespace ThreeWorkTool
 
         public void WriteCompressedDataToArchive(BinaryWriter bwr, TreeNode treno, string exportname, string HashType, int ComSize, int DecSize, int dataoffset)
         {
-
-            //This part goes to where the data offset begins, inserts the compressed data, and fills the in between areas with zeroes.
-            bwr.BaseStream.Position = 0;
-            long CPos = bwr.Seek(dataoffset, SeekOrigin.Current);
-
 
             ArcEntry enty = new ArcEntry();
             TextureEntry tenty = new TextureEntry();
