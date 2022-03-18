@@ -4939,12 +4939,16 @@ namespace ThreeWorkTool
 
                         //Creates and Spawns the Texture Encoder Dialog.
                         FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(IMPDialog.FileName, IMPDialog);
+
+                        if(frmtexencode == null) return;
+
                         frmtexencode.IsReplacing = false;
 
                         frmtexencode.ShowDialog();
 
                         if (frmtexencode.DialogResult == DialogResult.OK)
                         {
+                             
                             frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperDDS = new ArcEntryWrapper();
                             TextureEntry DDSentry = new TextureEntry();
@@ -5005,6 +5009,8 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeDDS;
+
+
 
                         }
 
