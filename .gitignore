@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 archive_filetypes - Copy.cfg
+ThreeWorkTool/archive_filetypes.cfg
