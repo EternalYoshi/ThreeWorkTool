@@ -218,6 +218,11 @@ namespace ThreeWorkTool.Resources.Archives
 
                     entrytobuild.EntryName = path + "\\" + entrytobuild.TrueName;
 
+                    //Enters name related parameters of the entrytobuild. Meant to preserve the orignal filename.
+                    entrytobuild.TrueName = entrytoreplace.TrueName;
+                    entrytobuild.FileExt = entrytoreplace.FileExt;
+                    entrytobuild.EntryName = entrytoreplace.EntryName;
+
                     tag = entrytobuild;
 
                     if (node.Tag is DefaultWrapper)
@@ -422,11 +427,15 @@ namespace ThreeWorkTool.Resources.Archives
                 trname = trname.Substring(trname.IndexOf("\\") + 1);
             }
 
+
+
+            //Code that replaces the name with the new node's name.
+            
             //Enters name related parameters of the entrytobuild.
             entrytobuild.TrueName = trname;
             entrytobuild.TrueName = Path.GetFileNameWithoutExtension(trname);
             entrytobuild.FileExt = trname.Substring(trname.LastIndexOf("."));
-
+            
             string TypeHash = "";
 
             //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
@@ -473,6 +482,11 @@ namespace ThreeWorkTool.Resources.Archives
             }
 
             entrytobuild.EntryName = path + "\\" + entrytobuild.TrueName;
+
+            //Enters name related parameters of the entrytobuild. Meant to preserve the orignal filename.
+            entrytobuild.TrueName = entrytoreplace.TrueName;
+            entrytobuild.FileExt = entrytoreplace.FileExt;
+            entrytobuild.EntryName = entrytoreplace.EntryName;
 
             tag = entrytobuild;
 

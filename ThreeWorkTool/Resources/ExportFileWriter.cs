@@ -301,6 +301,9 @@ namespace ThreeWorkTool.Resources
             try
             {
 
+                //Prepares the Keyframes.
+                entrytowrite = LMTM3AEntry.PrepareTheKeyframes(entrytowrite);
+
                 //Time to start getting the data from the M3A Entry. For Testing Purposes.
                 using (StreamWriter sw = new StreamWriter(File.Open(filename, FileMode.Create)))
                 {

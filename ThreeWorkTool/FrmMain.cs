@@ -3306,6 +3306,7 @@ namespace ThreeWorkTool
                                 }
                             }
 
+
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
                             //Removes the old child nodes.

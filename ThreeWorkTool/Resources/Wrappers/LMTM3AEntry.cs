@@ -279,11 +279,12 @@ namespace ThreeWorkTool.Resources.Wrappers
                 }
                 
                 else
-                {
+                {                   
+                 
                     //IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
                     //M3a.KeyFrames.AddRange(Key.ToList());
                 }
-                
+
                 bnr.BaseStream.Position = PrevOffset;
                 M3a.Tracks.Add(track);
 
@@ -744,7 +745,19 @@ namespace ThreeWorkTool.Resources.Wrappers
             return node.entryfile as LMTM3AEntry;
         }
 
+        public static LMTM3AEntry PrepareTheKeyframes(LMTM3AEntry M3a)
+        {
 
+            M3a.KeyFrames = new List<KeyFrame>();
+
+            foreach(Track track in M3a.Tracks)
+            {
+                IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
+                M3a.KeyFrames.AddRange(Key.ToList());
+            }
+
+            return M3a;
+        }
 
         #region M3AEntry Properties
 
