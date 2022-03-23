@@ -341,9 +341,7 @@ namespace ThreeWorkTool.Resources
                 return;
             }
         }
-
-        
-
+       
         #region New Entries
         //New Entries Go like this!
         /*

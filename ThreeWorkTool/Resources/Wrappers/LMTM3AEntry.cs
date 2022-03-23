@@ -27,7 +27,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         [YamlIgnore] public int TrackCount;
         [YamlIgnore] public int TrackPointer;
         [YamlIgnore] public int EventClassesPointer;
-        [YamlIgnore] public int LoopFrame;
+        public int LoopFrame;
         [YamlIgnore] public string UnknownValue14;
         [YamlIgnore] public string UnknownValue18;
         [YamlIgnore] public string UnknownValue1C;
@@ -757,6 +757,23 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
 
             return M3a;
+        }
+
+        public static LMTM3AEntry FromKeyframesTOM3A(LMTM3AEntry M3a, string filename)
+        {
+
+            LMTM3AEntry NewM3a = new LMTM3AEntry();
+
+
+                var deserializer = new DeserializerBuilder()
+                  .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                  .Build();
+               deserializer.Deserialize<LMTM3AEntry>(filename);
+
+            //NewM3a.FrameCount = deserializer.Deserialize<LMTM3AEntry>(filename);
+
+            return NewM3a;
+
         }
 
         #region M3AEntry Properties

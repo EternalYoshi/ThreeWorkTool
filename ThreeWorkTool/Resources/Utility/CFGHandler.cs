@@ -8,6 +8,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Numerics;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace ThreeWorkTool.Resources.Utility
 {
@@ -43,7 +44,8 @@ namespace ThreeWorkTool.Resources.Utility
                 MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing this file.", "Oh Boy");
                 using (StreamWriter sw = File.AppendText("Log.txt"))
                 {
-                    sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.");
+                    sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.");
+                    Process.GetCurrentProcess().Kill();
                 }
                 return null;
             }

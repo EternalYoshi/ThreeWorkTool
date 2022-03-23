@@ -2324,7 +2324,14 @@ namespace ThreeWorkTool
 
         private void MenuAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("ThreeWork Tool Beta version 0.5\n2021, 2022 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and making the original scripts that inspired this program.", "About", MessageBoxButtons.OK);
+
+            using (FrmAbout frmAbout = new FrmAbout())
+            {
+                frmAbout.ShowDialog();
+            }
+            /*MessageBox.Show("ThreeWork Tool Beta version 0.5\n2021, 2022 By Eternal Yoshi\nThanks to TGE for the Hashtable and smb123w64gb\nfor help and " +
+                "making the original scripts that inspired this program.\nCheck for Updates on this program's Github:\n", "About", MessageBoxButtons.OK, 
+                MessageBoxIcon.Information, MessageBoxDefaultButton.Button2, 0, "https://github.com/EternalYoshi/ThreeWorkTool", "Github");*/
         }
 
         private void MenuClose_Click(object sender, EventArgs e)
@@ -2427,7 +2434,7 @@ namespace ThreeWorkTool
 
             }
         }
-
+         
         //Open File from associated file upon startup part 2
         private void OpenFromStart(string filename)
         {
@@ -3525,38 +3532,67 @@ namespace ThreeWorkTool
 
                 if (RPDialog.ShowDialog() == DialogResult.OK)
                 {
-                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
-
-                    frename.Mainfrm.TreeSource.BeginUpdate();
-
-                    switch (helper)
+                    string firsthelper = Path.GetExtension(RPDialog.FileName);
+                    
+                    switch (firsthelper)
                     {
-                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
-                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
-                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+                        case ".yml":
 
-                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                            string oldname = OldWrapper.Name;
-                            LMTM3AEntry Oldaent = new LMTM3AEntry();
-                            LMTM3AEntry Newaent = new LMTM3AEntry();
-                            Oldaent = OldWrapper.entryfile as LMTM3AEntry;
-                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
-                            NewWrapper.Tag = LMTM3AEntry.ReplaceLMTM3AEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.FileExt = ".m3a";
-                            if (NewWrapper.Tag == null)
-                            {
-                                frename.Mainfrm.InvalidImport = true;
-                            }
-                            else
-                            {
-                                NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
-                                frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
-                                //Takes the path data from the old node and slaps it on the new node.
-                                Newaent = NewWrapper.entryfile as LMTM3AEntry;
-                                NewWrapper.entryfile = Newaent;
+                            frename.Mainfrm.TreeSource.BeginUpdate();
 
-                                frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            LMTM3AEntry NewYMLEnt = new LMTM3AEntry();
+                            LMTM3AEntry.FromKeyframesTOM3A(NewYMLEnt, RPDialog.FileName);
+
+
+
+
+
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            break;
+
+                        case ".m3a":
+
+                            string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+
+                            switch (helper)
+                            {
+                                case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                                    ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                                    ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                                    OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                    string oldname = OldWrapper.Name;
+                                    LMTM3AEntry Oldaent = new LMTM3AEntry();
+                                    LMTM3AEntry Newaent = new LMTM3AEntry();
+                                    Oldaent = OldWrapper.entryfile as LMTM3AEntry;
+                                    NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                    int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                                    NewWrapper.Tag = LMTM3AEntry.ReplaceLMTM3AEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                                    NewWrapper.FileExt = ".m3a";
+                                    if (NewWrapper.Tag == null)
+                                    {
+                                        frename.Mainfrm.InvalidImport = true;
+                                    }
+                                    else
+                                    {
+                                        NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                        frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                                        //Takes the path data from the old node and slaps it on the new node.
+                                        Newaent = NewWrapper.entryfile as LMTM3AEntry;
+                                        NewWrapper.entryfile = Newaent;
+
+                                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                                    }
+
+
+                                    break;
+
+                                default:
+                                    break;
                             }
 
 
@@ -3564,7 +3600,11 @@ namespace ThreeWorkTool
 
                         default:
                             break;
+
+
+
                     }
+
 
                     //Checks for valid import. If the import is blank then the following commands are aborted and nothing happens to the LMT or the original M3A entry.
                     if (frename.Mainfrm.InvalidImport == true)
@@ -6781,6 +6821,13 @@ namespace ThreeWorkTool
 
         }
 
+        private static void ImportYML(Object sender, System.EventArgs e)
+        {
+
+
+
+        }
+
         private static void MoveNodeUp(Object sender, System.EventArgs e)
         {
 
@@ -8086,7 +8133,6 @@ namespace ThreeWorkTool
                 PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
             }
         }
-
 
         #endregion
 

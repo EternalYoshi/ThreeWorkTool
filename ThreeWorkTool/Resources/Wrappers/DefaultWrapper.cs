@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -129,11 +130,12 @@ namespace ThreeWorkTool.Resources.Archives
             }
             catch (FileNotFoundException)
             {
-                MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.","",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 using (StreamWriter sw = File.AppendText("Log.txt"))
                 {
                     sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                 }
+                Process.GetCurrentProcess().Kill();
             }
 
             //Decompression Time.
@@ -193,11 +195,12 @@ namespace ThreeWorkTool.Resources.Archives
                     }
                     catch (FileNotFoundException)
                     {
-                        MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                        MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         using (StreamWriter sw = File.AppendText("Log.txt"))
                         {
                             sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                         }
+                        Process.GetCurrentProcess().Kill();
                         return;
                     }
 
@@ -323,11 +326,12 @@ namespace ThreeWorkTool.Resources.Archives
                     }
                     catch (FileNotFoundException)
                     {
-                        MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                        MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         using (StreamWriter sw = File.AppendText("Log.txt"))
                         {
                             sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                         }
+                        Process.GetCurrentProcess().Kill();
                     }
 
 
@@ -395,11 +399,12 @@ namespace ThreeWorkTool.Resources.Archives
             }
             catch (FileNotFoundException)
             {
-                MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 using (StreamWriter sw = File.AppendText("Log.txt"))
                 {
                     sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                 }
+                Process.GetCurrentProcess().Kill();
             }
 
 
@@ -460,11 +465,12 @@ namespace ThreeWorkTool.Resources.Archives
             }
             catch (FileNotFoundException)
             {
-                MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
+                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 using (StreamWriter sw = File.AppendText("Log.txt"))
                 {
                     sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                 }
+                Process.GetCurrentProcess().Kill();
                 return;
             }
 

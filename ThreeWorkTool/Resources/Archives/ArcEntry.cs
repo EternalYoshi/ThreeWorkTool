@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -96,8 +97,8 @@ namespace ThreeWorkTool.Resources.Archives
             }
             catch (FileNotFoundException)
             {
-                MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-
+                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program."," ",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                Process.GetCurrentProcess().Kill();
             }
 
             return TypeHash;
