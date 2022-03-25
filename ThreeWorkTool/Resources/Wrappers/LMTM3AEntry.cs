@@ -22,12 +22,12 @@ namespace ThreeWorkTool.Resources.Wrappers
         [YamlIgnore] public int AnimationID;
         public int version = 1;
         [YamlIgnore] public string FileName;
-        [YamlMember(Alias = "Name")] public string ShortName;
-        public int FrameCount;
+        [YamlMember(Alias = "Name", ApplyNamingConventions = false)] public string ShortName;
+        [YamlMember(ApplyNamingConventions = false)] public int FrameCount;
         [YamlIgnore] public int TrackCount;
         [YamlIgnore] public int TrackPointer;
         [YamlIgnore] public int EventClassesPointer;
-        public int LoopFrame;
+        [YamlMember(ApplyNamingConventions = false)] public int LoopFrame;
         [YamlIgnore] public string UnknownValue14;
         [YamlIgnore] public string UnknownValue18;
         [YamlIgnore] public string UnknownValue1C;
@@ -75,14 +75,14 @@ namespace ThreeWorkTool.Resources.Wrappers
             [YamlIgnore] public float[] ExtremesArray;
         }
 
-        public List<KeyFrame> KeyFrames;
+        [YamlMember(ApplyNamingConventions = false)] public List<KeyFrame> KeyFrames;
         
         public class KeyFrame
         {
-            public Vector4 data;
-            public int frame;
-            public int BoneID;
-            public string KeyType;
+            [YamlMember(ApplyNamingConventions = false)] public Vector4 data;
+            [YamlMember(ApplyNamingConventions = false)] public int frame;
+            [YamlMember(ApplyNamingConventions = false)] public int BoneID;
+            [YamlMember(ApplyNamingConventions = false)] public string KeyType;
         }
         
 
@@ -759,20 +759,34 @@ namespace ThreeWorkTool.Resources.Wrappers
             return M3a;
         }
 
-        public static LMTM3AEntry FromKeyframesTOM3A(LMTM3AEntry M3a, string filename)
+        public static LMTM3AEntry ParseM3AYMLPart1(LMTM3AEntry M3a, string filename, LMTM3AEntry OLdM3a)
+        {
+
+            LMTM3AEntry NewM3a = new LMTM3AEntry();
+
+            using (var input = File.OpenText(filename))
+            {
+                var deserializer = new DeserializerBuilder().WithTagMapping("!LMTM3AEntry", typeof(ThreeWorkTool.Resources.Wrappers.LMTM3AEntry)).Build();
+                NewM3a = deserializer.Deserialize<LMTM3AEntry>(input);
+            }
+
+            foreach (KeyFrame Key in NewM3a.KeyFrames)
+            {
+
+            }
+
+            return NewM3a;
+
+        }
+
+        public static void TestFromKeyframesToM3A(LMTM3AEntry M3a)
         {
 
             LMTM3AEntry NewM3a = new LMTM3AEntry();
 
 
-                var deserializer = new DeserializerBuilder()
-                  .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                  .Build();
-               deserializer.Deserialize<LMTM3AEntry>(filename);
 
-            //NewM3a.FrameCount = deserializer.Deserialize<LMTM3AEntry>(filename);
 
-            return NewM3a;
 
         }
 

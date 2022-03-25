@@ -3541,7 +3541,7 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.BeginUpdate();
 
                             LMTM3AEntry NewYMLEnt = new LMTM3AEntry();
-                            LMTM3AEntry.FromKeyframesTOM3A(NewYMLEnt, RPDialog.FileName);
+                            NewYMLEnt = LMTM3AEntry.ParseM3AYMLPart1(NewYMLEnt, RPDialog.FileName, LMotTEntry);
 
 
 
