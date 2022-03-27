@@ -27,9 +27,9 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                ExceptionCatchAll(ex);
                 return;
             }
         }
@@ -46,9 +46,9 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                ExceptionCatchAll(ex);
                 return;
             }
         }
@@ -65,9 +65,9 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                ExceptionCatchAll(ex);
                 return;
             }
         }
@@ -84,9 +84,9 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                ExceptionCatchAll(ex);
                 return;
             }
         }
@@ -103,9 +103,9 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                ExceptionCatchAll(ex);
                 return;
             }
         }
@@ -124,9 +124,9 @@ namespace ThreeWorkTool.Resources
                     }
 
                 }
-                catch (UnauthorizedAccessException)
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                    ExceptionCatchAll(ex);
                     return;
                 }
 
@@ -193,9 +193,9 @@ namespace ThreeWorkTool.Resources
                         }
                     }
                 }
-                catch (UnauthorizedAccessException)
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                    ExceptionCatchAll(ex);
                     return;
                 }
             }
@@ -213,9 +213,9 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                ExceptionCatchAll(ex);
                 return;
             }
         }
@@ -232,9 +232,9 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                ExceptionCatchAll(ex);
                 return;
             }
         }
@@ -251,9 +251,9 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                ExceptionCatchAll(ex);
                 return;
             }
         }
@@ -270,9 +270,9 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                ExceptionCatchAll(ex);
                 return;
             }
         }
@@ -289,9 +289,9 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                ExceptionCatchAll(ex);
                 return;
             }
         }
@@ -316,9 +316,9 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                ExceptionCatchAll(ex);
                 return;
             }
         }
@@ -334,14 +334,41 @@ namespace ThreeWorkTool.Resources
                     bw.Close();
                 }
 
-            }                                
-            catch (UnauthorizedAccessException)
+            }
+            catch (Exception ex)
+            {
+                ExceptionCatchAll(ex);
+                return;
+            }
+        }
+
+        public static void ExceptionCatchAll(Exception ex)
+        {
+            if (ex is UnauthorizedAccessException)
             {
                 MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
                 return;
             }
+            else if (ex is IOException)
+            {
+                MessageBox.Show("The export failed because the chosen file is already in use by another proccess.");
+
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Export failed!\n");
+                    sw.WriteLine("Exception info:" + ex);
+                    sw.WriteLine("===============================================================================================================");
+                    return;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                return;
+            }
+
         }
-       
+
         #region New Entries
         //New Entries Go like this!
         /*

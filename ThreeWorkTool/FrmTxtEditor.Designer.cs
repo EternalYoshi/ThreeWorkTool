@@ -84,9 +84,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FrmTxtEditor";
-            this.ShowInTaskbar = false;
             this.Text = "MSD Editor";
-            this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmTxtEditor_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FrmTxtEditor_FormClosed);
             this.TextChanged += new System.EventHandler(this.FrmTxtEditor_TextChanged);

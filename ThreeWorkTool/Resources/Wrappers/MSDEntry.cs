@@ -117,11 +117,11 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
             get
             {
-                return _EntryTotal;
+                return EntryCount;
             }
             set
             {
-                _EntryTotal = value;
+                EntryCount = value;
             }
         }
 
@@ -293,7 +293,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     }
                     else
                     {
-                        HexTemp = STemp[j].ToString();
+                        HexTemp = " " + STemp[j].ToString();
                         try
                         {
                             using (var sr = new StreamReader("MSDTable.cfg"))
@@ -303,7 +303,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                                     var keyword = Console.ReadLine() ?? HexTemp;
                                     var line = sr.ReadLine();
                                     if (String.IsNullOrEmpty(line)) continue;
-                                    if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                    if (line.IndexOf(keyword, StringComparison.CurrentCulture) >= 0)
                                     {
                                         HexTemp = line;
                                         HexTemp = HexTemp.Split(' ')[0];
@@ -321,7 +321,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                                 sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                             }
                         }
-                        if (HexTemp == "") HexTemp = "0000";
+                        if (HexTemp == ""|| HexTemp == " " || HexTemp == "  ") HexTemp = "0000";
                         HTemp[0] = (byte)Int16.Parse(HexTemp.Substring(2,2), System.Globalization.NumberStyles.HexNumber);
                         HTemp[1] = (byte)Int16.Parse(HexTemp.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
                         newMSDData.AddRange(HTemp);
@@ -339,12 +339,12 @@ namespace ThreeWorkTool.Resources.Wrappers
                 byte[] TerTemp = {0xFF, 0xFF};
                 newMSDData.AddRange(TerTemp);
 
-                msde.UncompressedData = newMSDData.ToArray();
-                msde.UncompressedData = Zlibber.Compressor(msde.CompressedData);
-
-
             }
 
+            msde.UncompressedData = newMSDData.ToArray();
+            msde.CompressedData = Zlibber.Compressor(msde.UncompressedData);
+
+            msde.EntryCount = lineCount;
 
             return msde;
 
@@ -464,6 +464,13 @@ namespace ThreeWorkTool.Resources.Wrappers
             return node.entryfile as MSDEntry;
         }
 
+        public static string SwitchCaser(string str)
+        {
+
+
+
+            return str;
+        }
 
     }
 }

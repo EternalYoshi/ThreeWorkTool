@@ -8551,7 +8551,7 @@ namespace ThreeWorkTool
             MSDEntry msdupdated = frename.Mainfrm.TreeSource.SelectedNode.Tag as MSDEntry;
             if (msdupdated != null)
             {
-                MSDEntry.UpdateMSDFromTexEditorForm(textBox, msdupdated);
+                frename.Mainfrm.TreeSource.SelectedNode.Tag = MSDEntry.UpdateMSDFromTexEditorForm(textBox, msdupdated);
             }
         }
 
