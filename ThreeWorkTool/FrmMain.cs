@@ -245,7 +245,7 @@ namespace ThreeWorkTool
                                         List<string> ManifestText = new List<string>();
                                         if (Manifest.Count == 1)
                                         {
-                                            ManifestText = Manifest[0].Split(new string[] { "\n", "\r\n" ,System.Environment.NewLine }, StringSplitOptions.None).ToList();
+                                            ManifestText = Manifest[0].Split(new string[] { "\n", "\r\n", System.Environment.NewLine }, StringSplitOptions.None).ToList();
                                             ManifestText = ManifestText.Where(x => !string.IsNullOrEmpty(x)).ToList();
                                         }
                                         else
@@ -2366,7 +2366,155 @@ namespace ThreeWorkTool
             {
                 FlushAndClean();
             }
+
         }
+
+        private void MenuNewArchive_Click(object sender, EventArgs e)
+        {
+            //First we close the currently open file.
+            if (OpenFileModified == true)
+            {
+                DialogResult dlrs = MessageBox.Show("Want to save your changes to this file?", "Closing", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
+                if (dlrs == DialogResult.Yes)
+                {
+                    MenuSaveAs_Click(sender, e);
+                    picBoxA.Visible = false;
+                    if (frename == null)
+                    {
+                    }
+                    else
+                    {
+                        frename.Mainfrm.TreeSource.Nodes.Clear();
+                        frename.Mainfrm.TreeSource.SelectedNode = null;
+                        frename.Mainfrm.OpenFileModified = false;
+                        frename.Mainfrm.OFilename = null;
+                        frename.Mainfrm.FilePath = null;
+                        frename.Mainfrm.OFilename = null;
+                        frename.Mainfrm.txtBoxCurrentFile.Text = null;
+                        frename.Mainfrm.pGrdMain.SelectedObject = null;
+                        frename.Mainfrm.picBoxA.Image = null;
+                        frename.Mainfrm.Controls.Clear();
+                        frename.Mainfrm.InitializeComponent();
+                    }                    
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Closed the Arc file.");
+                    }
+                }
+                if (dlrs == DialogResult.No)
+                {
+                    picBoxA.Visible = false;
+                    if (frename == null)
+                    {
+                    }
+                    else
+                    {
+                        frename.Mainfrm.TreeSource.Nodes.Clear();
+                        frename.Mainfrm.TreeSource.SelectedNode = null;
+                        frename.Mainfrm.OpenFileModified = false;
+                        frename.Mainfrm.OFilename = null;
+                        frename.Mainfrm.FilePath = null;
+                        frename.Mainfrm.OFilename = null;
+                        frename.Mainfrm.txtBoxCurrentFile.Text = null;
+                        frename.Mainfrm.pGrdMain.SelectedObject = null;
+                        frename.Mainfrm.picBoxA.Image = null;
+                        frename.Mainfrm.Controls.Clear();
+                        frename.Mainfrm.InitializeComponent();
+                    }
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Closed the Arc file.");
+                    }
+                }
+                if (dlrs == DialogResult.Cancel)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                if (frename == null)
+                {
+                }
+                else
+                {
+                    frename.Mainfrm.TreeSource.Nodes.Clear();
+                    frename.Mainfrm.TreeSource.SelectedNode = null;
+                    frename.Mainfrm.OpenFileModified = false;
+                    frename.Mainfrm.OFilename = null;
+                    frename.Mainfrm.FilePath = null;
+                    frename.Mainfrm.OFilename = null;
+                    frename.Mainfrm.txtBoxCurrentFile.Text = null;
+                    frename.Mainfrm.pGrdMain.SelectedObject = null;
+                    frename.Mainfrm.picBoxA.Image = null;
+                    frename.Mainfrm.Controls.Clear();
+                    frename.Mainfrm.InitializeComponent();
+                }
+                //Writes to log file.
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Closed the Arc file.");
+                }
+            }
+
+            //Then we make a blank Arc file.
+            isFinishRPLRead = false;
+            //TreeSource.Update();
+            CExt = Path.GetExtension(".arc");
+            txtBoxCurrentFile.Text = "NewArc";
+
+            ArcFile arcfile = new ArcFile();
+            arcfile.FileCount = 0;
+            arcfile.arctable = new List<ArcEntry>();
+            arcfile.arcfiles = new List<object>();
+            arcfile.FileList = new List<string>();
+            arcfile.TypeHashes = new List<string>();
+            byte[] HeaderThing = { 0x41, 0x52, 0x43, 0x00 };
+            arcfile.HeaderMagic = HeaderThing;
+            arcfile.Version = 7;
+            arcfile.Tempname = "NewArc";
+
+            NCount = 0;
+
+            //Handles Tree Node stuff.
+            TreeFill(arcfile.Tempname, NCount, arcfile);
+            TreeSource.SelectedNode.ImageIndex = 1;
+            TreeSource.SelectedNode.SelectedImageIndex = 1;
+
+            TreeSource.archivefile = arcfile;
+
+            //Fills in Arc Data and selects it on the grid.
+            pGrdMain.SelectedObject = arcfile;
+
+
+            FrmRename frn = new FrmRename();
+            frn.Mainfrm = this;
+            frename = frn;
+
+            FrmTxtEditor frmTxt = new FrmTxtEditor();
+            frmTxt.Mainfrm = this;
+            frmTxtEdit = frmTxt;
+            UseManifest = false;
+            InvalidImport = false;
+
+            HasSaved = false;
+
+            _MostRecentlyUsedList.Insert(0, FilePath);
+            FirstArcFileOpened = true;
+
+            //After this list is populated the Manifest Editor opens and loads the text.
+            FrmManifestEditor Maneditor = new FrmManifestEditor();
+            frmManiEditor = Maneditor;
+            Manifest = arcfile.FileList;
+
+            TreeSource.EndUpdate();
+            TreeSource.Visible = true;
+            OFDialog.FileName = "NewArc.arc";
+        }
+
 
         //Open File Code is here now.
         private void OpenAFile(object sender, EventArgs e)
@@ -2434,7 +2582,7 @@ namespace ThreeWorkTool
 
             }
         }
-         
+
         //Open File from associated file upon startup part 2
         private void OpenFromStart(string filename)
         {
@@ -3368,7 +3516,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = MSDEntry.ReplaceMSD(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = MSDContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as MSDEntry;
@@ -3378,8 +3526,8 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
 
                             //Reloads the replaced file data in the text box.
-                            frename.Mainfrm.txtRPList = MSDEntry.LoadMSDInTextBox(frename.Mainfrm.txtRPList, Newaent);
-                            frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+                            //frename.Mainfrm.txtRPList = MSDEntry.LoadMSDInTextBox(frename.Mainfrm.txtRPList, Newaent);
+                            //frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
 
                             //Pathing.
                             foreach (string Folder in paths)
@@ -3533,7 +3681,7 @@ namespace ThreeWorkTool
                 if (RPDialog.ShowDialog() == DialogResult.OK)
                 {
                     string firsthelper = Path.GetExtension(RPDialog.FileName);
-                    
+
                     switch (firsthelper)
                     {
                         case ".yml":
@@ -6906,6 +7054,7 @@ namespace ThreeWorkTool
 
             frename.Mainfrm.TreeSource.SelectedNode = folder;
 
+            frename.Mainfrm.TreeSource.EndUpdate();
         }
 
         private void TreeFill(string D, int E, ArcFile archivearc)
@@ -7194,8 +7343,8 @@ namespace ThreeWorkTool
                     var msdrootNode = FindRootNode(msdchild);
 
                     TreeSource.SelectedNode = msdchild;
-                    TreeSource.SelectedNode.ImageIndex = 17;
-                    TreeSource.SelectedNode.SelectedImageIndex = 17;
+                    TreeSource.SelectedNode.ImageIndex = 13;
+                    TreeSource.SelectedNode.SelectedImageIndex = 13;
 
 
                     msdchild.ContextMenuStrip = MSDContextAdder(msdchild, TreeSource);
@@ -8016,6 +8165,11 @@ namespace ThreeWorkTool
             {
                 wrapper.ImageIndex = 18;
                 wrapper.SelectedImageIndex = 18;
+            }
+            else if (extension == ".msd")
+            {
+                wrapper.ImageIndex = 13;
+                wrapper.SelectedImageIndex = 13;
             }
             else
             {
@@ -9153,5 +9307,6 @@ namespace ThreeWorkTool
 
 
         }
+
     }
 }

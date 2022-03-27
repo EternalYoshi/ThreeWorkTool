@@ -61,6 +61,7 @@
             this.pnlNew = new System.Windows.Forms.Panel();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
+            this.MenuNewArchive = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -105,6 +106,8 @@
             // 
             // MenuNew
             // 
+            this.MenuNew.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MenuNewArchive});
             this.MenuNew.Name = "MenuNew";
             this.MenuNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
             this.MenuNew.Size = new System.Drawing.Size(186, 22);
@@ -403,6 +406,13 @@
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 
+            // MenuNewArchive
+            // 
+            this.MenuNewArchive.Name = "MenuNewArchive";
+            this.MenuNewArchive.Size = new System.Drawing.Size(180, 22);
+            this.MenuNewArchive.Text = "Archive";
+            this.MenuNewArchive.Click += new System.EventHandler(this.MenuNewArchive_Click);
+            // 
             // FrmMainThree
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -472,6 +482,7 @@
         private System.Windows.Forms.ToolStripMenuItem emptyListToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem manifestToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem MenuUseManifest;
+        private System.Windows.Forms.ToolStripMenuItem MenuNewArchive;
     }
 }
 

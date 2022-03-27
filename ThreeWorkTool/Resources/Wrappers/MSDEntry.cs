@@ -73,11 +73,11 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             get
             {
-                return _FileName;
+                return TrueName;
             }
             set
             {
-                _FileName = value;
+                TrueName = value;
             }
         }
 
@@ -88,11 +88,11 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             get
             {
-                return _FileType;
+                return FileExt;
             }
             set
             {
-                _FileType = value;
+                FileExt = value;
             }
         }
 
