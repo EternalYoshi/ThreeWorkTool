@@ -2515,7 +2515,6 @@ namespace ThreeWorkTool
             OFDialog.FileName = "NewArc.arc";
         }
 
-
         //Open File Code is here now.
         private void OpenAFile(object sender, EventArgs e)
         {

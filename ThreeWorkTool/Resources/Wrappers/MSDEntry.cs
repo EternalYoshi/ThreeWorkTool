@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -46,7 +47,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             //Specific file type work goes here!
 
             //Gets the Magic.
-            MSEntry.Magic = BitConverter.ToString(MSEntry.UncompressedData, 0,4).Replace("-", string.Empty);
+            MSEntry.Magic = BitConverter.ToString(MSEntry.UncompressedData, 0, 4).Replace("-", string.Empty);
             using (MemoryStream mstream = new MemoryStream(MSEntry.UncompressedData))
             {
                 using (BinaryReader bnr = new BinaryReader(mstream))
@@ -170,71 +171,113 @@ namespace ThreeWorkTool.Resources.Wrappers
                     msde.EntryList = new List<MessageEntries>();
                     StringBuilder SBuild = new StringBuilder();
                     msde.TextBackup = new List<string>(msde.EntryCount);
-                    //Encoding ShouldBeShiftJIS = Encoding.GetEncoding(932);
-                    //string Atr = "";
-                    //string AtrB = "";
+                    MessageEntries me = new MessageEntries();
                     byte[] TestArray = new byte[2];
-                    int BPTest = 0;
                     int ITChar = 0;
+                    string TChar = "";
 
                     while (bnr.BaseStream.Position < bnr.BaseStream.Length)
                     {
-                        MessageEntries me = new MessageEntries();
-                        me.MSLength = bnr.ReadInt16();
                         SBuild.Clear();
+                        me.MSLength = bnr.ReadInt32();
 
                         for (int i = 0; i < me.MSLength; i++)
                         {
-                            BPTest = Convert.ToInt32(bnr.BaseStream.Position);
                             ITChar = bnr.ReadInt16();
-                            string TChar;
-                            if (ITChar == -2)
-                            {
-                                TChar = "[line break]";
-                            }
-                            else
-                            {
-                                TChar = ITChar.ToString("X4");
+                            TChar = ITChar.ToString("X4");
 
-                                try
+                            try
+                            {
+                                using (var sr = new StreamReader("MSDTable.cfg"))
                                 {
-                                    using (var sr = new StreamReader("MSDTable.cfg"))
+                                    while (!sr.EndOfStream)
                                     {
-                                        while (!sr.EndOfStream)
+                                        var keyword = Console.ReadLine() ?? TChar;
+                                        var line = sr.ReadLine();
+                                        if (String.IsNullOrEmpty(line)) continue;
+                                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
                                         {
-                                            var keyword = Console.ReadLine() ?? TChar;
-                                            var line = sr.ReadLine();
-                                            if (String.IsNullOrEmpty(line)) continue;
-                                            if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
-                                            {
-                                                TChar = line;
-                                                TChar = TChar.Split(' ')[1];
-                                                break;
-                                            }
+                                            TChar = line;
+                                            TChar = TChar.Split(' ')[1];
+                                            break;
                                         }
                                     }
+                                }
 
-                                }
-                                catch (FileNotFoundException)
-                                {
-                                    MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                                    using (StreamWriter sw = File.AppendText("Log.txt"))
-                                    {
-                                        sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
-                                    }
-                                }
-                                if (TChar == "") TChar = " ";
                             }
+                            catch (FileNotFoundException)
+                            {
+                                MessageBox.Show("I cannot find MSDTable.cfg and cannot continue.\n Restart with this file in the same directory as the exe file itself.", "Oh Boy");
+                                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                {
+                                    sw.WriteLine("Cannot find MSDTable.cfg so I cannot load the MSD file.");
+                                }
+                                Process.GetCurrentProcess().Kill();
+                            }
+
+                            //For Irregular cases.
+                            switch (TChar)
+                            {
+
+                                case "FFFFFF01":
+                                    TChar = "[*1DPAD*]";
+                                    break;
+
+                                case "FFFFFF05":
+                                    TChar = "[*5LTRIG*]";
+                                    break;
+
+                                case "FFFFFF06":
+                                    TChar = "[*6BUMPERL*]";
+                                    break;
+
+                                case "FFFFFF09":
+                                    TChar = "[*9ABTN*]";
+                                    break;
+
+                                case "FFFFFF0A":
+                                    TChar = "[*AYBTN*]";
+                                    break;
+
+                                case "FFFFFF0B":
+                                    TChar = "[*BXBTN*]";
+                                    break;
+
+                                case "FFFFFF0C":
+                                    TChar = "[*CBBTN*]";
+                                    break;
+
+                                case "FFFFFF0D":
+                                    TChar = "[*DRTRIG*]";
+                                    break;
+
+                                case "FFFFFF0E":
+                                    TChar = "[*ERBUMPER*]";
+                                    break;
+
+                                case "FFFFFFFE":
+                                    TChar = "[*line break*]";
+                                    break;
+
+                                case "FFFFFFFF":
+                                    TChar = "";
+                                    break;
+
+                                case "":
+                                    TChar = " ";
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
                             SBuild.Append(TChar);
+
                         }
+
                         me.contents = SBuild.ToString();
                         msde.TextBackup.Add((me.contents));
                         texbox.Text = texbox.Text + me.contents + "\n";
-                        short termchar = bnr.ReadInt16();
-                        if (termchar != -1)
-                        {
-
-                        }
 
                         msde.EntryList.Add(me);
 
@@ -243,9 +286,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
 
             return texbox;
-
-
-
 
         }
 
@@ -257,14 +297,15 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //Builds a new MSD File to replace the uncompressed and compressed data variables.
             List<byte> newMSDData = new List<byte>();
-            byte[] MSDTemp = new byte[4] {0x4D,0x53,0x44,0x00};
+            List<byte> TempMSDData = new List<byte>();
+            byte[] MSDTemp = new byte[4] { 0x4D, 0x53, 0x44, 0x00 };
             newMSDData.AddRange(MSDTemp);
             MSDTemp = BitConverter.GetBytes(lineCount);
             newMSDData.AddRange(MSDTemp);
 
             string STemp = "";
             string HexTemp = "";
-            byte ByTemp;
+            byte[] ByTemp = new byte[4];
             byte[] WTemp = new byte[4];
             byte[] HTemp = new byte[2];
             int LTemp;
@@ -276,20 +317,85 @@ namespace ThreeWorkTool.Resources.Wrappers
                 //Gets the line.
                 STemp = texbox.Lines[i];
                 LTemp = texbox.Lines[i].Length;
-                ByTemp = Convert.ToByte(LTemp);
-                newMSDData.Add(ByTemp);
-                newMSDData.Add(0x00);
+                ByTemp = BitConverter.GetBytes(LTemp);
+                TempMSDData.Clear();
 
                 //Iterates through each character in the line and does its thing.
 
                 for (int j = 0; j < STemp.Length; j++)
                 {
                     //This if statement is to check for line breaks in the middle of entries and if so, puts in the appropriate text and skips ahead to the next character.
-                    if (STemp[j] == 91 && STemp[j+1] == 108)
+                    if (STemp[j] == 91 && STemp[j + 1] == 42)
                     {
-                        newMSDData.Add(0xFE);
-                        newMSDData.Add(0xFF);
-                        j = j + 12;
+                        //Switch Case Time for Special Characters.
+                        switch(STemp[j + 2])
+                        {
+
+                            case 'l':
+                                TempMSDData.Add(0xFE);
+                                TempMSDData.Add(0xFF);
+                                j = j + 13;
+                                break;
+
+                            case '1':
+                                TempMSDData.Add(0x01);
+                                TempMSDData.Add(0xFF);
+                                j = j + 8;
+                                break;
+
+                            case '5':
+                                TempMSDData.Add(0x05);
+                                TempMSDData.Add(0xFF);
+                                j = j + 9;
+                                break;
+
+                            case '6':
+                                TempMSDData.Add(0x06);
+                                TempMSDData.Add(0xFF);
+                                j = j + 11;
+                                break;
+
+                            case '9':
+                                TempMSDData.Add(0x09);
+                                TempMSDData.Add(0xFF);
+                                j = j + 8;
+                                break;
+
+                            case 'A':
+                                TempMSDData.Add(0x0A);
+                                TempMSDData.Add(0xFF);
+                                j = j + 8;
+                                break;
+
+                            case 'B':
+                                TempMSDData.Add(0x0B);
+                                TempMSDData.Add(0xFF);
+                                j = j + 8;
+                                break;
+
+                            case 'C':
+                                TempMSDData.Add(0x0C);
+                                TempMSDData.Add(0xFF);
+                                j = j + 8;
+                                break;
+
+                            case 'D':
+                                TempMSDData.Add(0x0D);
+                                TempMSDData.Add(0xFF);
+                                j = j + 9;
+                                break;
+
+                            case 'E':
+                                TempMSDData.Add(0x0E);
+                                TempMSDData.Add(0xFF);
+                                j = j + 11;
+                                break;
+
+                            default:
+                                break;
+
+                        }
+
                     }
                     else
                     {
@@ -321,22 +427,23 @@ namespace ThreeWorkTool.Resources.Wrappers
                                 sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                             }
                         }
-                        if (HexTemp == ""|| HexTemp == " " || HexTemp == "  ") HexTemp = "0000";
-                        HTemp[0] = (byte)Int16.Parse(HexTemp.Substring(2,2), System.Globalization.NumberStyles.HexNumber);
+                        if (HexTemp == "" || HexTemp == " " || HexTemp == "  ") HexTemp = "0000";
+                        HTemp[0] = (byte)Int16.Parse(HexTemp.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
                         HTemp[1] = (byte)Int16.Parse(HexTemp.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
-                        newMSDData.AddRange(HTemp);
-
-                        /*
-                        HexTemp = (Convert.ToByte(STemp[j]) - 32).ToString("X2");
-                        ByTemp = Convert.ToByte(HexTemp, 16);
-                        newMSDData.Add(ByTemp);
-                        newMSDData.Add(0x00);
-                        */
+                        TempMSDData.AddRange(HTemp);
 
                     }
                 }
 
-                byte[] TerTemp = {0xFF, 0xFF};
+                //Gets the Character Count by getting the Byte Count of the Raw MSD Data, and dividing it by 2.
+                int CharCount = (TempMSDData.Count/2) + 1;
+                ByTemp = BitConverter.GetBytes(CharCount);
+
+
+                newMSDData.AddRange(ByTemp);
+                newMSDData.AddRange(TempMSDData);
+
+                byte[] TerTemp = { 0xFF, 0xFF };
                 newMSDData.AddRange(TerTemp);
 
             }
@@ -358,7 +465,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
                 {
-                    InsertKnownEntry(tree, node, filename, msdentry,bnr);
+                    InsertKnownEntry(tree, node, filename, msdentry, bnr);
 
                     //Gets the Magic.
                     msdentry.Magic = BitConverter.ToString(msdentry.UncompressedData, 0, 4).Replace("-", string.Empty);
@@ -394,7 +501,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             tree.BeginUpdate();
 
-            ReplaceKnownEntry(tree,node,filename,MSDNentry,MSDoldentry);
+            ReplaceKnownEntry(tree, node, filename, MSDNentry, MSDoldentry);
 
             //Gets the Magic.
             MSDNentry.Magic = BitConverter.ToString(MSDNentry.UncompressedData, 0, 4).Replace("-", string.Empty);
