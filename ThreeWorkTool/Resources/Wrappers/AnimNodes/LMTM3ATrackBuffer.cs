@@ -70,6 +70,9 @@ class BufferConversor
             KeyType = KeyKind
         };
     }
+
+
+
 }
 /*
 public class KeyFrame
@@ -183,4 +186,8 @@ class LMTM3ATrackBuffer
 
         //yield return new KeyFrame();
     }
+
+
+
+
 }

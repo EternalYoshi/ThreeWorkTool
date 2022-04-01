@@ -7984,7 +7984,9 @@ namespace ThreeWorkTool
                 ContextMenuStrip conmenu = new ContextMenuStrip();
                 conmenu.Items.Add("Export", null, MenuExportFile_Click);
                 conmenu.Items.Add("Replace", null, MenuReplaceFile_Click);
-                conmenu.Items.Add("Extract KeyFrames(Beta)", null, ExtractKeyFrames_Click);
+
+                //Dummied Out until next release.
+                //conmenu.Items.Add("Extract KeyFrames(Beta)", null, ExtractKeyFrames_Click);
 
                 lma3.ContextMenuStrip = conmenu;
 

@@ -300,6 +300,7 @@
     <Content Include="Images\Rpl.png" />
     <Content Include="Images\SHT.png" />
     <Content Include="Images\Tex.png" />
+    <Content Include="Images\Three.png" />
     <Content Include="Images\Unknown.png" />
     <Content Include="ThreeWorkIconTest.ico" />
   </ItemGroup>
