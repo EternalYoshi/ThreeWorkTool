@@ -13,6 +13,28 @@ Thanks to TGE and smb123w64gb for assistance and giving me the resources that ma
 By Eternal Yoshi
 
 Current Changelog:
+
+V5.0
+
+ANIMATION IMPORTING IS NOT READY YET, BUT MANY THINGS HAVE BEEN FIXED/CHANGE ENOUGH TO WARRANT ONE MORE UPDATE.
+
+- A few more M3a parameters are labeled and documented.
+- Fixed an issue with replacing M3a files resulting in parameters not being properly updated.
+- Transparent Texture Backgrounds are now Checkered Board a la Photoshop, no more Magneta.
+- Has support for Manifests for file organization when saving files.
+- Can now add folders to arc files and other folders.
+- Added .mis Mission file support.
+- Rewrote .MSD Reading and Writing and make proper .MSD files & small updates to definitions in MSDTable.cfg.
+- Now has implemented Recently Used Files list.
+- Can now make UMVC3 Compatible .arc files from scratch.
+- Labelled LAB Color format textures.
+- Upgraded Import Multiple Textures to Import Multiple Items Into Folder.
+- Fixed an issue resulting in arc files with srqr files failing to save.
+- Upgraded About Form to include direct link to project's Github to show users where to check for updates.
+- Small improvements to error checking and logging. This also means:
+- Fixed unhandled exception when replacing & importing textures with malinformed or unsupported .DDS file.
+- Fixed unhandled exception when attempting to save over an arc file or export and replace a file in use by another process. 
+
 V4.0
 - Fixed an issue resulting in Cube Maps crashing on Export/Export All. Can only export them as raw .tex files.
 - Fixed an issue that happens when replacing Normal Maps.
