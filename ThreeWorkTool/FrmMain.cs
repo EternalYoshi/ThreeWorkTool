@@ -98,7 +98,6 @@ namespace ThreeWorkTool
         //Import Into Folder Dialogue.
         OpenFileDialog IMPDialog = new OpenFileDialog();
 
-
         #region Menu Stuffs
 
         public static bool OpenDX(string path)
@@ -7115,9 +7114,9 @@ namespace ThreeWorkTool
             //Adds a folder.
             frename.Mainfrm.TreeSource.BeginUpdate();
             TreeNode folder = new TreeNode();
-            folder.Name = "New Folder";
+            folder.Name = "NewFolder";
             folder.Tag = "Folder";
-            folder.Text = "New Folder";
+            folder.Text = "NewFolder";
             folder.ContextMenuStrip = FolderContextAdder(folder, frename.Mainfrm.TreeSource);
             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
             frename.Mainfrm.TreeSource.SelectedNode = folder;
