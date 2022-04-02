@@ -3242,7 +3242,12 @@ namespace ThreeWorkTool
                             ArcEntry Oldaent = new ArcEntry();
                             ArcEntry Newaent = new ArcEntry();
                             Oldaent = OldWrapper.entryfile as ArcEntry;
-                            string[] paths = Oldaent.EntryDirs;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ArcEntry.ReplaceArcEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
@@ -3326,7 +3331,12 @@ namespace ThreeWorkTool
                             ResourcePathListEntry Oldaent = new ResourcePathListEntry();
                             ResourcePathListEntry Newaent = new ResourcePathListEntry();
                             Oldaent = OldWrapper.entryfile as ResourcePathListEntry;
-                            string[] paths = Oldaent.EntryDirs;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ResourcePathListEntry.ReplaceRPL(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
@@ -3415,7 +3425,12 @@ namespace ThreeWorkTool
                             MaterialEntry Oldaent = new MaterialEntry();
                             MaterialEntry Newaent = new MaterialEntry();
                             Oldaent = OldWrapper.entryfile as MaterialEntry;
-                            string[] paths = Oldaent.EntryDirs;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = MaterialEntry.ReplaceMat(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
@@ -3511,7 +3526,12 @@ namespace ThreeWorkTool
                             MSDEntry Oldaent = new MSDEntry();
                             MSDEntry Newaent = new MSDEntry();
                             Oldaent = OldWrapper.entryfile as MSDEntry;
-                            string[] paths = Oldaent.EntryDirs;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = MSDEntry.ReplaceMSD(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
@@ -3600,7 +3620,12 @@ namespace ThreeWorkTool
                             LMTEntry Oldaent = new LMTEntry();
                             LMTEntry Newaent = new LMTEntry();
                             Oldaent = OldWrapper.entryfile as LMTEntry;
-                            string[] paths = Oldaent.EntryDirs;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = LMTEntry.ReplaceLMTEntry(frename.Mainfrm.TreeSource, NewWrapper, OldWrapper, RPDialog.FileName);
@@ -3822,7 +3847,12 @@ namespace ThreeWorkTool
                             ChainListEntry Oldaent = new ChainListEntry();
                             ChainListEntry Newaent = new ChainListEntry();
                             Oldaent = OldWrapper.entryfile as ChainListEntry;
-                            string[] paths = Oldaent.EntryDirs;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ChainListEntry.ReplaceCST(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
@@ -3910,7 +3940,12 @@ namespace ThreeWorkTool
                             ChainEntry Oldaent = new ChainEntry();
                             ChainEntry Newaent = new ChainEntry();
                             Oldaent = OldWrapper.entryfile as ChainEntry;
-                            string[] paths = Oldaent.EntryDirs;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ChainEntry.ReplaceChainEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
@@ -3993,7 +4028,12 @@ namespace ThreeWorkTool
                             ChainCollisionEntry Oldaent = new ChainCollisionEntry();
                             ChainCollisionEntry Newaent = new ChainCollisionEntry();
                             Oldaent = OldWrapper.entryfile as ChainCollisionEntry;
-                            string[] paths = Oldaent.EntryDirs;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ChainCollisionEntry.ReplaceChainCollEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
@@ -4076,7 +4116,12 @@ namespace ThreeWorkTool
                             ModelEntry Oldaent = new ModelEntry();
                             ModelEntry Newaent = new ModelEntry();
                             Oldaent = OldWrapper.entryfile as ModelEntry;
-                            string[] paths = Oldaent.EntryDirs;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ModelEntry.ReplaceModelEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
@@ -4159,7 +4204,13 @@ namespace ThreeWorkTool
                             MissionEntry Oldaent = new MissionEntry();
                             MissionEntry Newaent = new MissionEntry();
                             Oldaent = OldWrapper.entryfile as MissionEntry;
-                            string[] paths = Oldaent.EntryDirs;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = MissionEntry.ReplaceMIS(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
@@ -4242,7 +4293,13 @@ namespace ThreeWorkTool
                             ArcEntry Oldaent = new ArcEntry();
                             ArcEntry Newaent = new ArcEntry();
                             Oldaent = OldWrapper.entryfile as ArcEntry;
-                            string[] paths = Oldaent.EntryDirs;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ArcEntry.ReplaceArcEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
@@ -4352,7 +4409,14 @@ namespace ThreeWorkTool
                             TextureEntry Oldaent = new TextureEntry();
                             TextureEntry Newaent = new TextureEntry();
                             Oldaent = OldWrapper.entryfile as TextureEntry;
-                            string[] paths = Oldaent.EntryDirs;
+
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = TextureEntry.ReplaceTextureEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
@@ -4434,7 +4498,16 @@ namespace ThreeWorkTool
                                             TextureEntry OldaentDDS = new TextureEntry();
                                             TextureEntry NewaentDDS = new TextureEntry();
                                             OldaentDDS = OldWrapperDDS.entryfile as TextureEntry;
-                                            string[] pathsDDS = OldaentDDS.EntryDirs;
+
+
+                                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                                            List<string> pathsDDS = new List<string>();
+                                            string tempDDS = OldWrapperDDS.FullPath;
+                                            tempDDS = tempDDS.Substring(tempDDS.IndexOf(("\\")) + 1);
+                                            tempDDS = tempDDS.Substring(0, tempDDS.LastIndexOf(("\\")));
+
+                                            pathsDDS = tempDDS.Split('\\').ToList();
+
                                             NewWrapperDDS = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                                             int indexDDS = frename.Mainfrm.TreeSource.SelectedNode.Index;
                                             NewWrapperDDS.Tag = TextureEntry.ReplaceTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS, RPDialog.FileName, frmtexencode, frmtexencode.TexData);
@@ -4442,7 +4515,7 @@ namespace ThreeWorkTool
                                             frename.Mainfrm.IconSetter(NewWrapperDDS, NewWrapperDDS.FileExt);
                                             //Takes the path data from the old node and slaps it on the new node.
                                             NewaentDDS = NewWrapperDDS.entryfile as TextureEntry;
-                                            NewaentDDS.EntryDirs = pathsDDS;
+                                            NewaentDDS.EntryDirs = pathsDDS.ToArray();
                                             NewWrapperDDS.entryfile = NewaentDDS;
 
                                             frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);

@@ -517,5 +517,19 @@ namespace ThreeWorkTool.Resources.Archives
 
         }
 
+        public static void UpdateForRenamedFolder(TreeView tree, ArcEntryWrapper node, string filename, DefaultWrapper entrytoupdate)
+        {
+
+            //Ensures existing subdirectories are cleared so the directories for files are displayed correctly.
+            List<string> subnames = new List<string>();
+
+
+
+
+
+
+
+        }
+
     }
 }
