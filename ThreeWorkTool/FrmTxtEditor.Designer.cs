@@ -32,6 +32,8 @@
             this.txtFind = new System.Windows.Forms.TextBox();
             this.btnFind = new System.Windows.Forms.Button();
             this.lblFind = new System.Windows.Forms.Label();
+            this.btnLineJump = new System.Windows.Forms.Button();
+            this.txtLineNumber = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // txtMSDBox
@@ -70,12 +72,33 @@
             this.lblFind.Size = new System.Drawing.Size(0, 13);
             this.lblFind.TabIndex = 3;
             // 
+            // btnLineJump
+            // 
+            this.btnLineJump.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLineJump.Location = new System.Drawing.Point(730, 2);
+            this.btnLineJump.Name = "btnLineJump";
+            this.btnLineJump.Size = new System.Drawing.Size(94, 23);
+            this.btnLineJump.TabIndex = 5;
+            this.btnLineJump.Text = "Jump To Line";
+            this.btnLineJump.UseVisualStyleBackColor = true;
+            this.btnLineJump.Click += new System.EventHandler(this.btnLineJump_Click);
+            // 
+            // txtLineNumber
+            // 
+            this.txtLineNumber.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtLineNumber.Location = new System.Drawing.Point(667, 3);
+            this.txtLineNumber.Name = "txtLineNumber";
+            this.txtLineNumber.Size = new System.Drawing.Size(57, 20);
+            this.txtLineNumber.TabIndex = 4;
+            // 
             // FrmTxtEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.ClientSize = new System.Drawing.Size(836, 602);
+            this.Controls.Add(this.txtLineNumber);
+            this.Controls.Add(this.btnLineJump);
             this.Controls.Add(this.lblFind);
             this.Controls.Add(this.btnFind);
             this.Controls.Add(this.txtFind);
@@ -99,5 +122,7 @@
         private System.Windows.Forms.TextBox txtFind;
         private System.Windows.Forms.Button btnFind;
         private System.Windows.Forms.Label lblFind;
+        private System.Windows.Forms.Button btnLineJump;
+        private System.Windows.Forms.TextBox txtLineNumber;
     }
 }

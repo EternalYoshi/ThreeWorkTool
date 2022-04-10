@@ -75,5 +75,36 @@ namespace ThreeWorkTool
             }
 
         }
+
+        private void btnLineJump_Click(object sender, EventArgs e)
+        {
+
+            var isNumeric = int.TryParse(txtLineNumber.Text, out int LineToJump);
+
+            //If the inputted text is numeric, scrolls to that line number.
+            if (isNumeric == true)
+            {
+
+                if (LineToJump > txtMSDBox.Lines.Count())
+                {
+                    lblFind.Text = "There are not that many lines here.";
+                }
+                else
+                {
+
+                    int index = this.txtMSDBox.GetFirstCharIndexFromLine(LineToJump);
+                    this.txtMSDBox.Select(index, 0);
+                    this.txtMSDBox.ScrollToCaret();
+
+                }
+
+            }
+            else
+            {
+                lblFind.Text = "That is not a valid number. Enter a valid line number to jump to.";
+
+            }
+
+        }
     }
 }
