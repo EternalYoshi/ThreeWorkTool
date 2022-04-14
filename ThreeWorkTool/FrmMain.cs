@@ -2552,7 +2552,7 @@ namespace ThreeWorkTool
                 {
                     if (ex is IOException)
                     {
-                        MessageBox.Show("Unable to access the file. It's already in use by something else...", "");
+                        MessageBox.Show("Unable to read the file properly...\n "+ ex, "");
                         using (StreamWriter sw = File.AppendText("Log.txt"))
                         {
                             sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");

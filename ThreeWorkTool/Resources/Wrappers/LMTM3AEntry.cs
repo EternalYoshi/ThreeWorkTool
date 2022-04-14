@@ -199,202 +199,213 @@ namespace ThreeWorkTool.Resources.Wrappers
             M3a.MotionData = bnr.ReadBytes(96);
             bnr.BaseStream.Position = PrevOffsetThree;
 
-            //Gets the Tracks.
-            M3a.Tracks = new List<Track>();
-            bnr.BaseStream.Position = M3a.TrackPointer;
-
-            for (int j = 0; j < M3a.TrackCount; j++)
+            try
             {
 
-                Track track = new Track();
-                track.TrackNumber = j;
-                track.ExtremesArray = new float[8];
-                track.BufferType = bnr.ReadByte();
-                BufferType type = (BufferType)track.BufferType;
-                track.BufferKind = type.ToString();
-                track.TrackType = bnr.ReadByte();
-                track.BoneType = bnr.ReadByte();
-                track.BoneID = bnr.ReadByte();
-                track.Weight = bnr.ReadSingle();
-                track.BufferSize = bnr.ReadInt32();
-                bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
-                track.BufferPointer = bnr.ReadInt32();
-                bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
-                track.ReferenceData.W = bnr.ReadSingle();
-                track.ReferenceData.X = bnr.ReadSingle();
-                track.ReferenceData.Y = bnr.ReadSingle();
-                track.ReferenceData.Z = bnr.ReadSingle();
-                track.ExtremesPointer = bnr.ReadInt32();
-                bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
-                PrevOffset = Convert.ToInt32(bnr.BaseStream.Position);
+                //Gets the Tracks.
+                M3a.Tracks = new List<Track>();
+                bnr.BaseStream.Position = M3a.TrackPointer;
 
-
-                if (track.BufferSize != 0)
+                for (int j = 0; j < M3a.TrackCount; j++)
                 {
 
-                    //MessageBox.Show("Track #" + j + " inside " + lmtentry.EntryName + "\nhas a buffer size that is NOT ZERO.", "Debug Note");
-                    bnr.BaseStream.Position = track.BufferPointer;
-                    track.Buffer = bnr.ReadBytes(track.BufferSize);
+                    Track track = new Track();
+                    track.TrackNumber = j;
+                    track.ExtremesArray = new float[8];
+                    track.BufferType = bnr.ReadByte();
+                    BufferType type = (BufferType)track.BufferType;
+                    track.BufferKind = type.ToString();
+                    track.TrackType = bnr.ReadByte();
+                    track.BoneType = bnr.ReadByte();
+                    track.BoneID = bnr.ReadByte();
+                    track.Weight = bnr.ReadSingle();
+                    track.BufferSize = bnr.ReadInt32();
+                    bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                    track.BufferPointer = bnr.ReadInt32();
+                    bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                    track.ReferenceData.W = bnr.ReadSingle();
+                    track.ReferenceData.X = bnr.ReadSingle();
+                    track.ReferenceData.Y = bnr.ReadSingle();
+                    track.ReferenceData.Z = bnr.ReadSingle();
+                    track.ExtremesPointer = bnr.ReadInt32();
+                    bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                    PrevOffset = Convert.ToInt32(bnr.BaseStream.Position);
 
-                }
-                
-                else
-                {
-                    track.Buffer = new byte[0];
-                }
-                
 
-                if (track.ExtremesPointer != 0)
-                {
-
-                    //MessageBox.Show("Track # " + j + " inside " + lmtentry.EntryName + "\nhas an actual extremes pointer.", "Debug Note");
-                    bnr.BaseStream.Position = Convert.ToInt32(track.ExtremesPointer);
-
-                    track.Extremes = new Extremes();
-
-                    track.Extremes.min.W = bnr.ReadSingle();
-                    track.Extremes.min.X = bnr.ReadSingle();
-                    track.Extremes.min.Y = bnr.ReadSingle();
-                    track.Extremes.min.Z = bnr.ReadSingle();
-
-                    track.Extremes.max.W = bnr.ReadSingle();
-                    track.Extremes.max.X = bnr.ReadSingle();
-                    track.Extremes.max.Y = bnr.ReadSingle();
-                    track.Extremes.max.Z = bnr.ReadSingle();
-
-                    track.ExtremesArray[0] = track.Extremes.min.W;
-                    track.ExtremesArray[1] = track.Extremes.min.X;
-                    track.ExtremesArray[2] = track.Extremes.min.Y;
-                    track.ExtremesArray[3] = track.Extremes.min.Z;
-                    track.ExtremesArray[4] = track.Extremes.max.W;
-                    track.ExtremesArray[5] = track.Extremes.max.X;
-                    track.ExtremesArray[6] = track.Extremes.max.Y;
-                    track.ExtremesArray[7] = track.Extremes.max.Z;
-
-                    //Keyframes Take 1.
-
-                    //IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
-                    //M3a.KeyFrames.AddRange(Key.ToList());
-
-                }
-                
-                else
-                {                   
-                 
-                    //IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
-                    //M3a.KeyFrames.AddRange(Key.ToList());
-                }
-
-                bnr.BaseStream.Position = PrevOffset;
-                M3a.Tracks.Add(track);
-
-            }
-
-            bnr.BaseStream.Position = M3a.EventClassesPointer;
-            //Animation Events.
-            M3a.Events = new List<AnimEvent>();
-
-            for (int k = 0; k < 4; k++)
-            {
-                AnimEvent animEvent = new AnimEvent();
-
-                for (int l = 0; l < 32; l++)
-                {
-
-                    animEvent.EventRemap = new List<int>();
-                    animEvent.EventRemap.Add(bnr.ReadInt16());
-
-                }
-
-                animEvent.EventCount = bnr.ReadInt32();
-                bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
-
-                animEvent.EventsPointer = bnr.ReadInt32();
-                bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
-
-                PrevOffsetTwo = Convert.ToInt32(bnr.BaseStream.Position);
-                bnr.BaseStream.Position = animEvent.EventsPointer;
-                animEvent.EventBit = bnr.ReadInt32();
-                animEvent.FrameNumber = bnr.ReadInt32();
-
-                M3a.Events.Add(animEvent);
-                bnr.BaseStream.Position = PrevOffsetTwo;
-
-            }
-
-            M3a.AnimationID = ID;
-            M3a.FileName = "AnimationID" + M3a.AnimationID + ".m3a";
-            M3a.ShortName = "AnimationID" + M3a.AnimationID;
-            M3a._IsBlank = false;
-            Anim = M3a;
-
-            //Subtracts pointers in there by the data offset to get their base value.
-            int OffTemp = 0;
-            using (MemoryStream msm3a = new MemoryStream(M3a.RawData))
-            {
-
-                using (BinaryReader brm3a = new BinaryReader(msm3a))
-                {
-                    using (BinaryWriter bwm3a = new BinaryWriter(msm3a))
+                    if (track.BufferSize != 0)
                     {
 
-                        //Adjusts the offsets in the Rawdata of the m3a.
-                        bwm3a.BaseStream.Position = 0;
-
-                        for (int y = 0; y < M3a.TrackCount; y++)
-                        {
-                            bwm3a.BaseStream.Position = 0;
-                            bwm3a.BaseStream.Position = 16 + (48 * y);
-                            OffTemp = brm3a.ReadInt32();
-                            bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
-                            if (OffTemp > 0)
-                            {
-                                OffTemp = OffTemp - M3a.TrackPointer;
-                                bwm3a.Write(OffTemp);
-                            }
-                            bwm3a.BaseStream.Position = 40 + (48 * y);
-                            OffTemp = brm3a.ReadInt32();
-                            bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
-                            if (OffTemp > 0)
-                            {
-                                OffTemp = OffTemp - M3a.TrackPointer;
-                                bwm3a.Write(OffTemp);
-                            }
-
-                        }
-
-                        //Adjusts the offsets in the Events.
-                        bwm3a.BaseStream.Position = (bwm3a.BaseStream.Length - 280);
-
-                        OffTemp = M3a.RawData.Length - 32;
-
-                        bwm3a.Write(OffTemp);
-                        bwm3a.BaseStream.Position = bwm3a.BaseStream.Position + 76;
-
-                        OffTemp = M3a.RawData.Length - 24;
-
-                        bwm3a.Write(OffTemp);
-                        bwm3a.BaseStream.Position = bwm3a.BaseStream.Position + 76;
-
-                        OffTemp = M3a.RawData.Length - 16;
-
-                        bwm3a.Write(OffTemp);
-                        bwm3a.BaseStream.Position = bwm3a.BaseStream.Position + 76;
-
-                        OffTemp = M3a.RawData.Length - 8;
-
-                        bwm3a.Write(OffTemp);
+                        //MessageBox.Show("Track #" + j + " inside " + lmtentry.EntryName + "\nhas a buffer size that is NOT ZERO.", "Debug Note");
+                        bnr.BaseStream.Position = track.BufferPointer;
+                        track.Buffer = bnr.ReadBytes(track.BufferSize);
 
                     }
+
+                    else
+                    {
+                        track.Buffer = new byte[0];
+                    }
+
+
+                    if (track.ExtremesPointer != 0)
+                    {
+
+                        //MessageBox.Show("Track # " + j + " inside " + lmtentry.EntryName + "\nhas an actual extremes pointer.", "Debug Note");
+                        bnr.BaseStream.Position = Convert.ToInt32(track.ExtremesPointer);
+
+                        track.Extremes = new Extremes();
+
+                        track.Extremes.min.W = bnr.ReadSingle();
+                        track.Extremes.min.X = bnr.ReadSingle();
+                        track.Extremes.min.Y = bnr.ReadSingle();
+                        track.Extremes.min.Z = bnr.ReadSingle();
+
+                        track.Extremes.max.W = bnr.ReadSingle();
+                        track.Extremes.max.X = bnr.ReadSingle();
+                        track.Extremes.max.Y = bnr.ReadSingle();
+                        track.Extremes.max.Z = bnr.ReadSingle();
+
+                        track.ExtremesArray[0] = track.Extremes.min.W;
+                        track.ExtremesArray[1] = track.Extremes.min.X;
+                        track.ExtremesArray[2] = track.Extremes.min.Y;
+                        track.ExtremesArray[3] = track.Extremes.min.Z;
+                        track.ExtremesArray[4] = track.Extremes.max.W;
+                        track.ExtremesArray[5] = track.Extremes.max.X;
+                        track.ExtremesArray[6] = track.Extremes.max.Y;
+                        track.ExtremesArray[7] = track.Extremes.max.Z;
+
+                        //Keyframes Take 1.
+
+                        //IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
+                        //M3a.KeyFrames.AddRange(Key.ToList());
+
+                    }
+
+                    else
+                    {
+
+                        //IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
+                        //M3a.KeyFrames.AddRange(Key.ToList());
+                    }
+
+                    bnr.BaseStream.Position = PrevOffset;
+                    M3a.Tracks.Add(track);
+
                 }
 
-            }
+                bnr.BaseStream.Position = M3a.EventClassesPointer;
+                //Animation Events.
+                M3a.Events = new List<AnimEvent>();
 
-            //Appends the Animation Block Data to the FullData.
-            M3a.FullData = new byte[(M3a.AnimDataSize + 96)];
-            M3a._FileLength = M3a.FullData.LongLength;
-            Array.Copy(M3a.RawData, 0, M3a.FullData, 0, M3a.RawData.Length);
-            Array.Copy(M3a.MotionData, 0, M3a.FullData, M3a.RawData.Length, M3a.MotionData.Length);
+                for (int k = 0; k < 4; k++)
+                {
+                    AnimEvent animEvent = new AnimEvent();
+
+                    for (int l = 0; l < 32; l++)
+                    {
+
+                        animEvent.EventRemap = new List<int>();
+                        animEvent.EventRemap.Add(bnr.ReadInt16());
+
+                    }
+
+                    animEvent.EventCount = bnr.ReadInt32();
+                    bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+
+                    animEvent.EventsPointer = bnr.ReadInt32();
+                    bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+
+                    PrevOffsetTwo = Convert.ToInt32(bnr.BaseStream.Position);
+                    bnr.BaseStream.Position = animEvent.EventsPointer;
+                    animEvent.EventBit = bnr.ReadInt32();
+                    animEvent.FrameNumber = bnr.ReadInt32();
+
+                    M3a.Events.Add(animEvent);
+                    bnr.BaseStream.Position = PrevOffsetTwo;
+
+                }
+
+                M3a.AnimationID = ID;
+                M3a.FileName = "AnimationID" + M3a.AnimationID + ".m3a";
+                M3a.ShortName = "AnimationID" + M3a.AnimationID;
+                M3a._IsBlank = false;
+                Anim = M3a;
+
+                //Subtracts pointers in there by the data offset to get their base value.
+                int OffTemp = 0;
+                using (MemoryStream msm3a = new MemoryStream(M3a.RawData))
+                {
+
+                    using (BinaryReader brm3a = new BinaryReader(msm3a))
+                    {
+                        using (BinaryWriter bwm3a = new BinaryWriter(msm3a))
+                        {
+
+                            //Adjusts the offsets in the Rawdata of the m3a.
+                            bwm3a.BaseStream.Position = 0;
+
+                            for (int y = 0; y < M3a.TrackCount; y++)
+                            {
+                                bwm3a.BaseStream.Position = 0;
+                                bwm3a.BaseStream.Position = 16 + (48 * y);
+                                OffTemp = brm3a.ReadInt32();
+                                bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
+                                if (OffTemp > 0)
+                                {
+                                    OffTemp = OffTemp - M3a.TrackPointer;
+                                    bwm3a.Write(OffTemp);
+                                }
+                                bwm3a.BaseStream.Position = 40 + (48 * y);
+                                OffTemp = brm3a.ReadInt32();
+                                bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
+                                if (OffTemp > 0)
+                                {
+                                    OffTemp = OffTemp - M3a.TrackPointer;
+                                    bwm3a.Write(OffTemp);
+                                }
+
+                            }
+
+                            //Adjusts the offsets in the Events.
+                            bwm3a.BaseStream.Position = (bwm3a.BaseStream.Length - 280);
+
+                            OffTemp = M3a.RawData.Length - 32;
+
+                            bwm3a.Write(OffTemp);
+                            bwm3a.BaseStream.Position = bwm3a.BaseStream.Position + 76;
+
+                            OffTemp = M3a.RawData.Length - 24;
+
+                            bwm3a.Write(OffTemp);
+                            bwm3a.BaseStream.Position = bwm3a.BaseStream.Position + 76;
+
+                            OffTemp = M3a.RawData.Length - 16;
+
+                            bwm3a.Write(OffTemp);
+                            bwm3a.BaseStream.Position = bwm3a.BaseStream.Position + 76;
+
+                            OffTemp = M3a.RawData.Length - 8;
+
+                            bwm3a.Write(OffTemp);
+
+                        }
+                    }
+
+                }
+
+                //Appends the Animation Block Data to the FullData.
+                M3a.FullData = new byte[(M3a.AnimDataSize + 96)];
+                M3a._FileLength = M3a.FullData.LongLength;
+                Array.Copy(M3a.RawData, 0, M3a.FullData, 0, M3a.RawData.Length);
+                Array.Copy(M3a.MotionData, 0, M3a.FullData, M3a.RawData.Length, M3a.MotionData.Length);
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show("The M3a at index: " + ID + " inside the file\n"+ lmtentry.TrueName + " is malformed.", "UhOh");
+
+                bnr.BaseStream.Position = lmtentry.OffsetList[ID];
+            }
 
             return Anim;
         }
