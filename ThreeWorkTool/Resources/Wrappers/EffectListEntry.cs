@@ -13,7 +13,7 @@ using System.Text;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources.Utility;
 using ThreeWorkTool.Resources.Archives;
-
+using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -38,6 +38,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int Buffer11;
         public int Buffer12;
         public int Buffer13;
+        public List<EffectNode> Effects;
 
         public static EffectListEntry FillEFLEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -80,6 +81,18 @@ namespace ThreeWorkTool.Resources.Wrappers
             eflentry.Buffer11 = bnr.ReadInt32();
             eflentry.Buffer12 = bnr.ReadInt32();
             eflentry.Buffer13 = bnr.ReadInt32();
+
+            //Entry of Effect Entries.
+            eflentry.Effects = new List<EffectNode>();
+            
+
+            /*
+            for (int i =0; i < eflentry.EntryCountA; i++)
+            {
+                EffectNode fx = new EffectNode();
+                fx = EffectNode.BuildEffect(fx,i,bnr,eflentry);
+            }
+            */
 
 
             return eflentry;
@@ -181,6 +194,20 @@ namespace ThreeWorkTool.Resources.Wrappers
             set
             {
                 FileSize = value;
+            }
+        }
+
+        [Category("Effect List"), ReadOnlyAttribute(true)]
+        public int FrameRate
+        {
+
+            get
+            {
+                return FPS;
+            }
+            set
+            {
+                FPS = value;
             }
         }
 

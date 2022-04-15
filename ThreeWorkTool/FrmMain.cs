@@ -242,15 +242,10 @@ namespace ThreeWorkTool
 
                                         //String Splitting.
                                         List<string> ManifestText = new List<string>();
-                                        if (Manifest.Count == 1)
-                                        {
-                                            ManifestText = Manifest[0].Split(new string[] { "\n", "\r\n", System.Environment.NewLine }, StringSplitOptions.None).ToList();
-                                            ManifestText = ManifestText.Where(x => !string.IsNullOrEmpty(x)).ToList();
-                                        }
-                                        else
-                                        {
-                                            ManifestText = Manifest;
-                                        }
+
+                                        ManifestText = Manifest[0].Split(new string[] { "\n", "\r\n", System.Environment.NewLine }, StringSplitOptions.None).ToList();
+                                        ManifestText = ManifestText.Where(x => !string.IsNullOrEmpty(x)).ToList();
+
 
                                         //Determines where to start the compressed data storage based on amount of entries.
                                         //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
@@ -2395,7 +2390,7 @@ namespace ThreeWorkTool
                         frename.Mainfrm.picBoxA.Image = null;
                         frename.Mainfrm.Controls.Clear();
                         frename.Mainfrm.InitializeComponent();
-                    }                    
+                    }
                     //Writes to log file.
                     using (StreamWriter sw = File.AppendText("Log.txt"))
                     {
@@ -2552,7 +2547,7 @@ namespace ThreeWorkTool
                 {
                     if (ex is IOException)
                     {
-                        MessageBox.Show("Unable to read the file properly...\n "+ ex, "");
+                        MessageBox.Show("Unable to read the file properly...\n " + ex, "");
                         using (StreamWriter sw = File.AppendText("Log.txt"))
                         {
                             sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");

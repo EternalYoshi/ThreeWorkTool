@@ -208,6 +208,7 @@
     <Compile Include="Resources\Wrappers\ChainListEntry.cs" />
     <Compile Include="Resources\Wrappers\DefaultWrapper.cs" />
     <Compile Include="Resources\Wrappers\EffectListEntry.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\EffectNode.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\Mission.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
     <Compile Include="Resources\Wrappers\LMTEntry.cs" />

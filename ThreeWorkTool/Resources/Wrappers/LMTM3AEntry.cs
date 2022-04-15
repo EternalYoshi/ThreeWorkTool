@@ -402,9 +402,14 @@ namespace ThreeWorkTool.Resources.Wrappers
             catch (Exception ex)
             {
 
-                MessageBox.Show("The M3a at index: " + ID + " inside the file\n"+ lmtentry.TrueName + " is malformed.", "UhOh");
+                MessageBox.Show("The M3a at index: " + ID + " inside the file\n"+ lmtentry.TrueName + " is malformed.\nAs long as you do not modify the named lmt file you should be able to save changes made to other files inside this arc and the lmt file will not be modified.", "Uh-Oh");
 
                 bnr.BaseStream.Position = lmtentry.OffsetList[ID];
+                M3a.AnimationID = ID;
+                M3a.FileName = "AnimationID" + M3a.AnimationID + ".m3a";
+                M3a.ShortName = "AnimationID" + M3a.AnimationID;
+                M3a._IsBlank = false;
+                Anim = M3a;
             }
 
             return Anim;
