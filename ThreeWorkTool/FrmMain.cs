@@ -8052,9 +8052,10 @@ namespace ThreeWorkTool
                 conmenu.Items.Add("Export", null, MenuExportFile_Click);
                 conmenu.Items.Add("Replace", null, MenuReplaceFile_Click);
 
-                //Dummied Out until next release.
-                //conmenu.Items.Add("Extract KeyFrames(Beta)", null, ExtractKeyFrames_Click);
-
+                //Debug Only until next release.
+#if DEBUG
+                conmenu.Items.Add("Extract KeyFrames(Beta)", null, ExtractKeyFrames_Click);
+#endif
                 lma3.ContextMenuStrip = conmenu;
 
             }

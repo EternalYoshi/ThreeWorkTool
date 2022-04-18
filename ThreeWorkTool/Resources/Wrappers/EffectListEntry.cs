@@ -66,6 +66,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
 
             //Specific file type work goes here!
+            int ID = 0;
 
             //Header Stuff.
             eflentry.Magic = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), eflentry.Magic);
@@ -82,18 +83,24 @@ namespace ThreeWorkTool.Resources.Wrappers
             eflentry.Buffer12 = bnr.ReadInt32();
             eflentry.Buffer13 = bnr.ReadInt32();
 
-            //Entry of Effect Entries.
+            //Entry of Effect Entries. For next release.
             eflentry.Effects = new List<EffectNode>();
-            
-
             /*
-            for (int i =0; i < eflentry.EntryCountA; i++)
+            try
             {
-                EffectNode fx = new EffectNode();
-                fx = EffectNode.BuildEffect(fx,i,bnr,eflentry);
+
+                for (int i = 0; i < eflentry.EntryCountA; i++)
+                {
+                    EffectNode fx = new EffectNode();
+                    fx = EffectNode.BuildEffect(fx, i, bnr, eflentry);
+                    ID++;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("The efl at index: " + ID + " inside the file\n" + eflentry.TrueName + " threw out an error.\nAs long as you do not modify the named file you should be able to save changes made to other files inside this arc and the file will not be modified.", "Uh-Oh");
             }
             */
-
 
             return eflentry;
 
