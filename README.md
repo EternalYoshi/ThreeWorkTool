@@ -14,6 +14,12 @@ By Eternal Yoshi
 
 Current Changelog:
 
+V5.1
+
+- Added Jump To Line Function to the MSD Viewer/Editor.
+- Improved M3a Error Checking so the program reports the problematic entry and continues to read the rest of the arc and file.
+- Fixed an issue with Manifest text separation.
+
 V5.0
 
 ANIMATION IMPORTING IS NOT READY YET, BUT MANY THINGS HAVE BEEN FIXED/CHANGE ENOUGH TO WARRANT ONE MORE UPDATE.
