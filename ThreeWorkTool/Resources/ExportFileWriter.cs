@@ -342,6 +342,25 @@ namespace ThreeWorkTool.Resources
             }
         }
 
+        public static void GemWriter(string filename, GemEntry entrytowrite)
+        {
+            try
+            {
+
+                using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                {
+                    bw.Write(entrytowrite.UncompressedData);
+                    bw.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ExceptionCatchAll(ex);
+                return;
+            }
+        }
+
         public static void ExceptionCatchAll(Exception ex)
         {
             if (ex is UnauthorizedAccessException)

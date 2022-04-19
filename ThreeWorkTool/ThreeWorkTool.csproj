@@ -211,6 +211,7 @@
     <Compile Include="Resources\Wrappers\ExtraNodes\EffectNode.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\Mission.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
+    <Compile Include="Resources\Wrappers\GemEntry.cs" />
     <Compile Include="Resources\Wrappers\LMTEntry.cs" />
     <Compile Include="Resources\Wrappers\LMTM3AEntry.cs" />
     <Compile Include="Resources\Wrappers\MaterialEntry.cs" />
@@ -290,6 +291,7 @@
     <Content Include="Images\EFL.png" />
     <Content Include="Images\FOLDER.png" />
     <Content Include="Images\FOLDERBASE copy.png" />
+    <Content Include="Images\GEM.png" />
     <Content Include="Images\InvalidImage.png" />
     <Content Include="Images\LMT.png" />
     <Content Include="Images\M3A.png" />

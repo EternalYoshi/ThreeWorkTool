@@ -246,6 +246,16 @@ namespace ThreeWorkTool.Resources.Archives
                             IDCounter++;
                             break;
 
+                        //Gem Files.
+                        case "448BBDD4":
+                           GemEntry GEMen = GemEntry.FillGEMEntry(filename, foldernames, tree, br, j, IDCounter);
+                           arcfile.arcfiles.Add(GEMen);
+                           arcfile.FileList.Add(GEMen.EntryName);
+                           foldernames.Clear();
+                           IDCounter++;
+                           break;
+                        
+
                         //New Formats go like this!   
                         /*
                         case "********":

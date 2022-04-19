@@ -29,6 +29,8 @@
 
         public static string rMission = "MT Mission File (*.mis)|*.mis";
 
+        public static string rGameEffectModel = "Game Effect Model File (*.gem)|*.gem";
+
         public static string KeyFrameTest = ".txt";
 
         public static string GetFilter(string filetype)
@@ -68,6 +70,9 @@
 
                 case ".mis": 
                     return rMission;
+
+                case ".gem":
+                    return rGameEffectModel;
 
                 default:
                     return Etc; 

@@ -429,6 +429,7 @@ namespace ThreeWorkTool
                                         ChainCollisionEntry cclentry = new ChainCollisionEntry();
                                         ModelEntry mdlentry = new ModelEntry();
                                         MissionEntry misenty = new MissionEntry();
+                                        GemEntry gementy = new GemEntry();
 
                                         //New Format should start here!
                                         /*
@@ -1158,6 +1159,69 @@ namespace ThreeWorkTool
                                                 DataEntryOffset = DataEntryOffset + ComSize;
                                                 frename.Mainfrm.SaveCounterA++;
                                             }
+                                            else if (treno.Tag as GemEntry != null)
+                                            {
+                                                gementy = treno.Tag as GemEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "448BBDD4";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = gementy.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = gementy.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
 
                                             #region New Format Code
                                             //New format Entry data insertion goes like this!
@@ -1320,6 +1384,14 @@ namespace ThreeWorkTool
                                                 frename.Mainfrm.SaveCounterB++;
                                             }
 
+                                            else if (treno.Tag as GemEntry != null)
+                                            {
+                                                gementy = treno.Tag as GemEntry;
+                                                byte[] CompData = gementy.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                            }
+
+
                                             //New format compression data goes like this!
                                             /*
                                             else if(treno.Tag as ***** != null)
@@ -1422,6 +1494,7 @@ namespace ThreeWorkTool
             ChainCollisionEntry cclentry = new ChainCollisionEntry();
             ModelEntry mdlentry = new ModelEntry();
             MissionEntry misenty = new MissionEntry();
+            GemEntry gementy = new GemEntry();
 
             //Saving generic files.
             if (treno.Tag as ArcEntry != null)
@@ -2140,6 +2213,69 @@ namespace ThreeWorkTool
                 DataEntryOffset = DataEntryOffset + ComSize;
 
             }
+            else if (treno.Tag as GemEntry != null)
+            {
+                gementy = treno.Tag as GemEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "448BBDD4";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = gementy.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = gementy.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
 
             #region New Format Code
             //New format Entry data insertion goes like this!
@@ -2232,6 +2368,7 @@ namespace ThreeWorkTool
             ChainCollisionEntry cclentry = new ChainCollisionEntry();
             ModelEntry mdlentry = new ModelEntry();
             MissionEntry misenty = new MissionEntry();
+            GemEntry gementy = new GemEntry();
 
             if (treno.Tag as ArcEntry != null)
             {
@@ -2301,6 +2438,12 @@ namespace ThreeWorkTool
             {
                 misenty = treno.Tag as MissionEntry;
                 byte[] CompData = misenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as GemEntry != null)
+            {
+                gementy = treno.Tag as GemEntry;
+                byte[] CompData = gementy.CompressedData;
                 bwr.Write(CompData, 0, CompData.Length);
             }
 
@@ -3171,6 +3314,29 @@ namespace ThreeWorkTool
                     using (StreamWriter sw = File.AppendText("Log.txt"))
                     {
                         sw.WriteLine("Exported a Mission Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+
+                case "ThreeWorkTool.Resources.Wrappers.GemEntry":
+                    GemEntry gementry = new GemEntry();
+                    if (tag is GemEntry)
+                    {
+
+                        gementry = frename.Mainfrm.TreeSource.SelectedNode.Tag as GemEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(gementry.FileExt);
+                    }
+                    EXDialog.FileName = gementry.FileName + gementry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.GemWriter(EXDialog.FileName, gementry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a Gem Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -4263,6 +4429,93 @@ namespace ThreeWorkTool
                     frename.Mainfrm.TreeSource.EndUpdate();
 
                 }
+
+            }
+
+            else if (tag is GemEntry)
+            {
+                GemEntry GEMEntry = new GemEntry();
+                GEMEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as GemEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(GEMEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            GemEntry Oldaent = new GemEntry();
+                            GemEntry Newaent = new GemEntry();
+                            Oldaent = OldWrapper.entryfile as GemEntry;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = GemEntry.ReplaceGEM(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as GemEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Reloads the replaced file data in the text box.
+                            frename.Mainfrm.txtRPList = GemEntry.LoadGEMInTextBox(frename.Mainfrm.txtRPList, Newaent);
+                            frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
 
             }
 
@@ -5518,6 +5771,73 @@ namespace ThreeWorkTool
 
                     #endregion
 
+                    #region GEM
+                    case ".gem":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperGEM = new ArcEntryWrapper();
+                        GemEntry GeMEntry = new GemEntry();
+
+                        GeMEntry = GemEntry.InsertGEM(frename.Mainfrm.TreeSource, NewWrapperGEM, IMPDialog.FileName);
+                        NewWrapperGEM.Tag = GeMEntry;
+                        NewWrapperGEM.Text = GeMEntry.TrueName;
+                        NewWrapperGEM.Name = GeMEntry.TrueName;
+                        NewWrapperGEM.FileExt = GeMEntry.FileExt;
+                        NewWrapperGEM.entryData = GeMEntry;
+                        NewWrapperGEM.entryfile = GeMEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperGEM, NewWrapperGEM.FileExt);
+
+                        NewWrapperGEM.ContextMenuStrip = GenericFileContextAdder(NewWrapperGEM, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperGEM);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperGEM;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        //Reloads the replaced file data in the text box.
+                        frename.Mainfrm.txtRPList = GemEntry.LoadGEMInTextBox(frename.Mainfrm.txtRPList, GeMEntry);
+                        frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                        string typeGEM = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeGEM = new TreeNode();
+                        TreeNode selectednodeGEM = new TreeNode();
+                        selectednodeGEM = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeGEM = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeGEM;
+
+                        int filecountGEM = 0;
+
+                        ArcFile rootarcGEM = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcGEM != null)
+                        {
+                            filecountGEM = rootarcGEM.FileCount;
+                            filecountGEM++;
+                            rootarcGEM.FileCount++;
+                            rootarcGEM.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcGEM;
+                        }
+
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountGEM);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeGEM;
+                        break;
+                    #endregion
+
+
                     //For everything else.
                     default:
                         frename.Mainfrm.TreeSource.BeginUpdate();
@@ -6368,6 +6688,74 @@ namespace ThreeWorkTool
 
                         #endregion
 
+                        #region GEM
+
+                        case ".gem":
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+                            ArcEntryWrapper NewWrapperGEM = new ArcEntryWrapper();
+                            GemEntry GeMEntry = new GemEntry();
+
+                            GeMEntry = GemEntry.InsertGEM(frename.Mainfrm.TreeSource, NewWrapperGEM, IMPDialog.FileName);
+                            NewWrapperGEM.Tag = GeMEntry;
+                            NewWrapperGEM.Text = GeMEntry.TrueName;
+                            NewWrapperGEM.Name = GeMEntry.TrueName;
+                            NewWrapperGEM.FileExt = GeMEntry.FileExt;
+                            NewWrapperGEM.entryData = GeMEntry;
+                            NewWrapperGEM.entryfile = GeMEntry;
+
+                            frename.Mainfrm.IconSetter(NewWrapperGEM, NewWrapperGEM.FileExt);
+
+                            NewWrapperGEM.ContextMenuStrip = GenericFileContextAdder(NewWrapperGEM, frename.Mainfrm.TreeSource);
+
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperGEM);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperGEM;
+
+                            frename.Mainfrm.OpenFileModified = true;
+
+                            //Reloads the replaced file data in the text box.
+                            frename.Mainfrm.txtRPList = GemEntry.LoadGEMInTextBox(frename.Mainfrm.txtRPList, GeMEntry);
+                            frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                            string typeGEM = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            TreeNode rootnodeGEM = new TreeNode();
+                            TreeNode selectednodeGEM = new TreeNode();
+                            selectednodeGEM = frename.Mainfrm.TreeSource.SelectedNode;
+                            rootnodeGEM = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                            frename.Mainfrm.TreeSource.SelectedNode = rootnodeGEM;
+
+                            int filecountGEM = 0;
+
+                            ArcFile rootarcGEM = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                            if (rootarcGEM != null)
+                            {
+                                filecountGEM = rootarcGEM.FileCount;
+                                filecountGEM++;
+                                rootarcGEM.FileCount++;
+                                rootarcGEM.FileAmount++;
+                                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcGEM;
+                            }
+
+                            //Writes to log file.
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + filecountGEM);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeGEM;
+                            break;
+
+                        #endregion
+
                         //For everything else.
                         default:
                             frename.Mainfrm.TreeSource.BeginUpdate();
@@ -6888,6 +7276,22 @@ namespace ThreeWorkTool
                                 System.IO.Directory.CreateDirectory(ExportPath);
                                 ExportPath = ExportPath + MISENT.FileName + MISENT.FileExt;
                                 ExportFileWriter.MissionWriter(ExportPath, MISENT);
+                            }
+
+                            else if (kid.Tag is GemEntry)
+                            {
+                                GemEntry gemENT = kid.Tag as GemEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + gemENT.FileName + gemENT.FileExt;
+                                ExportFileWriter.GemWriter(ExportPath, gemENT);
                             }
 
 
@@ -7726,6 +8130,64 @@ namespace ThreeWorkTool
 
                 #endregion
 
+                #region Gem Files
+
+                case "ThreeWorkTool.Resources.Wrappers.GemEntry":
+                    ArcEntryWrapper gemchild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+
+                    gemchild.Name = I;
+                    gemchild.Tag = FEntry as GemEntry;
+                    gemchild.Text = I;
+                    gemchild.entryfile = FEntry as GemEntry;
+                    gemchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = gemchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(gemchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var gemrootNode = FindRootNode(gemchild);
+
+                    TreeSource.SelectedNode = gemchild;
+                    TreeSource.SelectedNode.ImageIndex = 23;
+                    TreeSource.SelectedNode.SelectedImageIndex = 23;
+
+
+                    gemchild.ContextMenuStrip = GenericFileContextAdder(gemchild, TreeSource);
+
+                    TreeSource.SelectedNode = gemrootNode;
+
+                    tcount++;
+
+                    break;
+
+
+                #endregion
+
                 #region New Formats
                 //New Format go like this!
                 /*
@@ -7954,6 +8416,11 @@ namespace ThreeWorkTool
                     {
                         TreeSource.SelectedNode.ImageIndex = 21;
                         TreeSource.SelectedNode.SelectedImageIndex = 21;
+                    }
+                    else if (G == ".gem")
+                    {
+                        TreeSource.SelectedNode.ImageIndex = 23;
+                        TreeSource.SelectedNode.SelectedImageIndex = 23;
                     }
                     else
                     {
@@ -8239,6 +8706,11 @@ namespace ThreeWorkTool
             {
                 wrapper.ImageIndex = 13;
                 wrapper.SelectedImageIndex = 13;
+            }
+            else if (extension == ".gem")
+            {
+                wrapper.ImageIndex = 23;
+                wrapper.SelectedImageIndex = 23;
             }
             else
             {
@@ -8556,6 +9028,22 @@ namespace ThreeWorkTool
                                 break;
                             }
 
+                        case "ThreeWorkTool.Resources.Wrappers.GemEntry":
+                            GemEntry geme = new GemEntry();
+                            geme = ArcEntry as GemEntry;
+                            if (geme != null)
+                            {
+                                TreeChildInsert(NCount, geme.EntryName, geme.FileExt, geme.EntryDirs, geme.TrueName, geme);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
+
                         //New Formats go like this!
                         /*
                            case "ThreeWorkTool.Resources.Wrappers.*****Entry":
@@ -8805,6 +9293,16 @@ namespace ThreeWorkTool
                 this.OpenFileModified = true;
             }
 
+            GemEntry gementry = new GemEntry();
+            gementry = TreeSource.SelectedNode.Tag as GemEntry;
+
+            if (gementry != null)
+            {
+                gementry = GemEntry.RenewGemEntry(txtRPList, gementry);
+                TreeSource.SelectedNode.Tag = gementry;
+                this.OpenFileModified = true;
+            }
+
         }
 
         private void TextBoxLeaving()
@@ -8857,6 +9355,23 @@ namespace ThreeWorkTool
                     UpdateTheEditMenu();
                     break;
 
+                #endregion
+
+                #region Gem
+                case "ThreeWorkTool.Resources.Wrappers.GemEntry":
+                    isFinishRPLRead = false;
+                    GemEntry gemEntry = new GemEntry();
+                    gemEntry = TreeSource.SelectedNode.Tag as GemEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Text = "";
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
+                    txtRPList = GemEntry.LoadGEMInTextBox(txtRPList, gemEntry);
+                    RPLBackup = txtRPList.Text;
+                    txtRPList.Visible = true;
+                    isFinishRPLRead = true;
+                    UpdateTheEditMenu();
+                    break;
                 #endregion
 
                 #region Mission Entries
