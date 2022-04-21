@@ -31,6 +31,8 @@
 
         public static string rGameEffectModel = "Game Effect Model File (*.gem)|*.gem";
 
+        public static string rEffectList = "Effect List (*.efl)|*.efl";
+
         public static string KeyFrameTest = ".txt";
 
         public static string GetFilter(string filetype)
@@ -73,6 +75,9 @@
 
                 case ".gem":
                     return rGameEffectModel;
+
+                case ".efl":
+                    return rEffectList;
 
                 default:
                     return Etc; 

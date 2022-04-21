@@ -254,6 +254,15 @@ namespace ThreeWorkTool.Resources.Archives
                            foldernames.Clear();
                            IDCounter++;
                            break;
+
+                        //EFL Files.
+                        case "6D5AE854":
+                           EffectListEntry EFLen = EffectListEntry.FillEFLEntry(filename, foldernames, tree, br, j, IDCounter);
+                           arcfile.arcfiles.Add(EFLen);
+                           arcfile.FileList.Add(EFLen.EntryName);
+                           foldernames.Clear();
+                           IDCounter++;
+                           break;
                         
 
                         //New Formats go like this!   
@@ -266,6 +275,7 @@ namespace ThreeWorkTool.Resources.Archives
                            IDCounter++;
                            break;
                         */
+
                         default:
                             //Everything not listed above.
                             ArcEntry newentry = ArcEntry.FillArcEntry(filename, foldernames, tree, br, j, IDCounter);

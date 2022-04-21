@@ -272,7 +272,8 @@ namespace ThreeWorkTool
                                                     if (awrapper.Tag as string == null)
                                                     {
                                                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
-                                                        || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null)
+                                                        || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
+                                                        || awrapper.Tag as EffectNode == null)
                                                         {
                                                             {
                                                                 //Removes the archive name from the FullPath for a proper search.
@@ -322,7 +323,8 @@ namespace ThreeWorkTool
                                                     if (awrapper.Tag as string == null)
                                                     {
                                                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
-                                                        || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null)
+                                                        || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
+                                                        || awrapper.Tag as EffectNode == null)
                                                         {
                                                             //Removes the archive name from the FullPath for a proper search.
                                                             string FullPathSearch = awrapper.FullPath;
@@ -395,7 +397,7 @@ namespace ThreeWorkTool
                                         {
                                             if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" ||
                                                 treno.Tag as string == "Model Primitive Group" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
-                                                || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission)
+                                                || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag as EffectNode == null)
                                             {
 
                                             }
@@ -430,6 +432,7 @@ namespace ThreeWorkTool
                                         ModelEntry mdlentry = new ModelEntry();
                                         MissionEntry misenty = new MissionEntry();
                                         GemEntry gementy = new GemEntry();
+                                        EffectListEntry eflenty = new EffectListEntry();
 
                                         //New Format should start here!
                                         /*
@@ -1222,6 +1225,69 @@ namespace ThreeWorkTool
                                                 DataEntryOffset = DataEntryOffset + ComSize;
 
                                             }
+                                            else if (treno.Tag as EffectListEntry != null)
+                                            {
+                                                eflenty = treno.Tag as EffectListEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "6D5AE854";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = eflenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = eflenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
 
                                             #region New Format Code
                                             //New format Entry data insertion goes like this!
@@ -1391,6 +1457,12 @@ namespace ThreeWorkTool
                                                 bwr.Write(CompData, 0, CompData.Length);
                                             }
 
+                                            else if (treno.Tag as EffectListEntry != null)
+                                            {
+                                                eflenty = treno.Tag as EffectListEntry;
+                                                byte[] CompData = eflenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                            }
 
                                             //New format compression data goes like this!
                                             /*
@@ -1401,6 +1473,7 @@ namespace ThreeWorkTool
                                                 bwr.Write(CompData, 0, CompData.Length);
                                             }
                                             */
+
                                         }
 
                                         bwr.Close();
@@ -1495,6 +1568,7 @@ namespace ThreeWorkTool
             ModelEntry mdlentry = new ModelEntry();
             MissionEntry misenty = new MissionEntry();
             GemEntry gementy = new GemEntry();
+            EffectListEntry eflenty = new EffectListEntry();
 
             //Saving generic files.
             if (treno.Tag as ArcEntry != null)
@@ -2276,6 +2350,68 @@ namespace ThreeWorkTool
                 DataEntryOffset = DataEntryOffset + ComSize;
 
             }
+            else if (treno.Tag as EffectListEntry != null)
+            {
+                eflenty = treno.Tag as EffectListEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "6D5AE854";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = eflenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = eflenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+            }
 
             #region New Format Code
             //New format Entry data insertion goes like this!
@@ -2369,6 +2505,7 @@ namespace ThreeWorkTool
             ModelEntry mdlentry = new ModelEntry();
             MissionEntry misenty = new MissionEntry();
             GemEntry gementy = new GemEntry();
+            EffectListEntry eflenty = new EffectListEntry();
 
             if (treno.Tag as ArcEntry != null)
             {
@@ -2444,6 +2581,12 @@ namespace ThreeWorkTool
             {
                 gementy = treno.Tag as GemEntry;
                 byte[] CompData = gementy.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as EffectListEntry != null)
+            {
+                eflenty = treno.Tag as EffectListEntry;
+                byte[] CompData = eflenty.CompressedData;
                 bwr.Write(CompData, 0, CompData.Length);
             }
 
@@ -3317,7 +3460,6 @@ namespace ThreeWorkTool
                     }
                     break;
 
-
                 case "ThreeWorkTool.Resources.Wrappers.GemEntry":
                     GemEntry gementry = new GemEntry();
                     if (tag is GemEntry)
@@ -3331,6 +3473,28 @@ namespace ThreeWorkTool
                     if (EXDialog.ShowDialog() == DialogResult.OK)
                     {
                         ExportFileWriter.GemWriter(EXDialog.FileName, gementry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a Gem Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.EffectListEntry":
+                    EffectListEntry eflentry = new EffectListEntry();
+                    if (tag is EffectListEntry)
+                    {
+
+                        eflentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as EffectListEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(eflentry.FileExt);
+                    }
+                    EXDialog.FileName = eflentry.FileName + eflentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.EffectListWriter(EXDialog.FileName, eflentry);
                     }
 
                     //Writes to log file.
@@ -4476,6 +4640,89 @@ namespace ThreeWorkTool
                             //Reloads the replaced file data in the text box.
                             frename.Mainfrm.txtRPList = GemEntry.LoadGEMInTextBox(frename.Mainfrm.txtRPList, Newaent);
                             frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+
+            }
+
+            else if (tag is EffectListEntry)
+            {
+                EffectListEntry EFLEntry = new EffectListEntry();
+                EFLEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as EffectListEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(EFLEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            EffectListEntry Oldaent = new EffectListEntry();
+                            EffectListEntry Newaent = new EffectListEntry();
+                            Oldaent = OldWrapper.entryfile as EffectListEntry;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = EffectListEntry.ReplaceEFL(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as EffectListEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
 
                             //Pathing.
                             foreach (string Folder in paths)
@@ -5837,6 +6084,67 @@ namespace ThreeWorkTool
                         break;
                     #endregion
 
+                    #region EffectList
+                    case ".efl":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperEFL = new ArcEntryWrapper();
+                        EffectListEntry EFLEntry = new EffectListEntry();
+
+                        EFLEntry = EffectListEntry.InsertEFL(frename.Mainfrm.TreeSource, NewWrapperEFL, IMPDialog.FileName);
+                        NewWrapperEFL.Tag = EFLEntry;
+                        NewWrapperEFL.Text = EFLEntry.TrueName;
+                        NewWrapperEFL.Name = EFLEntry.TrueName;
+                        NewWrapperEFL.FileExt = EFLEntry.FileExt;
+                        NewWrapperEFL.entryData = EFLEntry;
+                        NewWrapperEFL.entryfile = EFLEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperEFL, NewWrapperEFL.FileExt);
+
+                        NewWrapperEFL.ContextMenuStrip = GenericFileContextAdder(NewWrapperEFL, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperEFL);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperEFL;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string typeEFL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeEFL = new TreeNode();
+                        TreeNode selectednodeEFL = new TreeNode();
+                        selectednodeEFL = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeEFL = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeEFL;
+
+                        int filecountEFL = 0;
+
+                        ArcFile rootarcEFL = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcEFL != null)
+                        {
+                            filecountEFL = rootarcEFL.FileCount;
+                            filecountEFL++;
+                            rootarcEFL.FileCount++;
+                            rootarcEFL.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcEFL;
+                        }
+
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountEFL);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL;
+                        break;
+                    #endregion
 
                     //For everything else.
                     default:
@@ -6756,6 +7064,71 @@ namespace ThreeWorkTool
 
                         #endregion
 
+                        #region EFL
+
+                        case ".efl":
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+                            ArcEntryWrapper NewWrapperEFL = new ArcEntryWrapper();
+                            EffectListEntry EFLEntry = new EffectListEntry();
+
+                            EFLEntry = EffectListEntry.InsertEFL(frename.Mainfrm.TreeSource, NewWrapperEFL, IMPDialog.FileName);
+                            NewWrapperEFL.Tag = EFLEntry;
+                            NewWrapperEFL.Text = EFLEntry.TrueName;
+                            NewWrapperEFL.Name = EFLEntry.TrueName;
+                            NewWrapperEFL.FileExt = EFLEntry.FileExt;
+                            NewWrapperEFL.entryData = EFLEntry;
+                            NewWrapperEFL.entryfile = EFLEntry;
+
+                            frename.Mainfrm.IconSetter(NewWrapperEFL, NewWrapperEFL.FileExt);
+
+                            NewWrapperEFL.ContextMenuStrip = GenericFileContextAdder(NewWrapperEFL, frename.Mainfrm.TreeSource);
+
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperEFL);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperEFL;
+
+                            frename.Mainfrm.OpenFileModified = true;
+
+                            string typeEFL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            TreeNode rootnodeEFL = new TreeNode();
+                            TreeNode selectednodeEFL = new TreeNode();
+                            selectednodeEFL = frename.Mainfrm.TreeSource.SelectedNode;
+                            rootnodeEFL = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                            frename.Mainfrm.TreeSource.SelectedNode = rootnodeEFL;
+
+                            int filecountEFL = 0;
+
+                            ArcFile rootarcEFL = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                            if (rootarcEFL != null)
+                            {
+                                filecountEFL = rootarcEFL.FileCount;
+                                filecountEFL++;
+                                rootarcEFL.FileCount++;
+                                rootarcEFL.FileAmount++;
+                                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcEFL;
+                            }
+
+                            //Writes to log file.
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + filecountEFL);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL;
+                            break;
+
+                        #endregion
+
+
                         //For everything else.
                         default:
                             frename.Mainfrm.TreeSource.BeginUpdate();
@@ -7292,6 +7665,24 @@ namespace ThreeWorkTool
                                 System.IO.Directory.CreateDirectory(ExportPath);
                                 ExportPath = ExportPath + gemENT.FileName + gemENT.FileExt;
                                 ExportFileWriter.GemWriter(ExportPath, gemENT);
+                            }
+
+
+                            //New Formats go like this!!
+                            else if (kid.Tag is EffectListEntry)
+                            {
+                                EffectListEntry eflENT = kid.Tag as EffectListEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + eflENT.FileName + eflENT.FileExt;
+                                ExportFileWriter.EffectListWriter(ExportPath, eflENT);
                             }
 
 
@@ -8313,6 +8704,70 @@ namespace ThreeWorkTool
 
                 #endregion
 
+                #region Effect List Files
+
+                case "ThreeWorkTool.Resources.Wrappers.EffectListEntry":
+                    ArcEntryWrapper eflchild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+
+                    //Fentry = Convert.ChangeType(Fentry, typeof(TextureEntry));
+
+                    eflchild.Name = I;
+                    eflchild.Tag = FEntry as EffectListEntry;
+                    eflchild.Text = I;
+                    eflchild.entryfile = FEntry as EffectListEntry;
+                    eflchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = eflchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(eflchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var eflrootNode = FindRootNode(eflchild);
+
+                    TreeSource.SelectedNode = eflchild;
+                    TreeSource.SelectedNode.ImageIndex = 8;
+                    TreeSource.SelectedNode.SelectedImageIndex = 8;
+
+
+                    eflchild.ContextMenuStrip = GenericFileContextAdder(eflchild, TreeSource);
+
+                    EffectListEntry eflent = new EffectListEntry();
+                    eflent = eflchild.Tag as EffectListEntry;
+
+
+                    TreeSource.SelectedNode = eflrootNode;
+
+                    tcount++;
+
+                    break;
+
+                #endregion
+
+
                 //Cases for future file supports go here. For example;
                 //case ".mod":
                 //{
@@ -9042,7 +9497,22 @@ namespace ThreeWorkTool
                                 MessageBox.Show("We got a read error here!", "YIKES");
                                 break;
                             }
-
+                        
+                           case "ThreeWorkTool.Resources.Wrappers.EffectListEntry":
+                           EffectListEntry efleme = new EffectListEntry();
+                           efleme = ArcEntry as EffectListEntry;
+                           if (efleme != null)
+                           {
+                               TreeChildInsert(NCount, efleme.EntryName, efleme.FileExt, efleme.EntryDirs, efleme.TrueName, efleme);
+                               TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                               break;
+                           }
+                           else
+                           {
+                               MessageBox.Show("We got a read error here!", "YIKES");
+                               break;
+                           }
+                        
 
                         //New Formats go like this!
                         /*
@@ -9343,6 +9813,19 @@ namespace ThreeWorkTool
         {
             switch (type)
             {
+
+                #region Effect List
+                case "ThreeWorkTool.Resources.Wrappers.EffectListEntry":
+                    EffectListEntry effectlistEntry = new EffectListEntry();
+                    effectlistEntry = TreeSource.SelectedNode.Tag as EffectListEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                #endregion
 
                 #region Model
                 case "ThreeWorkTool.Resources.Wrappers.ModelEntry":
@@ -9701,7 +10184,6 @@ namespace ThreeWorkTool
             pb.BackgroundImage = bmp;
             pb.BackgroundImageLayout = ImageLayout.Tile;
         }
-
 
         //Updates Edit Menu with Right Click Context Options.
         public void UpdateTheEditMenu()
