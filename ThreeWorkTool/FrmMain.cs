@@ -5400,11 +5400,11 @@ namespace ThreeWorkTool
                     case ".cst":
                         frename.Mainfrm.TreeSource.BeginUpdate();
                         ArcEntryWrapper NewWrapperChainList = new ArcEntryWrapper();
-                        ResourcePathListEntry ChnLstlistEntry = new ResourcePathListEntry();
+                        ChainListEntry ChnLstlistEntry = new ChainListEntry();
 
 
                         //ChnLstlistEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, IMPDialog.FileName);
-                        ChnLstlistEntry = ResourcePathListEntry.InsertRPL(frename.Mainfrm.TreeSource, NewWrapperChainList, IMPDialog.FileName);
+                        ChnLstlistEntry = ChainListEntry.InsertChainListEntry(frename.Mainfrm.TreeSource, NewWrapperChainList, IMPDialog.FileName);
                         NewWrapperChainList.Tag = ChnLstlistEntry;
                         NewWrapperChainList.Text = ChnLstlistEntry.TrueName;
                         NewWrapperChainList.Name = ChnLstlistEntry.TrueName;
@@ -5424,7 +5424,7 @@ namespace ThreeWorkTool
                         frename.Mainfrm.OpenFileModified = true;
 
                         //Reloads the replaced file data in the text box.
-                        frename.Mainfrm.txtRPList = ResourcePathListEntry.LoadRPLInTextBox(frename.Mainfrm.txtRPList, ChnLstlistEntry);
+                        frename.Mainfrm.txtRPList = ChainListEntry.LoadCSTInTextBox(frename.Mainfrm.txtRPList, ChnLstlistEntry);
                         frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
 
                         string typeCST = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();

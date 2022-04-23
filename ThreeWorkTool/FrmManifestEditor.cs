@@ -25,7 +25,9 @@ namespace ThreeWorkTool
         private void btnUseManifest_Click(object sender, EventArgs e)
         {
             //From the editor text to the ManifestText.
-            Mainfrm.Manifest = txtManifest.Text.Split(new string[] {"\\n"}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            //Mainfrm.Manifest = txtManifest.Text.Split(new string[] {"\\n"}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            Mainfrm.Manifest = txtManifest.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
             /*
             for(int i = 0; i < Mainfrm.Manifest.Count; i++)
             {
