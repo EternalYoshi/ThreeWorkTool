@@ -397,7 +397,7 @@ namespace ThreeWorkTool
                                         {
                                             if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" ||
                                                 treno.Tag as string == "Model Primitive Group" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
-                                                || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag as EffectNode == null)
+                                                || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode)
                                             {
 
                                             }
@@ -4746,6 +4746,13 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                            //Builds the new child nodes.
+                            frename.Mainfrm.EFLChildrenCreation(NewWrapper, NewWrapper.Tag as EffectListEntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
                             break;
 
                         default:
@@ -6143,6 +6150,14 @@ namespace ThreeWorkTool
                         }
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL;
+
+                        //Removes the old child nodes.
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                        //Creates the Material Children of the new node.
+                        frename.Mainfrm.EFLChildrenCreation(selectednodeEFL, selectednodeEFL.Tag as EffectListEntry);
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL;
+
                         break;
                     #endregion
 
@@ -7124,6 +7139,14 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL;
+
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                            //Creates the Material Children of the new node.
+                            frename.Mainfrm.EFLChildrenCreation(selectednodeEFL, selectednodeEFL.Tag as EffectListEntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL.Parent;
+
                             break;
 
                         #endregion
@@ -8758,6 +8781,8 @@ namespace ThreeWorkTool
                     EffectListEntry eflent = new EffectListEntry();
                     eflent = eflchild.Tag as EffectListEntry;
 
+                    //Makes Child Nodes.
+                    EFLChildrenCreation(eflchild, eflent);
 
                     TreeSource.SelectedNode = eflrootNode;
 
@@ -9087,6 +9112,26 @@ namespace ThreeWorkTool
 
             }
 
+        }
+
+        public void EFLChildrenCreation(TreeNode MEntry, EffectListEntry efl)
+        {
+
+            TreeSource.SelectedNode = MEntry;
+            /*
+            //Fills in Effects..?
+            for (int i = 0; i < efl.Effects.Count; i++)
+            {
+                ArcEntryWrapper efnn = new ArcEntryWrapper();
+                efnn.Name = Convert.ToString(i);
+                efnn.Tag = efl.Effects[i];
+                efnn.Text = Convert.ToString(i);
+                efnn.ImageIndex = 16;
+                efnn.SelectedImageIndex = 16;
+                TreeSource.SelectedNode.Nodes.Add(efnn);
+
+            }
+            */
         }
 
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
@@ -9818,6 +9863,19 @@ namespace ThreeWorkTool
                 case "ThreeWorkTool.Resources.Wrappers.EffectListEntry":
                     EffectListEntry effectlistEntry = new EffectListEntry();
                     effectlistEntry = TreeSource.SelectedNode.Tag as EffectListEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                #endregion
+
+                #region Effect Node
+                case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.EffectNode":
+                    EffectNode effectnodeEntry = new EffectNode();
+                    effectnodeEntry = TreeSource.SelectedNode.Tag as EffectNode;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;

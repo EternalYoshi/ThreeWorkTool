@@ -72,7 +72,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             eflentry.Magic = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), eflentry.Magic);
             eflentry.Version = bnr.ReadInt32();
             eflentry.FileSize = bnr.ReadInt32();
-            eflentry.FPS = bnr.ReadInt32();
+            eflentry.FPS = Convert.ToInt32(bnr.ReadSingle());
             eflentry.EntryCountA = bnr.ReadInt16();
             eflentry.EntryCountB = bnr.ReadInt16();
             eflentry.CountXor = bnr.ReadInt32();
@@ -83,24 +83,27 @@ namespace ThreeWorkTool.Resources.Wrappers
             eflentry.Buffer12 = bnr.ReadInt32();
             eflentry.Buffer13 = bnr.ReadInt32();
 
-            //Entry of Effect Entries. For next release.
             eflentry.Effects = new List<EffectNode>();
-            /*
+            int PrevOffset = Convert.ToInt32(bnr.BaseStream.Position);
+
             try
             {
 
                 for (int i = 0; i < eflentry.EntryCountA; i++)
                 {
                     EffectNode fx = new EffectNode();
-                    fx = EffectNode.BuildEffect(fx, i, bnr, eflentry);
+                    fx = EffectNode.BuildEffect(fx, i, bnr, eflentry, PrevOffset);
+                    eflentry.Effects.Add(fx);
                     ID++;
+                    PrevOffset = PrevOffset + 4;
+                    bnr.BaseStream.Position = PrevOffset;
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("The efl at index: " + ID + " inside the file\n" + eflentry.TrueName + " threw out an error.\nAs long as you do not modify the named file you should be able to save changes made to other files inside this arc and the file will not be modified.", "Uh-Oh");
             }
-            */
+            
 
             return eflentry;
 
@@ -160,33 +163,31 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         #region EffectListEntryProperties
 
-        private string _FileName;
         [Category("Effect List"), ReadOnlyAttribute(true)]
         public string FileName
         {
 
             get
             {
-                return _FileName;
+                return TrueName;
             }
             set
             {
-                _FileName = value;
+                TrueName = value;
             }
         }
 
-        private string _FileType;
         [Category("Effect List"), ReadOnlyAttribute(true)]
         public string FileType
         {
 
             get
             {
-                return _FileType;
+                return FileExt;
             }
             set
             {
-                _FileType = value;
+                FileExt = value;
             }
         }
 

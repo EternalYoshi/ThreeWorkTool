@@ -163,8 +163,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             NEWGEM.AddRange(GEMProjSize);
 
             string ENTemp = "";
-            string RPTemp = "";
-            string HashStr = "";
+            //string RPTemp = "";
+            //string HashStr = "";
             byte[] HashTempDX = new byte[4];
             int counter = gem.EntryCountTotal - 1;
 
