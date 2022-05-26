@@ -266,6 +266,8 @@
             // 
             // txtBoxCurrentFile
             // 
+            this.txtBoxCurrentFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtBoxCurrentFile.Enabled = false;
             this.txtBoxCurrentFile.Location = new System.Drawing.Point(425, 2);
             this.txtBoxCurrentFile.Name = "txtBoxCurrentFile";
@@ -477,13 +479,13 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.Panel pnlNew;
         private System.Windows.Forms.PictureBox picBoxA;
-        private System.Windows.Forms.TextBox txtRPList;
         private System.Windows.Forms.ToolStripMenuItem MenuSettings;
         private System.Windows.Forms.ToolStripMenuItem MenuNotesAndAdvice;
         private System.Windows.Forms.ToolStripMenuItem emptyListToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem manifestToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem MenuUseManifest;
         private System.Windows.Forms.ToolStripMenuItem MenuNewArchive;
+        public System.Windows.Forms.TextBox txtRPList;
     }
 }
 

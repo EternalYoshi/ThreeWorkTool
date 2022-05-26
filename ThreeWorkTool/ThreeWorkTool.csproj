@@ -170,6 +170,12 @@
     <Compile Include="FrmRename.Designer.cs">
       <DependentUpon>FrmRename.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmReplace.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmReplace.Designer.cs">
+      <DependentUpon>FrmReplace.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmTexEncodeDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -243,6 +249,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrmRename.resx">
       <DependentUpon>FrmRename.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmReplace.resx">
+      <DependentUpon>FrmReplace.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmTexEncodeDialog.resx">
       <DependentUpon>FrmTexEncodeDialog.cs</DependentUpon>

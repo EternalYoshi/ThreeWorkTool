@@ -69,6 +69,7 @@ namespace ThreeWorkTool
         public List<string> RPLNameList;
         public bool UseManifest;
         public static FrmRename frename;
+        public static FrmReplace freplace;
         public static FrmTxtEditor frmTxtEdit;
         public static FrmTexEncodeDialog frmtexencode;
         public static FrmNotes frmNote;
@@ -2920,8 +2921,6 @@ namespace ThreeWorkTool
             }
         }
 
-
-
         #endregion
 
         #region Key Shortcuts
@@ -3142,6 +3141,48 @@ namespace ThreeWorkTool
             conmenu.Items.Add(mditem);
 
             return conmenu;
+        }
+
+        //Adds Context Menu Strip for Text related Files such as lrp files.
+        public static ContextMenuStrip TXTContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Replace Text.
+            var reptxtitem = new ToolStripMenuItem("Replace Text", null, MenuItemReplaceTextInFile_Click, Keys.Control | Keys.E | Keys.ShiftKey);
+            conmenu.Items.Add(reptxtitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            //Rename.
+            var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
+            conmenu.Items.Add(rnitem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp, Keys.Control | Keys.Up);
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
+            conmenu.Items.Add(mditem);
+
+            return conmenu;
+
         }
 
         //Adds Context Menu for undefined files & everything else.
@@ -3664,7 +3705,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ResourcePathListEntry.ReplaceRPL(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = TXTContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as ResourcePathListEntry;
@@ -5130,6 +5171,16 @@ namespace ThreeWorkTool
 
         }
 
+        private static void MenuItemReplaceTextInFile_Click(Object sender, System.EventArgs e)
+        {
+
+            FrmReplace frp = new FrmReplace();
+            frp = freplace;
+            frp.Mainfrm = frename.Mainfrm;
+            frp.ShowItItem();
+
+        }
+
         private static void MenuItemDeleteFile_Click(Object sender, System.EventArgs e)
         {
 
@@ -5415,7 +5466,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperChainList, NewWrapperChainList.FileExt);
 
-                        NewWrapperChainList.ContextMenuStrip = GenericFileContextAdder(NewWrapperChainList, frename.Mainfrm.TreeSource);
+                        NewWrapperChainList.ContextMenuStrip = TXTContextAdder(NewWrapperChainList, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperChainList);
 
@@ -6332,7 +6383,7 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.IconSetter(NewWrapperRPL, NewWrapperRPL.FileExt);
 
-                            NewWrapperRPL.ContextMenuStrip = GenericFileContextAdder(NewWrapperRPL, frename.Mainfrm.TreeSource);
+                            NewWrapperRPL.ContextMenuStrip = TXTContextAdder(NewWrapperRPL, frename.Mainfrm.TreeSource);
 
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperRPL);
 
@@ -8171,7 +8222,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 17;
 
 
-                    rplchild.ContextMenuStrip = GenericFileContextAdder(rplchild, TreeSource);
+                    rplchild.ContextMenuStrip = TXTContextAdder(rplchild, TreeSource);
 
                     TreeSource.SelectedNode = rplrootNode;
 
@@ -9604,6 +9655,10 @@ namespace ThreeWorkTool
                 FrmRename frn = new FrmRename();
                 frn.Mainfrm = this;
                 frename = frn;
+
+                FrmReplace frp = new FrmReplace();
+                frn.Mainfrm = this;
+                freplace= frp;
 
                 FrmTxtEditor frmTxt = new FrmTxtEditor();
                 frmTxt.Mainfrm = this;
