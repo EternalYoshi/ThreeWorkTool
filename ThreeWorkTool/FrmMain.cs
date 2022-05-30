@@ -1456,6 +1456,7 @@ namespace ThreeWorkTool
                                                 gementy = treno.Tag as GemEntry;
                                                 byte[] CompData = gementy.CompressedData;
                                                 bwr.Write(CompData, 0, CompData.Length);
+                                                frename.Mainfrm.SaveCounterB++;
                                             }
 
                                             else if (treno.Tag as EffectListEntry != null)
@@ -1463,6 +1464,7 @@ namespace ThreeWorkTool
                                                 eflenty = treno.Tag as EffectListEntry;
                                                 byte[] CompData = eflenty.CompressedData;
                                                 bwr.Write(CompData, 0, CompData.Length);
+                                                frename.Mainfrm.SaveCounterB++;
                                             }
 
                                             //New format compression data goes like this!
@@ -1472,6 +1474,7 @@ namespace ThreeWorkTool
                                                 *****enty = treno.Tag as *****;
                                                 byte[] CompData = *****enty.CompressedData;
                                                 bwr.Write(CompData, 0, CompData.Length);
+                                                frename.Mainfrm.SaveCounterB++;
                                             }
                                             */
 
@@ -5176,6 +5179,18 @@ namespace ThreeWorkTool
 
             FrmReplace frp = new FrmReplace();
             frp = freplace;
+            frp.AllFiles = false;
+            frp.Mainfrm = frename.Mainfrm;
+            frp.ShowItItem();
+
+        }
+
+        private static void MenuItemReplaceTextInAllFilePathNames_Click(Object sender, System.EventArgs e)
+        {
+
+            FrmReplace frp = new FrmReplace();
+            frp = freplace;
+            frp.AllFiles = true;
             frp.Mainfrm = frename.Mainfrm;
             frp.ShowItItem();
 
@@ -9593,22 +9608,22 @@ namespace ThreeWorkTool
                                 MessageBox.Show("We got a read error here!", "YIKES");
                                 break;
                             }
-                        
-                           case "ThreeWorkTool.Resources.Wrappers.EffectListEntry":
-                           EffectListEntry efleme = new EffectListEntry();
-                           efleme = ArcEntry as EffectListEntry;
-                           if (efleme != null)
-                           {
-                               TreeChildInsert(NCount, efleme.EntryName, efleme.FileExt, efleme.EntryDirs, efleme.TrueName, efleme);
-                               TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
-                               break;
-                           }
-                           else
-                           {
-                               MessageBox.Show("We got a read error here!", "YIKES");
-                               break;
-                           }
-                        
+
+                        case "ThreeWorkTool.Resources.Wrappers.EffectListEntry":
+                            EffectListEntry efleme = new EffectListEntry();
+                            efleme = ArcEntry as EffectListEntry;
+                            if (efleme != null)
+                            {
+                                TreeChildInsert(NCount, efleme.EntryName, efleme.FileExt, efleme.EntryDirs, efleme.TrueName, efleme);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
 
                         //New Formats go like this!
                         /*
@@ -9658,7 +9673,7 @@ namespace ThreeWorkTool
 
                 FrmReplace frp = new FrmReplace();
                 frn.Mainfrm = this;
-                freplace= frp;
+                freplace = frp;
 
                 FrmTxtEditor frmTxt = new FrmTxtEditor();
                 frmTxt.Mainfrm = this;
@@ -10487,5 +10502,16 @@ namespace ThreeWorkTool
 
         }
 
+        private void findAndReplaceInAllFileNamesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (frename == null)
+            {
+                MessageBox.Show("Nothing is open.");
+            }
+            else
+            {
+                MenuItemReplaceTextInAllFilePathNames_Click(sender, e);
+            }
+        }
     }
 }

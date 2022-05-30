@@ -62,6 +62,7 @@
             this.pnlNew = new System.Windows.Forms.Panel();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
+            this.findAndReplaceInAllFileNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -203,7 +204,8 @@
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuSettings,
-            this.manifestToolStripMenuItem});
+            this.manifestToolStripMenuItem,
+            this.findAndReplaceInAllFileNamesToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
@@ -213,7 +215,7 @@
             this.MenuSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuUseManifest});
             this.MenuSettings.Name = "MenuSettings";
-            this.MenuSettings.Size = new System.Drawing.Size(120, 22);
+            this.MenuSettings.Size = new System.Drawing.Size(255, 22);
             this.MenuSettings.Text = "Settings";
             this.MenuSettings.Click += new System.EventHandler(this.MenuSettings_Click);
             // 
@@ -227,7 +229,7 @@
             // manifestToolStripMenuItem
             // 
             this.manifestToolStripMenuItem.Name = "manifestToolStripMenuItem";
-            this.manifestToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
+            this.manifestToolStripMenuItem.Size = new System.Drawing.Size(255, 22);
             this.manifestToolStripMenuItem.Text = "Manifest";
             this.manifestToolStripMenuItem.Click += new System.EventHandler(this.manifestToolStripMenuItem_Click);
             // 
@@ -416,6 +418,13 @@
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 
+            // findAndReplaceInAllFileNamesToolStripMenuItem
+            // 
+            this.findAndReplaceInAllFileNamesToolStripMenuItem.Name = "findAndReplaceInAllFileNamesToolStripMenuItem";
+            this.findAndReplaceInAllFileNamesToolStripMenuItem.Size = new System.Drawing.Size(255, 22);
+            this.findAndReplaceInAllFileNamesToolStripMenuItem.Text = "Find and Replace In All File Names";
+            this.findAndReplaceInAllFileNamesToolStripMenuItem.Click += new System.EventHandler(this.findAndReplaceInAllFileNamesToolStripMenuItem_Click);
+            // 
             // FrmMainThree
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -486,6 +495,7 @@
         private System.Windows.Forms.ToolStripMenuItem MenuUseManifest;
         private System.Windows.Forms.ToolStripMenuItem MenuNewArchive;
         public System.Windows.Forms.TextBox txtRPList;
+        private System.Windows.Forms.ToolStripMenuItem findAndReplaceInAllFileNamesToolStripMenuItem;
     }
 }
 
