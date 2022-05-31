@@ -244,6 +244,18 @@ namespace ThreeWorkTool
                         }
                     }
 
+                    if(tno.Tag as string != null && tno.Tag as string == "Folder")
+                    {
+
+                        //Replaces the Term in the folder.
+                        string FolderName = tno.Text as string;
+                        FolderName = FolderName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                        tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                        tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                        RenameCount++;
+
+                    }
+
                 }
 
                 Mainfrm.TreeSource.Update();
