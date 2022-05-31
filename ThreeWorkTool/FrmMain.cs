@@ -3221,6 +3221,45 @@ namespace ThreeWorkTool
             return conmenu;
         }
 
+        //Adds Context Menu for undefined files & everything else.
+        public static ContextMenuStrip MaterialContextAddder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Replace Text.
+            var reptxtitem = new ToolStripMenuItem("Replace Text in Material References", null, MenuItemReplaceTextInFile_Click, Keys.Control | Keys.E | Keys.ShiftKey);
+            conmenu.Items.Add(reptxtitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
+            conmenu.Items.Add(rnitem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp, Keys.Control | Keys.Up);
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
+            conmenu.Items.Add(mditem);
+
+            return conmenu;
+        }
+
         private static void MenuMSDEdit_Click(Object sender, System.EventArgs e)
         {
 
@@ -8358,7 +8397,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 12;
 
 
-                    matchild.ContextMenuStrip = GenericFileContextAdder(matchild, TreeSource);
+                    matchild.ContextMenuStrip = MaterialContextAddder(matchild, TreeSource);
 
                     //Makes Child Nodes for Texture references. More to come.
                     MaterialChildrenCreation(matchild, ment);
@@ -10513,5 +10552,7 @@ namespace ThreeWorkTool
                 MenuItemReplaceTextInAllFilePathNames_Click(sender, e);
             }
         }
+
+
     }
 }

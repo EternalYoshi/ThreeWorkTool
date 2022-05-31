@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
@@ -129,7 +130,7 @@ namespace ThreeWorkTool
                                     else if (tno.Tag as ResourcePathListEntry != null)
                                     {
                                         lrpenty = tno.Tag as ResourcePathListEntry;
-                                        lrpenty.EntryName = lrpenty.EntryName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text); 
+                                        lrpenty.EntryName = lrpenty.EntryName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                         lrpenty.TrueName = lrpenty.TrueName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                         lrpenty.FileName = lrpenty.FileName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                         tno.Tag = lrpenty;
@@ -266,6 +267,66 @@ namespace ThreeWorkTool
                 else if (Mainfrm.TreeSource.SelectedNode.Tag is MaterialEntry)
                 {
 
+                    TreeNodeCollection TNoCollection = Mainfrm.TreeSource.SelectedNode.Nodes;
+
+                    foreach (TreeNode node in TNoCollection)
+                    {
+                        if (node.Tag as string != null)
+                        {
+                            if (node.Text as string == "Textures")
+                            {
+                                Mainfrm.TreeSource.SelectedNode = node;
+                                break;
+                            }
+                        }
+                    }
+
+                    TNoCollection = Mainfrm.TreeSource.SelectedNode.Nodes;
+                    Mainfrm.TreeSource.BeginUpdate();
+
+                    foreach (TreeNode node in TNoCollection)
+                    {
+
+                        string Namer = node.Name as string;
+                        node.Text = node.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                        Namer = Namer.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                        node.Name = Namer;
+
+                    }
+
+                    Mainfrm.TreeSource.SelectedNode = Mainfrm.TreeSource.SelectedNode.Parent;
+
+                    //Now to update the Material file with all these, Whether they're changed or not.
+                    TreeNode Parentnode = Mainfrm.TreeSource.SelectedNode;
+                    MaterialEntry ParentMateial = Parentnode.Tag as MaterialEntry;
+                    MaterialTextureReference texref = new MaterialTextureReference();
+                    string TermToInject = "";
+                    //int count = 0;
+
+                    for (int i = 0; i < TNoCollection.Count; i++)
+                    {
+
+                        texref = TNoCollection[i].Tag as MaterialTextureReference;
+
+                        TermToInject = TNoCollection[i].Text;
+
+                        //Now for the actual file update.                    
+                        List<byte> NameToInject = new List<byte>();
+                        NameToInject.AddRange(Encoding.ASCII.GetBytes(TermToInject));
+                        int OffsetToUse;
+                        OffsetToUse = 64 + (88 * (texref.Index - 1));
+                        byte[] NewName = new byte[64];
+                        Array.Copy(NameToInject.ToArray(), 0, NewName, 0, NameToInject.ToArray().Length);
+                        Array.Copy(NewName, 0, ParentMateial.UncompressedData, OffsetToUse, NewName.Length);
+                        ParentMateial.CompressedData = Zlibber.Compressor(ParentMateial.UncompressedData);
+
+                    }
+
+                    Mainfrm.TreeSource.SelectedNode.Tag = ParentMateial;
+
+                    Mainfrm.OpenFileModified = true;
+                    Mainfrm.TreeSource.Update();
+                    Mainfrm.TreeSource.EndUpdate();
 
 
                 }
