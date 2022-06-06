@@ -85,6 +85,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             eflentry.Effects = new List<EffectNode>();
             int PrevOffset = Convert.ToInt32(bnr.BaseStream.Position);
+            int Iterator = 0;
 
             try
             {

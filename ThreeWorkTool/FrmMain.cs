@@ -274,7 +274,7 @@ namespace ThreeWorkTool
                                                     {
                                                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
                                                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
-                                                        || awrapper.Tag as EffectNode == null)
+                                                        || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null)
                                                         {
                                                             {
                                                                 //Removes the archive name from the FullPath for a proper search.
@@ -325,7 +325,7 @@ namespace ThreeWorkTool
                                                     {
                                                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
                                                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
-                                                        || awrapper.Tag as EffectNode == null)
+                                                        || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null)
                                                         {
                                                             //Removes the archive name from the FullPath for a proper search.
                                                             string FullPathSearch = awrapper.FullPath;
@@ -398,7 +398,7 @@ namespace ThreeWorkTool
                                         {
                                             if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" ||
                                                 treno.Tag as string == "Model Primitive Group" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
-                                                || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode)
+                                                || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce)
                                             {
 
                                             }
@@ -9223,7 +9223,7 @@ namespace ThreeWorkTool
         {
 
             TreeSource.SelectedNode = MEntry;
-            /*
+            
             //Fills in Effects..?
             for (int i = 0; i < efl.Effects.Count; i++)
             {
@@ -9234,9 +9234,30 @@ namespace ThreeWorkTool
                 efnn.ImageIndex = 16;
                 efnn.SelectedImageIndex = 16;
                 TreeSource.SelectedNode.Nodes.Add(efnn);
+                TreeSource.SelectedNode = efnn;
+
+                //Fills in Effect Texture Name Refernces..?
+
+                foreach (EffectFieldTextureRefernce refernce in efl.Effects[i].FXTXNameRefs)
+                {
+
+                    ArcEntryWrapper TextureName = new ArcEntryWrapper();
+                    TextureName.Name = refernce.TextureName;
+                    TextureName.Tag = refernce;
+                    TextureName.Text = refernce.TextureName;
+                    TreeSource.SelectedNode.Nodes.Add(TextureName);
+                    ContextMenuStrip conmenu = new ContextMenuStrip();
+
+                    var Mrefnitem = new ToolStripMenuItem("Change Texture Reference via Rename", null, MenuItemRenameFile_Click, Keys.F2);
+                    conmenu.Items.Add(Mrefnitem);
+                    TextureName.ContextMenuStrip = conmenu;
+
+                }
+
+                TreeSource.SelectedNode = efnn.Parent;
 
             }
-            */
+            
         }
 
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
@@ -9985,6 +10006,20 @@ namespace ThreeWorkTool
                 case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.EffectNode":
                     EffectNode effectnodeEntry = new EffectNode();
                     effectnodeEntry = TreeSource.SelectedNode.Tag as EffectNode;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                #endregion
+
+
+                #region Effect Texture Reference Node
+                case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.EffectFieldTextureRefernce":
+                    EffectFieldTextureRefernce effectFieldTextureReferncenode = new EffectFieldTextureRefernce();
+                    effectFieldTextureReferncenode = TreeSource.SelectedNode.Tag as EffectFieldTextureRefernce;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
