@@ -3007,6 +3007,8 @@ namespace ThreeWorkTool
 
             conmenu.Items.Add("Export All", null, ExportAllFolder);
 
+            conmenu.Items.Add("Replace All Textures", null, ReplaceAllTextures);
+
             //Creates New Folder.
             var nfitem = new ToolStripMenuItem("New Folder", null, NewFolderNode, Keys.Control | Keys.F);
             conmenu.Items.Add(nfitem);
@@ -4831,11 +4833,9 @@ namespace ThreeWorkTool
 
                             //Removes the old child nodes.
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
-
                             //Builds the new child nodes.
                             frename.Mainfrm.EFLChildrenCreation(NewWrapper, NewWrapper.Tag as EffectListEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
-
                             break;
 
                         default:
@@ -7958,6 +7958,338 @@ namespace ThreeWorkTool
 
         }
 
+        private static void ReplaceAllTextures(Object sender, System.EventArgs e)
+        {
+
+            //Uses the Save File Dialog for the Export All Folder command since it's less ugly and remembers where your previous directory is.
+            SaveFileDialog RPAllDialog = new SaveFileDialog();
+            RPAllDialog.Title = "Choose a directory. Make sure it's not too many characters in the file path.";
+            RPAllDialog.FileName = "Export Here";
+            RPAllDialog.Filter = "Directory | directory";
+
+            if (RPAllDialog.ShowDialog() == DialogResult.OK)
+            {
+
+                //Gets the directory without any of the text the user put in the Save Dialog.
+                int index = RPAllDialog.FileName.LastIndexOf("\\");
+                RPAllDialog.FileName = RPAllDialog.FileName.Substring(0, (index + 1));
+                string savePath = Path.GetDirectoryName(RPAllDialog.FileName);
+
+#if DEBUG
+                MessageBox.Show("The Directory chosen is: " + RPAllDialog.FileName + "\n and has this many characters: " + RPAllDialog.FileName.Length, "");
+#endif
+
+
+                List<TreeNode> Nodes = new List<TreeNode>();
+                frename.Mainfrm.AddChildren(Nodes, frename.Mainfrm.TreeSource.SelectedNode);
+
+
+                foreach (TreeNode tno in Nodes)
+                {
+                    //Gets the node as a ArcEntryWrapper to allow access to all the variables and data.
+                    ArcEntryWrapper awrapper = tno as ArcEntryWrapper;
+
+                    if (awrapper != null)
+                    {
+                        if (awrapper.Tag as string == null)
+                        {
+                            if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
+                            || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
+                            || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null)
+                            {
+                                {
+                                    ArcEntry Aentry = tno.Tag as ArcEntry;
+
+                                    var tag = tno.Tag;
+
+                                    if (tag is TextureEntry)
+                                    {
+                                        Aentry = tno.Tag as ArcEntry;
+
+                                        string helper = ".dds";
+
+                                        string TexToCheck = "";
+                                        TexToCheck = RPAllDialog.FileName + tno.Text + ".dds";
+
+                                        if (File.Exists(TexToCheck))
+                                        {
+                                            frename.Mainfrm.TreeSource.SelectedNode = tno;
+                                            frename.Mainfrm.TreeSource.BeginUpdate();
+
+                                            TextureEntry Tentry = tno.Tag as TextureEntry;
+
+                                            switch (helper)
+                                            {
+                                                case ".tex":
+                                                    ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                                                    ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                                                    OldWrapper = tno as ArcEntryWrapper;
+                                                    string oldname = OldWrapper.Name;
+                                                    TextureEntry Oldaent = new TextureEntry();
+                                                    TextureEntry Newaent = new TextureEntry();
+                                                    Oldaent = OldWrapper.entryfile as TextureEntry;
+
+                                                    //string[] pathsDDS = OldaentDDS.EntryDirs;
+                                                    string temp = OldWrapper.FullPath;
+                                                    temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                                                    temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                                                    string[] paths = temp.Split('\\');
+
+                                                    NewWrapper = tno as ArcEntryWrapper;
+                                                    int indexZ = tno.Index;
+                                                    NewWrapper.Tag = TextureEntry.ReplaceTextureEntry(frename.Mainfrm.TreeSource, NewWrapper, TexToCheck);
+                                                    NewWrapper.ContextMenuStrip = TextureContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                                    frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                                                    //Takes the path data from the old node and slaps it on the new node.
+                                                    Newaent = NewWrapper.entryfile as TextureEntry;
+                                                    Newaent.EntryDirs = paths;
+                                                    NewWrapper.entryfile = Newaent;
+
+                                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                                                    //Pathing.
+                                                    foreach (string Folder in paths)
+                                                    {
+                                                        if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                                        {
+                                                            TreeNode folder = new TreeNode();
+                                                            folder.Name = Folder;
+                                                            folder.Tag = Folder;
+                                                            folder.Text = Folder;
+                                                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                                            frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                                            frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                                            frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                                        }
+                                                        else
+                                                        {
+                                                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                                        }
+                                                    }
+
+
+
+                                                    //Removes the node and inserts the new one.
+                                                    //TreeNode node = 
+                                                    //frename.Mainfrm.TreeSource.SelectedNode.Remove();
+                                                    //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
+
+                                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                                                    //Writes to log file.
+                                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                                    {
+                                                        sw.WriteLine("Replaced a file via .tex Import: " + TexToCheck + "\nCurrent File List:\n");
+                                                        sw.WriteLine("===============================================================================================================");
+                                                        int entrycount = 0;
+                                                        frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                                        sw.WriteLine("Current file Count: " + entrycount);
+                                                        sw.WriteLine("===============================================================================================================");
+                                                    }
+
+                                                    break;
+
+                                                //DDS imports.
+                                                case ".dds":
+                                                case ".DDS":
+                                                    {
+                                                        try
+                                                        {
+                                                            //Creates and Spawns the Texture Encoder Dialog.
+                                                            OpenFileDialog ofdummy = new OpenFileDialog();
+                                                            FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(TexToCheck, ofdummy);
+                                                            if (frmtexencode == null)
+                                                            {
+                                                                return;
+                                                            }
+                                                            else
+                                                            {
+                                                                frmtexencode.IsReplacing = true;
+                                                                frmtexencode.ShowDialog();
+
+                                                                if (frmtexencode.DialogResult == DialogResult.OK)
+                                                                {
+                                                                    ArcEntryWrapper NewWrapperDDS = new ArcEntryWrapper();
+                                                                    ArcEntryWrapper OldWrapperDDS = new ArcEntryWrapper();
+
+                                                                    OldWrapperDDS = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                                                    string oldnameDDS = OldWrapperDDS.Name;
+                                                                    TextureEntry OldaentDDS = new TextureEntry();
+                                                                    TextureEntry NewaentDDS = new TextureEntry();
+                                                                    OldaentDDS = OldWrapperDDS.entryfile as TextureEntry;
+
+
+                                                                    //string[] pathsDDS = OldaentDDS.EntryDirs;
+                                                                    List<string> pathsDDS = new List<string>();
+                                                                    string tempDDS = OldWrapperDDS.FullPath;
+                                                                    tempDDS = tempDDS.Substring(tempDDS.IndexOf(("\\")) + 1);
+                                                                    tempDDS = tempDDS.Substring(0, tempDDS.LastIndexOf(("\\")));
+
+                                                                    pathsDDS = tempDDS.Split('\\').ToList();
+
+                                                                    NewWrapperDDS = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                                                    int indexDDS = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                                                                    NewWrapperDDS.Tag = TextureEntry.ReplaceTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS, TexToCheck, frmtexencode, frmtexencode.TexData);
+                                                                    NewWrapperDDS.ContextMenuStrip = TextureContextAdder(NewWrapperDDS, frename.Mainfrm.TreeSource);
+                                                                    frename.Mainfrm.IconSetter(NewWrapperDDS, NewWrapperDDS.FileExt);
+                                                                    //Takes the path data from the old node and slaps it on the new node.
+                                                                    NewaentDDS = NewWrapperDDS.entryfile as TextureEntry;
+                                                                    NewaentDDS.EntryDirs = pathsDDS.ToArray();
+                                                                    NewWrapperDDS.entryfile = NewaentDDS;
+
+                                                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                                                                    //Pathing.
+                                                                    foreach (string Folder in pathsDDS)
+                                                                    {
+                                                                        if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                                                        {
+                                                                            TreeNode folder = new TreeNode();
+                                                                            folder.Name = Folder;
+                                                                            folder.Tag = Folder;
+                                                                            folder.Text = Folder;
+                                                                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                                                            frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                                                            frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                                                            frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                                                        }
+                                                                    }
+
+                                                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperDDS;
+                                                                    //frename.Mainfrm.Focus();
+                                                                }
+                                                            }
+                                                        }
+                                                        catch (Exception ex)
+                                                        {
+                                                            if (ex is IOException)
+                                                            {
+                                                                MessageBox.Show("Unable to import because another proccess is using it.");
+                                                                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                                                {
+                                                                    sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
+                                                                }
+                                                                return;
+                                                            }
+                                                            else
+                                                            {
+                                                                MessageBox.Show("The DDS file is either malinformed or is not the correct format/kind.");
+                                                                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                                                {
+                                                                    sw.WriteLine("Cannot import: " + "\nbecause it's an invalid dds file.");
+                                                                }
+                                                            }
+
+                                                        }
+                                                        break;
+
+
+                                                    }
+
+                                                default:
+                                                    break;
+                                            }
+
+
+                                            frename.Mainfrm.OpenFileModified = true;
+                                            frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                                            string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                                            //Writes to log file.
+                                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                                            {
+                                                sw.WriteLine("Replaced a file via DDS Import: " + TexToCheck + "\nCurrent File List:\n");
+                                                sw.WriteLine("===============================================================================================================");
+                                                int entrycount = 0;
+                                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                                sw.WriteLine("Current file Count: " + entrycount);
+                                                sw.WriteLine("===============================================================================================================");
+                                            }
+
+                                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+                                            TextureEntry txentry = new TextureEntry();
+                                            txentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as TextureEntry;
+                                            frename.Mainfrm.picBoxA.Visible = true;
+                                            Bitmap bmx = BitmapBuilderDX(txentry.OutMaps, txentry, frename.Mainfrm.picBoxA);
+                                            if (bmx == null)
+                                            {
+                                                frename.Mainfrm.picBoxA.Image = frename.Mainfrm.picBoxA.ErrorImage;
+                                            }
+                                            else
+                                            {
+                                                ImageRescaler(bmx, frename.Mainfrm.picBoxA, txentry);
+                                            }
+
+
+
+
+                                            /*
+
+                                            switch (helper)
+                                            {
+                                                case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                                                    ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                                                    ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                                                    OldWrapper = tno as ArcEntryWrapper;
+                                                    string oldname = OldWrapper.Name;
+                                                    ArcEntry Oldaent = new ArcEntry();
+                                                    ArcEntry Newaent = new ArcEntry();
+                                                    Oldaent = OldWrapper.entryfile as ArcEntry;
+                                                    //string[] pathsDDS = OldaentDDS.EntryDirs;
+                                                    string temp = OldWrapper.FullPath;
+                                                    temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                                                    temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                                                    string[] paths = temp.Split('\\');
+                                                    string TexToCheck = "";
+                                                    TexToCheck = RPAllDialog.FileName + tno.Text + ".dds";
+
+                                                    if (File.Exists(TexToCheck))
+                                                    {
+
+                                                    }
+
+                                                    break;
+
+                                                default:
+                                                    break;
+                                            }
+
+                                            */
+                                            frename.Mainfrm.OpenFileModified = true;
+                                            frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                                            type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                                        }
+
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+            }
+
+        }
+
         private static void ImportYML(Object sender, System.EventArgs e)
         {
 
@@ -9223,7 +9555,7 @@ namespace ThreeWorkTool
         {
 
             TreeSource.SelectedNode = MEntry;
-            
+
             //Fills in Effects..?
             for (int i = 0; i < efl.Effects.Count; i++)
             {
@@ -9257,7 +9589,7 @@ namespace ThreeWorkTool
                 TreeSource.SelectedNode = efnn.Parent;
 
             }
-            
+
         }
 
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
