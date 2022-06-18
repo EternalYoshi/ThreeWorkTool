@@ -9223,6 +9223,8 @@ namespace ThreeWorkTool
 
                     TreeSource.SelectedNode = eflrootNode;
 
+                    eflchild.Collapse();
+
                     tcount++;
 
                     break;
