@@ -212,9 +212,9 @@ namespace ThreeWorkTool.Resources.Wrappers
             else
             {
 
-                for (int t = 0; t < rple.EntryList.Count; t++)
+                for (int t = 0; t < rple.TextBackup.Count; t++)
                 {
-                    texbox.Text = texbox.Text + rple.EntryList[t].TotalName + System.Environment.NewLine;
+                    texbox.Text = texbox.Text + rple.TextBackup[t];
                 }
                 /*
                 for (int t = 0; t < rple.TextBackup.Count; t++)

@@ -9555,7 +9555,7 @@ namespace ThreeWorkTool
 
         public void EFLChildrenCreation(TreeNode MEntry, EffectListEntry efl)
         {
-
+            /*
             TreeSource.SelectedNode = MEntry;
 
             //Fills in Effects..?
@@ -9591,7 +9591,7 @@ namespace ThreeWorkTool
                 TreeSource.SelectedNode = efnn.Parent;
 
             }
-
+            */
         }
 
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)

@@ -111,9 +111,9 @@ namespace ThreeWorkTool.Resources.Wrappers
             else
             {
 
-                for (int t = 0; t < geme.EntryList.Count; t++)
+                for (int t = 0; t < geme.TextBackup.Count; t++)
                 {
-                    texbox.Text = texbox.Text + geme.EntryList[t].TotalName + System.Environment.NewLine;
+                    texbox.Text = texbox.Text + geme.TextBackup[t];
                 }
                 /*
                 for (int t = 0; t < rple.TextBackup.Count; t++)
