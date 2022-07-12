@@ -312,6 +312,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                     lmtentry.FileExt = trname.Substring(trname.LastIndexOf("."));
                     lmtentry._FileType = lmtentry.FileExt;
 
+                    lmtentry.LstM3A = new List<LMTM3AEntry>();
+                    lmtentry.OffsetList = new List<int>();
+
                     bnr.BaseStream.Position = 6;
                     lmtentry.Version = bnr.ReadInt16();
                     lmtentry.EntryCount = lmtentry.Version;

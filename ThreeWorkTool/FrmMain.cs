@@ -5831,6 +5831,14 @@ namespace ThreeWorkTool
                         }
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeLMT;
+
+                        //Removes the old child nodes.
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                        //Creates the Material Children of the new node.
+                        frename.Mainfrm.LMTChildrenCreation(selectednodeLMT, selectednodeLMT.Tag as LMTEntry);
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeLMT;
+
                         break;
                     #endregion
 
@@ -6816,6 +6824,15 @@ namespace ThreeWorkTool
                                 sw.WriteLine("===============================================================================================================");
                             }
 
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeLMT;
+
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                            //Creates the Material Children of the new node.
+                            frename.Mainfrm.LMTChildrenCreation(selectednodeLMT, selectednodeLMT.Tag as LMTEntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeLMT;
+
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeLMT.Parent;
                             break;
                         #endregion
@@ -7123,7 +7140,7 @@ namespace ThreeWorkTool
                             ArcEntryWrapper NewWrapperGEM = new ArcEntryWrapper();
                             GemEntry GeMEntry = new GemEntry();
 
-                            GeMEntry = GemEntry.InsertGEM(frename.Mainfrm.TreeSource, NewWrapperGEM, IMPDialog.FileName);
+                            GeMEntry = GemEntry.InsertGEM(frename.Mainfrm.TreeSource, NewWrapperGEM, Filename);
                             NewWrapperGEM.Tag = GeMEntry;
                             NewWrapperGEM.Text = GeMEntry.TrueName;
                             NewWrapperGEM.Name = GeMEntry.TrueName;
@@ -7133,7 +7150,7 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.IconSetter(NewWrapperGEM, NewWrapperGEM.FileExt);
 
-                            NewWrapperGEM.ContextMenuStrip = GenericFileContextAdder(NewWrapperGEM, frename.Mainfrm.TreeSource);
+                            NewWrapperGEM.ContextMenuStrip = TXTContextAdder(NewWrapperGEM, frename.Mainfrm.TreeSource);
 
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperGEM);
 
@@ -7179,7 +7196,7 @@ namespace ThreeWorkTool
                                 sw.WriteLine("===============================================================================================================");
                             }
 
-                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeGEM;
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeGEM.Parent;
                             break;
 
                         #endregion
@@ -7191,7 +7208,7 @@ namespace ThreeWorkTool
                             ArcEntryWrapper NewWrapperEFL = new ArcEntryWrapper();
                             EffectListEntry EFLEntry = new EffectListEntry();
 
-                            EFLEntry = EffectListEntry.InsertEFL(frename.Mainfrm.TreeSource, NewWrapperEFL, IMPDialog.FileName);
+                            EFLEntry = EffectListEntry.InsertEFL(frename.Mainfrm.TreeSource, NewWrapperEFL, Filename);
                             NewWrapperEFL.Tag = EFLEntry;
                             NewWrapperEFL.Text = EFLEntry.TrueName;
                             NewWrapperEFL.Name = EFLEntry.TrueName;
