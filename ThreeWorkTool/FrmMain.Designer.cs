@@ -49,6 +49,7 @@
             this.MenuSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuUseManifest = new System.Windows.Forms.ToolStripMenuItem();
             this.manifestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findAndReplaceInAllFileNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuNotesAndAdvice = new System.Windows.Forms.ToolStripMenuItem();
@@ -62,7 +63,6 @@
             this.pnlNew = new System.Windows.Forms.Panel();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
-            this.findAndReplaceInAllFileNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -232,6 +232,13 @@
             this.manifestToolStripMenuItem.Size = new System.Drawing.Size(255, 22);
             this.manifestToolStripMenuItem.Text = "Manifest";
             this.manifestToolStripMenuItem.Click += new System.EventHandler(this.manifestToolStripMenuItem_Click);
+            // 
+            // findAndReplaceInAllFileNamesToolStripMenuItem
+            // 
+            this.findAndReplaceInAllFileNamesToolStripMenuItem.Name = "findAndReplaceInAllFileNamesToolStripMenuItem";
+            this.findAndReplaceInAllFileNamesToolStripMenuItem.Size = new System.Drawing.Size(255, 22);
+            this.findAndReplaceInAllFileNamesToolStripMenuItem.Text = "Find and Replace In All File Names";
+            this.findAndReplaceInAllFileNamesToolStripMenuItem.Click += new System.EventHandler(this.findAndReplaceInAllFileNamesToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -418,13 +425,6 @@
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 
-            // findAndReplaceInAllFileNamesToolStripMenuItem
-            // 
-            this.findAndReplaceInAllFileNamesToolStripMenuItem.Name = "findAndReplaceInAllFileNamesToolStripMenuItem";
-            this.findAndReplaceInAllFileNamesToolStripMenuItem.Size = new System.Drawing.Size(255, 22);
-            this.findAndReplaceInAllFileNamesToolStripMenuItem.Text = "Find and Replace In All File Names";
-            this.findAndReplaceInAllFileNamesToolStripMenuItem.Click += new System.EventHandler(this.findAndReplaceInAllFileNamesToolStripMenuItem_Click);
-            // 
             // FrmMainThree
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -439,7 +439,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
-            this.Text = "ThreeWork Tool V0.5X";
+            this.Text = "ThreeWork Tool V0.5XX";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
             this.Load += new System.EventHandler(this.FrmMainThree_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMainThree_KeyDown);

@@ -39,7 +39,7 @@
             // 
             // btnAboutOK
             // 
-            this.btnAboutOK.Location = new System.Drawing.Point(294, 218);
+            this.btnAboutOK.Location = new System.Drawing.Point(310, 218);
             this.btnAboutOK.Name = "btnAboutOK";
             this.btnAboutOK.Size = new System.Drawing.Size(75, 23);
             this.btnAboutOK.TabIndex = 0;
@@ -76,9 +76,9 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(178, 26);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(210, 48);
+            this.label1.Size = new System.Drawing.Size(224, 48);
             this.label1.TabIndex = 3;
-            this.label1.Text = "ThreeWork Tool V0.5X \r\nby Eternal Yoshi";
+            this.label1.Text = "ThreeWork Tool V0.5XX \r\nby Eternal Yoshi";
             // 
             // pictureBox1
             // 
@@ -95,7 +95,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(381, 253);
+            this.ClientSize = new System.Drawing.Size(397, 253);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lblURLText);
