@@ -13,6 +13,7 @@ using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using ThreeWorkTool.Resources.Wrappers.ModelNodes;
+using Ionic.Zlib;
 using static ThreeWorkTool.Resources.Wrappers.MaterialEntry;
 
 namespace ThreeWorkTool
@@ -67,7 +68,7 @@ namespace ThreeWorkTool
         public bool OpenFileModified;
         public List<string> Manifest;
         public List<string> RPLNameList;
-        public bool UseManifest;
+        public bool UseManifest, ExportAsDDS;
         public static FrmRename frename;
         public static FrmReplace freplace;
         public static FrmTxtEditor frmTxtEdit;
@@ -2782,6 +2783,7 @@ namespace ThreeWorkTool
             frmTxt.Mainfrm = this;
             frmTxtEdit = frmTxt;
             UseManifest = false;
+            ExportAsDDS = false;
             InvalidImport = false;
 
             HasSaved = false;
@@ -2853,11 +2855,20 @@ namespace ThreeWorkTool
                         }
                         return;
                     }
+                    else if (ex is ZlibException)
+                    {
+                        MessageBox.Show("Unable to decompress the file because the arc is in a corrupted state.", "Oh no it's an error.");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot decompress the files inside:" + OFDialog.FileName + " because the arc is corrupt.\n" + ex);
+                        }
+                        return;
+                    }
                     else
                     {
                         using (StreamWriter sw = File.AppendText("Log.txt"))
                         {
-                            sw.WriteLine("Unknown exception trying to open:" + "\n");
+                            sw.WriteLine("Unknown exception trying to open:" + OFDialog.FileName + "\n" + ex);
                         }
                         return;
                     }
@@ -7642,8 +7653,19 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath.Substring(0, dindex);
                                 ExportPath = BaseDirectory + ExportPath;
                                 System.IO.Directory.CreateDirectory(ExportPath);
-                                ExportPath = ExportPath + TENT.FileName + ".tex";
-                                ExportFileWriter.TexEntryWriter(ExportPath, TENT);
+
+                                if (frename.Mainfrm.ExportAsDDS == true)
+                                {
+                                    ExportPath = ExportPath + TENT.FileName + ".dds";
+                                    ExportFileWriter.TexEntryWriter(ExportPath, TENT);
+                                }
+                                else
+                                {
+                                    ExportPath = ExportPath + TENT.FileName + ".tex";
+                                    ExportFileWriter.TexEntryWriter(ExportPath, TENT);
+                                }
+
+
                             }
                             else if (kid.Tag is ResourcePathListEntry)
                             {
@@ -7795,7 +7817,6 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath + MISENT.FileName + MISENT.FileExt;
                                 ExportFileWriter.MissionWriter(ExportPath, MISENT);
                             }
-
                             else if (kid.Tag is GemEntry)
                             {
                                 GemEntry gemENT = kid.Tag as GemEntry;
@@ -7811,9 +7832,6 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath + gemENT.FileName + gemENT.FileExt;
                                 ExportFileWriter.GemWriter(ExportPath, gemENT);
                             }
-
-
-                            //New Formats go like this!!
                             else if (kid.Tag is EffectListEntry)
                             {
                                 EffectListEntry eflENT = kid.Tag as EffectListEntry;
@@ -10090,6 +10108,7 @@ namespace ThreeWorkTool
                 frmTxt.Mainfrm = this;
                 frmTxtEdit = frmTxt;
                 UseManifest = false;
+                ExportAsDDS = false;
                 InvalidImport = false;
 
                 HasSaved = false;
@@ -10939,6 +10958,20 @@ namespace ThreeWorkTool
             }
         }
 
+        private void exportAllExporttexFilesAsDDSFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
 
+            if (MenuExportAllTexAsDDS.Checked == false)
+            {
+                MenuExportAllTexAsDDS.Checked = true;
+                ExportAsDDS = true;
+            }
+            else
+            {
+                MenuExportAllTexAsDDS.Checked = false;
+                ExportAsDDS = false;
+            }
+
+        }
     }
 }
