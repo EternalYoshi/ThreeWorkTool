@@ -206,6 +206,7 @@
     <Compile Include="Resources\Utility\ByteUtilitarian.cs" />
     <Compile Include="Resources\Utility\CFGHandler.cs" />
     <Compile Include="Resources\Utility\ENumerators.cs" />
+    <Compile Include="Resources\Utility\QToEuler.cs" />
     <Compile Include="Resources\Wrappers\AnimNodes\LMTM3ATrackBuffer.cs" />
     <Compile Include="Resources\Wrappers\ArcEntryWrapper.cs" />
     <Compile Include="Resources\Wrappers\ArcFileWrapper.cs" />
