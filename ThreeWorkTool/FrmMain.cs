@@ -26,6 +26,8 @@ namespace ThreeWorkTool
         private static FrmMainThree _instance;
         public static FrmMainThree Instance { get { return _instance == null ? _instance = new FrmMainThree() : _instance; } }
         private int FileCount;
+        public SoundPlayer SPlayer;
+
 
         private List<string> _MostRecentlyUsedList = new List<string>();
 
@@ -9649,9 +9651,9 @@ namespace ThreeWorkTool
                     TreeSource.BeginUpdate();
 
                     rifchild.Name = I;
-                    rifchild.Tag = FEntry as GemEntry;
+                    rifchild.Tag = FEntry as RIFFEntry;
                     rifchild.Text = I;
-                    rifchild.entryfile = FEntry as GemEntry;
+                    rifchild.entryfile = FEntry as RIFFEntry;
                     rifchild.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
@@ -10273,7 +10275,7 @@ namespace ThreeWorkTool
             List<string> subdirs = new List<String>();
             List<string> RPLNameList = new List<string>();
             ArcFileIsBigEndian = false;
-
+            SPlayer = new SoundPlayer();
             ArcFile newArc = ArcFile.LoadArc(TreeSource, FilePath, subdirs, ArcFileIsBigEndian, false);
 
             NCount = 0;
@@ -10821,6 +10823,7 @@ namespace ThreeWorkTool
 
         private void UpdateNodeSelection(string type)
         {
+            SPlayer.Stop();
             switch (type)
             {
 
@@ -10831,7 +10834,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
 
@@ -10844,7 +10849,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
 
@@ -10857,7 +10864,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
 
@@ -10870,7 +10879,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
 
@@ -10881,8 +10892,11 @@ namespace ThreeWorkTool
                     RIFFEntry riffEntry = new RIFFEntry();
                     riffEntry = TreeSource.SelectedNode.Tag as RIFFEntry;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    RIFFEntry.RefreshAudioPlayer(SPlayer,riffEntry);
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = true;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.Fill;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
@@ -10897,9 +10911,11 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     txtRPList.Text = "";
                     txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     txtRPList = GemEntry.LoadGEMInTextBox(txtRPList, gemEntry);
                     RPLBackup = txtRPList.Text;
                     txtRPList.Visible = true;
+                    pnlAudioPlayer.Visible = false;
                     isFinishRPLRead = true;
                     UpdateTheEditMenu();
                     break;
@@ -10912,7 +10928,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
 
@@ -10925,7 +10943,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
 
@@ -10938,7 +10958,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
                 #endregion
@@ -10950,7 +10972,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
 
@@ -10965,9 +10989,11 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     txtRPList.Text = "";
                     txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     txtRPList = ChainListEntry.LoadCSTInTextBox(txtRPList, chainListEntry);
                     RPLBackup = txtRPList.Text;
                     txtRPList.Visible = true;
+                    pnlAudioPlayer.Visible = false;
                     isFinishRPLRead = true;
                     UpdateTheEditMenu();
                     break;
@@ -10980,7 +11006,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
                 #endregion
@@ -10992,7 +11020,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
                 #endregion
@@ -11004,7 +11034,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
                 #endregion
@@ -11016,7 +11048,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     MenuEdit.Enabled = false;
                     break;
                 #endregion
@@ -11028,7 +11062,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     MenuEdit.Enabled = false;
                     break;
                 #endregion
@@ -11042,9 +11078,11 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     txtRPList.Text = "";
                     txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     txtRPList = ResourcePathListEntry.LoadRPLInTextBox(txtRPList, rplentry);
                     RPLBackup = txtRPList.Text;
                     txtRPList.Visible = true;
+                    pnlAudioPlayer.Visible = false;
                     isFinishRPLRead = true;
                     UpdateTheEditMenu();
                     break;
@@ -11061,6 +11099,8 @@ namespace ThreeWorkTool
                     //txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
                     //txtRPList = MSDEntry.LoadMSDInTextBox(txtRPList, msdentry);
                     RPLBackup = txtRPList.Text;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Visible = false;
                     isFinishRPLRead = true;
                     UpdateTheEditMenu();
@@ -11073,8 +11113,10 @@ namespace ThreeWorkTool
                     tentry = TreeSource.SelectedNode.Tag as TextureEntry;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     picBoxA.Image = null;
                     picBoxA.Visible = true;
+                    pnlAudioPlayer.Visible = false;
                     UpdateTheEditMenu();
 
                     if (tentry.Picture == null)
@@ -11114,6 +11156,7 @@ namespace ThreeWorkTool
                     tentry = TreeSource.SelectedNode.Tag as TextureEntry;
                     txtRPList.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     picBoxA.Image = null;
                     picBoxA.Visible = true;
                     UpdateTheEditMenu();
@@ -11156,7 +11199,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
 
@@ -11164,7 +11209,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
                 #endregion
@@ -11175,7 +11222,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
 
@@ -11183,7 +11232,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
                 #endregion
@@ -11196,7 +11247,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
 
@@ -11206,7 +11259,9 @@ namespace ThreeWorkTool
                     pGrdMain.SelectedObject = null;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
                     txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     UpdateTheEditMenu();
                     break;
 
@@ -11432,6 +11487,33 @@ namespace ThreeWorkTool
             {
                 MenuItemReplaceTextInAllFilePathNames_Click(sender, e);
             }
+        }
+
+        private void btnPlayPause_Click(object sender, EventArgs e)
+        {
+            RIFFEntry riff = new RIFFEntry();
+            riff = frename.Mainfrm.TreeSource.SelectedNode.Tag as RIFFEntry;
+            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+            using (MemoryStream Mestream = new MemoryStream(riff.UncompressedData))
+            {
+                SPlayer = new SoundPlayer(Mestream);
+                if (txtAudioLoopToggle.Checked == true)
+                {
+                    SPlayer.PlayLooping();
+                }
+                else
+                {
+                    SPlayer.Play();
+                }
+            }
+
+
+        }
+
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+            SPlayer.Stop();
         }
 
         private void exportAllExporttexFilesAsDDSFilesToolStripMenuItem_Click(object sender, EventArgs e)

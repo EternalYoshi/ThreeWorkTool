@@ -21,6 +21,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int Version;
         public int FileLength;
         public float SoundLength;
+        MemoryStream Mestream;
 
         public static RIFFEntry FillRIFFEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -85,6 +86,21 @@ namespace ThreeWorkTool.Resources.Wrappers
             rifentry.FileExt = trname.Substring(trname.LastIndexOf("."));
 
             return rifentry;
+        }
+
+        public static void RefreshAudioPlayer(SoundPlayer SPlayer, RIFFEntry riff)
+        {
+
+            //SPlayer.SoundLocation = riff.UncompressedData;
+            using (MemoryStream Mestream = new MemoryStream(riff.UncompressedData))
+            {
+
+                SPlayer = new SoundPlayer(Mestream);
+                //SPlayer.Play();
+            }
+
+
+
         }
 
         #region RIFF/XSEW Properties

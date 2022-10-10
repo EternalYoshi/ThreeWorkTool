@@ -62,8 +62,13 @@
             this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.pnlNew = new System.Windows.Forms.Panel();
+            this.pnlAudioPlayer = new System.Windows.Forms.Panel();
+            this.txtAudioLoopToggle = new System.Windows.Forms.CheckBox();
+            this.btnStop = new System.Windows.Forms.Button();
+            this.btnPlayPause = new System.Windows.Forms.Button();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
+            this.trckBarAudioPlayerSeeker = new System.Windows.Forms.TrackBar();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -74,7 +79,9 @@
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.pnlNew.SuspendLayout();
+            this.pnlAudioPlayer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picBoxA)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trckBarAudioPlayerSeeker)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -401,6 +408,7 @@
             // 
             // pnlNew
             // 
+            this.pnlNew.Controls.Add(this.pnlAudioPlayer);
             this.pnlNew.Controls.Add(this.txtRPList);
             this.pnlNew.Controls.Add(this.picBoxA);
             this.pnlNew.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -408,6 +416,54 @@
             this.pnlNew.Name = "pnlNew";
             this.pnlNew.Size = new System.Drawing.Size(626, 264);
             this.pnlNew.TabIndex = 0;
+            // 
+            // pnlAudioPlayer
+            // 
+            this.pnlAudioPlayer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlAudioPlayer.Controls.Add(this.trckBarAudioPlayerSeeker);
+            this.pnlAudioPlayer.Controls.Add(this.txtAudioLoopToggle);
+            this.pnlAudioPlayer.Controls.Add(this.btnStop);
+            this.pnlAudioPlayer.Controls.Add(this.btnPlayPause);
+            this.pnlAudioPlayer.Location = new System.Drawing.Point(453, 3);
+            this.pnlAudioPlayer.Name = "pnlAudioPlayer";
+            this.pnlAudioPlayer.Size = new System.Drawing.Size(170, 258);
+            this.pnlAudioPlayer.TabIndex = 2;
+            this.pnlAudioPlayer.Visible = false;
+            // 
+            // txtAudioLoopToggle
+            // 
+            this.txtAudioLoopToggle.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.txtAudioLoopToggle.AutoSize = true;
+            this.txtAudioLoopToggle.Location = new System.Drawing.Point(3, 203);
+            this.txtAudioLoopToggle.Name = "txtAudioLoopToggle";
+            this.txtAudioLoopToggle.Size = new System.Drawing.Size(50, 17);
+            this.txtAudioLoopToggle.TabIndex = 3;
+            this.txtAudioLoopToggle.Text = "Loop";
+            this.txtAudioLoopToggle.UseVisualStyleBackColor = true;
+            // 
+            // btnStop
+            // 
+            this.btnStop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnStop.Location = new System.Drawing.Point(86, 226);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(75, 23);
+            this.btnStop.TabIndex = 1;
+            this.btnStop.Text = "Stop";
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            // 
+            // btnPlayPause
+            // 
+            this.btnPlayPause.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnPlayPause.Location = new System.Drawing.Point(3, 226);
+            this.btnPlayPause.Name = "btnPlayPause";
+            this.btnPlayPause.Size = new System.Drawing.Size(75, 23);
+            this.btnPlayPause.TabIndex = 0;
+            this.btnPlayPause.Text = "Play/Pause";
+            this.btnPlayPause.UseVisualStyleBackColor = true;
+            this.btnPlayPause.Click += new System.EventHandler(this.btnPlayPause_Click);
             // 
             // txtRPList
             // 
@@ -434,6 +490,15 @@
             this.picBoxA.Size = new System.Drawing.Size(256, 256);
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
+            // 
+            // trckBarAudioPlayerSeeker
+            // 
+            this.trckBarAudioPlayerSeeker.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.trckBarAudioPlayerSeeker.Location = new System.Drawing.Point(3, 98);
+            this.trckBarAudioPlayerSeeker.Name = "trckBarAudioPlayerSeeker";
+            this.trckBarAudioPlayerSeeker.Size = new System.Drawing.Size(164, 45);
+            this.trckBarAudioPlayerSeeker.TabIndex = 4;
+            this.trckBarAudioPlayerSeeker.TickFrequency = 2;
             // 
             // FrmMainThree
             // 
@@ -465,7 +530,10 @@
             this.splitContainer2.ResumeLayout(false);
             this.pnlNew.ResumeLayout(false);
             this.pnlNew.PerformLayout();
+            this.pnlAudioPlayer.ResumeLayout(false);
+            this.pnlAudioPlayer.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picBoxA)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trckBarAudioPlayerSeeker)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -507,6 +575,11 @@
         public System.Windows.Forms.TextBox txtRPList;
         private System.Windows.Forms.ToolStripMenuItem findAndReplaceInAllFileNamesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem MenuExportAllTexAsDDS;
+        private System.Windows.Forms.Panel pnlAudioPlayer;
+        private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.Button btnPlayPause;
+        private System.Windows.Forms.CheckBox txtAudioLoopToggle;
+        private System.Windows.Forms.TrackBar trckBarAudioPlayerSeeker;
     }
 }
 

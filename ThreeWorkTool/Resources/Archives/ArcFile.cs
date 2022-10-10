@@ -263,7 +263,15 @@ namespace ThreeWorkTool.Resources.Archives
                            foldernames.Clear();
                            IDCounter++;
                            break;
-                        
+
+                        //RIF Files.
+                        case "724DF879":
+                            RIFFEntry RIFen = RIFFEntry.FillRIFFEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(RIFen);
+                            arcfile.FileList.Add(RIFen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
 
                         //New Formats go like this!   
                         /*
