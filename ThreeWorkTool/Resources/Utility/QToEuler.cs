@@ -16,8 +16,9 @@ namespace ThreeWorkTool.Resources.Utility
 {
     public class QToEuler
     {
+        float temp;
 
-        //From Sha's replay at https://stackoverflow.com/questions/70462758/c-sharp-how-to-convert-quaternions-to-euler-angles-xyz.
+        //From Sha's reply at https://stackoverflow.com/questions/70462758/c-sharp-how-to-convert-quaternions-to-euler-angles-xyz.
         public static Quaternion ToQuaternion(Vector3 v)
         {
             float cy = (float)Math.Cos(v.Z * 0.5);
@@ -49,8 +50,10 @@ namespace ThreeWorkTool.Resources.Utility
             double sinp = 2 * (q.W * q.Y - q.Z * q.X);
             if (Math.Abs(sinp) >= 1)
             {
-                angles.Y = (float)Math.CopySign(Math.PI / 2, sinp);
-                
+                //angles.Y = (float)Math.CopySign(Math.PI / 2, sinp);
+                //This doesn't seem to be working so I have to make my own.
+                float temp = Convert.ToSingle(Math.PI / 2);
+                angles.Y = temp * Math.Sign(sinp);
             }
             else
             {

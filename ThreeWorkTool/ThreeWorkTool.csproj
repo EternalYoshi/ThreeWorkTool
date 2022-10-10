@@ -13,6 +13,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -27,7 +28,6 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -234,6 +234,7 @@
     <Compile Include="Resources\Wrappers\MSDEntry.cs" />
     <Compile Include="Resources\Wrappers\ResourcePathListEntry.cs" />
     <Compile Include="Resources\Wrappers\TextureEntry.cs" />
+    <Compile Include="Resources\Wrappers\RIFFEntry.cs" />
     <Compile Include="Resources\Zlibber.cs" />
     <EmbeddedResource Include="FrmAbout.resx">
       <DependentUpon>FrmAbout.cs</DependentUpon>
@@ -311,6 +312,7 @@
     <Content Include="Images\MRL.png" />
     <Content Include="Images\MSD.png" />
     <Content Include="Images\REDIRECTBASE copy.png" />
+    <Content Include="Images\RIF.png" />
     <Content Include="Images\Rpl.png" />
     <Content Include="Images\SHT.png" />
     <Content Include="Images\Tex.png" />

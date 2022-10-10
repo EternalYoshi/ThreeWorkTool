@@ -48,6 +48,7 @@
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuUseManifest = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuExportAllTexAsDDS = new System.Windows.Forms.ToolStripMenuItem();
             this.manifestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.findAndReplaceInAllFileNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,12 +59,11 @@
             this.pGrdMain = new System.Windows.Forms.PropertyGrid();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.pnlNew = new System.Windows.Forms.Panel();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
-            this.MenuExportAllTexAsDDS = new System.Windows.Forms.ToolStripMenuItem();
-            this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -228,6 +228,13 @@
             this.MenuUseManifest.Text = "Use Manifest";
             this.MenuUseManifest.Click += new System.EventHandler(this.useManifestToolStripMenuItem_Click);
             // 
+            // MenuExportAllTexAsDDS
+            // 
+            this.MenuExportAllTexAsDDS.Name = "MenuExportAllTexAsDDS";
+            this.MenuExportAllTexAsDDS.Size = new System.Drawing.Size(279, 22);
+            this.MenuExportAllTexAsDDS.Text = "Export All: Export .tex Files as .DDS files";
+            this.MenuExportAllTexAsDDS.Click += new System.EventHandler(this.exportAllExporttexFilesAsDDSFilesToolStripMenuItem_Click);
+            // 
             // manifestToolStripMenuItem
             // 
             this.manifestToolStripMenuItem.Name = "manifestToolStripMenuItem";
@@ -335,6 +342,7 @@
             this.imageList1.Images.SetKeyName(21, "CCL.png");
             this.imageList1.Images.SetKeyName(22, "Bone.png");
             this.imageList1.Images.SetKeyName(23, "GEM.png");
+            this.imageList1.Images.SetKeyName(24, "RIF.png");
             // 
             // splitContainer1
             // 
@@ -352,6 +360,26 @@
             this.splitContainer1.Size = new System.Drawing.Size(945, 524);
             this.splitContainer1.SplitterDistance = 315;
             this.splitContainer1.TabIndex = 8;
+            // 
+            // TreeSource
+            // 
+            this.TreeSource.archivefile = null;
+            this.TreeSource.BackColor = System.Drawing.SystemColors.MenuText;
+            this.TreeSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TreeSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TreeSource.ForeColor = System.Drawing.SystemColors.Window;
+            this.TreeSource.HideSelection = false;
+            this.TreeSource.ImageIndex = 0;
+            this.TreeSource.ImageList = this.imageList1;
+            this.TreeSource.ItemHeight = 24;
+            this.TreeSource.Location = new System.Drawing.Point(0, 0);
+            this.TreeSource.Name = "TreeSource";
+            this.TreeSource.SelectedImageIndex = 16;
+            this.TreeSource.Size = new System.Drawing.Size(315, 524);
+            this.TreeSource.TabIndex = 6;
+            this.TreeSource.SelectionChanged += new System.EventHandler(this.TreeSource_SelectionChanged);
+            this.TreeSource.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeSource_AfterSelect);
+            this.TreeSource.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeSource_NodeMouseClick);
             // 
             // splitContainer2
             // 
@@ -406,33 +434,6 @@
             this.picBoxA.Size = new System.Drawing.Size(256, 256);
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
-            // 
-            // MenuExportAllTexAsDDS
-            // 
-            this.MenuExportAllTexAsDDS.Name = "MenuExportAllTexAsDDS";
-            this.MenuExportAllTexAsDDS.Size = new System.Drawing.Size(279, 22);
-            this.MenuExportAllTexAsDDS.Text = "Export All: Export .tex Files as .DDS files";
-            this.MenuExportAllTexAsDDS.Click += new System.EventHandler(this.exportAllExporttexFilesAsDDSFilesToolStripMenuItem_Click);
-            // 
-            // TreeSource
-            // 
-            this.TreeSource.archivefile = null;
-            this.TreeSource.BackColor = System.Drawing.SystemColors.MenuText;
-            this.TreeSource.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TreeSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TreeSource.ForeColor = System.Drawing.SystemColors.Window;
-            this.TreeSource.HideSelection = false;
-            this.TreeSource.ImageIndex = 0;
-            this.TreeSource.ImageList = this.imageList1;
-            this.TreeSource.ItemHeight = 24;
-            this.TreeSource.Location = new System.Drawing.Point(0, 0);
-            this.TreeSource.Name = "TreeSource";
-            this.TreeSource.SelectedImageIndex = 16;
-            this.TreeSource.Size = new System.Drawing.Size(315, 524);
-            this.TreeSource.TabIndex = 6;
-            this.TreeSource.SelectionChanged += new System.EventHandler(this.TreeSource_SelectionChanged);
-            this.TreeSource.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeSource_AfterSelect);
-            this.TreeSource.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeSource_NodeMouseClick);
             // 
             // FrmMainThree
             // 

@@ -14,6 +14,7 @@ using ThreeWorkTool.Resources.Wrappers;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using ThreeWorkTool.Resources.Wrappers.ModelNodes;
 using Ionic.Zlib;
+using System.Media;
 using static ThreeWorkTool.Resources.Wrappers.MaterialEntry;
 
 namespace ThreeWorkTool
@@ -435,6 +436,7 @@ namespace ThreeWorkTool
                                         MissionEntry misenty = new MissionEntry();
                                         GemEntry gementy = new GemEntry();
                                         EffectListEntry eflenty = new EffectListEntry();
+                                        RIFFEntry rifenty = new RIFFEntry();
 
                                         //New Format should start here!
                                         /*
@@ -1290,6 +1292,69 @@ namespace ThreeWorkTool
                                                 DataEntryOffset = DataEntryOffset + ComSize;
 
                                             }
+                                            else if (treno.Tag as RIFFEntry != null)
+                                            {
+                                                rifenty = treno.Tag as RIFFEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "724DF879";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = rifenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = rifenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
 
                                             #region New Format Code
                                             //New format Entry data insertion goes like this!
@@ -1468,6 +1533,14 @@ namespace ThreeWorkTool
                                                 frename.Mainfrm.SaveCounterB++;
                                             }
 
+                                            else if (treno.Tag as RIFFEntry != null)
+                                            {
+                                                rifenty = treno.Tag as RIFFEntry;
+                                                byte[] CompData = rifenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                                frename.Mainfrm.SaveCounterB++;
+                                            }
+
                                             //New format compression data goes like this!
                                             /*
                                             else if(treno.Tag as ***** != null)
@@ -1574,6 +1647,7 @@ namespace ThreeWorkTool
             MissionEntry misenty = new MissionEntry();
             GemEntry gementy = new GemEntry();
             EffectListEntry eflenty = new EffectListEntry();
+            RIFFEntry rifenty = new RIFFEntry();
 
             //Saving generic files.
             if (treno.Tag as ArcEntry != null)
@@ -2417,6 +2491,70 @@ namespace ThreeWorkTool
                 bwr.Write(DEOffed, 0, DEOffed.Length);
                 DataEntryOffset = DataEntryOffset + ComSize;
             }
+            else if (treno.Tag as RIFFEntry != null)
+            {
+                rifenty = treno.Tag as RIFFEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "724DF879";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = rifenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = rifenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+
 
             #region New Format Code
             //New format Entry data insertion goes like this!
@@ -2511,6 +2649,7 @@ namespace ThreeWorkTool
             MissionEntry misenty = new MissionEntry();
             GemEntry gementy = new GemEntry();
             EffectListEntry eflenty = new EffectListEntry();
+            RIFFEntry rifenty = new RIFFEntry();
 
             if (treno.Tag as ArcEntry != null)
             {
@@ -2592,6 +2731,13 @@ namespace ThreeWorkTool
             {
                 eflenty = treno.Tag as EffectListEntry;
                 byte[] CompData = eflenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+
+            else if (treno.Tag as RIFFEntry != null)
+            {
+                rifenty = treno.Tag as RIFFEntry;
+                byte[] CompData = rifenty.CompressedData;
                 bwr.Write(CompData, 0, CompData.Length);
             }
 
@@ -3578,6 +3724,7 @@ namespace ThreeWorkTool
                     }
                     break;
 
+                    //Effects.
                 case "ThreeWorkTool.Resources.Wrappers.EffectListEntry":
                     EffectListEntry eflentry = new EffectListEntry();
                     if (tag is EffectListEntry)
@@ -3600,6 +3747,28 @@ namespace ThreeWorkTool
                     }
                     break;
 
+                //Riff/XSew/Sound Effects.
+                case "ThreeWorkTool.Resources.Wrappers.RIFFEntry":
+                    RIFFEntry rifentry = new RIFFEntry();
+                    if (tag is RIFFEntry)
+                    {
+
+                        rifentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as RIFFEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(rifentry.FileExt);
+                    }
+                    EXDialog.FileName = rifentry.FileName + rifentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.RIFFWriter(EXDialog.FileName, rifentry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a ***** Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
 
                 /*
                  * New Formats Go Like This!
@@ -4846,6 +5015,88 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
                             //Builds the new child nodes.
                             frename.Mainfrm.EFLChildrenCreation(NewWrapper, NewWrapper.Tag as EffectListEntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+
+            }
+
+            else if (tag is RIFFEntry)
+            {
+                RIFFEntry RIFFEntry = new RIFFEntry();
+                RIFFEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as RIFFEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(RIFFEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            RIFFEntry Oldaent = new RIFFEntry();
+                            RIFFEntry Newaent = new RIFFEntry();
+                            Oldaent = OldWrapper.entryfile as RIFFEntry;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = RIFFEntry.ReplaceRIFFEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as RIFFEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
                             break;
 
@@ -6285,6 +6536,68 @@ namespace ThreeWorkTool
                         break;
                     #endregion
 
+                    #region RIFF
+                    case ".xsew":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperRIF = new ArcEntryWrapper();
+                        RIFFEntry RIFFEntry = new RIFFEntry();
+
+                        RIFFEntry = RIFFEntry.InsertRIFFEntry(frename.Mainfrm.TreeSource, NewWrapperRIF, IMPDialog.FileName);
+                        NewWrapperRIF.Tag = RIFFEntry;
+                        NewWrapperRIF.Text = RIFFEntry.TrueName;
+                        NewWrapperRIF.Name = RIFFEntry.TrueName;
+                        NewWrapperRIF.FileExt = RIFFEntry.FileExt;
+                        NewWrapperRIF.entryData = RIFFEntry;
+                        NewWrapperRIF.entryfile = RIFFEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperRIF, NewWrapperRIF.FileExt);
+
+                        NewWrapperRIF.ContextMenuStrip = GenericFileContextAdder(NewWrapperRIF, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperRIF);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperRIF;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string typeRIF = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeRIF = new TreeNode();
+                        TreeNode selectednodeRIF = new TreeNode();
+                        selectednodeRIF = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeRIF = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeRIF;
+
+                        int filecountRIF = 0;
+
+                        ArcFile rootarcRIF = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcRIF != null)
+                        {
+                            filecountRIF = rootarcRIF.FileCount;
+                            filecountRIF++;
+                            rootarcRIF.FileCount++;
+                            rootarcRIF.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcRIF;
+                        }
+
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountRIF);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeRIF;
+                        break;
+                    #endregion
+
                     //For everything else.
                     default:
                         frename.Mainfrm.TreeSource.BeginUpdate();
@@ -7210,6 +7523,68 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeGEM.Parent;
                             break;
 
+                        #endregion
+
+                        #region RIFF
+                        case ".xsew":
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+                            ArcEntryWrapper NewWrapperRIF = new ArcEntryWrapper();
+                            RIFFEntry RIFFEntry = new RIFFEntry();
+
+                            RIFFEntry = RIFFEntry.InsertRIFFEntry(frename.Mainfrm.TreeSource, NewWrapperRIF, IMPDialog.FileName);
+                            NewWrapperRIF.Tag = RIFFEntry;
+                            NewWrapperRIF.Text = RIFFEntry.TrueName;
+                            NewWrapperRIF.Name = RIFFEntry.TrueName;
+                            NewWrapperRIF.FileExt = RIFFEntry.FileExt;
+                            NewWrapperRIF.entryData = RIFFEntry;
+                            NewWrapperRIF.entryfile = RIFFEntry;
+
+                            frename.Mainfrm.IconSetter(NewWrapperRIF, NewWrapperRIF.FileExt);
+
+                            NewWrapperRIF.ContextMenuStrip = GenericFileContextAdder(NewWrapperRIF, frename.Mainfrm.TreeSource);
+
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperRIF);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperRIF;
+
+                            frename.Mainfrm.OpenFileModified = true;
+
+                            string typeRIF = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            TreeNode rootnodeRIF = new TreeNode();
+                            TreeNode selectednodeRIF = new TreeNode();
+                            selectednodeRIF = frename.Mainfrm.TreeSource.SelectedNode;
+                            rootnodeRIF = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                            frename.Mainfrm.TreeSource.SelectedNode = rootnodeRIF;
+
+                            int filecountRIF = 0;
+
+                            ArcFile rootarcRIF = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                            if (rootarcRIF != null)
+                            {
+                                filecountRIF = rootarcRIF.FileCount;
+                                filecountRIF++;
+                                rootarcRIF.FileCount++;
+                                rootarcRIF.FileAmount++;
+                                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcRIF;
+                            }
+
+                            //Writes to log file.
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + filecountRIF);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeRIF;
+                            break;
                         #endregion
 
                         #region EFL
@@ -9266,6 +9641,63 @@ namespace ThreeWorkTool
 
                 #endregion
 
+                #region Riff Files
+
+                case "ThreeWorkTool.Resources.Wrappers.RIFFEntry":
+                    ArcEntryWrapper rifchild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+
+                    rifchild.Name = I;
+                    rifchild.Tag = FEntry as GemEntry;
+                    rifchild.Text = I;
+                    rifchild.entryfile = FEntry as GemEntry;
+                    rifchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = rifchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(rifchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var rifrootNode = FindRootNode(rifchild);
+
+                    TreeSource.SelectedNode = rifchild;
+                    TreeSource.SelectedNode.ImageIndex = 24;
+                    TreeSource.SelectedNode.SelectedImageIndex = 24;
+
+
+                    rifchild.ContextMenuStrip = GenericFileContextAdder(rifchild, TreeSource);
+
+                    TreeSource.SelectedNode = rifrootNode;
+
+                    tcount++;
+
+                    break;
+
+
+                #endregion
 
                 //Cases for future file supports go here. For example;
                 //case ".mod":
@@ -9375,6 +9807,11 @@ namespace ThreeWorkTool
                     {
                         TreeSource.SelectedNode.ImageIndex = 23;
                         TreeSource.SelectedNode.SelectedImageIndex = 23;
+                    }
+                    else if (G == ".xsew")
+                    {
+                        TreeSource.SelectedNode.ImageIndex = 24;
+                        TreeSource.SelectedNode.SelectedImageIndex = 24;
                     }
                     else
                     {
@@ -10053,6 +10490,20 @@ namespace ThreeWorkTool
                                 break;
                             }
 
+                        case "ThreeWorkTool.Resources.Wrappers.RIFFEntry":
+                            RIFFEntry rifme = new RIFFEntry();
+                            rifme = ArcEntry as RIFFEntry;
+                            if (rifme != null)
+                            {
+                                TreeChildInsert(NCount, rifme.EntryName, rifme.FileExt, rifme.EntryDirs, rifme.TrueName, rifme);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
 
                         //New Formats go like this!
                         /*
@@ -10204,6 +10655,20 @@ namespace ThreeWorkTool
                     ccle = WrapNode.Tag as ChainCollisionEntry;
                     //Outputs name to log.
                     sw.WriteLine(ccle.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.GemEntry":
+                    GemEntry geme = new GemEntry();
+                    geme = WrapNode.Tag as GemEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(geme.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.RIFFEntry":
+                    RIFFEntry rif = new RIFFEntry();
+                    rif = WrapNode.Tag as RIFFEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(rif.EntryName);
                     break;
 
                 default:
@@ -10385,7 +10850,6 @@ namespace ThreeWorkTool
 
                 #endregion
 
-
                 #region Effect Texture Reference Node
                 case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.EffectFieldTextureRefernce":
                     EffectFieldTextureRefernce effectFieldTextureReferncenode = new EffectFieldTextureRefernce();
@@ -10410,6 +10874,18 @@ namespace ThreeWorkTool
                     UpdateTheEditMenu();
                     break;
 
+                #endregion
+
+                #region RIFF
+                case "ThreeWorkTool.Resources.Wrappers.RIFFEntry":
+                    RIFFEntry riffEntry = new RIFFEntry();
+                    riffEntry = TreeSource.SelectedNode.Tag as RIFFEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
                 #endregion
 
                 #region Gem

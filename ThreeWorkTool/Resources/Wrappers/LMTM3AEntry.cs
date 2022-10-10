@@ -47,13 +47,32 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         public enum BufferType
         {
+            unknown = 0,
             singlevector3 = 1,
-            singlerotationquat3,
-            linearvector3,
-            bilinearvector3_16bit,
-            bilinearvector3_8bit,
-            linearrotationquat4_14bit,
-            bilinearrotationquat4_7bit
+            singlerotationquat3 = 2,
+            linearvector3 = 3,
+            bilinearvector3_16bit = 4,
+            bilinearvector3_8bit = 5,
+            linearrotationquat4_14bit = 6,
+            bilinearrotationquat4_7bit = 7,
+            T_VECTOR3_0 = 8,
+            T_QUATERNION4 = 9,
+            T_POLAR3 = 10,
+            bilinearrotationquatxw_14bit = 11,
+            bilinearrotationquatyw_14bit = 12,
+            bilinearrotationquatzw_14bit = 13,
+            bilinearrotationquat4_11bit = 14,
+            bilinearrotationquat4_9bit = 15
+        }
+
+        public enum TrackType
+        {
+            localrotation = 0,
+            localposition = 1,
+            localscale = 2,
+            absoluterotation = 3,
+            absoluteposition = 4,
+            xpto = 5
         }
 
         [YamlIgnore] public List<Track> Tracks;
@@ -61,8 +80,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
             public int TrackNumber;
             [YamlIgnore] public int BufferType;
-            public string BufferKind;
-            public int TrackType;
+            public string BufferKind, TrackKind;
+            [YamlIgnore] public int TrackType;
             public int BoneType;
             public int BoneID;
             public float Weight;
@@ -76,25 +95,29 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [YamlMember(ApplyNamingConventions = false)] public List<KeyFrame> KeyFrames;
-        
+
         public class KeyFrame
         {
             [YamlMember(ApplyNamingConventions = false)] public Vector4 data;
             [YamlMember(ApplyNamingConventions = false)] public int frame;
             [YamlMember(ApplyNamingConventions = false)] public int BoneID;
             [YamlMember(ApplyNamingConventions = false)] public string KeyType;
+            [YamlMember(ApplyNamingConventions = false)] public Vector3 EulerKeys;
+            [YamlMember(ApplyNamingConventions = false)] public string TrackType;
+
         }
-        
+
 
         public class AnimEvent
         {
-            [YamlMember()]public List<int> EventRemap;
+            [YamlMember()] public List<int> EventRemap;
             [YamlMember()] public int EventCount;
             [YamlMember()] public int EventsPointer;
             [YamlMember()] public int EventBit;
             [YamlMember()] public int FrameNumber;
 
-            [YamlIgnore][Category("Event"), ReadOnlyAttribute(true)]
+            [YamlIgnore]
+            [Category("Event"), ReadOnlyAttribute(true)]
             [DisplayName("Event Count")]
             public int EventsTotal
             {
@@ -110,7 +133,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             }
 
-            [YamlIgnore][Category("Event"), ReadOnlyAttribute(true)]
+            [YamlIgnore]
+            [Category("Event"), ReadOnlyAttribute(true)]
             [DisplayName("Event Offset")]
             public int EventOffset
             {
@@ -126,7 +150,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             }
 
-            [YamlIgnore][Category("Event"), ReadOnlyAttribute(true)]
+            [YamlIgnore]
+            [Category("Event"), ReadOnlyAttribute(true)]
             [DisplayName("Frame")]
             public int Frame
             {
@@ -212,10 +237,17 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Track track = new Track();
                     track.TrackNumber = j;
                     track.ExtremesArray = new float[8];
+                    
+                    //For The Buffer type.
                     track.BufferType = bnr.ReadByte();
-                    BufferType type = (BufferType)track.BufferType;
-                    track.BufferKind = type.ToString();
+                    BufferType Btype = (BufferType)track.BufferType;
+                    track.BufferKind = Btype.ToString();
+
+                    //For the Track Type.
                     track.TrackType = bnr.ReadByte();
+                    TrackType Ttype = (TrackType)track.TrackType;
+                    track.TrackKind = Ttype.ToString();
+
                     track.BoneType = bnr.ReadByte();
                     track.BoneID = bnr.ReadByte();
                     track.Weight = bnr.ReadSingle();
@@ -402,7 +434,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             catch (Exception ex)
             {
 
-                MessageBox.Show("The M3a at index: " + ID + " inside the file\n"+ lmtentry.TrueName + " is malformed.\nAs long as you do not modify the named lmt file you should be able to save changes made to other files inside this arc and the lmt file will not be modified.", "Uh-Oh");
+                MessageBox.Show("The M3a at index: " + ID + " inside the file\n" + lmtentry.TrueName + " is malformed.\nAs long as you do not modify the named lmt file you should be able to save changes made to other files inside this arc and the lmt file will not be modified.", "Uh-Oh");
 
                 bnr.BaseStream.Position = lmtentry.OffsetList[ID];
                 M3a.AnimationID = ID;
@@ -543,7 +575,12 @@ namespace ThreeWorkTool.Resources.Wrappers
                         track.BufferType = bnr.ReadByte();
                         BufferType type = (BufferType)track.BufferType;
                         track.BufferKind = type.ToString();
+                        
+                        //For the Track Type.
                         track.TrackType = bnr.ReadByte();
+                        TrackType Ttype = (TrackType)track.TrackType;
+                        track.TrackKind = Ttype.ToString();
+
                         track.BoneType = bnr.ReadByte();
                         track.BoneID = bnr.ReadByte();
                         track.Weight = bnr.ReadSingle();
@@ -766,10 +803,22 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             M3a.KeyFrames = new List<KeyFrame>();
 
-            foreach(Track track in M3a.Tracks)
+            foreach (Track track in M3a.Tracks)
             {
-                IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind);
+                IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind, track.TrackKind);
+
                 M3a.KeyFrames.AddRange(Key.ToList());
+            }
+
+            for (int v = 0; v < M3a.KeyFrames.Count; v++)
+            {
+                Quaternion quat = new Quaternion();
+                quat.W = M3a.KeyFrames[v].data.X;
+                quat.X = M3a.KeyFrames[v].data.Y;
+                quat.Y = M3a.KeyFrames[v].data.Z;
+                quat.Z = M3a.KeyFrames[v].data.W;
+
+                M3a.KeyFrames[v].EulerKeys = QToEuler.ToEulerAngles(quat);
             }
 
             return M3a;
@@ -810,7 +859,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         private string _FileType;
         [Category("Filename"), ReadOnlyAttribute(true)]
-        [YamlIgnore]public string FileType
+        [YamlIgnore]
+        public string FileType
         {
 
             get
@@ -824,7 +874,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        [YamlIgnore]public int MotionID
+        [YamlIgnore]
+        public int MotionID
         {
 
             get
@@ -839,7 +890,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         private long _FileLength;
         [Category("File Entry"), ReadOnlyAttribute(true)]
-        [YamlIgnore]public long FileLength
+        [YamlIgnore]
+        public long FileLength
         {
 
             get
@@ -854,7 +906,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         private long _FrameTotal;
         [Category("Motion"), ReadOnlyAttribute(true)]
-        [YamlIgnore]public long FrameTotal
+        [YamlIgnore]
+        public long FrameTotal
         {
 
             get
@@ -869,7 +922,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        [YamlIgnore]public int NumberOfTracks
+        [YamlIgnore]
+        public int NumberOfTracks
         {
 
             get
@@ -887,7 +941,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        [YamlIgnore]public int AnimationLoopFrame
+        [YamlIgnore]
+        public int AnimationLoopFrame
         {
 
             get
@@ -906,7 +961,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         private bool _IsBlank;
         [Category("File Entry"), ReadOnlyAttribute(true)]
-        [YamlIgnore]public bool IsBlank
+        [YamlIgnore]
+        public bool IsBlank
         {
 
             get
@@ -921,7 +977,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        [YamlIgnore]public long MotionFlags
+        [YamlIgnore]
+        public long MotionFlags
         {
 
             get
@@ -938,7 +995,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        [YamlIgnore]public List<Track> CollectionTracks
+        [YamlIgnore]
+        public List<Track> CollectionTracks
         {
 
             get
@@ -955,7 +1013,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Motion"), ReadOnlyAttribute(true)]
-        [YamlIgnore] public List<AnimEvent> CollectionEvents
+        [YamlIgnore]
+        public List<AnimEvent> CollectionEvents
         {
 
             get

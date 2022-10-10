@@ -8,12 +8,17 @@ using static ThreeWorkTool.Resources.Wrappers.LMTM3AEntry;
 enum BufferType
 {
     singlevector3 = 1,
-    singlerotationquat3,
-    linearvector3,
-    bilinearvector3_16bit,
-    bilinearvector3_8bit,
-    linearrotationquat4_14bit,
-    bilinearrotationquat4_7bit
+    singlerotationquat3 = 2,
+    linearvector3 = 3,
+    bilinearvector3_16bit = 4,
+    bilinearvector3_8bit = 5,
+    linearrotationquat4_14bit = 6,
+    bilinearrotationquat4_7bit = 7,
+    bilinearrotationquatxw_14bit = 11,
+    bilinearrotationquatyw_14bit = 12,
+    bilinearrotationquatzw_14bit = 13,
+    bilinearrotationquat4_11bit = 14,
+    bilinearrotationquat4_9bit = 15
 }
 
 /*
@@ -39,7 +44,7 @@ class BufferConversor
 
     //int bit_mask;
 
-    public KeyFrame Process(BigInteger value, float[] extremes, int Boneid, string KeyKind)
+    public KeyFrame Process(BigInteger value, float[] extremes, int Boneid, string KeyKind, string TrackKind)
     {
         var frame_value = frames(value);
 
@@ -67,7 +72,8 @@ class BufferConversor
             data = new Vector4(data[0], data[1], data[2], data[3]),
             frame = frame_value,
             BoneID = Boneid,
-            KeyType = KeyKind
+            KeyType = KeyKind,
+            TrackType = TrackKind
         };
     }
 
@@ -83,7 +89,7 @@ public class KeyFrame
 */
 class LMTM3ATrackBuffer
 {
-    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, float[] extremes, int BoneID, string KeyKind)
+    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, float[] extremes, int BoneID, string KeyKind, string TrackKind)
     {
         BufferConversor conversor;
 
@@ -179,7 +185,7 @@ class LMTM3ATrackBuffer
         {
             var segment = new ArraySegment<byte>(buffer, pos, conversor.buffer_size);
             var buffer_value = new BigInteger(segment.Array);
-            yield return conversor.Process(buffer_value, extremes, BoneID, KeyKind);
+            yield return conversor.Process(buffer_value, extremes, BoneID, KeyKind, TrackKind);
 
             pos += conversor.buffer_size;
         }
