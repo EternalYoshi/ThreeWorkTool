@@ -15,6 +15,7 @@ using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using ThreeWorkTool.Resources.Wrappers.ModelNodes;
 using Ionic.Zlib;
 using System.Media;
+using NAudio.Wave;
 using static ThreeWorkTool.Resources.Wrappers.MaterialEntry;
 
 namespace ThreeWorkTool
@@ -27,7 +28,7 @@ namespace ThreeWorkTool
         public static FrmMainThree Instance { get { return _instance == null ? _instance = new FrmMainThree() : _instance; } }
         private int FileCount;
         public SoundPlayer SPlayer;
-
+        public WaveFileReader WFReader;
 
         private List<string> _MostRecentlyUsedList = new List<string>();
 
@@ -86,7 +87,9 @@ namespace ThreeWorkTool
         public bool ArcFileIsBigEndian;
         public int SaveCounterA;
         public int SaveCounterB;
-
+        private MemoryStream MSound;
+        private WaveOutEvent WaveOut;
+        private IWaveProvider Wave;
 
         //This lets us use the dilogue without having to paste this within each button's function.
         OpenFileDialog OFDialog = new OpenFileDialog();
@@ -439,6 +442,7 @@ namespace ThreeWorkTool
                                         GemEntry gementy = new GemEntry();
                                         EffectListEntry eflenty = new EffectListEntry();
                                         RIFFEntry rifenty = new RIFFEntry();
+                                        ShotListEntry lshenty = new ShotListEntry();
 
                                         //New Format should start here!
                                         /*
@@ -1357,6 +1361,69 @@ namespace ThreeWorkTool
                                                 DataEntryOffset = DataEntryOffset + ComSize;
 
                                             }
+                                            else if (treno.Tag as ShotListEntry != null)
+                                            {
+                                                lshenty = treno.Tag as ShotListEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "141D851F";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = lshenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = lshenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
 
                                             #region New Format Code
                                             //New format Entry data insertion goes like this!
@@ -1542,7 +1609,13 @@ namespace ThreeWorkTool
                                                 bwr.Write(CompData, 0, CompData.Length);
                                                 frename.Mainfrm.SaveCounterB++;
                                             }
-
+                                            else if (treno.Tag as ShotListEntry != null)
+                                            {
+                                                lshenty = treno.Tag as ShotListEntry;
+                                                byte[] CompData = lshenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                                frename.Mainfrm.SaveCounterB++;
+                                            }
                                             //New format compression data goes like this!
                                             /*
                                             else if(treno.Tag as ***** != null)
@@ -1650,6 +1723,7 @@ namespace ThreeWorkTool
             GemEntry gementy = new GemEntry();
             EffectListEntry eflenty = new EffectListEntry();
             RIFFEntry rifenty = new RIFFEntry();
+            ShotListEntry lshenty = new ShotListEntry();
 
             //Saving generic files.
             if (treno.Tag as ArcEntry != null)
@@ -2556,7 +2630,68 @@ namespace ThreeWorkTool
                 DataEntryOffset = DataEntryOffset + ComSize;
 
             }
+            else if (treno.Tag as ShotListEntry != null)
+            {
+                lshenty = treno.Tag as ShotListEntry;
+                exportname = "";
 
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "141D851F";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = lshenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = lshenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+            }
 
             #region New Format Code
             //New format Entry data insertion goes like this!
@@ -2652,6 +2787,7 @@ namespace ThreeWorkTool
             GemEntry gementy = new GemEntry();
             EffectListEntry eflenty = new EffectListEntry();
             RIFFEntry rifenty = new RIFFEntry();
+            ShotListEntry lshenty = new ShotListEntry();
 
             if (treno.Tag as ArcEntry != null)
             {
@@ -2735,11 +2871,16 @@ namespace ThreeWorkTool
                 byte[] CompData = eflenty.CompressedData;
                 bwr.Write(CompData, 0, CompData.Length);
             }
-
             else if (treno.Tag as RIFFEntry != null)
             {
                 rifenty = treno.Tag as RIFFEntry;
                 byte[] CompData = rifenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as ShotListEntry != null)
+            {
+                lshenty = treno.Tag as ShotListEntry;
+                byte[] CompData = lshenty.CompressedData;
                 bwr.Write(CompData, 0, CompData.Length);
             }
 
@@ -2909,7 +3050,7 @@ namespace ThreeWorkTool
             arcfile.HeaderMagic = HeaderThing;
             arcfile.Version = 7;
             arcfile.Tempname = "NewArc";
-
+            SPlayer = new SoundPlayer();
             NCount = 0;
 
             //Handles Tree Node stuff.
@@ -3726,7 +3867,7 @@ namespace ThreeWorkTool
                     }
                     break;
 
-                    //Effects.
+                //Effects.
                 case "ThreeWorkTool.Resources.Wrappers.EffectListEntry":
                     EffectListEntry eflentry = new EffectListEntry();
                     if (tag is EffectListEntry)
@@ -3768,7 +3909,30 @@ namespace ThreeWorkTool
                     //Writes to log file.
                     using (StreamWriter sw = File.AppendText("Log.txt"))
                     {
-                        sw.WriteLine("Exported a ***** Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                        sw.WriteLine("Exported a XSEW Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+                //ShotList.
+                case "ThreeWorkTool.Resources.Wrappers.ShotListEntry":
+                    ShotListEntry lshentry = new ShotListEntry();
+                    if (tag is ShotListEntry)
+                    {
+
+                        lshentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ShotListEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(lshentry.FileExt);
+                    }
+                    EXDialog.FileName = lshentry.FileName + lshentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.ShotListWriter(EXDialog.FileName, lshentry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a ShotList Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -5074,6 +5238,88 @@ namespace ThreeWorkTool
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as RIFFEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+
+            }
+
+            else if (tag is ShotListEntry)
+            {
+                ShotListEntry SHLSTEntry = new ShotListEntry();
+                SHLSTEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ShotListEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(SHLSTEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            ShotListEntry Oldaent = new ShotListEntry();
+                            ShotListEntry Newaent = new ShotListEntry();
+                            Oldaent = OldWrapper.entryfile as ShotListEntry;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = ShotListEntry.ReplaceShotListEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as ShotListEntry;
                             Newaent.EntryDirs = paths;
                             NewWrapper.entryfile = Newaent;
 
@@ -6600,6 +6846,74 @@ namespace ThreeWorkTool
                         break;
                     #endregion
 
+                    #region ShotList
+
+                    case ".lsh":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperLSH = new ArcEntryWrapper();
+                        ShotListEntry LSHEntry = new ShotListEntry();
+
+                        LSHEntry = ShotListEntry.InsertShotListEntry(frename.Mainfrm.TreeSource, NewWrapperLSH, IMPDialog.FileName);
+                        NewWrapperLSH.Tag = LSHEntry;
+                        NewWrapperLSH.Text = LSHEntry.TrueName;
+                        NewWrapperLSH.Name = LSHEntry.TrueName;
+                        NewWrapperLSH.FileExt = LSHEntry.FileExt;
+                        NewWrapperLSH.entryData = LSHEntry;
+                        NewWrapperLSH.entryfile = LSHEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperLSH, NewWrapperLSH.FileExt);
+
+                        NewWrapperLSH.ContextMenuStrip = GenericFileContextAdder(NewWrapperLSH, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperLSH);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperLSH;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        //Reloads the replaced file data in the text box.
+                        frename.Mainfrm.txtRPList = ShotListEntry.LoadLSHInTextBox(frename.Mainfrm.txtRPList, LSHEntry);
+                        frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                        string typeLSH = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeLSH = new TreeNode();
+                        TreeNode selectednodeLSH = new TreeNode();
+                        selectednodeLSH = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeLSH = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeLSH;
+
+                        int filecountLSH = 0;
+
+                        ArcFile rootarcLSH = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcLSH != null)
+                        {
+                            filecountLSH = rootarcLSH.FileCount;
+                            filecountLSH++;
+                            rootarcLSH.FileCount++;
+                            rootarcLSH.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcLSH;
+                        }
+
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountLSH);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeLSH;
+                        break;
+
+                    #endregion
+
                     //For everything else.
                     default:
                         frename.Mainfrm.TreeSource.BeginUpdate();
@@ -7661,6 +7975,73 @@ namespace ThreeWorkTool
 
                         #endregion
 
+                        #region ShotList
+
+                        case ".lsh":
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+                            ArcEntryWrapper NewWrapperLSH = new ArcEntryWrapper();
+                            ShotListEntry LSHEntry = new ShotListEntry();
+
+                            LSHEntry = ShotListEntry.InsertShotListEntry(frename.Mainfrm.TreeSource, NewWrapperLSH, Filename);
+                            NewWrapperLSH.Tag = LSHEntry;
+                            NewWrapperLSH.Text = LSHEntry.TrueName;
+                            NewWrapperLSH.Name = LSHEntry.TrueName;
+                            NewWrapperLSH.FileExt = LSHEntry.FileExt;
+                            NewWrapperLSH.entryData = LSHEntry;
+                            NewWrapperLSH.entryfile = LSHEntry;
+
+                            frename.Mainfrm.IconSetter(NewWrapperLSH, NewWrapperLSH.FileExt);
+
+                            NewWrapperLSH.ContextMenuStrip = TXTContextAdder(NewWrapperLSH, frename.Mainfrm.TreeSource);
+
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperLSH);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperLSH;
+
+                            frename.Mainfrm.OpenFileModified = true;
+
+                            //Reloads the replaced file data in the text box.
+                            frename.Mainfrm.txtRPList = ShotListEntry.LoadLSHInTextBox(frename.Mainfrm.txtRPList, LSHEntry);
+                            frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                            string typeLSH = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            TreeNode rootnodeLSH = new TreeNode();
+                            TreeNode selectednodeLSH = new TreeNode();
+                            selectednodeLSH = frename.Mainfrm.TreeSource.SelectedNode;
+                            rootnodeLSH = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                            frename.Mainfrm.TreeSource.SelectedNode = rootnodeLSH;
+
+                            int filecountLSH = 0;
+
+                            ArcFile rootarcLSH = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                            if (rootarcLSH != null)
+                            {
+                                filecountLSH = rootarcLSH.FileCount;
+                                filecountLSH++;
+                                rootarcLSH.FileCount++;
+                                rootarcLSH.FileAmount++;
+                                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcLSH;
+                            }
+
+                            //Writes to log file.
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + filecountLSH);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeLSH.Parent;
+                            break;
+
+                        #endregion
 
                         //For everything else.
                         default:
@@ -8224,8 +8605,36 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath + eflENT.FileName + eflENT.FileExt;
                                 ExportFileWriter.EffectListWriter(ExportPath, eflENT);
                             }
-
-
+                            else if (kid.Tag is RIFFEntry)
+                            {
+                                RIFFEntry riffENT = kid.Tag as RIFFEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + riffENT.FileName + riffENT.FileExt;
+                                ExportFileWriter.RIFFWriter(ExportPath, riffENT);
+                            }
+                            else if (kid.Tag is ShotListEntry)
+                            {
+                                ShotListEntry lshENT = kid.Tag as ShotListEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + lshENT.FileName + lshENT.FileExt;
+                                ExportFileWriter.ShotListWriter(ExportPath, lshENT);
+                            }
                             /*
                             //New Formats go like this!!
                             else if (kid.Tag is ****Entry)
@@ -9701,6 +10110,64 @@ namespace ThreeWorkTool
 
                 #endregion
 
+                #region Shot List Files
+
+                case "ThreeWorkTool.Resources.Wrappers.ShotListEntry":
+                    ArcEntryWrapper lshchild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+
+                    lshchild.Name = I;
+                    lshchild.Tag = FEntry as ShotListEntry;
+                    lshchild.Text = I;
+                    lshchild.entryfile = FEntry as ShotListEntry;
+                    lshchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = lshchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(lshchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var lshrootNode = FindRootNode(lshchild);
+
+                    TreeSource.SelectedNode = lshchild;
+                    TreeSource.SelectedNode.ImageIndex = 25;
+                    TreeSource.SelectedNode.SelectedImageIndex = 25;
+
+
+                    lshchild.ContextMenuStrip = TXTContextAdder(lshchild, TreeSource);
+
+                    TreeSource.SelectedNode = lshrootNode;
+
+                    tcount++;
+
+                    break;
+
+
+                #endregion
+
                 //Cases for future file supports go here. For example;
                 //case ".mod":
                 //{
@@ -9814,6 +10281,11 @@ namespace ThreeWorkTool
                     {
                         TreeSource.SelectedNode.ImageIndex = 24;
                         TreeSource.SelectedNode.SelectedImageIndex = 24;
+                    }
+                    else if (G == ".lsh")
+                    {
+                        TreeSource.SelectedNode.ImageIndex = 25;
+                        TreeSource.SelectedNode.SelectedImageIndex = 25;
                     }
                     else
                     {
@@ -10145,6 +10617,16 @@ namespace ThreeWorkTool
             {
                 wrapper.ImageIndex = 23;
                 wrapper.SelectedImageIndex = 23;
+            }
+            else if (extension == ".xsew")
+            {
+                wrapper.ImageIndex = 24;
+                wrapper.SelectedImageIndex = 24;
+            }
+            else if (extension == ".lsh")
+            {
+                wrapper.ImageIndex = 25;
+                wrapper.SelectedImageIndex = 25;
             }
             else
             {
@@ -10507,6 +10989,21 @@ namespace ThreeWorkTool
                                 break;
                             }
 
+                        case "ThreeWorkTool.Resources.Wrappers.ShotListEntry":
+                            ShotListEntry lshme = new ShotListEntry();
+                            lshme = ArcEntry as ShotListEntry;
+                            if (lshme != null)
+                            {
+                                TreeChildInsert(NCount, lshme.EntryName, lshme.FileExt, lshme.EntryDirs, lshme.TrueName, lshme);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
                         //New Formats go like this!
                         /*
                            case "ThreeWorkTool.Resources.Wrappers.*****Entry":
@@ -10785,6 +11282,16 @@ namespace ThreeWorkTool
                 this.OpenFileModified = true;
             }
 
+            ShotListEntry lshentry = new ShotListEntry();
+            lshentry = TreeSource.SelectedNode.Tag as ShotListEntry;
+
+            if (lshentry != null)
+            {
+                lshentry = ShotListEntry.RenewShotListEntry(txtRPList, lshentry);
+                TreeSource.SelectedNode.Tag = lshentry;
+                this.OpenFileModified = true;
+            }
+
         }
 
         private void TextBoxLeaving()
@@ -10823,7 +11330,16 @@ namespace ThreeWorkTool
 
         private void UpdateNodeSelection(string type)
         {
-            SPlayer.Stop();
+            if (WaveOut != null)
+            {
+                //WaveOut.Dispose();
+            }
+
+            if (Wave != null)
+            {
+                //Wave.Dispose();
+            }
+
             switch (type)
             {
 
@@ -10892,7 +11408,9 @@ namespace ThreeWorkTool
                     RIFFEntry riffEntry = new RIFFEntry();
                     riffEntry = TreeSource.SelectedNode.Tag as RIFFEntry;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
-                    RIFFEntry.RefreshAudioPlayer(SPlayer,riffEntry);
+                    RIFFEntry.RefreshAudioPlayer(SPlayer, riffEntry, WFReader, MSound);
+                    lblCurrentTime.Text = "0";
+                    lblSoundLength.Text = "/" + riffEntry.SoundLength;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
                     pnlAudioPlayer.Visible = true;
@@ -10913,6 +11431,25 @@ namespace ThreeWorkTool
                     txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
                     pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
                     txtRPList = GemEntry.LoadGEMInTextBox(txtRPList, gemEntry);
+                    RPLBackup = txtRPList.Text;
+                    txtRPList.Visible = true;
+                    pnlAudioPlayer.Visible = false;
+                    isFinishRPLRead = true;
+                    UpdateTheEditMenu();
+                    break;
+                #endregion
+
+                #region ShotList
+                case "ThreeWorkTool.Resources.Wrappers.ShotListEntry":
+                    isFinishRPLRead = false;
+                    ShotListEntry lshEntry = new ShotListEntry();
+                    lshEntry = TreeSource.SelectedNode.Tag as ShotListEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Text = "";
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.Fill;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    txtRPList = ShotListEntry.LoadLSHInTextBox(txtRPList, lshEntry);
                     RPLBackup = txtRPList.Text;
                     txtRPList.Visible = true;
                     pnlAudioPlayer.Visible = false;
@@ -11491,29 +12028,94 @@ namespace ThreeWorkTool
 
         private void btnPlayPause_Click(object sender, EventArgs e)
         {
+
             RIFFEntry riff = new RIFFEntry();
             riff = frename.Mainfrm.TreeSource.SelectedNode.Tag as RIFFEntry;
             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
             using (MemoryStream Mestream = new MemoryStream(riff.UncompressedData))
             {
                 SPlayer = new SoundPlayer(Mestream);
                 if (txtAudioLoopToggle.Checked == true)
                 {
+                    //SPlayer.Stream.Position = 0;
                     SPlayer.PlayLooping();
                 }
                 else
                 {
+                    //SPlayer.Stream.Position = 0;
                     SPlayer.Play();
                 }
             }
 
+            /*
+            RIFFEntry riff = new RIFFEntry();
+            riff = frename.Mainfrm.TreeSource.SelectedNode.Tag as RIFFEntry;
+            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            WaveOut = new WaveOutEvent();
+            MSound = new MemoryStream(riff.UncompressedData);
+            Wave = new RawSourceWaveStream(MSound, new WaveFormat(48000, 32, 1));
 
+            WaveOut.Init(Wave);
+
+            if (txtAudioLoopToggle.Checked == true)
+            {
+                WaveOut.Play();
+            }
+            else
+            {
+                WaveOut.Play();
+            }
+            */
+
+            /*
+                        RIFFEntry riff = new RIFFEntry();
+                        riff = frename.Mainfrm.TreeSource.SelectedNode.Tag as RIFFEntry;
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+                        using (MemoryStream Mestream = new MemoryStream(riff.UncompressedData))
+                        {
+                            SPlayer = new SoundPlayer(Mestream);
+                            if (txtAudioLoopToggle.Checked == true)
+                            {
+                                //SPlayer.Stream.Position = 0;
+                                SPlayer.PlayLooping();
+                            }
+                            else
+                            {
+                                //SPlayer.Stream.Position = 0;
+                                SPlayer.Play();
+                            }
+                        }
+            */
         }
+
+        /*
+        private void OnPlaybackStopped(object sender, StoppedEventArgs args)
+        {
+            WaveOut.Dispose();
+            WaveOut = null;
+            Wave.Dispose();
+            Wave = null;
+        }
+        */
 
         private void btnStop_Click(object sender, EventArgs e)
         {
+            //WaveOut?.Stop();
             SPlayer.Stop();
+        }
+
+        private void MusicTimer_Tick(object sender, EventArgs e)
+        {
+            if (frename != null)
+            {
+                if (frename.Mainfrm.pGrdMain.SelectedObject != null && frename.Mainfrm.TreeSource.SelectedNode.Tag as RIFFEntry != null)
+                {
+                    if (SPlayer.Stream != null)
+                    {
+                        //lblCurrentTime.Text = Convert.ToString(SPlayer.Stream.Position);
+                    }
+                }
+            }
         }
 
         private void exportAllExporttexFilesAsDDSFilesToolStripMenuItem_Click(object sender, EventArgs e)

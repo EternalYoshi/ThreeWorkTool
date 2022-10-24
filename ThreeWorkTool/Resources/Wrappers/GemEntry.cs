@@ -77,8 +77,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             gem.EntryList = new List<GEMEntries>();
             byte[] PLName = new byte[] { };
             byte[] PTHName = new byte[] { };
-
-            int p = 12;
+            int p = 24;
 
             for (int g = 0; g < gem.EntryCountTotal; g++)
             {
@@ -86,7 +85,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 PLName = gem.UncompressedData.Skip(p).Take(64).Where(x => x != 0x00).ToArray();
                 ge.TotalName = ascii.GetString(PLName);
                 gem.EntryList.Add(ge);
-                p = p + 64;
+                p = p + 80;
             }
 
             gem.TextBackup = new List<string>();

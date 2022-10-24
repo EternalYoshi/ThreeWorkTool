@@ -11,6 +11,7 @@ using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
 using ThreeWorkTool.Resources.Wrappers;
 using System.Media;
+using NAudio.Wave;
 
 
 namespace ThreeWorkTool.Resources.Wrappers
@@ -20,8 +21,8 @@ namespace ThreeWorkTool.Resources.Wrappers
     {
         public int Version;
         public int FileLength;
-        public float SoundLength;
-        MemoryStream Mestream;
+        public double SoundLength;
+        //MemoryStream Mestream;
 
         public static RIFFEntry FillRIFFEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -88,17 +89,15 @@ namespace ThreeWorkTool.Resources.Wrappers
             return rifentry;
         }
 
-        public static void RefreshAudioPlayer(SoundPlayer SPlayer, RIFFEntry riff)
+        public static void RefreshAudioPlayer(SoundPlayer SPlayer, RIFFEntry riff, WaveFileReader WFReader, MemoryStream MSound)
         {
 
-            //SPlayer.SoundLocation = riff.UncompressedData;
-            using (MemoryStream Mestream = new MemoryStream(riff.UncompressedData))
-            {
+            //This is just to get the sound length in seconds. Has to be visible before play is pressed.
+            MSound = new MemoryStream(riff.UncompressedData);
 
-                SPlayer = new SoundPlayer(Mestream);
-                //SPlayer.Play();
-            }
-
+            WFReader = new WaveFileReader(MSound);
+            SPlayer = new SoundPlayer(MSound);
+            riff.SoundLength = WFReader.TotalTime.TotalSeconds;
 
 
         }
@@ -165,7 +164,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("MT Sound Entry"), ReadOnlyAttribute(true)]
-        public float AudioLength
+        public double AudioLength
         {
             get
             {

@@ -36,7 +36,7 @@ namespace ThreeWorkTool.Resources.Archives
         public static int EntryStart = 0x08;
         public static int EntrySize = 0x50;
 
-        public static string[] RecogExtensions = { ".TEX", ".MOD", ".MRL", ".CHN", ".CCL", ".CST", ".LMT" };
+        public static string[] RecogExtensions = { ".TEX", ".MOD", ".MRL", ".CHN", ".CCL", ".CST", ".LMT", ".GEM", ".XSEW", ".LSH" };
 
         public static ArcFile LoadArc(TreeView tree, string filename, List<string> foldernames, bool IsBigEndian, bool Verifier = false,Type filetype = null, int arcsize = -1)
         {
@@ -269,6 +269,15 @@ namespace ThreeWorkTool.Resources.Archives
                             RIFFEntry RIFen = RIFFEntry.FillRIFFEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(RIFen);
                             arcfile.FileList.Add(RIFen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
+                        //ShotList Files.
+                        case "141D851F":
+                            ShotListEntry LSHen = ShotListEntry.FillShotListEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(LSHen);
+                            arcfile.FileList.Add(LSHen.EntryName);
                             foldernames.Clear();
                             IDCounter++;
                             break;

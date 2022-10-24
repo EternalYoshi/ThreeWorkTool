@@ -106,6 +106,8 @@ namespace ThreeWorkTool
                                     MissionEntry misenty = new MissionEntry();
                                     GemEntry gementy = new GemEntry();
                                     EffectListEntry eflenty = new EffectListEntry();
+                                    ShotListEntry lshenty = new ShotListEntry();
+                                    RIFFEntry riffenty = new RIFFEntry();
 
                                     if (tno.Tag as ArcEntry != null)
                                     {
@@ -237,7 +239,26 @@ namespace ThreeWorkTool
                                         tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                         tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                     }
-
+                                    else if (tno.Tag as RIFFEntry != null)
+                                    {
+                                        riffenty = tno.Tag as RIFFEntry;
+                                        riffenty.EntryName = riffenty.EntryName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        riffenty.TrueName = riffenty.TrueName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        riffenty.FileName = riffenty.FileName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Tag = riffenty;
+                                        tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                    }
+                                    else if (tno.Tag as ShotListEntry != null)
+                                    {
+                                        lshenty = tno.Tag as ShotListEntry;
+                                        lshenty.EntryName = lshenty.EntryName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        lshenty.TrueName = lshenty.TrueName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        lshenty.FileName = lshenty.FileName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Tag = lshenty;
+                                        tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                    }
                                     RenameCount++;
                                 }
                             }
@@ -270,6 +291,20 @@ namespace ThreeWorkTool
             else
             {
                 if (Mainfrm.TreeSource.SelectedNode.Tag is ResourcePathListEntry)
+                {
+                    //Gets the text, then replaces every instance of the search term with the new term.
+                    string text = Mainfrm.txtRPList.Text;
+                    text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                    Mainfrm.txtRPList.Text = text;
+                }
+                else if (Mainfrm.TreeSource.SelectedNode.Tag is ShotListEntry)
+                {
+                    //Gets the text, then replaces every instance of the search term with the new term.
+                    string text = Mainfrm.txtRPList.Text;
+                    text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                    Mainfrm.txtRPList.Text = text;
+                }
+                else if (Mainfrm.TreeSource.SelectedNode.Tag is GemEntry)
                 {
                     //Gets the text, then replaces every instance of the search term with the new term.
                     string text = Mainfrm.txtRPList.Text;

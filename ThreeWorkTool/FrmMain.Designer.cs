@@ -59,16 +59,19 @@
             this.pGrdMain = new System.Windows.Forms.PropertyGrid();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.pnlNew = new System.Windows.Forms.Panel();
             this.pnlAudioPlayer = new System.Windows.Forms.Panel();
+            this.lblCurrentTime = new System.Windows.Forms.Label();
+            this.lblSoundLength = new System.Windows.Forms.Label();
+            this.trckBarAudioPlayerSeeker = new System.Windows.Forms.TrackBar();
             this.txtAudioLoopToggle = new System.Windows.Forms.CheckBox();
             this.btnStop = new System.Windows.Forms.Button();
             this.btnPlayPause = new System.Windows.Forms.Button();
             this.txtRPList = new System.Windows.Forms.TextBox();
             this.picBoxA = new System.Windows.Forms.PictureBox();
-            this.trckBarAudioPlayerSeeker = new System.Windows.Forms.TrackBar();
+            this.MusicTimer = new System.Windows.Forms.Timer(this.components);
+            this.TreeSource = new ThreeWorkTool.ThreeSourceTree();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -80,8 +83,8 @@
             this.splitContainer2.SuspendLayout();
             this.pnlNew.SuspendLayout();
             this.pnlAudioPlayer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picBoxA)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trckBarAudioPlayerSeeker)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picBoxA)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -350,6 +353,7 @@
             this.imageList1.Images.SetKeyName(22, "Bone.png");
             this.imageList1.Images.SetKeyName(23, "GEM.png");
             this.imageList1.Images.SetKeyName(24, "RIF.png");
+            this.imageList1.Images.SetKeyName(25, "lsh.png");
             // 
             // splitContainer1
             // 
@@ -367,26 +371,6 @@
             this.splitContainer1.Size = new System.Drawing.Size(945, 524);
             this.splitContainer1.SplitterDistance = 315;
             this.splitContainer1.TabIndex = 8;
-            // 
-            // TreeSource
-            // 
-            this.TreeSource.archivefile = null;
-            this.TreeSource.BackColor = System.Drawing.SystemColors.MenuText;
-            this.TreeSource.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TreeSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TreeSource.ForeColor = System.Drawing.SystemColors.Window;
-            this.TreeSource.HideSelection = false;
-            this.TreeSource.ImageIndex = 0;
-            this.TreeSource.ImageList = this.imageList1;
-            this.TreeSource.ItemHeight = 24;
-            this.TreeSource.Location = new System.Drawing.Point(0, 0);
-            this.TreeSource.Name = "TreeSource";
-            this.TreeSource.SelectedImageIndex = 16;
-            this.TreeSource.Size = new System.Drawing.Size(315, 524);
-            this.TreeSource.TabIndex = 6;
-            this.TreeSource.SelectionChanged += new System.EventHandler(this.TreeSource_SelectionChanged);
-            this.TreeSource.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeSource_AfterSelect);
-            this.TreeSource.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeSource_NodeMouseClick);
             // 
             // splitContainer2
             // 
@@ -422,6 +406,8 @@
             this.pnlAudioPlayer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlAudioPlayer.Controls.Add(this.lblCurrentTime);
+            this.pnlAudioPlayer.Controls.Add(this.lblSoundLength);
             this.pnlAudioPlayer.Controls.Add(this.trckBarAudioPlayerSeeker);
             this.pnlAudioPlayer.Controls.Add(this.txtAudioLoopToggle);
             this.pnlAudioPlayer.Controls.Add(this.btnStop);
@@ -431,6 +417,39 @@
             this.pnlAudioPlayer.Size = new System.Drawing.Size(170, 258);
             this.pnlAudioPlayer.TabIndex = 2;
             this.pnlAudioPlayer.Visible = false;
+            // 
+            // lblCurrentTime
+            // 
+            this.lblCurrentTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblCurrentTime.AutoSize = true;
+            this.lblCurrentTime.Location = new System.Drawing.Point(44, 130);
+            this.lblCurrentTime.Name = "lblCurrentTime";
+            this.lblCurrentTime.Size = new System.Drawing.Size(43, 13);
+            this.lblCurrentTime.TabIndex = 6;
+            this.lblCurrentTime.Text = "5:34.66";
+            this.lblCurrentTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblCurrentTime.Visible = false;
+            // 
+            // lblSoundLength
+            // 
+            this.lblSoundLength.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblSoundLength.AutoSize = true;
+            this.lblSoundLength.Location = new System.Drawing.Point(83, 130);
+            this.lblSoundLength.Name = "lblSoundLength";
+            this.lblSoundLength.Size = new System.Drawing.Size(54, 13);
+            this.lblSoundLength.TabIndex = 5;
+            this.lblSoundLength.Text = "/00:00.00";
+            this.lblSoundLength.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // trckBarAudioPlayerSeeker
+            // 
+            this.trckBarAudioPlayerSeeker.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.trckBarAudioPlayerSeeker.Location = new System.Drawing.Point(3, 98);
+            this.trckBarAudioPlayerSeeker.Name = "trckBarAudioPlayerSeeker";
+            this.trckBarAudioPlayerSeeker.Size = new System.Drawing.Size(164, 45);
+            this.trckBarAudioPlayerSeeker.TabIndex = 4;
+            this.trckBarAudioPlayerSeeker.TickFrequency = 2;
+            this.trckBarAudioPlayerSeeker.Visible = false;
             // 
             // txtAudioLoopToggle
             // 
@@ -491,14 +510,30 @@
             this.picBoxA.TabIndex = 1;
             this.picBoxA.TabStop = false;
             // 
-            // trckBarAudioPlayerSeeker
+            // MusicTimer
             // 
-            this.trckBarAudioPlayerSeeker.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.trckBarAudioPlayerSeeker.Location = new System.Drawing.Point(3, 98);
-            this.trckBarAudioPlayerSeeker.Name = "trckBarAudioPlayerSeeker";
-            this.trckBarAudioPlayerSeeker.Size = new System.Drawing.Size(164, 45);
-            this.trckBarAudioPlayerSeeker.TabIndex = 4;
-            this.trckBarAudioPlayerSeeker.TickFrequency = 2;
+            this.MusicTimer.Enabled = true;
+            this.MusicTimer.Tick += new System.EventHandler(this.MusicTimer_Tick);
+            // 
+            // TreeSource
+            // 
+            this.TreeSource.archivefile = null;
+            this.TreeSource.BackColor = System.Drawing.SystemColors.MenuText;
+            this.TreeSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TreeSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TreeSource.ForeColor = System.Drawing.SystemColors.Window;
+            this.TreeSource.HideSelection = false;
+            this.TreeSource.ImageIndex = 0;
+            this.TreeSource.ImageList = this.imageList1;
+            this.TreeSource.ItemHeight = 24;
+            this.TreeSource.Location = new System.Drawing.Point(0, 0);
+            this.TreeSource.Name = "TreeSource";
+            this.TreeSource.SelectedImageIndex = 16;
+            this.TreeSource.Size = new System.Drawing.Size(315, 524);
+            this.TreeSource.TabIndex = 6;
+            this.TreeSource.SelectionChanged += new System.EventHandler(this.TreeSource_SelectionChanged);
+            this.TreeSource.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeSource_AfterSelect);
+            this.TreeSource.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeSource_NodeMouseClick);
             // 
             // FrmMainThree
             // 
@@ -514,7 +549,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
-            this.Text = "ThreeWork Tool V0.6 Beta";
+            this.Text = "ThreeWork Tool V0.5X - Fall 2022";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
             this.Load += new System.EventHandler(this.FrmMainThree_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMainThree_KeyDown);
@@ -532,8 +567,8 @@
             this.pnlNew.PerformLayout();
             this.pnlAudioPlayer.ResumeLayout(false);
             this.pnlAudioPlayer.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picBoxA)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trckBarAudioPlayerSeeker)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picBoxA)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -580,6 +615,9 @@
         private System.Windows.Forms.Button btnPlayPause;
         private System.Windows.Forms.CheckBox txtAudioLoopToggle;
         private System.Windows.Forms.TrackBar trckBarAudioPlayerSeeker;
+        private System.Windows.Forms.Label lblSoundLength;
+        private System.Windows.Forms.Label lblCurrentTime;
+        private System.Windows.Forms.Timer MusicTimer;
     }
 }
 
