@@ -3088,6 +3088,8 @@ namespace ThreeWorkTool
             TreeSource.EndUpdate();
             TreeSource.Visible = true;
             OFDialog.FileName = "NewArc.arc";
+            frename.Mainfrm.OpenFileModified = true;
+
         }
 
         //Open File Code is here now.
