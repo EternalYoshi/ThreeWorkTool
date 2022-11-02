@@ -32,7 +32,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             FillEntry(filename, subnames, tree, br, c, ID, Rifentry, filetype);
 
-            Rifentry._FileName = Rifentry.TrueName + Rifentry.FileExt;
+            Rifentry._FileName = Rifentry.TrueName;
             Rifentry._DecompressedFileLength = Rifentry.UncompressedData.Length;
             Rifentry._CompressedFileLength = Rifentry.CompressedData.Length;
 
