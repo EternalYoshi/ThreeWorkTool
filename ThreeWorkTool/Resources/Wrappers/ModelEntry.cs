@@ -51,6 +51,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public List<string> MaterialNames;
         public List<ModelBoneEntry> Bones;
         public List<ModelGroupEntry> Groups;
+        public List<ModelPrimitiveEntry> Primitives;
 
         public static ModelEntry FillModelEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -215,6 +216,67 @@ namespace ThreeWorkTool.Resources.Wrappers
                 modentry.Groups.Add(Group);
 
                 PrevOffset = PrevOffset + 32;
+            }
+
+            //Primitives. Still Under Construction.
+            uint PrimIndTemp, ShaderTemp;
+            int PrevAddr, IndexBufferByteCount, IndexBufferOffset, VertBufferOffset;
+            bnr.BaseStream.Position = modentry.PrimitveOffset;
+            IndexBufferOffset = modentry.IndexBufferOffset;
+            VertBufferOffset = modentry.VertexBufferOffset;
+            modentry.Primitives = new List<ModelPrimitiveEntry>();
+            for (int v = 0; v < modentry.PrimitiveCount; v++)
+            {
+                ModelPrimitiveEntry Prim = new ModelPrimitiveEntry();
+                Prim.Flags = bnr.ReadInt16();
+                Prim.VerticeCount = bnr.ReadInt16();
+                PrimIndTemp = bnr.ReadUInt32();
+
+                //For the Indice.
+                Prim.Indice = new ModelPrimitiveEntry.Indices();
+                Prim.Indice.GroupID = Convert.ToInt32(PrimIndTemp & 0xFF);
+                Prim.Indice.LODIndex = Convert.ToInt32((PrimIndTemp >> (8 * 3)) & 0xFF);
+                Prim.Indice.MaterialIndex = Convert.ToInt32((PrimIndTemp & 0xFFF000) >> 12);
+
+                Prim.VertexFlags = bnr.ReadInt16();
+                Prim.VertexStride = bnr.ReadByte();
+                Prim.RenderMode = bnr.ReadByte();
+                Prim.VertexStartIndex = bnr.ReadInt32();
+                Prim.VertexBufferOffset = bnr.ReadInt32();
+                ShaderTemp = bnr.ReadUInt32();
+
+                ///For the Shader.
+                ModelPrimitiveEntry.MTShader shader = new ModelPrimitiveEntry.MTShader();
+                shader.Index = Convert.ToInt32(ShaderTemp & 0x00000FFF);
+                shader.ShaderObjectHash = CFGHandler.ShaderHashToName(shader.ShaderObjectHash, Convert.ToInt32(shader.Index));
+                Prim.Shaders = shader;
+
+                Prim.IndexBufferOffset = bnr.ReadInt32();
+                Prim.IndexCount = bnr.ReadInt32();
+                Prim.IndexStartIndex = bnr.ReadInt32();
+                Prim.BoneMapStartIndex = bnr.ReadByte();
+                Prim.PrimitiveJointLinkCount = bnr.ReadByte();
+                Prim.ID = bnr.ReadInt16();
+                Prim.MinVertexindex = bnr.ReadInt16();
+                Prim.MaxVertexIndex = bnr.ReadInt16();
+                Prim.Unknown2C = bnr.ReadInt32();
+                Prim.PrimitiveJointLinkPtr = bnr.ReadInt64();
+
+                //Saves the current position then gets the Indexbuffer.
+                PrevAddr = Convert.ToInt32(bnr.BaseStream.Position);
+                bnr.BaseStream.Position = IndexBufferOffset;
+                IndexBufferByteCount = Prim.IndexCount * 2;
+                Prim.IndexBuffer = bnr.ReadBytes(IndexBufferByteCount);
+
+                //Now for the Vertex Buffer.
+
+                //bnr.BaseStream.Position = VertBufferOffset;
+
+                //Adds the finished Primitive data to the list of Primitives.
+                modentry.Primitives.Add(Prim);
+                IndexBufferOffset = Convert.ToInt32(bnr.BaseStream.Position);
+                bnr.BaseStream.Position = PrevAddr;
+
             }
 
             return modentry;

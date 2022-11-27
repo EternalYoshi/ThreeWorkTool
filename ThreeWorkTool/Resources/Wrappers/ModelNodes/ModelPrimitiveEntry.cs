@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -13,6 +14,141 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 {
     public class ModelPrimitiveEntry : DefaultWrapper
     {
-        public int ID;
+        public int ID, Flags, VerticeCount, VertexFlags, RenderMode, VertexStartIndex, VertexBufferOffset, IndexBufferOffset, 
+            IndexCount, IndexStartIndex, BoneMapStartIndex, PrimitiveJointLinkCount, MinVertexindex, MaxVertexIndex, Unknown2C,
+             p, VertexStride, reIndexBufferOffset;
+
+        public long PrimitiveJointLinkPtr;
+
+        public struct Indices
+        {
+            public int GroupID, MaterialIndex, LODIndex;            
+        }
+        public Indices Indice;
+
+        public struct MTShader
+        {
+            public int Index;
+            public string ShaderObjectHash;
+        }
+        public MTShader Shaders;
+
+        public byte[] IndexBuffer;
+
+        public List<ModelPrimitiveJointLinkEntry> PJLs;
+
+        public struct VertexShaderInputLayout
+        {
+            public int p;
+            public List<int> Joints, Normal;
+            public struct Postiion
+            {
+                public float PX, PY, PZ;
+            }
+            public float Weight;
+        }
+
+        #region Model Primitive Entry Properties
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public int PrimitiveID
+        {
+
+            get
+            {
+                return ID;
+            }
+            set
+            {
+                ID = value;
+            }
+        }
+
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public int Vertices
+        {
+
+            get
+            {
+                return VerticeCount;
+            }
+            set
+            {
+                VerticeCount = value;
+            }
+        }
+
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public int PrimFlag
+        {
+
+            get
+            {
+                return Flags;
+            }
+            set
+            {
+                Flags = value;
+            }
+        }
+
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public int RenderFlag
+        {
+
+            get
+            {
+                return RenderMode;
+            }
+            set
+            {
+                RenderMode = value;
+            }
+        }
+
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public int NumberOfIndices
+        {
+
+            get
+            {
+                return IndexCount;
+            }
+            set
+            {
+                IndexCount = value;
+            }
+        }
+
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public string MTSHaderType
+        {
+
+            get
+            {
+                return Shaders.ShaderObjectHash;
+            }
+            set
+            {
+                Shaders.ShaderObjectHash = value;
+            }
+        }
+
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public Indices IndiceList
+        {
+
+            get
+            {
+                return Indice;
+            }
+            set
+            {
+                Indice = value;
+            }
+        }
+
+
+        #endregion
+
     }
 }

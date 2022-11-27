@@ -10431,7 +10431,7 @@ namespace ThreeWorkTool
 
             TreeSource.SelectedNode = MEntry;
 
-            //Makes the Groups Subfolder.
+            //Makes the Bones Subfolder.
             TreeNode folderB = new TreeNode();
             folderB.Name = "Bones";
             folderB.Tag = "Folder";
@@ -10452,6 +10452,30 @@ namespace ThreeWorkTool
                 ModelB.Tag = model.Bones[v];
                 ModelB.Text = model.Bones[v].ID.ToString();
                 TreeSource.SelectedNode.Nodes.Add(ModelB);
+
+            }
+
+            TreeSource.SelectedNode = MEntry;
+
+            //Makes the Primitives Subfolder.
+            TreeNode folderPrm = new TreeNode();
+            folderPrm.Name = "Primitives";
+            folderPrm.Tag = "Folder";
+            folderPrm.Text = "Primitives";
+
+            TreeSource.SelectedNode.Nodes.Add(folderPrm);
+            TreeSource.SelectedNode = folderPrm;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+            for (int w = 0; w < model.PrimitiveCount; w++)
+            {
+
+                ArcEntryWrapper MPrimitive = new ArcEntryWrapper();
+                MPrimitive.Name = "PrimID" + model.Primitives[w].ID.ToString();
+                MPrimitive.Tag = model.Primitives[w];
+                MPrimitive.Text = "PrimID" + model.Primitives[w].ID.ToString();
+                TreeSource.SelectedNode.Nodes.Add(MPrimitive);
 
             }
 
@@ -11390,10 +11414,25 @@ namespace ThreeWorkTool
 
                 #endregion
 
-                #region Model
+                #region Model Primitives
                 case "ThreeWorkTool.Resources.Wrappers.ModelEntry":
                     ModelEntry modelEntry = new ModelEntry();
                     modelEntry = TreeSource.SelectedNode.Tag as ModelEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                #endregion
+
+                #region Model
+                case "ThreeWorkTool.Resources.Wrappers.ModelNodes.ModelPrimitiveEntry":
+                    ModelPrimitiveEntry modelPrimEntry = new ModelPrimitiveEntry();
+                    modelPrimEntry = TreeSource.SelectedNode.Tag as ModelPrimitiveEntry;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;

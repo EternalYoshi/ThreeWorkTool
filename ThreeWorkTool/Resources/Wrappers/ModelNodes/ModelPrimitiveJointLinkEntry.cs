@@ -13,7 +13,12 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 {
     public class ModelPrimitiveJointLinkEntry : DefaultWrapper
     {
-
+        public int JointIndex, Unknwon04, Unknown08, Unknwon0C;
+        public Vector4 Vectors10, Vectors20, Vectors30, Vectors80; 
+        public struct MTMatrix
+        {
+            public List<Vector4> Rows;
+        }
 
 
     }
