@@ -148,6 +148,76 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
         }
 
 
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public int PrimitiveJointLinkTotal
+        {
+
+            get
+            {
+                return PrimitiveJointLinkCount;
+            }
+            set
+            {
+                PrimitiveJointLinkCount = value;
+            }
+        }
+
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public int VertStride
+        {
+
+            get
+            {
+                return VertexStride;
+            }
+            set
+            {
+                VertexStride = value;
+            }
+        }
+
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public int MinimumVertexIndex
+        {
+
+            get
+            {
+                return MinVertexindex;
+            }
+            set
+            {
+                MinVertexindex = value;
+            }
+        }
+
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public int MaximumVertexIndex
+        {
+
+            get
+            {
+                return MaxVertexIndex;
+            }
+            set
+            {
+                MaxVertexIndex = value;
+            }
+        }
+
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public long PrimJointLinkPointer 
+        {
+
+            get
+            {
+                return PrimitiveJointLinkPtr;
+            }
+            set
+            {
+                PrimitiveJointLinkPtr = value;
+            }
+        }
+
         #endregion
 
     }

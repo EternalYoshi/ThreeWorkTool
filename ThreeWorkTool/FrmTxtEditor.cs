@@ -16,6 +16,8 @@ namespace ThreeWorkTool
         private static ThreeSourceTree treeview;
         private static TreeNode nodeTxt;
         public MSDEntry msd;
+        public MaterialEntry material;
+        public ModelEntry model;
         public FrmMainThree Mainfrm { get; set; }
         public bool isModified = false;
 
@@ -29,10 +31,25 @@ namespace ThreeWorkTool
         {
             treeview = Mainfrm.TreeSource;
             nodeTxt = treeview.SelectedNode;
-            msd = nodeTxt.Tag as MSDEntry;
-            MSDEntry.LoadMSDInTexEditorForm(txtMSDBox,msd);
-            this.Text = "MSD Editor - " + nodeTxt.Text;
-            this.ShowDialog();
+
+            if (nodeTxt.Tag as MSDEntry != null)
+            {
+                msd = nodeTxt.Tag as MSDEntry;
+                MSDEntry.LoadMSDInTexEditorForm(txtMSDBox, msd);
+                this.Text = "MSD Editor - " + nodeTxt.Text;
+                this.ShowDialog();
+            }
+            else if (nodeTxt.Tag as MaterialEntry != null)
+            {
+                material = nodeTxt.Tag as MaterialEntry;
+                //Starts the proccess of converting the Material file to a .yml file.
+
+                //
+                //this.Text = "YML Editor - " + nodeTxt.Text;
+                //this.ShowDialog();
+            }
+
+
         }
 
         private void FrmTxtEditor_TextChanged(object sender, EventArgs e)

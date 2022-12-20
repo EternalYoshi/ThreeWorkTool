@@ -3534,6 +3534,13 @@ namespace ThreeWorkTool
             var reptxtitem = new ToolStripMenuItem("Replace Text in Material References", null, MenuItemReplaceTextInFile_Click, Keys.Control | Keys.E | Keys.ShiftKey);
             conmenu.Items.Add(reptxtitem);
 
+            /*
+#if DEBUG
+            //Edit As .yml file.
+            var edymltxtitem = new ToolStripMenuItem("Edit Material as .yml", null, MenuMateralEditAsYML_Click, Keys.Control | Keys.Shift | Keys.Y);
+            conmenu.Items.Add(edymltxtitem);
+#endif
+            */
             conmenu.Items.Add(new ToolStripSeparator());
 
             //Export.
@@ -3562,6 +3569,15 @@ namespace ThreeWorkTool
             conmenu.Items.Add(mditem);
 
             return conmenu;
+        }
+
+        private static void MenuMateralEditAsYML_Click(Object sender, System.EventArgs e)
+        {
+
+            FrmTxtEditor frmTxt = new FrmTxtEditor();
+            frmTxt = frmTxtEdit;
+            frmTxtEdit.ShowTxtEditor();
+
         }
 
         private static void MenuMSDEdit_Click(Object sender, System.EventArgs e)
