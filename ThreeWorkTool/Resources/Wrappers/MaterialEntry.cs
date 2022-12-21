@@ -68,7 +68,16 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             tree.BeginUpdate();
 
-            ReplaceKnownEntry(tree, node, filename, matentry, oldentry);
+            ReplaceEntry(tree, node, filename, matentry, oldentry);
+
+            //Type Specific Work Here.
+            using (MemoryStream LmtStream = new MemoryStream(matentry.UncompressedData))
+            {
+                using (BinaryReader bnr = new BinaryReader(LmtStream))
+                {
+                    BuildMatEntry(bnr, matentry);
+                }
+            }
 
             return node.entryfile as MaterialEntry;
 
