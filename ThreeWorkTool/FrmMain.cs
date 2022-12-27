@@ -5982,13 +5982,14 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperRPL, NewWrapperRPL.FileExt);
 
-                        NewWrapperRPL.ContextMenuStrip = GenericFileContextAdder(NewWrapperRPL, frename.Mainfrm.TreeSource);
+                        NewWrapperRPL.ContextMenuStrip = TXTContextAdder(NewWrapperRPL, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperRPL);
 
                         frename.Mainfrm.TreeSource.SelectedNode = NewWrapperRPL;
 
                         frename.Mainfrm.OpenFileModified = true;
+                        frename.Mainfrm.isFinishRPLRead = false;
 
                         //Reloads the replaced file data in the text box.
                         frename.Mainfrm.txtRPList = ResourcePathListEntry.LoadRPLInTextBox(frename.Mainfrm.txtRPList, RlistEntry);
@@ -6027,6 +6028,7 @@ namespace ThreeWorkTool
                             sw.WriteLine("Current file Count: " + filecountRPL);
                             sw.WriteLine("===============================================================================================================");
                         }
+                        frename.Mainfrm.isFinishRPLRead = true;
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeRPL;
                         break;
@@ -6058,6 +6060,8 @@ namespace ThreeWorkTool
                         frename.Mainfrm.TreeSource.SelectedNode = NewWrapperChainList;
 
                         frename.Mainfrm.OpenFileModified = true;
+
+                        frename.Mainfrm.isFinishRPLRead = false;
 
                         //Reloads the replaced file data in the text box.
                         frename.Mainfrm.txtRPList = ChainListEntry.LoadCSTInTextBox(frename.Mainfrm.txtRPList, ChnLstlistEntry);
@@ -6096,6 +6100,7 @@ namespace ThreeWorkTool
                             sw.WriteLine("Current file Count: " + filecountCST);
                             sw.WriteLine("===============================================================================================================");
                         }
+                        frename.Mainfrm.isFinishRPLRead = true;
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeCST;
                         break;
@@ -6473,7 +6478,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperMRL, NewWrapperMRL.FileExt);
 
-                        NewWrapperMRL.ContextMenuStrip = GenericFileContextAdder(NewWrapperMRL, frename.Mainfrm.TreeSource);
+                        NewWrapperMRL.ContextMenuStrip = MaterialContextAddder(NewWrapperMRL, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperMRL);
 
@@ -6518,6 +6523,11 @@ namespace ThreeWorkTool
                         }
 
                         frename.Mainfrm.TreeSource.SelectedNode = MRLselectednode;
+
+                        //Creates the Material Children of the new node.
+                        frename.Mainfrm.MaterialChildrenCreation(MRLselectednode, MRLselectednode.Tag as MaterialEntry);
+                        frename.Mainfrm.TreeSource.SelectedNode = MRLselectednode;
+
                         break;
 
                     #endregion
@@ -6685,13 +6695,15 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperGEM, NewWrapperGEM.FileExt);
 
-                        NewWrapperGEM.ContextMenuStrip = GenericFileContextAdder(NewWrapperGEM, frename.Mainfrm.TreeSource);
+                        NewWrapperGEM.ContextMenuStrip = TXTContextAdder(NewWrapperGEM, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperGEM);
 
                         frename.Mainfrm.TreeSource.SelectedNode = NewWrapperGEM;
 
                         frename.Mainfrm.OpenFileModified = true;
+
+                        frename.Mainfrm.isFinishRPLRead = false;
 
                         //Reloads the replaced file data in the text box.
                         frename.Mainfrm.txtRPList = GemEntry.LoadGEMInTextBox(frename.Mainfrm.txtRPList, GeMEntry);
@@ -6730,6 +6742,7 @@ namespace ThreeWorkTool
                             sw.WriteLine("Current file Count: " + filecountGEM);
                             sw.WriteLine("===============================================================================================================");
                         }
+                        frename.Mainfrm.isFinishRPLRead = true;
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeGEM;
                         break;
@@ -6884,13 +6897,15 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperLSH, NewWrapperLSH.FileExt);
 
-                        NewWrapperLSH.ContextMenuStrip = GenericFileContextAdder(NewWrapperLSH, frename.Mainfrm.TreeSource);
+                        NewWrapperLSH.ContextMenuStrip = TXTContextAdder(NewWrapperLSH, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperLSH);
 
                         frename.Mainfrm.TreeSource.SelectedNode = NewWrapperLSH;
 
                         frename.Mainfrm.OpenFileModified = true;
+
+                        frename.Mainfrm.isFinishRPLRead = false;
 
                         //Reloads the replaced file data in the text box.
                         frename.Mainfrm.txtRPList = ShotListEntry.LoadLSHInTextBox(frename.Mainfrm.txtRPList, LSHEntry);
@@ -6929,6 +6944,8 @@ namespace ThreeWorkTool
                             sw.WriteLine("Current file Count: " + filecountLSH);
                             sw.WriteLine("===============================================================================================================");
                         }
+
+                        frename.Mainfrm.isFinishRPLRead = true;
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeLSH;
                         break;
@@ -7114,6 +7131,8 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.OpenFileModified = true;
 
+                            frename.Mainfrm.isFinishRPLRead = false;
+
                             //Reloads the replaced file data in the text box.
                             frename.Mainfrm.txtRPList = ResourcePathListEntry.LoadRPLInTextBox(frename.Mainfrm.txtRPList, RlistEntry);
                             frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
@@ -7152,6 +7171,8 @@ namespace ThreeWorkTool
                                 sw.WriteLine("===============================================================================================================");
                             }
 
+                            frename.Mainfrm.isFinishRPLRead = true;
+
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeRPL.Parent;
                             break;
                         #endregion
@@ -7160,11 +7181,11 @@ namespace ThreeWorkTool
                         case ".cst":
                             frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperChainList = new ArcEntryWrapper();
-                            ResourcePathListEntry ChnLstlistEntry = new ResourcePathListEntry();
+                            ChainListEntry ChnLstlistEntry = new ChainListEntry();
 
 
                             //ChnLstlistEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, Filename);
-                            ChnLstlistEntry = ResourcePathListEntry.InsertRPL(frename.Mainfrm.TreeSource, NewWrapperChainList, Filename);
+                            ChnLstlistEntry = ChainListEntry.InsertChainListEntry(frename.Mainfrm.TreeSource, NewWrapperChainList, Filename);
                             NewWrapperChainList.Tag = ChnLstlistEntry;
                             NewWrapperChainList.Text = ChnLstlistEntry.TrueName;
                             NewWrapperChainList.Name = ChnLstlistEntry.TrueName;
@@ -7175,16 +7196,17 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.IconSetter(NewWrapperChainList, NewWrapperChainList.FileExt);
 
-                            NewWrapperChainList.ContextMenuStrip = GenericFileContextAdder(NewWrapperChainList, frename.Mainfrm.TreeSource);
+                            NewWrapperChainList.ContextMenuStrip = TXTContextAdder(NewWrapperChainList, frename.Mainfrm.TreeSource);
 
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperChainList);
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapperChainList;
 
                             frename.Mainfrm.OpenFileModified = true;
+                            frename.Mainfrm.isFinishRPLRead = false;
 
                             //Reloads the replaced file data in the text box.
-                            frename.Mainfrm.txtRPList = ResourcePathListEntry.LoadRPLInTextBox(frename.Mainfrm.txtRPList, ChnLstlistEntry);
+                            frename.Mainfrm.txtRPList = ChainListEntry.LoadCSTInTextBox(frename.Mainfrm.txtRPList, ChnLstlistEntry);
                             frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
 
                             string typeCST = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
@@ -7220,6 +7242,7 @@ namespace ThreeWorkTool
                                 sw.WriteLine("Current file Count: " + filecountCST);
                                 sw.WriteLine("===============================================================================================================");
                             }
+                            frename.Mainfrm.isFinishRPLRead = true;
 
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeCST.Parent;
                             break;
@@ -7598,7 +7621,7 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.IconSetter(NewWrapperMRL, NewWrapperMRL.FileExt);
 
-                            NewWrapperMRL.ContextMenuStrip = GenericFileContextAdder(NewWrapperMRL, frename.Mainfrm.TreeSource);
+                            NewWrapperMRL.ContextMenuStrip = MaterialContextAddder(NewWrapperMRL, frename.Mainfrm.TreeSource);
 
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperMRL);
 
@@ -7643,6 +7666,11 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = MRLselectednode.Parent;
+
+                            //Creates the Material Children of the new node.
+                            frename.Mainfrm.MaterialChildrenCreation(MRLselectednode, MRLselectednode.Tag as MaterialEntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = MRLselectednode.Parent;
+
                             break;
 
                         #endregion
@@ -7819,6 +7847,8 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.OpenFileModified = true;
 
+                            frename.Mainfrm.isFinishRPLRead = false;
+
                             //Reloads the replaced file data in the text box.
                             frename.Mainfrm.txtRPList = GemEntry.LoadGEMInTextBox(frename.Mainfrm.txtRPList, GeMEntry);
                             frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
@@ -7856,6 +7886,8 @@ namespace ThreeWorkTool
                                 sw.WriteLine("Current file Count: " + filecountGEM);
                                 sw.WriteLine("===============================================================================================================");
                             }
+
+                            frename.Mainfrm.isFinishRPLRead = true;
 
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeGEM.Parent;
                             break;
@@ -8021,6 +8053,8 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.OpenFileModified = true;
 
+                            frename.Mainfrm.isFinishRPLRead = false;
+
                             //Reloads the replaced file data in the text box.
                             frename.Mainfrm.txtRPList = ShotListEntry.LoadLSHInTextBox(frename.Mainfrm.txtRPList, LSHEntry);
                             frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
@@ -8047,6 +8081,8 @@ namespace ThreeWorkTool
                                 rootarcLSH.FileAmount++;
                                 frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcLSH;
                             }
+
+                            frename.Mainfrm.isFinishRPLRead = true;
 
                             //Writes to log file.
                             using (StreamWriter sw = File.AppendText("Log.txt"))

@@ -98,13 +98,12 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         public class KeyFrame
         {
-            [YamlMember(ApplyNamingConventions = false)] public Vector4 data;
             [YamlMember(ApplyNamingConventions = false)] public int frame;
-            [YamlMember(ApplyNamingConventions = false)] public int BoneID;
             [YamlMember(ApplyNamingConventions = false)] public string KeyType;
-            [YamlMember(ApplyNamingConventions = false)] public Vector3 EulerKeys;
             [YamlMember(ApplyNamingConventions = false)] public string TrackType;
-
+            [YamlMember(ApplyNamingConventions = false)] public int BoneID;
+            [YamlMember(ApplyNamingConventions = false)] public Vector4 data;
+            [YamlIgnore] public Vector3 EulerKeys;
         }
 
 
@@ -820,6 +819,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 M3a.KeyFrames[v].EulerKeys = QToEuler.ToEulerAngles(quat);
             }
+
+            M3a.KeyFrames = M3a.KeyFrames.OrderBy(o=>o.frame).ToList();
 
             return M3a;
         }

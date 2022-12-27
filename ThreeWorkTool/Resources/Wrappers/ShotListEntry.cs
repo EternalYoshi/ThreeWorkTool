@@ -230,16 +230,13 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             ShotListEntry lsh = new ShotListEntry();
 
-            InsertEntry(tree, node, filename, lsh);
-
-            //Decompression Time.
-            lsh.UncompressedData = ZlibStream.UncompressBuffer(lsh.CompressedData);
-            ASCIIEncoding ascii = new ASCIIEncoding();
 
             try
             {
                 using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
                 {
+                    InsertKnownEntry(tree, node, filename, lsh,bnr);
+                    ASCIIEncoding ascii = new ASCIIEncoding();
                     BuildShotListEntry(bnr, lsh, ascii);
                 }
             }
