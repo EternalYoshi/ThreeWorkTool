@@ -4064,6 +4064,8 @@ namespace ThreeWorkTool
                             //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             break;
 
@@ -4157,6 +4159,8 @@ namespace ThreeWorkTool
                             //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             break;
 
@@ -4260,6 +4264,8 @@ namespace ThreeWorkTool
                             //Creates the Material Children of the new node.
                             frename.Mainfrm.MaterialChildrenCreation(NewWrapper, NewWrapper.Tag as MaterialEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
                             break;
 
                         default:
@@ -4352,6 +4358,8 @@ namespace ThreeWorkTool
                             //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             break;
 
@@ -4451,6 +4459,8 @@ namespace ThreeWorkTool
                             //Builds the new child nodes.
                             frename.Mainfrm.LMTChildrenCreation(NewWrapper, NewWrapper.Tag as LMTEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             break;
 
@@ -4534,6 +4544,9 @@ namespace ThreeWorkTool
                                         NewWrapper.entryfile = Newaent;
 
                                         frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
+
                                     }
 
 
@@ -4673,6 +4686,8 @@ namespace ThreeWorkTool
                             //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             break;
 
@@ -4762,6 +4777,8 @@ namespace ThreeWorkTool
                             //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             break;
 
@@ -4850,6 +4867,8 @@ namespace ThreeWorkTool
                             //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             break;
 
@@ -4931,6 +4950,8 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             //Removes the old child nodes.
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
@@ -5020,6 +5041,8 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
 
                             //Removes the old child nodes.
@@ -5114,6 +5137,8 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             break;
 
@@ -5203,6 +5228,9 @@ namespace ThreeWorkTool
                             //Builds the new child nodes.
                             frename.Mainfrm.EFLChildrenCreation(NewWrapper, NewWrapper.Tag as EffectListEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
+
                             break;
 
                         default:
@@ -5285,6 +5313,9 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
+
                             break;
 
                         default:
@@ -5367,6 +5398,9 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
+
                             break;
 
                         default:
@@ -5455,6 +5489,8 @@ namespace ThreeWorkTool
                             //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             break;
 
@@ -5572,6 +5608,8 @@ namespace ThreeWorkTool
                             //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             //Writes to log file.
                             using (StreamWriter sw = File.AppendText("Log.txt"))
@@ -5656,7 +5694,7 @@ namespace ThreeWorkTool
                                             }
 
                                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapperDDS;
-                                            //frename.Mainfrm.Focus();
+
                                         }
                                     }
                                 }
