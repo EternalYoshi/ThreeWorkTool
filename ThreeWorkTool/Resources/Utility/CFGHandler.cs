@@ -18,7 +18,7 @@ namespace ThreeWorkTool.Resources.Utility
 
         public static string ArchiveHashToName(string str, string Typehash)
         {
-            
+
             //Looks through the archive_filetypes.cfg file to find the extension associated with the typehash.
             try
             {
@@ -74,7 +74,13 @@ namespace ThreeWorkTool.Resources.Utility
             return str;
         }
 
+        //Creates an older version of the .cfg file.
+        public static void MakeTheCFG()
+        {
+            string CFGBackup = "";
 
+
+        }
 
     }
 }

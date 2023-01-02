@@ -25,14 +25,15 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             public int OffsetType;
             public int Offset;
             public int Type;
-            public List<Buffer> FieldBuffer;
+            public Buffer buffer;
+            public int BufferOffset;
             public byte[] RawBuffer;
             public List<string> FileRef;
-
         }
-        public List<Field> Fields;
+        public Field[] Fields;
         public List<EffectFieldTextureRefernce> FXTXNameRefs;
         public List<int> FieldTextOffsets;
+        public Buffer FBuffer;
 
         public struct Buffer
         {
@@ -49,160 +50,74 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
 
             ASCIIEncoding ascii = new ASCIIEncoding();
             int OffTemp;
-            Effect.Fields = new List<Field>();
+            Effect.Fields = new Field[4];
             Effect.FieldTextOffsets = new List<int>();
             Effect.FXTXNameRefs = new List<EffectFieldTextureRefernce>();
+
+            //First Field set.
             Field fld = new Field();
             fld.FileRef = new List<string>();
             fld.OffsetType = Temp;
             fld.Offset = Temp >> 8;
             fld.Type = Temp & 0xFF;
             OffsetTemp = Convert.ToInt32(bnr.BaseStream.Position);
-            fld.EntryType = ID;
+            fld.EntryType = 0;
+            Effect.Fields[0]=fld;
+
+            //Second Field set.
+            Temp = bnr.ReadInt32();
+            fld = new Field();
+            fld.FileRef = new List<string>();
+            fld.OffsetType = Temp;
+            fld.Offset = Temp >> 8;
+            fld.Type = Temp & 0xFF;
+            OffsetTemp = Convert.ToInt32(bnr.BaseStream.Position);
+            fld.EntryType = 1;
+            Effect.Fields[1] = fld;
+
+            //Third Field set.
+            Temp = bnr.ReadInt32();
+            fld = new Field();
+            fld.FileRef = new List<string>();
+            fld.OffsetType = Temp;
+            fld.Offset = Temp >> 8;
+            fld.Type = Temp & 0xFF;
+            OffsetTemp = Convert.ToInt32(bnr.BaseStream.Position);
+            fld.EntryType = 2;
+            Effect.Fields[2] = fld;
+
+            //Fourth Field set.
+            Temp = bnr.ReadInt32();
+            fld = new Field();
+            fld.FileRef = new List<string>();
+            fld.OffsetType = Temp;
+            fld.Offset = Temp >> 8;
+            fld.Type = Temp & 0xFF;
+            OffsetTemp = Convert.ToInt32(bnr.BaseStream.Position);
+            fld.EntryType = 3;
+            Effect.Fields[3] = fld;
+
+            Effect.FBuffer = new Buffer();
+
+            return Effect;
+
+        }
+
+        public static EffectNode BuildEffectPartTwo(EffectNode Effect, BinaryReader bnr, EffectListEntry efl, int PrevOffset)
+        {
+
+            //Effect.FBuffer = new Buffer();
+
+            Effect.Fields[0].BufferOffset = Effect.Fields[0].Offset + 0x30;
+
+            Effect.Fields[1].BufferOffset = Effect.Fields[1].Offset + 0x30;
+
+            Effect.Fields[3].BufferOffset = Effect.Fields[3].Offset + 0x30;
+
+
             //string TempStr = "";
             byte[] PLName = new byte[] { };
             byte[] PTHName = new byte[] { };
-            
-            if (fld.Offset != 0)
-            {
-
-                bnr.BaseStream.Position = (fld.Offset + 0x30);
-                fld.FieldBuffer = new List<Buffer>();
-                Buffer buffer = new Buffer();
-                buffer.Offsets = new List<int>();
-                string Teme = "";
-
-                bnr.BaseStream.Position = fld.Offset + 0x30 + 0x70;
-                EffectFieldTextureRefernce FXTRef = new EffectFieldTextureRefernce();
-                OffTemp = Convert.ToInt32(bnr.BaseStream.Position);
-                buffer.Offsets.Add(OffTemp);
-                Effect.FieldTextOffsets.Add(OffTemp);
-                FXTRef.Offset = OffTemp;
-                PLName = efl.UncompressedData.Skip(Convert.ToInt32(bnr.BaseStream.Position)).Take(64).Where(x => x != 0x00).ToArray();
-                Teme = ascii.GetString(PLName);
-                FXTRef.TextureName = Teme;
-                fld.FileRef.Add(Teme);
-                OffTemp = 0;
-                Effect.FXTXNameRefs.Add(FXTRef);
-
-                bnr.BaseStream.Position = bnr.BaseStream.Position + 0x40;
-                EffectFieldTextureRefernce FXTRefTwo = new EffectFieldTextureRefernce();
-
-                OffTemp = Convert.ToInt32(bnr.BaseStream.Position);
-                Effect.FieldTextOffsets.Add(OffTemp);
-                FXTRefTwo.Offset = OffTemp;
-                PLName = efl.UncompressedData.Skip(Convert.ToInt32(bnr.BaseStream.Position)).Take(64).Where(x => x != 0x00).ToArray();
-                Teme = ascii.GetString(PLName);
-                FXTRefTwo.TextureName = Teme;
-                fld.FileRef.Add(Teme);
-                OffTemp = 0;
-                Effect.FXTXNameRefs.Add(FXTRefTwo);
-
-
-                bnr.BaseStream.Position = bnr.BaseStream.Position + 0x40;
-                EffectFieldTextureRefernce FXTRefThree = new EffectFieldTextureRefernce();
-                OffTemp = Convert.ToInt32(bnr.BaseStream.Position);
-                Effect.FieldTextOffsets.Add(OffTemp);
-                FXTRefThree.Offset = OffTemp;
-                PLName = efl.UncompressedData.Skip(Convert.ToInt32(bnr.BaseStream.Position)).Take(64).Where(x => x != 0x00).ToArray();
-                Teme = ascii.GetString(PLName);
-                FXTRefThree.TextureName = Teme;
-                fld.FileRef.Add(Teme);
-                OffTemp = 0;
-                Effect.FXTXNameRefs.Add(FXTRefThree);
-
-
-                bnr.BaseStream.Position = bnr.BaseStream.Position + 0x40;
-                EffectFieldTextureRefernce FXTRefFour = new EffectFieldTextureRefernce();
-                OffTemp = Convert.ToInt32(bnr.BaseStream.Position);
-                Effect.FieldTextOffsets.Add(OffTemp);
-                FXTRefFour.Offset = OffTemp;
-                PLName = efl.UncompressedData.Skip(Convert.ToInt32(bnr.BaseStream.Position)).Take(64).Where(x => x != 0x00).ToArray();
-                Teme = ascii.GetString(PLName);
-                FXTRefFour.TextureName = Teme;
-                fld.FileRef.Add(Teme);
-                Effect.Fields.Add(fld);
-
-                Effect.FXTXNameRefs.Add(FXTRefFour);
-
-                /*
-                switch (fld.EntryType)
-                {
-
-                    case 0:
-                        //Effect.Fields.Add(fld);
-                        break;
-
-                    case 1:
-
-                        bnr.BaseStream.Position = fld.Offset + 0x30 + 0x70;
-                        EffectFieldTextureRefernce FXTRef = new EffectFieldTextureRefernce();
-                        OffTemp = Convert.ToInt32(bnr.BaseStream.Position);
-                        buffer.Offsets.Add(OffTemp);
-                        Effect.FieldTextOffsets.Add(OffTemp);
-                        FXTRef.Offset = OffTemp;
-                        PLName = efl.UncompressedData.Skip(Convert.ToInt32(bnr.BaseStream.Position)).Take(64).Where(x => x != 0x00).ToArray();
-                        Teme = ascii.GetString(PLName);
-                        FXTRef.TextureName = Teme;
-                        fld.FileRef.Add(Teme);
-                        OffTemp = 0;
-                        Effect.FXTXNameRefs.Add(FXTRef);
-
-                        bnr.BaseStream.Position = bnr.BaseStream.Position + 0x40;
-                        EffectFieldTextureRefernce FXTRefTwo = new EffectFieldTextureRefernce();
-
-                        OffTemp = Convert.ToInt32(bnr.BaseStream.Position);
-                        Effect.FieldTextOffsets.Add(OffTemp);
-                        FXTRefTwo.Offset = OffTemp;
-                        PLName = efl.UncompressedData.Skip(Convert.ToInt32(bnr.BaseStream.Position)).Take(64).Where(x => x != 0x00).ToArray();
-                        Teme = ascii.GetString(PLName);
-                        FXTRefTwo.TextureName = Teme;
-                        fld.FileRef.Add(Teme);
-                        OffTemp = 0;
-                        Effect.FXTXNameRefs.Add(FXTRefTwo);
-
-
-                        bnr.BaseStream.Position = bnr.BaseStream.Position + 0x40;
-                        EffectFieldTextureRefernce FXTRefThree = new EffectFieldTextureRefernce();
-                        OffTemp = Convert.ToInt32(bnr.BaseStream.Position);
-                        Effect.FieldTextOffsets.Add(OffTemp);
-                        FXTRefThree.Offset = OffTemp;
-                        PLName = efl.UncompressedData.Skip(Convert.ToInt32(bnr.BaseStream.Position)).Take(64).Where(x => x != 0x00).ToArray();
-                        Teme = ascii.GetString(PLName);
-                        FXTRefThree.TextureName = Teme;
-                        fld.FileRef.Add(Teme);
-                        OffTemp = 0;
-                        Effect.FXTXNameRefs.Add(FXTRefThree);
-
-
-                        bnr.BaseStream.Position = bnr.BaseStream.Position + 0x40;
-                        EffectFieldTextureRefernce FXTRefFour = new EffectFieldTextureRefernce();
-                        OffTemp = Convert.ToInt32(bnr.BaseStream.Position);
-                        Effect.FieldTextOffsets.Add(OffTemp);
-                        FXTRefFour.Offset = OffTemp;
-                        PLName = efl.UncompressedData.Skip(Convert.ToInt32(bnr.BaseStream.Position)).Take(64).Where(x => x != 0x00).ToArray();
-                        Teme = ascii.GetString(PLName);
-                        FXTRefFour.TextureName = Teme;
-                        fld.FileRef.Add(Teme);
-                        Effect.Fields.Add(fld);
-
-                        Effect.FXTXNameRefs.Add(FXTRefFour);
-
-                        break;
-
-                    case 2:
-                        //Effect.Fields.Add(fld);
-
-                        break;
-
-                    default:
-                        //Effect.Fields.Add(fld);
-
-                        break;
-                }
-                */
-
-            }
 
             return Effect;
 
@@ -210,7 +125,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
 
 
         [Category("Effect"), ReadOnlyAttribute(true)]
-        public List<Field> FieldList
+        public Field[] FieldList
         {
 
             get
@@ -223,9 +138,9 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             }
         }
 
-        
 
-        
+
+
 
     }
 }

@@ -85,20 +85,24 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             eflentry.Effects = new List<EffectNode>();
             int PrevOffset = Convert.ToInt32(bnr.BaseStream.Position);
-            //int Iterator = 0;
 
             try
             {
-
+                //This is for the first part of Entry Fields for the effects.
                 for (int i = 0; i < eflentry.EntryCountA; i++)
                 {
                     EffectNode fx = new EffectNode();
                     fx = EffectNode.BuildEffect(fx, i, bnr, eflentry, PrevOffset);
                     eflentry.Effects.Add(fx);
                     ID++;
-                    PrevOffset = PrevOffset + 4;
-                    bnr.BaseStream.Position = PrevOffset;
                 }
+
+                //This is for Part Two.
+                for (int i = 0; i < eflentry.Effects.Count; i++)
+                {
+                    eflentry.Effects[i] = EffectNode.BuildEffectPartTwo(eflentry.Effects[i], bnr, eflentry, PrevOffset);
+                }
+
             }
             catch (Exception ex)
             {
