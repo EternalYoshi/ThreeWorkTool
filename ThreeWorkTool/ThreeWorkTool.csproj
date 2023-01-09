@@ -248,6 +248,7 @@
     <Compile Include="Resources\Wrappers\ExtraNodes\EffectFieldTextureRefernce.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\EffectNode.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\Mission.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\StageObjLayoutGroup.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
     <Compile Include="Resources\Wrappers\GemEntry.cs" />
     <Compile Include="Resources\Wrappers\LMTEntry.cs" />
@@ -264,6 +265,7 @@
     <Compile Include="Resources\Wrappers\MSDEntry.cs" />
     <Compile Include="Resources\Wrappers\ResourcePathListEntry.cs" />
     <Compile Include="Resources\Wrappers\ShotListEntry.cs" />
+    <Compile Include="Resources\Wrappers\StageObjLayoutEntry.cs" />
     <Compile Include="Resources\Wrappers\TextureEntry.cs" />
     <Compile Include="Resources\Wrappers\RIFFEntry.cs" />
     <Compile Include="Resources\Zlibber.cs" />

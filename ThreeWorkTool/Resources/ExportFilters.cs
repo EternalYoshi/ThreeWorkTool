@@ -33,7 +33,9 @@
 
         public static string rEffectList = "Effect List (*.efl)|*.efl";
 
-        public static string KeyFrameTest = ".txt";
+        public static string KeyFrameTest = "(*.txt)|.txt";
+
+        public static string rStgObjLayout = "Stage Object Layout (*.slo)|*.slo";
 
         public static string GetFilter(string filetype)
         {
@@ -78,6 +80,9 @@
 
                 case ".efl":
                     return rEffectList;
+
+                case ".slo":
+                    return rStgObjLayout;
 
                 default:
                     return Etc; 

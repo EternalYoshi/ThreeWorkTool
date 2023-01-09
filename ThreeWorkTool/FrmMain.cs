@@ -282,7 +282,7 @@ namespace ThreeWorkTool
                                                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
                                                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null 
-                                                        || awrapper.Tag as ModelPrimitiveJointLinkEntry == null)
+                                                        || awrapper.Tag as ModelPrimitiveJointLinkEntry == null || awrapper.Tag as StageObjLayoutGroup == null)
                                                         {
                                                             {
                                                                 //Removes the archive name from the FullPath for a proper search.
@@ -334,7 +334,7 @@ namespace ThreeWorkTool
                                                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
                                                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
-                                                        || awrapper.Tag as ModelPrimitiveJointLinkEntry == null)
+                                                        || awrapper.Tag as ModelPrimitiveJointLinkEntry == null || awrapper.Tag as StageObjLayoutGroup == null)
                                                         {
                                                             //Removes the archive name from the FullPath for a proper search.
                                                             string FullPathSearch = awrapper.FullPath;
@@ -408,7 +408,7 @@ namespace ThreeWorkTool
                                             if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" ||
                                                 treno.Tag as string == "Model Primitive Group" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
                                                 || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce 
-                                                || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelPrimitiveJointLinkEntry)
+                                                || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelPrimitiveJointLinkEntry || treno.Tag is StageObjLayoutGroup)
                                             {
 
                                             }
@@ -446,6 +446,7 @@ namespace ThreeWorkTool
                                         EffectListEntry eflenty = new EffectListEntry();
                                         RIFFEntry rifenty = new RIFFEntry();
                                         ShotListEntry lshenty = new ShotListEntry();
+                                        StageObjLayoutEntry sloenty = new StageObjLayoutEntry();
 
                                         //New Format should start here!
                                         /*
@@ -1427,6 +1428,69 @@ namespace ThreeWorkTool
                                                 DataEntryOffset = DataEntryOffset + ComSize;
 
                                             }
+                                            else if (treno.Tag as StageObjLayoutEntry != null)
+                                            {
+                                                sloenty = treno.Tag as StageObjLayoutEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "2C7171FA";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = sloenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = sloenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
 
                                             #region New Format Code
                                             //New format Entry data insertion goes like this!
@@ -1619,6 +1683,13 @@ namespace ThreeWorkTool
                                                 bwr.Write(CompData, 0, CompData.Length);
                                                 frename.Mainfrm.SaveCounterB++;
                                             }
+                                            else if (treno.Tag as StageObjLayoutEntry != null)
+                                            {
+                                                sloenty = treno.Tag as StageObjLayoutEntry;
+                                                byte[] CompData = sloenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                                frename.Mainfrm.SaveCounterB++;
+                                            }
                                             //New format compression data goes like this!
                                             /*
                                             else if(treno.Tag as ***** != null)
@@ -1727,6 +1798,7 @@ namespace ThreeWorkTool
             EffectListEntry eflenty = new EffectListEntry();
             RIFFEntry rifenty = new RIFFEntry();
             ShotListEntry lshenty = new ShotListEntry();
+            StageObjLayoutEntry sloenty = new StageObjLayoutEntry();
 
             //Saving generic files.
             if (treno.Tag as ArcEntry != null)
@@ -2695,7 +2767,68 @@ namespace ThreeWorkTool
                 bwr.Write(DEOffed, 0, DEOffed.Length);
                 DataEntryOffset = DataEntryOffset + ComSize;
             }
+            else if (treno.Tag as StageObjLayoutEntry != null)
+            {
+                sloenty = treno.Tag as StageObjLayoutEntry;
+                exportname = "";
 
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "2C7171FA";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = sloenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = sloenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+            }
             #region New Format Code
             //New format Entry data insertion goes like this!
             /*
@@ -2791,6 +2924,7 @@ namespace ThreeWorkTool
             EffectListEntry eflenty = new EffectListEntry();
             RIFFEntry rifenty = new RIFFEntry();
             ShotListEntry lshenty = new ShotListEntry();
+            StageObjLayoutEntry sloenty = new StageObjLayoutEntry();
 
             if (treno.Tag as ArcEntry != null)
             {
@@ -2886,7 +3020,12 @@ namespace ThreeWorkTool
                 byte[] CompData = lshenty.CompressedData;
                 bwr.Write(CompData, 0, CompData.Length);
             }
-
+            else if (treno.Tag as StageObjLayoutEntry != null)
+            {
+                sloenty = treno.Tag as StageObjLayoutEntry;
+                byte[] CompData = sloenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
             //New format compression data goes like this!
             /*
             else if(treno.Tag as ***** != null)
@@ -3954,6 +4093,29 @@ namespace ThreeWorkTool
                     using (StreamWriter sw = File.AppendText("Log.txt"))
                     {
                         sw.WriteLine("Exported a ShotList Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+                //StageObjLayoutEntry.
+                case "ThreeWorkTool.Resources.Wrappers.StageObjLayoutEntry":
+                    StageObjLayoutEntry sloentry = new StageObjLayoutEntry();
+                    if (tag is StageObjLayoutEntry)
+                    {
+
+                        sloentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as StageObjLayoutEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(sloentry.FileExt);
+                    }
+                    EXDialog.FileName = sloentry.FileName + sloentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.StageOBJLayoutWriter(EXDialog.FileName, sloentry);
+                    }
+
+                    //Writes to log file.
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Exported a ***** Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -5418,6 +5580,99 @@ namespace ThreeWorkTool
 
                 }
 
+
+            }
+
+            else if (tag is StageObjLayoutEntry)
+            {
+                StageObjLayoutEntry SLOEntEntry = new StageObjLayoutEntry();
+                SLOEntEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as StageObjLayoutEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(SLOEntEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            StageObjLayoutEntry Oldaent = new StageObjLayoutEntry();
+                            StageObjLayoutEntry Newaent = new StageObjLayoutEntry();
+                            Oldaent = OldWrapper.entryfile as StageObjLayoutEntry;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = StageObjLayoutEntry.ReplaceSLOEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as StageObjLayoutEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+                            
+                            //Creates the SLO Children of the new node.
+                            frename.Mainfrm.SLOChildrenCreation(NewWrapper, NewWrapper.Tag as StageObjLayoutEntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
+                            
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
 
             }
 
@@ -6990,6 +7245,73 @@ namespace ThreeWorkTool
 
                     #endregion
 
+                    #region StageObjectLayout
+                    case ".slo":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperSLO = new ArcEntryWrapper();
+                        StageObjLayoutEntry SLOFEntry = new StageObjLayoutEntry();
+
+                        SLOFEntry = StageObjLayoutEntry.InsertSLOEntry(frename.Mainfrm.TreeSource, NewWrapperSLO, IMPDialog.FileName);
+                        NewWrapperSLO.Tag = SLOFEntry;
+                        NewWrapperSLO.Text = SLOFEntry.TrueName;
+                        NewWrapperSLO.Name = SLOFEntry.TrueName;
+                        NewWrapperSLO.FileExt = SLOFEntry.FileExt;
+                        NewWrapperSLO.entryData = SLOFEntry;
+                        NewWrapperSLO.entryfile = SLOFEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperSLO, NewWrapperSLO.FileExt);
+
+                        NewWrapperSLO.ContextMenuStrip = GenericFileContextAdder(NewWrapperSLO, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperSLO);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperSLO;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string typeSLO = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeSLO = new TreeNode();
+                        TreeNode selectednodeSLO = new TreeNode();
+                        selectednodeSLO = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeSLO = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeSLO;
+
+                        int filecountSLO = 0;
+
+                        ArcFile rootarcSLO = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcSLO != null)
+                        {
+                            filecountSLO = rootarcSLO.FileCount;
+                            filecountSLO++;
+                            rootarcSLO.FileCount++;
+                            rootarcSLO.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSLO;
+                        }
+
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountSLO);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeSLO;
+
+                        //Creates the Material Children of the new node.
+                        frename.Mainfrm.SLOChildrenCreation(selectednodeSLO, selectednodeSLO.Tag as StageObjLayoutEntry);
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeSLO.Parent;
+
+                        break;
+                    #endregion
+
                     //For everything else.
                     default:
                         frename.Mainfrm.TreeSource.BeginUpdate();
@@ -7065,7 +7387,6 @@ namespace ThreeWorkTool
             OpenFileDialog IMPDialog = new OpenFileDialog();
             IMPDialog.Multiselect = true;
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-            //Gotta rewrite this to incorporate Textures.            
             Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
             if (IMPDialog.ShowDialog() == DialogResult.OK)
             {
@@ -8134,6 +8455,80 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeLSH.Parent;
+                            break;
+
+                        #endregion
+
+                        #region StageObjectLayout
+
+                        case ".slo":
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+                            ArcEntryWrapper NewWrapperSLO = new ArcEntryWrapper();
+                            StageObjLayoutEntry SLOEntry = new StageObjLayoutEntry();
+
+                            SLOEntry = StageObjLayoutEntry.InsertSLOEntry(frename.Mainfrm.TreeSource, NewWrapperSLO, Filename);
+                            NewWrapperSLO.Tag = SLOEntry;
+                            NewWrapperSLO.Text = SLOEntry.TrueName;
+                            NewWrapperSLO.Name = SLOEntry.TrueName;
+                            NewWrapperSLO.FileExt = SLOEntry.FileExt;
+                            NewWrapperSLO.entryData = SLOEntry;
+                            NewWrapperSLO.entryfile = SLOEntry;
+
+                            frename.Mainfrm.IconSetter(NewWrapperSLO, NewWrapperSLO.FileExt);
+
+                            NewWrapperSLO.ContextMenuStrip = TXTContextAdder(NewWrapperSLO, frename.Mainfrm.TreeSource);
+
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperSLO);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperSLO;
+
+                            frename.Mainfrm.OpenFileModified = true;
+
+                            frename.Mainfrm.isFinishRPLRead = false;
+
+                            string typeSLO = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            TreeNode rootnodeSLO = new TreeNode();
+                            TreeNode selectednodeSLO = new TreeNode();
+                            selectednodeSLO = frename.Mainfrm.TreeSource.SelectedNode;
+                            rootnodeSLO = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                            frename.Mainfrm.TreeSource.SelectedNode = rootnodeSLO;
+
+                            int filecountSLO = 0;
+
+                            ArcFile rootarcSLO = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                            if (rootarcSLO != null)
+                            {
+                                filecountSLO = rootarcSLO.FileCount;
+                                filecountSLO++;
+                                rootarcSLO.FileCount++;
+                                rootarcSLO.FileAmount++;
+                                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSLO;
+                            }
+
+                            frename.Mainfrm.isFinishRPLRead = true;
+
+                            //Writes to log file.
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + filecountSLO);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeSLO.Parent;
+                            
+                            //Creates the Material Children of the new node.
+                            frename.Mainfrm.SLOChildrenCreation(selectednodeSLO, selectednodeSLO.Tag as StageObjLayoutEntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeSLO.Parent;
+                            
+
                             break;
 
                         #endregion
@@ -9956,6 +10351,66 @@ namespace ThreeWorkTool
 
                 #endregion
 
+                #region StageObjLayout
+                case "ThreeWorkTool.Resources.Wrappers.StageObjLayoutEntry":
+                    ArcEntryWrapper slochild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+
+                    slochild.Name = I;
+                    slochild.Tag = FEntry as StageObjLayoutEntry;
+                    slochild.Text = I;
+                    slochild.entryfile = FEntry as StageObjLayoutEntry;
+                    slochild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    foreach (string Folder in H)
+                    {
+                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                        {
+                            TreeNode folder = new TreeNode();
+                            folder.Name = Folder;
+                            folder.Tag = "Folder";
+                            folder.Text = Folder;
+                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                            TreeSource.SelectedNode.Nodes.Add(folder);
+                            TreeSource.SelectedNode = folder;
+                            TreeSource.SelectedNode.ImageIndex = 2;
+                            TreeSource.SelectedNode.SelectedImageIndex = 2;
+                        }
+                        else
+                        {
+                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                        }
+                    }
+
+                    TreeSource.SelectedNode = slochild;
+
+                    TreeSource.SelectedNode.Nodes.Add(slochild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var slorootNode = FindRootNode(slochild);
+
+                    TreeSource.SelectedNode = slochild;
+                    TreeSource.SelectedNode.ImageIndex = 26;
+                    TreeSource.SelectedNode.SelectedImageIndex = 26;
+
+                    slochild.ContextMenuStrip = GenericFileContextAdder(slochild, TreeSource);
+
+                    StageObjLayoutEntry sloent = new StageObjLayoutEntry();
+                    sloent = slochild.Tag as StageObjLayoutEntry;
+
+                    //Makes Child Nodes for SLO Group references. More to come.
+                    SLOChildrenCreation(slochild, sloent);
+
+                    TreeSource.SelectedNode = slorootNode;
+
+                    tcount++;
+
+                    break;
+                #endregion
+
                 #region New Formats
                 //New Format go like this!
                 /*
@@ -10383,6 +10838,11 @@ namespace ThreeWorkTool
                         TreeSource.SelectedNode.ImageIndex = 25;
                         TreeSource.SelectedNode.SelectedImageIndex = 25;
                     }
+                    else if (G == ".slo")
+                    {
+                        TreeSource.SelectedNode.ImageIndex = 26;
+                        TreeSource.SelectedNode.SelectedImageIndex = 26;
+                    }
                     else
                     {
                         TreeSource.SelectedNode.ImageIndex = 16;
@@ -10660,6 +11120,24 @@ namespace ThreeWorkTool
             */
         }
 
+        public void SLOChildrenCreation(TreeNode MEntry, StageObjLayoutEntry slo)
+        {
+            TreeSource.SelectedNode = MEntry;
+
+            //Fills in Mission.
+            for (int i = 0; i < slo.EntryCount; i++)
+            {
+                ArcEntryWrapper slog = new ArcEntryWrapper();
+                slog.Name = Convert.ToString(slo.Groups[i].EntryID);
+                slog.Tag = slo.Groups[i];
+                slog.Text = Convert.ToString(slo.Groups[i].EntryID);
+                slog.ImageIndex = 16;
+                slog.SelectedImageIndex = 16;
+                TreeSource.SelectedNode.Nodes.Add(slog);
+
+            }
+        }
+
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
         {
 
@@ -10747,6 +11225,11 @@ namespace ThreeWorkTool
             {
                 wrapper.ImageIndex = 25;
                 wrapper.SelectedImageIndex = 25;
+            }
+            else if (extension == ".slo")
+            {
+                wrapper.ImageIndex = 26;
+                wrapper.SelectedImageIndex = 26;
             }
             else
             {
@@ -11124,6 +11607,21 @@ namespace ThreeWorkTool
                                 break;
                             }
 
+                        case "ThreeWorkTool.Resources.Wrappers.StageObjLayoutEntry":
+                            StageObjLayoutEntry slome = new StageObjLayoutEntry();
+                            slome = ArcEntry as StageObjLayoutEntry;
+                            if (slome != null)
+                            {
+                                TreeChildInsert(NCount, slome.EntryName, slome.FileExt, slome.EntryDirs, slome.TrueName, slome);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
                         //New Formats go like this!
                         /*
                            case "ThreeWorkTool.Resources.Wrappers.*****Entry":
@@ -11288,6 +11786,20 @@ namespace ThreeWorkTool
                     rif = WrapNode.Tag as RIFFEntry;
                     //Outputs name to log.
                     sw.WriteLine(rif.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ShotListEntry":
+                    ShotListEntry shl = new ShotListEntry();
+                    shl = WrapNode.Tag as ShotListEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(shl.EntryName);
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.StageObjLayoutEntry":
+                    StageObjLayoutEntry slo = new StageObjLayoutEntry();
+                    slo = WrapNode.Tag as StageObjLayoutEntry;
+                    //Outputs name to log.
+                    sw.WriteLine(slo.EntryName);
                     break;
 
                 default:
@@ -11462,6 +11974,34 @@ namespace ThreeWorkTool
 
             switch (type)
             {
+
+                #region StageObjLayoutGroup
+                case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.StageObjLayoutGroup":
+                    StageObjLayoutGroup slogent = new StageObjLayoutGroup();
+                    slogent = TreeSource.SelectedNode.Tag as StageObjLayoutGroup;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+                #endregion
+
+                #region StageObjLayout
+                case "ThreeWorkTool.Resources.Wrappers.StageObjLayoutEntry":
+                    StageObjLayoutEntry sloent = new StageObjLayoutEntry();
+                    sloent = TreeSource.SelectedNode.Tag as StageObjLayoutEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+                #endregion
 
                 #region Effect List
                 case "ThreeWorkTool.Resources.Wrappers.EffectListEntry":
@@ -12105,6 +12645,30 @@ namespace ThreeWorkTool
         private void pGrdMain_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
         {
             frename.Mainfrm.OpenFileModified = true;
+
+            //Checks and updates the selected node. Under Construction.
+
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+            if (tag is StageObjLayoutGroup)
+            {
+                //Gotta get the parent now.
+                var tagtwo = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+                StageObjLayoutEntry slobe = tagtwo.Tag as StageObjLayoutEntry;
+
+                if(slobe != null)
+                {
+
+
+
+                }
+
+
+
+            }
+
+
+
         }
 
         //Scrounges up existing nodes to make a manifest list.

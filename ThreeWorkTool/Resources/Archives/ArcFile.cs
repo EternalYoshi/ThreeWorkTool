@@ -282,6 +282,16 @@ namespace ThreeWorkTool.Resources.Archives
                             IDCounter++;
                             break;
 
+                        //Stage Object Layout Files.
+                        case "2C7171FA":
+                           StageObjLayoutEntry SLOen = StageObjLayoutEntry.FillSLOEntry(filename, foldernames, tree, br, j, IDCounter);
+                           arcfile.arcfiles.Add(SLOen);
+                           arcfile.FileList.Add(SLOen.EntryName);
+                           foldernames.Clear();
+                           IDCounter++;
+                           break;
+                        
+
                         //New Formats go like this!   
                         /*
                         case "********":
