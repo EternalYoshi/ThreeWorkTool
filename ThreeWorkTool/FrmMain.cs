@@ -8259,7 +8259,7 @@ namespace ThreeWorkTool
                             ArcEntryWrapper NewWrapperRIF = new ArcEntryWrapper();
                             RIFFEntry RIFFEntry = new RIFFEntry();
 
-                            RIFFEntry = RIFFEntry.InsertRIFFEntry(frename.Mainfrm.TreeSource, NewWrapperRIF, IMPDialog.FileName);
+                            RIFFEntry = RIFFEntry.InsertRIFFEntry(frename.Mainfrm.TreeSource, NewWrapperRIF, Filename);
                             NewWrapperRIF.Tag = RIFFEntry;
                             NewWrapperRIF.Text = RIFFEntry.TrueName;
                             NewWrapperRIF.Name = RIFFEntry.TrueName;
@@ -8311,7 +8311,7 @@ namespace ThreeWorkTool
                                 sw.WriteLine("===============================================================================================================");
                             }
 
-                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeRIF;
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeRIF.Parent;
                             break;
                         #endregion
 
