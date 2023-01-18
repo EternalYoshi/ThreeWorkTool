@@ -531,5 +531,33 @@ namespace ThreeWorkTool.Resources.Archives
 
         }
 
+        public static string HashExtensionCheck(string filename)
+        {
+            
+            string trname = filename;
+            string empname = filename;
+            trname = trname.Substring(trname.LastIndexOf('.') + 1);
+            string Hash;
+
+            if (trname.Length == 8)
+            {
+                Hash = trname;
+                int index = filename.LastIndexOf('.');
+                if (index >= 0)
+                    empname = filename.Substring(0, index);
+
+                trname = CFGHandler.ArchiveHashToExtension(trname,Hash);
+
+                filename = empname + trname;
+
+            }
+            else
+            {
+                return filename;
+            }
+            return filename;
+
+        }
+
     }
 }

@@ -4081,8 +4081,10 @@ namespace ThreeWorkTool
 
                         lshentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ShotListEntry;
                         EXDialog.Filter = ExportFilters.GetFilter(lshentry.FileExt);
+                        EXDialog.FileName = lshentry.FileName;
+                        EXDialog.AddExtension = true;
                     }
-                    EXDialog.FileName = lshentry.FileName + lshentry.FileExt;
+                    EXDialog.FileName = lshentry.FileName;
 
                     if (EXDialog.ShowDialog() == DialogResult.OK)
                     {
@@ -7312,6 +7314,76 @@ namespace ThreeWorkTool
                         break;
                     #endregion
 
+
+                    #region ANM
+
+                    case ".anm":
+                    case ".5A7E5D8A":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperANM = new ArcEntryWrapper();
+                        ArcEntry ANMEntry = new ArcEntry();
+
+                        ANMEntry = ArcEntry.InsertArcEntry(frename.Mainfrm.TreeSource, NewWrapperANM, IMPDialog.FileName);
+                        NewWrapperANM.Tag = ANMEntry;
+                        NewWrapperANM.Text = ANMEntry.TrueName;
+                        NewWrapperANM.Name = ANMEntry.TrueName;
+                        NewWrapperANM.FileExt = ANMEntry.FileExt;
+                        NewWrapperANM.entryData = ANMEntry;
+
+                        string actualname = DefaultWrapper.HashExtensionCheck(IMPDialog.FileName);
+
+
+                        frename.Mainfrm.IconSetter(NewWrapperANM, NewWrapperANM.FileExt);
+
+                        NewWrapperANM.ContextMenuStrip = GenericFileContextAdder(NewWrapperANM, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperANM);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperANM;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string typeANM = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeANM = new TreeNode();
+                        TreeNode selectednodeANM = new TreeNode();
+                        selectednodeANM = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeANM = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeANM;
+
+                        int filecountANM = 0;
+
+                        ArcFile rootarcANM = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcANM != null)
+                        {
+                            filecountANM = rootarcANM.FileCount;
+                            filecountANM++;
+                            rootarcANM.FileCount++;
+                            rootarcANM.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcANM;
+                        }
+
+
+
+                        //Writes to log file.
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountANM);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeANM;
+                        break;
+
+                    #endregion
+
                     //For everything else.
                     default:
                         frename.Mainfrm.TreeSource.BeginUpdate();
@@ -7322,7 +7394,7 @@ namespace ThreeWorkTool
                         NewWrapper.Tag = NEntry;
                         NewWrapper.Text = NEntry.TrueName;
                         NewWrapper.Name = NEntry.TrueName;
-                        NewWrapper.FileExt = NEntry.FileExt;
+                        NewWrapper.FileExt = ".anm";
                         NewWrapper.entryData = NEntry;
 
                         frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);

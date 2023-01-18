@@ -35,10 +35,10 @@ namespace ThreeWorkTool.Resources.Archives
         {
             ArcEntry arcentry = new ArcEntry();
             ArcEntry oldentry = new ArcEntry();
-            
+
             tree.BeginUpdate();
 
-            ReplaceEntry(tree,node,filename,arcentry,oldentry);
+            ReplaceEntry(tree, node, filename, arcentry, oldentry);
 
             arcentry.DecompressedFileLength = arcentry.UncompressedData.Length;
             arcentry._DecompressedFileLength = arcentry.UncompressedData.Length;
@@ -54,7 +54,7 @@ namespace ThreeWorkTool.Resources.Archives
         {
             ArcEntry arcentry = new ArcEntry();
 
-            InsertEntry(tree,node,filename,arcentry);
+            InsertEntry(tree, node, filename, arcentry);
 
             arcentry.DecompressedFileLength = arcentry.UncompressedData.Length;
             arcentry._DecompressedFileLength = arcentry.UncompressedData.Length;
@@ -74,6 +74,15 @@ namespace ThreeWorkTool.Resources.Archives
         {
             string TypeHash = "";
 
+            if (arctry.FileExt.Length == 9)
+            {
+                TypeHash = arctry.FileExt;
+                TypeHash = TypeHash.Substring(1);
+                if (System.Text.RegularExpressions.Regex.IsMatch(TypeHash, @"\A\b[0-9A-F]+\b\Z") == true)
+                {
+                    return TypeHash;
+                }
+            }
 
             //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
             try
@@ -97,7 +106,7 @@ namespace ThreeWorkTool.Resources.Archives
             }
             catch (FileNotFoundException)
             {
-                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program."," ",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", " ", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Process.GetCurrentProcess().Kill();
             }
 

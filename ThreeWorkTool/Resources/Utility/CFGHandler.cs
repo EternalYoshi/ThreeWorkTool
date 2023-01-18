@@ -55,6 +55,46 @@ namespace ThreeWorkTool.Resources.Utility
             return str;
         }
 
+        public static string ArchiveHashToExtension(string str, string Typehash)
+        {
+
+            //Looks through the archive_filetypes.cfg file to find the extension associated with the typehash.
+            try
+            {
+                using (var sr = new StreamReader("archive_filetypes.cfg"))
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        var keyword = Console.ReadLine() ?? Typehash;
+                        var line = sr.ReadLine();
+                        if (String.IsNullOrEmpty(line)) continue;
+                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        {
+                            str = line;
+                            str = str.Split(' ')[1];
+                            break;
+                        }
+                    }
+                }
+
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing this file.", "Oh Boy");
+                using (StreamWriter sw = File.AppendText("Log.txt"))
+                {
+                    sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.");
+                    Process.GetCurrentProcess().Kill();
+                }
+                return null;
+            }
+
+
+
+            return str;
+        }
+
+
         public static string ShaderHashToName(string str, int Index)
         {
             string line = "";
