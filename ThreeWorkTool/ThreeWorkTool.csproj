@@ -247,6 +247,10 @@
     <Compile Include="Resources\Wrappers\EffectListEntry.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\EffectFieldTextureRefernce.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\EffectNode.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\Kaitai\KaitaiStream.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\Kaitai\KaitaiStruct.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\Kaitai\Lmt.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\Kaitai\LmtCodec.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\Mission.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\StageObjLayoutGroup.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
@@ -351,6 +355,7 @@
     <Content Include="Images\Tex.png" />
     <Content Include="Images\Three.png" />
     <Content Include="Images\Unknown.png" />
+    <Content Include="Resources\Wrappers\ExtraNodes\Kaitai\LICENSE.txt" />
     <Content Include="ThreeWorkIconTest.ico" />
   </ItemGroup>
   <ItemGroup>
