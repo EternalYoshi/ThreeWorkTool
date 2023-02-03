@@ -127,6 +127,140 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
+        public static StageObjLayoutEntry SaveSLOEntry(StageObjLayoutEntry sloentry,TreeNode node)
+        {
+
+            using (MemoryStream SloStream = new MemoryStream(sloentry.UncompressedData))
+            {
+                using (BinaryWriter bwr = new BinaryWriter(SloStream))
+                {
+                    //Gets All The StageObjLayoutGroup Files From Child Nodes variables and writes to the main StageObjLayout file.
+                    foreach (ArcEntryWrapper youngn in node.Nodes)
+                    {
+                        StageObjLayoutGroup slog = youngn.Tag as StageObjLayoutGroup;
+                        bwr.BaseStream.Position = slog.DataOffset;
+                        bwr.BaseStream.Position = bwr.BaseStream.Position + 48;
+                        bwr.Write(slog.VectorA.X);
+                        bwr.Write(slog.VectorA.Y);
+                        bwr.Write(slog.VectorA.Z);
+                        bwr.Write(slog.SomeFloat1);
+                        bwr.Write(slog.VectorB.X);
+                        bwr.Write(slog.VectorB.Y);
+                        bwr.Write(slog.VectorB.Z);
+                        bwr.Write(slog.SomeFloat2);
+                        bwr.Write(slog.VectorC.X);
+                        bwr.Write(slog.VectorC.Y);
+                        bwr.Write(slog.VectorC.Z);
+                        bwr.Write(slog.SomeFloat3);
+
+                        //Now for the file references.
+                        int NumberChars = slog.FileReference1.Length;
+                        byte[] namebuffer = Encoding.ASCII.GetBytes(slog.FileReference1);
+                        int nblength = namebuffer.Length;
+                        //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                        byte[] writenamedata = new byte[64];
+                        Array.Clear(writenamedata, 0, writenamedata.Length);
+                        for (int i = 0; i < namebuffer.Length; ++i)
+                        {
+                            writenamedata[i] = namebuffer[i];
+                        }
+                        bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                        namebuffer = Encoding.ASCII.GetBytes(slog.FileReference2);
+                        nblength = namebuffer.Length;
+                        //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                        writenamedata = new byte[64];
+                        Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                        for (int i = 0; i < namebuffer.Length; ++i)
+                        {
+                            writenamedata[i] = namebuffer[i];
+                        }
+
+                        bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                        namebuffer = Encoding.ASCII.GetBytes(slog.FileReference3);
+                        nblength = namebuffer.Length;
+                        //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                        writenamedata = new byte[64];
+                        Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                        for (int i = 0; i < namebuffer.Length; ++i)
+                        {
+                            writenamedata[i] = namebuffer[i];
+                        }
+
+                        bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                        namebuffer = Encoding.ASCII.GetBytes(slog.FileReference4);
+                        nblength = namebuffer.Length;
+                        //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                        writenamedata = new byte[64];
+                        Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                        for (int i = 0; i < namebuffer.Length; ++i)
+                        {
+                            writenamedata[i] = namebuffer[i];
+                        }
+
+                        bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                        namebuffer = Encoding.ASCII.GetBytes(slog.FileReference5);
+                        nblength = namebuffer.Length;
+                        //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                        writenamedata = new byte[64];
+                        Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                        for (int i = 0; i < namebuffer.Length; ++i)
+                        {
+                            writenamedata[i] = namebuffer[i];
+                        }
+
+                        bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                        namebuffer = Encoding.ASCII.GetBytes(slog.FileReference6);
+                        nblength = namebuffer.Length;
+                        //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                        writenamedata = new byte[64];
+                        Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                        for (int i = 0; i < namebuffer.Length; ++i)
+                        {
+                            writenamedata[i] = namebuffer[i];
+                        }
+
+                        bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                        namebuffer = Encoding.ASCII.GetBytes(slog.FileReference7);
+                        nblength = namebuffer.Length;
+                        //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                        writenamedata = new byte[64];
+                        Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                        for (int i = 0; i < namebuffer.Length; ++i)
+                        {
+                            writenamedata[i] = namebuffer[i];
+                        }
+
+                        bwr.Write(writenamedata, 0, writenamedata.Length);
+
+
+
+
+                    }
+
+
+                }
+            }
+
+
+            sloentry.CompressedData = Zlibber.Compressor(sloentry.UncompressedData);
+
+
+            return sloentry;
+
+        }
+
         #region Stage Object Layout Properties
 
         [Category("Filename"), ReadOnlyAttribute(true)]

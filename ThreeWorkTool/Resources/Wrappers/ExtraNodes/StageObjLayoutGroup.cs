@@ -19,6 +19,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
     public class StageObjLayoutGroup : DefaultWrapper
     {
 
+        public int DataOffset;
         public int UnknownFlags;
         public string GroupName;
         public byte[] BufferA;
@@ -44,6 +45,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         public static StageObjLayoutGroup BuildSLOGroup(StageObjLayoutEntry sloentry, int ID, BinaryReader bnr, StageObjLayoutGroup slog)
         {
             slog.EntryID = ID;
+            slog.DataOffset = Convert.ToInt32(bnr.BaseStream.Position);
             slog.UnknownFlags = bnr.ReadInt32();
             slog.GroupName = Encoding.ASCII.GetString(bnr.ReadBytes(32)).Trim('\0');
             slog.BufferA = bnr.ReadBytes(12);

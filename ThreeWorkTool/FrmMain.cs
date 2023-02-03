@@ -1440,6 +1440,10 @@ namespace ThreeWorkTool
                                             else if (treno.Tag as StageObjLayoutEntry != null)
                                             {
                                                 sloenty = treno.Tag as StageObjLayoutEntry;
+
+                                                //Gotta Update The StageObjLayout File First.
+                                                sloenty = StageObjLayoutEntry.SaveSLOEntry(sloenty, treno);
+
                                                 exportname = "";
 
                                                 exportname = treno.FullPath;
@@ -2779,6 +2783,10 @@ namespace ThreeWorkTool
             else if (treno.Tag as StageObjLayoutEntry != null)
             {
                 sloenty = treno.Tag as StageObjLayoutEntry;
+
+                //Gotta Update The StageObjLayout File First.
+                sloenty = StageObjLayoutEntry.SaveSLOEntry(sloenty, treno);
+
                 exportname = "";
 
                 exportname = treno.FullPath;
@@ -4399,7 +4407,7 @@ namespace ThreeWorkTool
                                 }
                             }
 
-                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = MaterialContextAddder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as MaterialEntry;
