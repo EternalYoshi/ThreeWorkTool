@@ -194,6 +194,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             gem.CSize = gem.CompressedData.Length;
             gem._FileLength = gem.UncompressedData.Length;
 
+            gem.TextBackup = new List<string>();
+
             return gem;
 
         }

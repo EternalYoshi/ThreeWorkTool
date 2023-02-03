@@ -200,6 +200,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             texbox.Text = "";
 
+
             bool isEmpty = !rple.TextBackup.Any();
             if (isEmpty)
             {
@@ -402,6 +403,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             rple._FileLength = rple.UncompressedData.Length;
             rple._EntryTotal = NewEntryCount;
+
+            //Updates the TextBackup used for display.
+            rple.TextBackup = new List<string>();
 
             return rple;
 
