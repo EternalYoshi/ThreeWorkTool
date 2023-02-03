@@ -9875,6 +9875,7 @@ namespace ThreeWorkTool
         public void TreeChildInsert(int E, string F, string G, string[] H, string I, object FEntry)
         {
             string type = FEntry.GetType().ToString();
+            TreeNode BranchNode = new TreeNode();
             switch (type)
             {
 
@@ -9896,26 +9897,8 @@ namespace ThreeWorkTool
                     tchild.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
-
+                    BranchNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
+                    TreeSource.SelectedNode = BranchNode;
                     TreeSource.SelectedNode = tchild;
 
                     TreeSource.SelectedNode.Nodes.Add(tchild);
@@ -9955,26 +9938,7 @@ namespace ThreeWorkTool
                     lmtchild.entryfile = FEntry as LMTEntry;
                     lmtchild.FileExt = G;
 
-                    //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = lmtchild;
 
@@ -10021,25 +9985,7 @@ namespace ThreeWorkTool
                     rplchild.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = rplchild;
 
@@ -10081,25 +10027,7 @@ namespace ThreeWorkTool
                     msdchild.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = msdchild;
 
@@ -10142,25 +10070,7 @@ namespace ThreeWorkTool
                     matchild.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = matchild;
 
@@ -10206,25 +10116,7 @@ namespace ThreeWorkTool
                     cstchild.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = cstchild;
 
@@ -10265,25 +10157,7 @@ namespace ThreeWorkTool
                     chnchild.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = chnchild;
 
@@ -10324,25 +10198,7 @@ namespace ThreeWorkTool
                     cclchild.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = cclchild;
 
@@ -10382,25 +10238,7 @@ namespace ThreeWorkTool
                     modchild.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = modchild;
 
@@ -10441,25 +10279,7 @@ namespace ThreeWorkTool
                     gemchild.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = gemchild;
 
@@ -10498,25 +10318,7 @@ namespace ThreeWorkTool
                     slochild.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = slochild;
 
@@ -10560,29 +10362,11 @@ namespace ThreeWorkTool
                     *****child.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H);
 
                     TreeSource.SelectedNode = *****child;
 
-                    TreeSource.SelectedNode.Nodes.Add(*****child);
+                    BranchNode.Nodes.Add(*****child);
 
                     TreeSource.ImageList = imageList1;
 
@@ -10620,26 +10404,7 @@ namespace ThreeWorkTool
                     mischild.entryfile = FEntry as MissionEntry;
                     mischild.FileExt = G;
 
-                    //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = mischild;
 
@@ -10685,26 +10450,7 @@ namespace ThreeWorkTool
                     eflchild.entryfile = FEntry as EffectListEntry;
                     eflchild.FileExt = G;
 
-                    //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = eflchild;
 
@@ -10750,26 +10496,7 @@ namespace ThreeWorkTool
                     rifchild.entryfile = FEntry as RIFFEntry;
                     rifchild.FileExt = G;
 
-                    //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = rifchild;
 
@@ -10808,26 +10535,7 @@ namespace ThreeWorkTool
                     lshchild.entryfile = FEntry as ShotListEntry;
                     lshchild.FileExt = G;
 
-                    //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = lshchild;
 
@@ -10877,25 +10585,7 @@ namespace ThreeWorkTool
                     child.FileExt = G;
 
                     //Checks for subdirectories. Makes folder if they don't exist already.
-                    foreach (string Folder in H)
-                    {
-                        if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                        {
-                            TreeNode folder = new TreeNode();
-                            folder.Name = Folder;
-                            folder.Tag = "Folder";
-                            folder.Text = Folder;
-                            folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
-                            TreeSource.SelectedNode.Nodes.Add(folder);
-                            TreeSource.SelectedNode = folder;
-                            TreeSource.SelectedNode.ImageIndex = 2;
-                            TreeSource.SelectedNode.SelectedImageIndex = 2;
-                        }
-                        else
-                        {
-                            TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
-                        }
-                    }
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
 
                     TreeSource.SelectedNode = child;
 
@@ -10990,6 +10680,80 @@ namespace ThreeWorkTool
                     tcount++;
                     break;
             }
+        }
+
+        public TreeNode FolderMakeAndSort(string[] H, TreeNode SelectedNode)
+        {
+            //Checks for subdirectories. Makes folder if they don't exist already.
+            var PrevTreeNode = FindRootNode(SelectedNode);
+            bool FolderFound = false;
+            for(int v = 0; v < H.Length; v++)
+            {
+                //Checks for a Folder node with the same name as the current Folder string.
+                TreeNode[] GatheredNodes = PrevTreeNode.Nodes.Find(H[v], false);
+                if(GatheredNodes.Length > 0)
+                {
+                    FolderFound = false;
+                    for (int w = 0; w < GatheredNodes.Length; w++)
+                    {
+                        if (GatheredNodes[w].Tag as string != null && GatheredNodes[w].Tag as string == "Folder")
+                        {
+                            PrevTreeNode = GatheredNodes[w];
+                            SelectedNode = GatheredNodes[w];
+                            FolderFound = true;
+                            break;
+                        }
+                    }
+
+                    if (FolderFound == true)
+                    {
+                        continue;
+                    }                    
+                }
+                else
+                {
+                    TreeNode folder = new TreeNode();
+                    folder.Name = H[v];
+                    folder.Tag = "Folder";
+                    folder.Text = H[v];
+                    folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                    SelectedNode.Nodes.Add(folder);
+                    SelectedNode = folder;
+                    SelectedNode.ImageIndex = 2;
+                    SelectedNode.SelectedImageIndex = 2;
+                    PrevTreeNode = folder;
+                }
+
+
+
+            }
+
+            SelectedNode = PrevTreeNode;
+            return PrevTreeNode;
+            
+            /*
+            foreach (string Folder in H)
+            {
+                if (!TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                {
+                    TreeNode folder = new TreeNode();
+                    folder.Name = Folder;
+                    folder.Tag = "Folder";
+                    folder.Text = Folder;
+                    folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
+                    TreeSource.SelectedNode.Nodes.Add(folder);
+                    TreeSource.SelectedNode = folder;
+                    TreeSource.SelectedNode.ImageIndex = 2;
+                    TreeSource.SelectedNode.SelectedImageIndex = 2;
+                }
+                else
+                {
+                    TreeSource.SelectedNode = GetNodeByName(TreeSource.SelectedNode.Nodes, Folder);
+                }
+            }
+
+            return PrevTreeNode;
+            */
         }
 
         public void MaterialChildrenCreation(TreeNode MEntry, MaterialEntry material)
