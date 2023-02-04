@@ -188,7 +188,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                             try
                             {
-                                using (var sr = new StreamReader("MSDTable.cfg"))
+                                string ProperPath = "";
+                                ProperPath = Globals.ToolPath + "MSDTable.cfg";
+                                using (var sr = new StreamReader(ProperPath))
                                 {
                                     while (!sr.EndOfStream)
                                     {
@@ -402,7 +404,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                         HexTemp = " " + STemp[j].ToString();
                         try
                         {
-                            using (var sr = new StreamReader("MSDTable.cfg"))
+                            string ProperPath = "";
+                            ProperPath = Globals.ToolPath + "MSDTable.cfg";
+                            using (var sr = new StreamReader(ProperPath))
                             {
                                 while (!sr.EndOfStream)
                                 {

@@ -136,7 +136,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
                     try
                     {
-                        using (var sr2 = new StreamReader("archive_filetypes.cfg"))
+                        string ProperPath = "";
+                        ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                        using (var sr2 = new StreamReader(ProperPath))
                         {
                             while (!sr2.EndOfStream)
                             {
@@ -364,7 +366,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
                     try
                     {
-                        using (var sr2 = new StreamReader("archive_filetypes.cfg"))
+                        string ProperPath = "";
+                        ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                        using (var sr2 = new StreamReader(ProperPath))
                         {
                             while (!sr2.EndOfStream)
                             {

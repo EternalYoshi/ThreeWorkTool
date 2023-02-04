@@ -74,7 +74,10 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         try
                         {
-                            using (var sr = new StreamReader("archive_filetypes.cfg"))
+                            //Gets the Corrected path for the cfg.
+                            string ProperPath = "";
+                            ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                            using (var sr = new StreamReader(ProperPath))
                             {
                                 while (!sr.EndOfStream)
                                 {
@@ -114,7 +117,10 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         try
                         {
-                            using (var sr = new StreamReader("archive_filetypes.cfg"))
+                            //Gets the Corrected path for the cfg.
+                            string ProperPath = "";
+                            ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                            using (var sr = new StreamReader(ProperPath))
                             {
                                 while (!sr.EndOfStream)
                                 {
@@ -454,7 +460,10 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                                 try
                                 {
-                                    using (var sr = new StreamReader("archive_filetypes.cfg"))
+                                    //Gets the Corrected path for the cfg.
+                                    string ProperPath = "";
+                                    ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                                    using (var sr = new StreamReader(ProperPath))
                                     {
                                         while (!sr.EndOfStream)
                                         {
@@ -494,7 +503,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                                 try
                                 {
-                                    using (var sr = new StreamReader("archive_filetypes.cfg"))
+                                    string ProperPath = "";
+                                    ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                                    using (var sr = new StreamReader(ProperPath))
                                     {
                                         while (!sr.EndOfStream)
                                         {
@@ -623,7 +634,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         try
                         {
-                            using (var sr = new StreamReader("archive_filetypes.cfg"))
+                            string ProperPath = "";
+                            ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                            using (var sr = new StreamReader(ProperPath))
                             {
                                 while (!sr.EndOfStream)
                                 {
@@ -663,7 +676,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         try
                         {
-                            using (var sr = new StreamReader("archive_filetypes.cfg"))
+                            string ProperPath = "";
+                            ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                            using (var sr = new StreamReader(ProperPath))
                             {
                                 while (!sr.EndOfStream)
                                 {

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Diagnostics;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Archives;
@@ -12478,7 +12479,7 @@ namespace ThreeWorkTool
             using (FrmNotes frnot = new FrmNotes()) frnot.ShowDialog();
         }
 
-        //For MRU Implementation.
+        //For MRU Implementation & File opening on startup.
         private void FrmMainThree_Load(object sender, EventArgs e)
         {
             var appDataPath = Application.UserAppDataPath;
@@ -12497,6 +12498,132 @@ namespace ThreeWorkTool
 
             }
 
+            //Checks arguments.
+            string[] PassThrough = Environment.GetCommandLineArgs();
+            string EXEPath = PassThrough[0];
+            int indexS = PassThrough[0].LastIndexOf("\\");
+            if (indexS >= 0)
+            {
+                Globals.ToolPath = PassThrough[0].Substring(0, (indexS + 1));
+            }
+            //MessageBox.Show("Arguments right now:\n" + PassThrough[0]);
+            //MessageBox.Show(Globals.ToolPath);
+            if (PassThrough.Length > 1)
+            {
+#if DEBUG
+                MessageBox.Show("Arguments right now:\n" + PassThrough[1]);
+#endif
+                string extension = Path.GetExtension(PassThrough[1]);
+                string FileToOpen = PassThrough[1];
+                OFDialog.FileName = FileToOpen;
+                try
+                {
+                    if (extension == ".arc" || extension == ".ARC")
+                    {
+
+                        if (OpenFileModified == true)
+                        {
+                            OFDialog.FileName = FileToOpen;
+                            DialogResult dlrs = MessageBox.Show("Want to save your changes to this file\n before opening another one?", "Closing", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                            if (dlrs == DialogResult.Yes)
+                            {
+                                MenuSaveAs_Click(sender, e);
+                                picBoxA.Visible = false;
+                                FlushAndClean();
+                                //Writes to log file.
+                                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                {
+                                    sw.WriteLine("Closed the Arc file.");
+                                }
+                                NCount = 0;
+                                isFinishRPLRead = false;
+                                OpenFileModified = false;
+                                //Fills in the Tree node.
+                                CExt = Path.GetExtension(OFDialog.FileName);
+                                txtBoxCurrentFile.Text = OFDialog.FileName;
+                                FilePath = FileToOpen;
+                                ArcFill();
+                                picBoxA.Visible = false;
+                            }
+                            if (dlrs == DialogResult.No)
+                            {
+                                picBoxA.Visible = false;
+                                FlushAndClean();
+                                NCount = 0;
+                                isFinishRPLRead = false;
+                                OpenFileModified = false;
+                                //Fills in the Tree node.
+                                CExt = Path.GetExtension(OFDialog.FileName);
+                                txtBoxCurrentFile.Text = OFDialog.FileName;
+                                FilePath = FileToOpen;
+                                ArcFill();
+                                picBoxA.Visible = false;
+                            }
+                            if (dlrs == DialogResult.Cancel)
+                            {
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            NCount = 0;
+                            isFinishRPLRead = false;
+                            OpenFileModified = false;
+                            //Fills in the Tree node.
+                            CExt = Path.GetExtension(OFDialog.FileName);
+                            txtBoxCurrentFile.Text = OFDialog.FileName;
+                            FilePath = FileToOpen;
+                            ArcFill();
+                            picBoxA.Visible = false;
+                        }
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("That's not an arc file you dragged in here.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (ex is IOException)
+                    {
+                        MessageBox.Show("Unable to read the file properly...\n " + ex, "");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
+                        }
+                        return;
+                    }
+                    else if (ex is UnauthorizedAccessException)
+                    {
+                        MessageBox.Show("Unable to access the file. Maybe it's in a directory you need admininstrative permissions to use?", "Oh no it's an error.");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot access the file:" + "\nMight be in a place you need admin privliges for.");
+                        }
+                        return;
+                    }
+                    else if (ex is ZlibException)
+                    {
+                        MessageBox.Show("Unable to decompress the file because the arc is in a corrupted state.", "Oh no it's an error.");
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Cannot decompress the files inside:" + OFDialog.FileName + " because the arc is corrupt.\n" + ex);
+                        }
+                        return;
+                    }
+                    else
+                    {
+                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        {
+                            sw.WriteLine("Unknown exception trying to open:" + OFDialog.FileName + "\n" + ex);
+                        }
+                        return;
+                    }
+                }
+
+
+            }
         }
 
         //Opens the file if chosen from the Recently Used Files list.
@@ -12837,7 +12964,7 @@ namespace ThreeWorkTool
                 }
                 else
                 {
-                    MessageBox.Show("Boy this ain't no arc file.");
+                    MessageBox.Show("That's not an arc file you dragged in here.");
                 }
             }
             catch (Exception ex)
@@ -12882,5 +13009,15 @@ namespace ThreeWorkTool
 
         }
 
+
+
     }
+
+    public static class Globals
+    {
+        //Filepath
+        public static string ToolPath;
+
+    }
+
 }

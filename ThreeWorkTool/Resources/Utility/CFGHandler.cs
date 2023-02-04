@@ -22,7 +22,10 @@ namespace ThreeWorkTool.Resources.Utility
             //Looks through the archive_filetypes.cfg file to find the extension associated with the typehash.
             try
             {
-                using (var sr = new StreamReader("archive_filetypes.cfg"))
+                //Gets the Corrected path for the cfg.
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                using (var sr = new StreamReader(ProperPath))
                 {
                     while (!sr.EndOfStream)
                     {
@@ -61,7 +64,10 @@ namespace ThreeWorkTool.Resources.Utility
             //Looks through the archive_filetypes.cfg file to find the extension associated with the typehash.
             try
             {
-                using (var sr = new StreamReader("archive_filetypes.cfg"))
+                //Gets the Corrected path for the cfg.
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                using (var sr = new StreamReader(ProperPath))
                 {
                     while (!sr.EndOfStream)
                     {
@@ -100,7 +106,10 @@ namespace ThreeWorkTool.Resources.Utility
             string line = "";
             try
             {
-                line = File.ReadLines("mvc3shadertypes.cfg").Skip(Index).Take(1).First();
+                //Gets the Corrected path for the cfg.
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath +"mvc3shadertypes.cfg";
+                line = File.ReadLines(ProperPath).Skip(Index).Take(1).First();
             }
             catch (Exception xx)
             {
