@@ -42,6 +42,9 @@ namespace ThreeWorkTool
             TreeSource.Text = "ThreeMain";
             _instance = this;
             InitializeComponent();
+            this.AllowDrop = true;
+            this.DragEnter += new DragEventHandler(FrmMainThree_DragEnter);
+            this.DragDrop += new DragEventHandler(FrmMainThree_DragDrop);
         }
 
         public static bool NastyError = false;
@@ -93,7 +96,7 @@ namespace ThreeWorkTool
         private MemoryStream MSound;
         private WaveOutEvent WaveOut;
         private IWaveProvider Wave;
-        
+
         public struct Keydata
         {
             public Vector4 Vex;
@@ -140,7 +143,7 @@ namespace ThreeWorkTool
 
             if (OpenFileModified == true)
             {
-                DialogResult dlrs = MessageBox.Show("Want to save your changes to this file/n before opening another one?", "Closing", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                DialogResult dlrs = MessageBox.Show("Want to save your changes to this file\n before opening another one?", "Closing", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
                 if (dlrs == DialogResult.Yes)
                 {
@@ -290,7 +293,7 @@ namespace ThreeWorkTool
                                                     {
                                                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
                                                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
-                                                        || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null 
+                                                        || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                         || awrapper.Tag as ModelPrimitiveJointLinkEntry == null || awrapper.Tag as StageObjLayoutGroup == null)
                                                         {
                                                             {
@@ -416,7 +419,7 @@ namespace ThreeWorkTool
                                         {
                                             if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" ||
                                                 treno.Tag as string == "Model Primitive Group" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
-                                                || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce 
+                                                || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce
                                                 || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelPrimitiveJointLinkEntry || treno.Tag is StageObjLayoutGroup)
                                             {
 
@@ -3695,9 +3698,9 @@ namespace ThreeWorkTool
 
             /*
 #if DEBUG
-            //Edit As .yml file.
-            var edymltxtitem = new ToolStripMenuItem("Edit Material as .yml", null, MenuMateralEditAsYML_Click, Keys.Control | Keys.Shift | Keys.Y);
-            conmenu.Items.Add(edymltxtitem);
+            //Export as .yml.
+            var exportymlitem = new ToolStripMenuItem("Export as YML", null, MenuExportAsYML_Click, Keys.Control | Keys.ShiftKey | Keys.E);
+            conmenu.Items.Add(exportymlitem);
 #endif
             */
             conmenu.Items.Add(new ToolStripSeparator());
@@ -3728,6 +3731,25 @@ namespace ThreeWorkTool
             conmenu.Items.Add(mditem);
 
             return conmenu;
+        }
+
+        private static void MenuExportAsYML_Click(Object sender, System.EventArgs e)
+        {
+            //First we get the Material.
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            if (tag is MaterialEntry)
+            {
+                MaterialEntry Material = new MaterialEntry();
+                //Next we need to get the respective Model file.
+
+                MessageBox.Show("Choose the respective Model file.");
+
+
+
+            }
+
+
+
         }
 
         private static void MenuMateralEditAsYML_Click(Object sender, System.EventArgs e)
@@ -5668,13 +5690,13 @@ namespace ThreeWorkTool
 
                             //Removes the old child nodes.
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
-                            
+
                             //Creates the SLO Children of the new node.
                             frename.Mainfrm.SLOChildrenCreation(NewWrapper, NewWrapper.Tag as StageObjLayoutEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
                             frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
                             frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
-                            
+
 
                             break;
 
@@ -8611,11 +8633,11 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeSLO.Parent;
-                            
+
                             //Creates the Material Children of the new node.
                             frename.Mainfrm.SLOChildrenCreation(selectednodeSLO, selectednodeSLO.Tag as StageObjLayoutEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeSLO.Parent;
-                            
+
 
                             break;
 
@@ -9363,11 +9385,11 @@ namespace ThreeWorkTool
                             continue;
                         }
 
-                        if(animtrack.Buffer != null)
+                        if (animtrack.Buffer != null)
                         {
 
                             //Data = (from kf in LmtCodec.Process_Buffer(animtrack.Buffertype, animtrack.Buffer, animtrack.Extremes)
-                                //select kf).ToList();
+                            //select kf).ToList();
 
 
                         }
@@ -9384,7 +9406,7 @@ namespace ThreeWorkTool
 
 
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show("Action failed! Details here:\n" + ex, "AN ERROR OCCURED");
                 }
@@ -9448,7 +9470,7 @@ namespace ThreeWorkTool
                         {
                             if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
                             || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
-                            || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag is ModelPrimitiveEntry 
+                            || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag is ModelPrimitiveEntry
                             || awrapper.Tag is ModelPrimitiveJointLinkEntry)
                             {
                                 {
@@ -10695,11 +10717,11 @@ namespace ThreeWorkTool
             //Checks for subdirectories. Makes folder if they don't exist already.
             var PrevTreeNode = FindRootNode(SelectedNode);
             bool FolderFound = false;
-            for(int v = 0; v < H.Length; v++)
+            for (int v = 0; v < H.Length; v++)
             {
                 //Checks for a Folder node with the same name as the current Folder string.
                 TreeNode[] GatheredNodes = PrevTreeNode.Nodes.Find(H[v], false);
-                if(GatheredNodes.Length > 0)
+                if (GatheredNodes.Length > 0)
                 {
                     FolderFound = false;
                     for (int w = 0; w < GatheredNodes.Length; w++)
@@ -10716,7 +10738,7 @@ namespace ThreeWorkTool
                     if (FolderFound == true)
                     {
                         continue;
-                    }                    
+                    }
                 }
                 else
                 {
@@ -10738,7 +10760,7 @@ namespace ThreeWorkTool
 
             SelectedNode = PrevTreeNode;
             return PrevTreeNode;
-            
+
             /*
             foreach (string Folder in H)
             {
@@ -12562,7 +12584,7 @@ namespace ThreeWorkTool
                 var tagtwo = frename.Mainfrm.TreeSource.SelectedNode.Parent;
                 StageObjLayoutEntry slobe = tagtwo.Tag as StageObjLayoutEntry;
 
-                if(slobe != null)
+                if (slobe != null)
                 {
 
 
@@ -12736,6 +12758,127 @@ namespace ThreeWorkTool
                 MenuExportAllTexAsDDS.Checked = false;
                 ExportAsDDS = false;
             }
+
+        }
+
+        void FrmMainThree_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
+        }
+
+        void FrmMainThree_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            foreach (string file in files) Console.WriteLine(file);
+
+            string extension = Path.GetExtension(files[0]);
+
+            try
+            {
+                if (extension == ".arc" || extension == ".ARC")
+                {
+
+                    if (OpenFileModified == true)
+                    {
+                        OFDialog.FileName = files[0];
+                        DialogResult dlrs = MessageBox.Show("Want to save your changes to this file\n before opening another one?", "Closing", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                        if (dlrs == DialogResult.Yes)
+                        {
+                            MenuSaveAs_Click(sender, e);
+                            picBoxA.Visible = false;
+                            FlushAndClean();
+                            //Writes to log file.
+                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            {
+                                sw.WriteLine("Closed the Arc file.");
+                            }
+                            NCount = 0;
+                            isFinishRPLRead = false;
+                            OpenFileModified = false;
+                            //Fills in the Tree node.
+                            CExt = Path.GetExtension(OFDialog.FileName);
+                            txtBoxCurrentFile.Text = OFDialog.FileName;
+                            FilePath = files[0];
+                            ArcFill();
+                            picBoxA.Visible = false;
+                        }
+                        if (dlrs == DialogResult.No)
+                        {
+                            picBoxA.Visible = false;
+                            FlushAndClean();
+                            NCount = 0;
+                            isFinishRPLRead = false;
+                            OpenFileModified = false;
+                            //Fills in the Tree node.
+                            CExt = Path.GetExtension(OFDialog.FileName);
+                            txtBoxCurrentFile.Text = OFDialog.FileName;
+                            FilePath = files[0];
+                            ArcFill();
+                            picBoxA.Visible = false;
+                        }
+                        if (dlrs == DialogResult.Cancel)
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        NCount = 0;
+                        isFinishRPLRead = false;
+                        OpenFileModified = false;
+                        //Fills in the Tree node.
+                        CExt = Path.GetExtension(OFDialog.FileName);
+                        txtBoxCurrentFile.Text = OFDialog.FileName;
+                        FilePath = files[0];
+                        ArcFill();
+                        picBoxA.Visible = false;
+                    }
+
+                }
+                else
+                {
+                    MessageBox.Show("Boy this ain't no arc file.");
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is IOException)
+                {
+                    MessageBox.Show("Unable to read the file properly...\n " + ex, "");
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
+                    }
+                    return;
+                }
+                else if (ex is UnauthorizedAccessException)
+                {
+                    MessageBox.Show("Unable to access the file. Maybe it's in a directory you need admininstrative permissions to use?", "Oh no it's an error.");
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Cannot access the file:" + "\nMight be in a place you need admin privliges for.");
+                    }
+                    return;
+                }
+                else if (ex is ZlibException)
+                {
+                    MessageBox.Show("Unable to decompress the file because the arc is in a corrupted state.", "Oh no it's an error.");
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Cannot decompress the files inside:" + OFDialog.FileName + " because the arc is corrupt.\n" + ex);
+                    }
+                    return;
+                }
+                else
+                {
+                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    {
+                        sw.WriteLine("Unknown exception trying to open:" + OFDialog.FileName + "\n" + ex);
+                    }
+                    return;
+                }
+            }
+
 
         }
 
