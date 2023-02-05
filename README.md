@@ -14,6 +14,20 @@ By Eternal Yoshi
 
 Current Changelog:
 
+V6.0
+
+- StgObjLayout file support implemented.
+- Fixed an issue with importing .riff files that resulted in incorrect pathing.
+- Checks certain Files with Hash Extensions and saves it with the proper extension when saving, allowing support of importing and exporting certain files's Hashcodes as extensions.
+- New Folder Sorting Algorithm; Organizes files in stages correctly now; Packed-in moveset files not yet tested
+- Fixed issue resulting in Textbox not updating properly.
+- Fixed an issue resulting in the Replace All command not being available after replacing a MaterialEntry.
+- Implemented drag and drop functionality to open arc files, and ONLY arc files.
+- Arcs now open when The tool is set to the default app.
+- Adjusted coding to look for necessary .cfg files so it looks for them in the same directory as the exe itself, which should fix some issues with finding the things.
+- All other changes from Bimonthly builds implemented.
+
+
 V5.1
 
 - Added Jump To Line Function to the MSD Viewer/Editor.
