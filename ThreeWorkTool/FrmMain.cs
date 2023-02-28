@@ -6206,7 +6206,7 @@ namespace ThreeWorkTool
                     ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
                     if (rootarc != null)
                     {
-                        rootarc.FileCount = Convert.ToByte(nowcount);
+                        rootarc.FileCount = nowcount;
                         rootarc.FileAmount = Convert.ToUInt16(nowcount);
                         frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
                     }
