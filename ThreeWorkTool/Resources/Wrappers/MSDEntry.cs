@@ -210,7 +210,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                             catch (FileNotFoundException)
                             {
                                 MessageBox.Show("I cannot find MSDTable.cfg and cannot continue.\n Restart with this file in the same directory as the exe file itself.", "Oh Boy");
-                                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                string ProperPath = "";
+                                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                 {
                                     sw.WriteLine("Cannot find MSDTable.cfg so I cannot load the MSD file.");
                                 }
@@ -330,7 +331,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     if (STemp[j] == 91 && STemp[j + 1] == 42)
                     {
                         //Switch Case Time for Special Characters.
-                        switch(STemp[j + 2])
+                        switch (STemp[j + 2])
                         {
 
                             case 'l':
@@ -426,7 +427,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                         catch (FileNotFoundException)
                         {
                             MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            string ProperPath = "";
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                             }
@@ -440,7 +442,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 }
 
                 //Gets the Character Count by getting the Byte Count of the Raw MSD Data, and dividing it by 2.
-                int CharCount = (TempMSDData.Count/2) + 1;
+                int CharCount = (TempMSDData.Count / 2) + 1;
                 ByTemp = BitConverter.GetBytes(CharCount);
 
 
@@ -486,7 +488,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
             catch (Exception ex)
             {
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Caught the exception:" + ex);
                 }
@@ -566,7 +569,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             catch (Exception ex)
             {
                 MessageBox.Show("Read error. Is the file readable?");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Read error. Cannot access the file:" + filename + "\n" + ex);
                 }

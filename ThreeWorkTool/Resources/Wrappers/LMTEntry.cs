@@ -158,7 +158,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                     catch (FileNotFoundException)
                     {
                         MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = "";
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                         }
@@ -270,7 +271,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             catch (Exception ex)
             {
                 MessageBox.Show("Read error. Is the file readable?");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Read Error! Here's the exception info:\n" + ex);
                 }
@@ -388,7 +390,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                     catch (FileNotFoundException)
                     {
                         MessageBox.Show("I cannot find and/or access archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = "";
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                         }
@@ -399,7 +402,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
             catch (Exception ex)
             {
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Caught an exception using the BinaryReader. Here's the details:\n" + ex);
                 }

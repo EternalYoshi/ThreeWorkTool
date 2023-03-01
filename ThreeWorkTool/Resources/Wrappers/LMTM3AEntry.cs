@@ -236,7 +236,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Track track = new Track();
                     track.TrackNumber = j;
                     track.ExtremesArray = new float[8];
-                    
+
                     //For The Buffer type.
                     track.BufferType = bnr.ReadByte();
                     BufferType Btype = (BufferType)track.BufferType;
@@ -574,7 +574,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         track.BufferType = bnr.ReadByte();
                         BufferType type = (BufferType)track.BufferType;
                         track.BufferKind = type.ToString();
-                        
+
                         //For the Track Type.
                         track.TrackType = bnr.ReadByte();
                         TrackType Ttype = (TrackType)track.TrackType;
@@ -786,7 +786,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             catch (Exception ex)
             {
                 MessageBox.Show("Read error. Is the file readable?");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Read Error! Here's the exception info:\n" + ex);
                 }
@@ -820,7 +821,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 M3a.KeyFrames[v].EulerKeys = QToEuler.ToEulerAngles(quat);
             }
 
-            M3a.KeyFrames = M3a.KeyFrames.OrderBy(o=>o.frame).ToList();
+            M3a.KeyFrames = M3a.KeyFrames.OrderBy(o => o.frame).ToList();
 
             return M3a;
         }

@@ -332,7 +332,8 @@ namespace ThreeWorkTool
                 if (ex is IOException)
                 {
                     MessageBox.Show("Unable to import because another proccess is using it.");
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = "";
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
                     }
@@ -341,7 +342,8 @@ namespace ThreeWorkTool
                 else
                 {
                     MessageBox.Show("The DDS file is either malinformed or is not the correct format/kind.");
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = "";
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Cannot import: " + "\nbecause it's an invalid dds file.");
                     }
@@ -1162,20 +1164,20 @@ namespace ThreeWorkTool
             PicBoxTex.Image = pic;
 
             //Now for the DDS Data itself.
-            int max = (DDSData.Length - 128)/16;
+            int max = (DDSData.Length - 128) / 16;
             using (MemoryStream TexStream = new MemoryStream(DDSData))
             {
                 using (BinaryWriter bwStream = new BinaryWriter(TexStream))
                 {
                     bwStream.BaseStream.Position = 128;
 
-                    for(int w = 0; w > max; w++)
+                    for (int w = 0; w > max; w++)
                     {
 
                     }
                 }
             }
-            
+
 
 
 

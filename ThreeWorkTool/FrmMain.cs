@@ -11665,7 +11665,9 @@ namespace ThreeWorkTool
                 Manifest = newArc.FileList;
 
                 //Writes to log file.
-                using (StreamWriter sw = new StreamWriter("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt";
+                using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Archive file: " + FilePath + " Opened.\nFile List:\n");
                     sw.WriteLine("===============================================================================================================");

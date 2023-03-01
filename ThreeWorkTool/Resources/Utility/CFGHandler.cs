@@ -45,7 +45,10 @@ namespace ThreeWorkTool.Resources.Utility
             catch (FileNotFoundException)
             {
                 MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing this file.", "Oh Boy");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt";
+                using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.");
                     Process.GetCurrentProcess().Kill();
@@ -87,7 +90,9 @@ namespace ThreeWorkTool.Resources.Utility
             catch (FileNotFoundException)
             {
                 MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing this file.", "Oh Boy");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt";
+                using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.");
                     Process.GetCurrentProcess().Kill();

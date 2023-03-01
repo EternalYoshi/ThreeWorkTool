@@ -235,21 +235,23 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
                 {
-                    InsertKnownEntry(tree, node, filename, lsh,bnr);
+                    InsertKnownEntry(tree, node, filename, lsh, bnr);
                     ASCIIEncoding ascii = new ASCIIEncoding();
                     BuildShotListEntry(bnr, lsh, ascii);
                 }
             }
             catch (Exception ex)
             {
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
+
                     sw.WriteLine("Caught an exception using the BinaryReader. Here's the details:\n" + ex);
                 }
             }
 
             return lsh;
-            
+
         }
 
         public static ShotListEntry ReplaceShotListEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)

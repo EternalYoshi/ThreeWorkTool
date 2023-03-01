@@ -108,7 +108,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 MessageBox.Show("The efl at index: " + ID + " inside the file\n" + eflentry.TrueName + " threw out an error.\nAs long as you do not modify the named file you should be able to save changes made to other files inside this arc and the file will not be modified.", "Uh-Oh");
             }
-            
+
 
             return eflentry;
 
@@ -133,7 +133,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
             catch (Exception ex)
             {
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Caught an exception using the BinaryReader. Here's the details:\n" + ex);
                 }

@@ -59,10 +59,10 @@ namespace ThreeWorkTool.Resources.Wrappers
             sloentry.Groups = new List<StageObjLayoutGroup>();
 
             //GroupBox Entries.
-            for (int i=0; i < sloentry.EntryCount; i++)
+            for (int i = 0; i < sloentry.EntryCount; i++)
             {
                 StageObjLayoutGroup slg = new StageObjLayoutGroup();
-                slg = StageObjLayoutGroup.BuildSLOGroup(sloentry,i,bnr,slg);
+                slg = StageObjLayoutGroup.BuildSLOGroup(sloentry, i, bnr, slg);
                 sloentry.Groups.Add(slg);
             }
 
@@ -109,7 +109,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
             catch (Exception ex)
             {
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Caught an exception using the BinaryReader. Here's the details:\n" + ex);
                 }
@@ -127,7 +128,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        public static StageObjLayoutEntry SaveSLOEntry(StageObjLayoutEntry sloentry,TreeNode node)
+        public static StageObjLayoutEntry SaveSLOEntry(StageObjLayoutEntry sloentry, TreeNode node)
         {
 
             using (MemoryStream SloStream = new MemoryStream(sloentry.UncompressedData))

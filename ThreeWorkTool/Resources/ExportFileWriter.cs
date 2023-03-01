@@ -448,7 +448,9 @@ namespace ThreeWorkTool.Resources
             {
                 MessageBox.Show("The export failed because the chosen file is already in use by another proccess.");
 
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt";
+                using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Export failed!\n");
                     sw.WriteLine("Exception info:" + ex);

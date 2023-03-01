@@ -132,8 +132,9 @@ namespace ThreeWorkTool.Resources.Archives
             }
             catch (FileNotFoundException)
             {
-                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.","",MessageBoxButtons.OK,MessageBoxIcon.Error);
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                 }
@@ -200,7 +201,8 @@ namespace ThreeWorkTool.Resources.Archives
                     catch (FileNotFoundException)
                     {
                         MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = "";
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                         }
@@ -264,7 +266,8 @@ namespace ThreeWorkTool.Resources.Archives
             catch (Exception ex)
             {
                 MessageBox.Show("Read error. Is the file readable?");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Read Error! Here's the exception info:\n" + ex);
                 }
@@ -333,7 +336,8 @@ namespace ThreeWorkTool.Resources.Archives
                     catch (FileNotFoundException)
                     {
                         MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = "";
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                         }
@@ -345,7 +349,8 @@ namespace ThreeWorkTool.Resources.Archives
             }
             catch (Exception ex)
             {
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Caught an exception using the BinaryReader. Here's the details:\n" + ex);
                 }
@@ -408,7 +413,8 @@ namespace ThreeWorkTool.Resources.Archives
             catch (FileNotFoundException)
             {
                 MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                 }
@@ -443,12 +449,12 @@ namespace ThreeWorkTool.Resources.Archives
 
 
             //Code that replaces the name with the new node's name.
-            
+
             //Enters name related parameters of the entrytobuild.
             entrytobuild.TrueName = trname;
             entrytobuild.TrueName = Path.GetFileNameWithoutExtension(trname);
             entrytobuild.FileExt = trname.Substring(trname.LastIndexOf("."));
-            
+
             string TypeHash = "";
 
             //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
@@ -476,7 +482,8 @@ namespace ThreeWorkTool.Resources.Archives
             catch (FileNotFoundException)
             {
                 MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
                 }
@@ -543,7 +550,7 @@ namespace ThreeWorkTool.Resources.Archives
 
         public static string HashExtensionCheck(string filename)
         {
-            
+
             string trname = filename;
             string empname = filename;
             trname = trname.Substring(trname.LastIndexOf('.') + 1);
@@ -556,7 +563,7 @@ namespace ThreeWorkTool.Resources.Archives
                 if (index >= 0)
                     empname = filename.Substring(0, index);
 
-                trname = CFGHandler.ArchiveHashToExtension(trname,Hash);
+                trname = CFGHandler.ArchiveHashToExtension(trname, Hash);
 
                 filename = empname + trname;
 

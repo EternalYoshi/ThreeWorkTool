@@ -183,7 +183,9 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
             catch (Exception ex)
             {
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt";
+                using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Caught an exception:" + ex);
                 }
@@ -288,7 +290,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             catch (Exception ex)
             {
                 MessageBox.Show("Read error. Is the file readable?");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = "";ProperPath = Globals.ToolPath + "Log.txt";using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Possible read error. Here's details:\n" + ex);
                 }
@@ -549,7 +551,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
             catch (Exception ex)
             {
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = "";ProperPath = Globals.ToolPath + "Log.txt";using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Texture insertion from .DDS file failed. Here's details:\n" + ex);
                 }
@@ -818,7 +820,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
             catch (Exception ex)
             {
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = "";ProperPath = Globals.ToolPath + "Log.txt";using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Texture replacement from .DDS file failed. Here's details:\n" + ex);
                 }

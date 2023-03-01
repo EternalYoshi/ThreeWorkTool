@@ -98,7 +98,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                         catch (FileNotFoundException)
                         {
                             MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            string ProperPath = "";
+                            ProperPath = Globals.ToolPath + "Log.txt";
+                            using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
                             }
@@ -141,7 +143,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                         catch (FileNotFoundException)
                         {
                             MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            string ProperPath = "";
+                            ProperPath = Globals.ToolPath + "Log.txt";
+                            using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
                             }
@@ -240,7 +244,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 if (Isvalidline == true)
                 {
                     index = SPLT[i].LastIndexOf(".");
-                    ExtTemp = SPLT[i].Substring(index,4);
+                    ExtTemp = SPLT[i].Substring(index, 4);
 
                     if (ExtTemp == ".chn" || ExtTemp == "chn")
                     {
@@ -248,7 +252,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         cHN.FullPath = SPLT[i].Substring(0, index);
                         cHN.TypeHash = "3E363245";
                         cHN.TotalName = cHN.FullPath + ExtTemp;
-                        cHN.FileExt = SPLT[i].Substring((index),4);
+                        cHN.FileExt = SPLT[i].Substring((index), 4);
                         chlste.ChainEntries.Add(cHN);
 
                     }
@@ -258,7 +262,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         cCL.FullPath = SPLT[i].Substring(0, index);
                         cCL.TypeHash = "0026E7FF";
                         cCL.TotalName = cCL.FullPath + ExtTemp;
-                        cCL.FileExt = SPLT[i].Substring((index),4);
+                        cCL.FileExt = SPLT[i].Substring((index), 4);
                         chlste.ChainCollEntries.Add(cCL);
                     }
                 }
@@ -289,7 +293,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //Inserts the CHN data.
             int NewEntryCount = chlste.CHNEntryCount;
-            int ChainCount = 0; 
+            int ChainCount = 0;
             int ChainColCount = 0;
             if (chlste.CHNEntryCount > 0)
             {
@@ -484,7 +488,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                                 catch (FileNotFoundException)
                                 {
                                     MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                    string ProperPath = "";
+                                    ProperPath = Globals.ToolPath + "Log.txt";
+                                    using (StreamWriter sw = File.AppendText(ProperPath))
                                     {
                                         sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
                                     }
@@ -526,7 +532,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                                 catch (FileNotFoundException)
                                 {
                                     MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                    string ProperPath = "";
+                                    ProperPath = Globals.ToolPath + "Log.txt";
+                                    using (StreamWriter sw = File.AppendText(ProperPath))
                                     {
                                         sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
                                     }
@@ -585,7 +593,9 @@ namespace ThreeWorkTool.Resources.Wrappers
             catch (Exception ex)
             {
                 MessageBox.Show("Read error. Is the file readable?");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt";
+                using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Read error. Cannot access the file:" + filename + "\n" + ex);
                 }
@@ -657,7 +667,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                         catch (FileNotFoundException)
                         {
                             MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            string ProperPath = "";
+                            ProperPath = Globals.ToolPath + "Log.txt";
+                            using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
                             }
@@ -699,7 +711,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                         catch (FileNotFoundException)
                         {
                             MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing the arc.", "Oh Boy");
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            string ProperPath = "";
+                            ProperPath = Globals.ToolPath + "Log.txt";
+                            using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Cannot find archive_filetypes.cfg and thus cannot continue parsing.");
                             }

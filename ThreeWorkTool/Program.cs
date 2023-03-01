@@ -44,7 +44,9 @@ namespace ThreeWorkTool
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             //Writes to log file.
-            using (StreamWriter sw = File.AppendText("Log.txt"))
+            string ProperPath = "";
+            ProperPath = Globals.ToolPath + "Log.txt";
+            using (StreamWriter sw = File.AppendText(ProperPath))
             {
                 sw.WriteLine("\n=====EXCEPTION OCCURED!=====\n");
                 sw.WriteLine(e.ToString());
