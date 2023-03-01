@@ -14,6 +14,14 @@ By Eternal Yoshi
 
 Current Changelog:
 
+V6.1
+
+- Fixed an issue that occurred when deleting folders in arc files above a certain file count.
+- .fsm, .lmcm, and .fsd files are now given the correct extension.
+- Made sure the log is not written in the same directory as the open .arc file when using ThreeWorkTool via double clicking an arc file.
+
+
+
 V6.0
 
 - StgObjLayout file support implemented.
