@@ -152,7 +152,9 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     FlushAndClean();
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = "";
+                    ProperPath = Globals.ToolPath + "Log.txt";
+                    using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Closed the Arc file.");
                     }
@@ -203,7 +205,9 @@ namespace ThreeWorkTool
                 if (SFDialog.ShowDialog() == DialogResult.OK)
                 {
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = "";
+                    ProperPath = Globals.ToolPath + "Log.txt";
+                    using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Attempting to save: " + frename.Mainfrm.FilePath + "\nCurrent File List:\n");
                     }
@@ -223,7 +227,8 @@ namespace ThreeWorkTool
                                 File.WriteAllBytes(SFDialog.FileName, stream.ToArray());
                             }
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt";
+                            using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Saved: " + SFDialog.FileName + "\n Currently opened file hasn't been modified so the file was effectively copied.");
                                 sw.WriteLine("===============================================================================================================");
@@ -383,7 +388,8 @@ namespace ThreeWorkTool
                                         HasSaved = true;
 
                                         //Writes to log file.
-                                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                                        ProperPath = Globals.ToolPath + "Log.txt";
+                                        using (StreamWriter sw = File.AppendText(ProperPath))
                                         {
                                             sw.WriteLine("Successfully Saved: " + SFDialog.FileName);
                                             sw.WriteLine("SaveCounterA = " + frename.Mainfrm.SaveCounterA + "SaveCounterB" + frename.Mainfrm.SaveCounterB + "\n");
@@ -1726,7 +1732,8 @@ namespace ThreeWorkTool
                                         HasSaved = true;
 
                                         //Writes to log file.
-                                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                                        ProperPath = Globals.ToolPath + "Log.txt";
+                                        using (StreamWriter sw = File.AppendText(ProperPath))
                                         {
                                             sw.WriteLine("Successfully Saved: " + SFDialog.FileName);
                                             sw.WriteLine("SaveCounterA = " + frename.Mainfrm.SaveCounterA + "SaveCounterB" + frename.Mainfrm.SaveCounterB + "\n");
@@ -1746,8 +1753,8 @@ namespace ThreeWorkTool
                                 if (ex is IOException)
                                 {
                                     MessageBox.Show("The save failed because the chosen file is already in use by another proccess.");
-
-                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                    ProperPath = Globals.ToolPath + "Log.txt";
+                                    using (StreamWriter sw = File.AppendText(ProperPath))
                                     {
                                         sw.WriteLine("Save failed!\n");
                                         sw.WriteLine("Exception info:" + ex);
@@ -1759,7 +1766,8 @@ namespace ThreeWorkTool
                                 }
                                 else
                                 {
-                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                    ProperPath = Globals.ToolPath + "Log.txt";
+                                    using (StreamWriter sw = File.AppendText(ProperPath))
                                     {
                                         sw.WriteLine("Save failed!\n");
                                         sw.WriteLine("Exception info:" + ex);
@@ -1779,7 +1787,8 @@ namespace ThreeWorkTool
                     {
                         MessageBox.Show("Unable to save. Here's something to gander at: \n \n" + Ex.StackTrace, "Oh No");
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt";
+                        using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Save failed!\n");
                             sw.WriteLine("Exception info:" + Ex);
@@ -3084,7 +3093,9 @@ namespace ThreeWorkTool
                     picBoxA.Visible = false;
                     FlushAndClean();
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = "";
+                    ProperPath = Globals.ToolPath + "Log.txt";
+                    using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Closed the Arc file.");
                     }
@@ -3135,7 +3146,9 @@ namespace ThreeWorkTool
                         frename.Mainfrm.InitializeComponent();
                     }
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = "";
+                    ProperPath = Globals.ToolPath + "Log.txt";
+                    using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Closed the Arc file.");
                     }
@@ -3161,7 +3174,9 @@ namespace ThreeWorkTool
                         frename.Mainfrm.InitializeComponent();
                     }
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = "";
+                    ProperPath = Globals.ToolPath + "Log.txt";
+                    using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Closed the Arc file.");
                     }
@@ -3191,7 +3206,9 @@ namespace ThreeWorkTool
                     frename.Mainfrm.InitializeComponent();
                 }
                 //Writes to log file.
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt";
+                using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Closed the Arc file.");
                 }
@@ -3294,7 +3311,9 @@ namespace ThreeWorkTool
                     if (ex is IOException)
                     {
                         MessageBox.Show("Unable to read the file properly...\n " + ex, "");
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = "";
+                        ProperPath = Globals.ToolPath + "Log.txt";
+                        using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
                         }
@@ -3303,7 +3322,9 @@ namespace ThreeWorkTool
                     else if (ex is UnauthorizedAccessException)
                     {
                         MessageBox.Show("Unable to access the file. Maybe it's in a directory you need admininstrative permissions to use?", "Oh no it's an error.");
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = "";
+                        ProperPath = Globals.ToolPath + "Log.txt";
+                        using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Cannot access the file:" + "\nMight be in a place you need admin privliges for.");
                         }
@@ -3312,7 +3333,9 @@ namespace ThreeWorkTool
                     else if (ex is ZlibException)
                     {
                         MessageBox.Show("Unable to decompress the file because the arc is in a corrupted state.", "Oh no it's an error.");
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = "";
+                        ProperPath = Globals.ToolPath + "Log.txt";
+                        using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Cannot decompress the files inside:" + OFDialog.FileName + " because the arc is corrupt.\n" + ex);
                         }
@@ -3320,7 +3343,9 @@ namespace ThreeWorkTool
                     }
                     else
                     {
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = "";
+                        ProperPath = Globals.ToolPath + "Log.txt";
+                        using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Unknown exception trying to open:" + OFDialog.FileName + "\n" + ex);
                         }
@@ -3799,7 +3824,9 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = "";
+                    ProperPath = Globals.ToolPath + "Log.txt";
+                    using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -3820,7 +3847,8 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt";
+                    using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -3861,7 +3889,8 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt";
+                    using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -3885,7 +3914,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -3907,7 +3936,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -3929,7 +3958,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -3951,7 +3980,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a Model Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -3973,7 +4002,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -3995,7 +4024,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a LMT Motion List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -4017,7 +4046,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a Message Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -4039,7 +4068,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a Mission Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -4061,7 +4090,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a Gem Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -4084,7 +4113,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a Gem Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -4107,7 +4136,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a XSEW Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -4132,7 +4161,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a ShotList Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -4155,7 +4184,7 @@ namespace ThreeWorkTool
                     }
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a ***** Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
@@ -4179,7 +4208,7 @@ namespace ThreeWorkTool
                 }
 
                 //Writes to log file.
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                    string ProperPath = "";ProperPath = Globals.ToolPath + "Log.txt";using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Exported a ***** Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                 }
@@ -5816,7 +5845,7 @@ namespace ThreeWorkTool
             else
             {
                 //Writes to log file.
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Replaced a file: " + RPDialog.FileName + "\nCurrent File List:\n");
                     sw.WriteLine("===============================================================================================================");
@@ -5836,6 +5865,7 @@ namespace ThreeWorkTool
             TextureEntry Tentry = new TextureEntry();
             OpenFileDialog RPDialog = new OpenFileDialog();
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            string ProperPath = "";
             if (tag is TextureEntry)
             {
                 Tentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as TextureEntry;
@@ -5909,7 +5939,7 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Replaced a file via .tex Import: " + RPDialog.FileName + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -6000,7 +6030,7 @@ namespace ThreeWorkTool
                                     if (ex is IOException)
                                     {
                                         MessageBox.Show("Unable to import because another proccess is using it.");
-                                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                         {
                                             sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
                                         }
@@ -6009,7 +6039,7 @@ namespace ThreeWorkTool
                                     else
                                     {
                                         MessageBox.Show("The DDS file is either malinformed or is not the correct format/kind.");
-                                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                         {
                                             sw.WriteLine("Cannot import: " + "\nbecause it's an invalid dds file.");
                                         }
@@ -6035,7 +6065,7 @@ namespace ThreeWorkTool
                     frename.Mainfrm.TreeSource.EndUpdate();
 
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Replaced a file via DDS Import: " + RPDialog.FileName + "\nCurrent File List:\n");
                         sw.WriteLine("===============================================================================================================");
@@ -6108,7 +6138,7 @@ namespace ThreeWorkTool
             if (DelResult == DialogResult.Yes)
             {
                 //Writes to log file.
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Deleted a file: " + frename.Mainfrm.TreeSource.SelectedNode + "\nCurrent File List:\n");
                     sw.WriteLine("===============================================================================================================");
@@ -6160,7 +6190,7 @@ namespace ThreeWorkTool
             DialogResult DelResult = MessageBox.Show("Deleting this will also erase anything inside this folder as well. \nAre you sure you want to do this? This cannot be undone!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
             if (DelResult == DialogResult.Yes)
             {
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Deleted a Folder and everything in it: " + frename.Mainfrm.TreeSource.SelectedNode + "\nCurrent File List:\n");
                     sw.WriteLine("===============================================================================================================");
@@ -6284,7 +6314,7 @@ namespace ThreeWorkTool
 
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -6354,7 +6384,7 @@ namespace ThreeWorkTool
                         }
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -6426,7 +6456,7 @@ namespace ThreeWorkTool
                         }
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -6492,7 +6522,7 @@ namespace ThreeWorkTool
 
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -6558,7 +6588,7 @@ namespace ThreeWorkTool
 
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -6625,7 +6655,7 @@ namespace ThreeWorkTool
 
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -6691,7 +6721,7 @@ namespace ThreeWorkTool
 
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -6778,7 +6808,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -6847,7 +6877,7 @@ namespace ThreeWorkTool
 
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -6917,7 +6947,7 @@ namespace ThreeWorkTool
 
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -6991,7 +7021,7 @@ namespace ThreeWorkTool
 
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -7068,7 +7098,7 @@ namespace ThreeWorkTool
                         }
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -7131,7 +7161,7 @@ namespace ThreeWorkTool
                         }
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -7201,7 +7231,7 @@ namespace ThreeWorkTool
                         }
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -7270,7 +7300,7 @@ namespace ThreeWorkTool
                         }
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -7335,7 +7365,7 @@ namespace ThreeWorkTool
                         }
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -7408,7 +7438,7 @@ namespace ThreeWorkTool
 
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -7472,7 +7502,7 @@ namespace ThreeWorkTool
 
 
                         //Writes to log file.
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                             sw.WriteLine("===============================================================================================================");
@@ -7560,7 +7590,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -7631,7 +7661,7 @@ namespace ThreeWorkTool
                             }
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -7703,7 +7733,7 @@ namespace ThreeWorkTool
                             }
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -7769,7 +7799,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -7835,7 +7865,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -7902,7 +7932,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -7968,7 +7998,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -8056,7 +8086,7 @@ namespace ThreeWorkTool
 
 
                                 //Writes to log file.
-                                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                 {
                                     sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                     sw.WriteLine("===============================================================================================================");
@@ -8125,7 +8155,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -8195,7 +8225,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -8269,7 +8299,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -8347,7 +8377,7 @@ namespace ThreeWorkTool
                             }
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -8412,7 +8442,7 @@ namespace ThreeWorkTool
                             }
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -8475,7 +8505,7 @@ namespace ThreeWorkTool
                             }
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -8555,7 +8585,7 @@ namespace ThreeWorkTool
                             frename.Mainfrm.isFinishRPLRead = true;
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -8623,7 +8653,7 @@ namespace ThreeWorkTool
                             frename.Mainfrm.isFinishRPLRead = true;
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -8693,7 +8723,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -8784,7 +8814,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -8860,7 +8890,7 @@ namespace ThreeWorkTool
 
 
                                 //Writes to log file.
-                                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                 {
                                     sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
                                     sw.WriteLine("===============================================================================================================");
@@ -8928,7 +8958,7 @@ namespace ThreeWorkTool
 
 
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
@@ -9236,6 +9266,22 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath + lshENT.FileName + lshENT.FileExt;
                                 ExportFileWriter.ShotListWriter(ExportPath, lshENT);
                             }
+
+                            else if (kid.Tag is StageObjLayoutEntry)
+                            {
+                                StageObjLayoutEntry sloENT = kid.Tag as StageObjLayoutEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + sloENT.FileName + sloENT.FileExt;
+                                ExportFileWriter.StageOBJLayoutWriter(ExportPath, sloENT);
+                            }
                             /*
                             //New Formats go like this!!
                             else if (kid.Tag is ****Entry)
@@ -9264,7 +9310,7 @@ namespace ThreeWorkTool
                 {
                     MessageBox.Show("THe directory chosen is too long to save all the files. \nChoose a different one closer to the root of the specified drive.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Failed to Export All at directory: " + EXAllDialog.FileName + "\nPath was too long.");
                     }
@@ -9338,7 +9384,7 @@ namespace ThreeWorkTool
                 {
                     MessageBox.Show("THe directory chosen is too long to save all the files. \nChoose a different one closer to the root of the specified drive.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     //Writes to log file.
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Failed to Export All at directory: " + EXAllDialog.FileName + "\nPath was too long.");
                     }
@@ -9442,7 +9488,7 @@ namespace ThreeWorkTool
             RPAllDialog.Title = "Choose a directory. Make sure it's not too many characters in the file path.";
             RPAllDialog.FileName = "Export Here";
             RPAllDialog.Filter = "Directory | directory";
-
+            string ProperPath = "";
             if (RPAllDialog.ShowDialog() == DialogResult.OK)
             {
 
@@ -9556,7 +9602,7 @@ namespace ThreeWorkTool
                                                     frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
                                                     //Writes to log file.
-                                                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                                                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                                     {
                                                         sw.WriteLine("Replaced a file via .tex Import: " + TexToCheck + "\nCurrent File List:\n");
                                                         sw.WriteLine("===============================================================================================================");
@@ -9648,7 +9694,7 @@ namespace ThreeWorkTool
                                                             if (ex is IOException)
                                                             {
                                                                 MessageBox.Show("Unable to import because another proccess is using it.");
-                                                                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                                                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                                                 {
                                                                     sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
                                                                 }
@@ -9657,7 +9703,7 @@ namespace ThreeWorkTool
                                                             else
                                                             {
                                                                 MessageBox.Show("The DDS file is either malinformed or is not the correct format/kind.");
-                                                                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                                                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                                                 {
                                                                     sw.WriteLine("Cannot import: " + "\nbecause it's an invalid dds file.");
                                                                 }
@@ -9683,7 +9729,7 @@ namespace ThreeWorkTool
                                             frename.Mainfrm.TreeSource.EndUpdate();
 
                                             //Writes to log file.
-                                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
                                                 sw.WriteLine("Replaced a file via DDS Import: " + TexToCheck + "\nCurrent File List:\n");
                                                 sw.WriteLine("===============================================================================================================");
@@ -11297,7 +11343,7 @@ namespace ThreeWorkTool
             if (newArc == null)
             {
                 //Writes to log file.
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Failed to open a file: " + FilePath);
                 }
@@ -12531,7 +12577,7 @@ namespace ThreeWorkTool
                                 picBoxA.Visible = false;
                                 FlushAndClean();
                                 //Writes to log file.
-                                using (StreamWriter sw = File.AppendText("Log.txt"))
+                                string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                 {
                                     sw.WriteLine("Closed the Arc file.");
                                 }
@@ -12588,7 +12634,7 @@ namespace ThreeWorkTool
                     if (ex is IOException)
                     {
                         MessageBox.Show("Unable to read the file properly...\n " + ex, "");
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
                         }
@@ -12597,7 +12643,7 @@ namespace ThreeWorkTool
                     else if (ex is UnauthorizedAccessException)
                     {
                         MessageBox.Show("Unable to access the file. Maybe it's in a directory you need admininstrative permissions to use?", "Oh no it's an error.");
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Cannot access the file:" + "\nMight be in a place you need admin privliges for.");
                         }
@@ -12606,7 +12652,7 @@ namespace ThreeWorkTool
                     else if (ex is ZlibException)
                     {
                         MessageBox.Show("Unable to decompress the file because the arc is in a corrupted state.", "Oh no it's an error.");
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Cannot decompress the files inside:" + OFDialog.FileName + " because the arc is corrupt.\n" + ex);
                         }
@@ -12614,7 +12660,7 @@ namespace ThreeWorkTool
                     }
                     else
                     {
-                        using (StreamWriter sw = File.AppendText("Log.txt"))
+                        string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                         {
                             sw.WriteLine("Unknown exception trying to open:" + OFDialog.FileName + "\n" + ex);
                         }
@@ -12662,7 +12708,7 @@ namespace ThreeWorkTool
             catch (UnauthorizedAccessException)
             {
                 MessageBox.Show("Unable to access the file. Maybe it's already in use by something else?", "Oh no it's an error.");
-                using (StreamWriter sw = File.AppendText("Log.txt"))
+                string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
                     sw.WriteLine("Cannot access the file:" + "\nMight be in use by another proccess.");
                 }
@@ -12915,7 +12961,7 @@ namespace ThreeWorkTool
                             picBoxA.Visible = false;
                             FlushAndClean();
                             //Writes to log file.
-                            using (StreamWriter sw = File.AppendText("Log.txt"))
+                            string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
                                 sw.WriteLine("Closed the Arc file.");
                             }
@@ -12972,7 +13018,7 @@ namespace ThreeWorkTool
                 if (ex is IOException)
                 {
                     MessageBox.Show("Unable to read the file properly...\n " + ex, "");
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Cannot access the file: " + "\nbecause another process is using it.");
                     }
@@ -12981,7 +13027,7 @@ namespace ThreeWorkTool
                 else if (ex is UnauthorizedAccessException)
                 {
                     MessageBox.Show("Unable to access the file. Maybe it's in a directory you need admininstrative permissions to use?", "Oh no it's an error.");
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Cannot access the file:" + "\nMight be in a place you need admin privliges for.");
                     }
@@ -12990,7 +13036,7 @@ namespace ThreeWorkTool
                 else if (ex is ZlibException)
                 {
                     MessageBox.Show("Unable to decompress the file because the arc is in a corrupted state.", "Oh no it's an error.");
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Cannot decompress the files inside:" + OFDialog.FileName + " because the arc is corrupt.\n" + ex);
                     }
@@ -12998,7 +13044,7 @@ namespace ThreeWorkTool
                 }
                 else
                 {
-                    using (StreamWriter sw = File.AppendText("Log.txt"))
+                    string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Unknown exception trying to open:" + OFDialog.FileName + "\n" + ex);
                     }

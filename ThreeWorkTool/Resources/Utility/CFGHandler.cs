@@ -100,6 +100,15 @@ namespace ThreeWorkTool.Resources.Utility
             return str;
         }
 
+        public static string Logger(string str, string filename, string sentence)
+        {
+            //Gets the Corrected path for the cfg.
+            string ProperPath = "";
+            ProperPath = Globals.ToolPath + "Log.txt";
+
+
+            return sentence;
+        }
 
         public static string ShaderHashToName(string str, int Index)
         {
