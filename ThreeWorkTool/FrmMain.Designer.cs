@@ -355,6 +355,7 @@
             this.imageList1.Images.SetKeyName(24, "RIF.png");
             this.imageList1.Images.SetKeyName(25, "lsh.png");
             this.imageList1.Images.SetKeyName(26, "SLO.png");
+            this.imageList1.Images.SetKeyName(27, "STQR.png");
             // 
             // splitContainer1
             // 

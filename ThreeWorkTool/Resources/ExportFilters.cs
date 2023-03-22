@@ -59,6 +59,8 @@
 
         public static string rStgObjLayout = "Stage Object Layout (*.slo)|*.slo";
 
+        public static string rSoundStreamRequest = "Sound Stream Request File (*.stqr)|*.stqr|Moveset File (*.167DBBFF)|*.167DBBFF";
+
         public static string GetFilter(string filetype)
         {
 
@@ -149,6 +151,10 @@
 
                 case ".slo":
                     return rStgObjLayout;
+
+                case ".stqr":
+                case ".167DBBFF":
+                    return rSoundStreamRequest;
 
                 default:
                     return Etc; 

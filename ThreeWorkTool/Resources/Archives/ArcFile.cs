@@ -290,7 +290,15 @@ namespace ThreeWorkTool.Resources.Archives
                            foldernames.Clear();
                            IDCounter++;
                            break;
-                        
+                            
+                        //STQR files.
+                        case "167DBBFF":
+                            STQREntry stqren = STQREntry.FillSTQREntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(stqren);
+                            arcfile.FileList.Add(stqren.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
 
                         //New Formats go like this!   
                         /*

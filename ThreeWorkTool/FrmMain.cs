@@ -300,7 +300,8 @@ namespace ThreeWorkTool
                                                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
                                                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
-                                                        || awrapper.Tag as ModelPrimitiveJointLinkEntry == null || awrapper.Tag as StageObjLayoutGroup == null)
+                                                        || awrapper.Tag as ModelPrimitiveJointLinkEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
+                                                        || awrapper.Tag as STQREventData == null)
                                                         {
                                                             {
                                                                 //Removes the archive name from the FullPath for a proper search.
@@ -352,7 +353,8 @@ namespace ThreeWorkTool
                                                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
                                                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
-                                                        || awrapper.Tag as ModelPrimitiveJointLinkEntry == null || awrapper.Tag as StageObjLayoutGroup == null)
+                                                        || awrapper.Tag as ModelPrimitiveJointLinkEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
+                                                        || awrapper.Tag as STQREventData == null)
                                                         {
                                                             //Removes the archive name from the FullPath for a proper search.
                                                             string FullPathSearch = awrapper.FullPath;
@@ -425,9 +427,10 @@ namespace ThreeWorkTool
                                         foreach (TreeNode treno in Nodes)
                                         {
                                             if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" ||
-                                                treno.Tag as string == "Model Primitive Group" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
+                                                treno.Tag as string == "Model Primitive Group" || treno.Tag as string == "Events" || treno.Tag as string == "Entries" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
                                                 || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce
-                                                || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelPrimitiveJointLinkEntry || treno.Tag is StageObjLayoutGroup)
+                                                || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelPrimitiveJointLinkEntry || treno.Tag is StageObjLayoutGroup || treno.Tag is STQRNode
+                                                || treno.Tag is STQREventData)
                                             {
 
                                             }
@@ -466,6 +469,7 @@ namespace ThreeWorkTool
                                         RIFFEntry rifenty = new RIFFEntry();
                                         ShotListEntry lshenty = new ShotListEntry();
                                         StageObjLayoutEntry sloenty = new StageObjLayoutEntry();
+                                        STQREntry stqrenty = new STQREntry();
 
                                         //New Format should start here!
                                         /*
@@ -1515,6 +1519,70 @@ namespace ThreeWorkTool
 
                                             }
 
+                                            else if (treno.Tag as STQREntry != null)
+                                            {
+                                                stqrenty = treno.Tag as STQREntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "167DBBFF";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = stqrenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = stqrenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+
                                             #region New Format Code
                                             //New format Entry data insertion goes like this!
                                             /*
@@ -1713,6 +1781,13 @@ namespace ThreeWorkTool
                                                 bwr.Write(CompData, 0, CompData.Length);
                                                 frename.Mainfrm.SaveCounterB++;
                                             }
+                                            else if (treno.Tag as STQREntry != null)
+                                            {
+                                                stqrenty = treno.Tag as STQREntry;
+                                                byte[] CompData = sloenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                                frename.Mainfrm.SaveCounterB++;
+                                            }
                                             //New format compression data goes like this!
                                             /*
                                             else if(treno.Tag as ***** != null)
@@ -1825,6 +1900,7 @@ namespace ThreeWorkTool
             RIFFEntry rifenty = new RIFFEntry();
             ShotListEntry lshenty = new ShotListEntry();
             StageObjLayoutEntry sloenty = new StageObjLayoutEntry();
+            STQREntry stqrenty = new STQREntry();
 
             //Saving generic files.
             if (treno.Tag as ArcEntry != null)
@@ -2859,6 +2935,70 @@ namespace ThreeWorkTool
                 bwr.Write(DEOffed, 0, DEOffed.Length);
                 DataEntryOffset = DataEntryOffset + ComSize;
             }
+
+            else if (treno.Tag as STQREntry != null)
+            {
+                stqrenty = treno.Tag as STQREntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "167DBBFF";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = stqrenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = stqrenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+            }
+
             #region New Format Code
             //New format Entry data insertion goes like this!
             /*
@@ -2955,6 +3095,7 @@ namespace ThreeWorkTool
             RIFFEntry rifenty = new RIFFEntry();
             ShotListEntry lshenty = new ShotListEntry();
             StageObjLayoutEntry sloenty = new StageObjLayoutEntry();
+            STQREntry stqrenty = new STQREntry();
 
             if (treno.Tag as ArcEntry != null)
             {
@@ -3054,6 +3195,12 @@ namespace ThreeWorkTool
             {
                 sloenty = treno.Tag as StageObjLayoutEntry;
                 byte[] CompData = sloenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as STQREntry != null)
+            {
+                stqrenty = treno.Tag as STQREntry;
+                byte[] CompData = stqrenty.CompressedData;
                 bwr.Write(CompData, 0, CompData.Length);
             }
             //New format compression data goes like this!
@@ -3713,7 +3860,7 @@ namespace ThreeWorkTool
             return conmenu;
         }
 
-        //Adds Context Menu for undefined files & everything else.
+        //Adds Context Menu for Materials.
         public static ContextMenuStrip MaterialContextAddder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
@@ -3730,6 +3877,43 @@ namespace ThreeWorkTool
 #endif
             */
             conmenu.Items.Add(new ToolStripSeparator());
+
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
+            conmenu.Items.Add(rnitem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp, Keys.Control | Keys.Up);
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
+            conmenu.Items.Add(mditem);
+
+            return conmenu;
+        }
+
+        //Adds Context Menu for STQR Files.
+        public static ContextMenuStrip STQRFileContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Add Entry.
+            var addstqritem = new ToolStripMenuItem("Add New STQR Node", null, AddSTQRNode_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(addstqritem);
 
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
@@ -3795,6 +3979,11 @@ namespace ThreeWorkTool
             frmTxt = frmTxtEdit;
             frmTxtEdit.ShowTxtEditor();
 
+
+        }
+
+        private static void AddSTQRNode_Click(Object sender, System.EventArgs e)
+        {
 
         }
 
@@ -4190,6 +4379,28 @@ namespace ThreeWorkTool
                     }
                     break;
 
+                case "ThreeWorkTool.Resources.Wrappers.STQREntry":
+                    STQREntry stqrentry = new STQREntry();
+                    if (tag is STQREntry)
+                    {
+
+                        stqrentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as STQREntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(stqrentry.FileExt);
+                    }
+                    EXDialog.FileName = stqrentry.FileName + stqrentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.STQRWriter(EXDialog.FileName, stqrentry);
+                    }
+
+                    //Writes to log file.
+                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                    {
+                        sw.WriteLine("Exported a STQR Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
                 /*
                  * New Formats Go Like This!
                 case "ThreeWorkTool.Resources.Wrappers.*****Entry":
@@ -4219,8 +4430,6 @@ namespace ThreeWorkTool
                 default:
                     break;
             }
-
-
 
         }
 
@@ -5746,6 +5955,100 @@ namespace ThreeWorkTool
                 }
 
             }
+
+            else if (tag is STQREntry)
+            {
+                STQREntry SLOEntEntry = new STQREntry();
+                SLOEntEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as STQREntry;
+                RPDialog.Filter = ExportFilters.GetFilter(SLOEntEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            STQREntry Oldaent = new STQREntry();
+                            STQREntry Newaent = new STQREntry();
+                            Oldaent = OldWrapper.entryfile as STQREntry;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = STQREntry.ReplaceSTQREntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as STQREntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                            //Creates the STQR Children of the new node.
+                            frename.Mainfrm.STQRChildrenCreation(NewWrapper, NewWrapper.Tag as STQREntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
+
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+            }
+
 
             else
             {
@@ -7453,6 +7756,73 @@ namespace ThreeWorkTool
 
                     #endregion
 
+                    #region STQR
+                    case ".stqr":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperSTQR = new ArcEntryWrapper();
+                        STQREntry STQrEntry = new STQREntry();
+
+                        STQrEntry = STQREntry.InsertSTQREntry(frename.Mainfrm.TreeSource, NewWrapperSTQR, IMPDialog.FileName);
+                        NewWrapperSTQR.Tag = STQrEntry;
+                        NewWrapperSTQR.Text = STQrEntry.TrueName;
+                        NewWrapperSTQR.Name = STQrEntry.TrueName;
+                        NewWrapperSTQR.FileExt = STQrEntry.FileExt;
+                        NewWrapperSTQR.entryData = STQrEntry;
+                        NewWrapperSTQR.entryfile = STQrEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperSTQR, NewWrapperSTQR.FileExt);
+
+                        NewWrapperSTQR.ContextMenuStrip = GenericFileContextAdder(NewWrapperSTQR, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperSTQR);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperSTQR;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string typeSTQR = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeSTQR = new TreeNode();
+                        TreeNode selectednodeSTQR = new TreeNode();
+                        selectednodeSTQR = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeSTQR = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeSTQR;
+
+                        int filecountSTQR = 0;
+
+                        ArcFile rootarcSTQR = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcSTQR != null)
+                        {
+                            filecountSTQR = rootarcSTQR.FileCount;
+                            filecountSTQR++;
+                            rootarcSTQR.FileCount++;
+                            rootarcSTQR.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSTQR;
+                        }
+
+                        //Writes to log file.
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountSTQR);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeSTQR;
+
+                        //Creates the STQR Children of the new node.
+                        frename.Mainfrm.STQRChildrenCreation(selectednodeSTQR, selectednodeSTQR.Tag as STQREntry);
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeSTQR.Parent;
+
+                        break;
+                    #endregion
+
                     //For everything else.
                     default:
                         frename.Mainfrm.TreeSource.BeginUpdate();
@@ -8674,6 +9044,81 @@ namespace ThreeWorkTool
 
                         #endregion
 
+                        #region STQR
+
+                        case ".stqr":
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+                            ArcEntryWrapper NewWrapperSTQR = new ArcEntryWrapper();
+                            STQREntry STQrEntry = new STQREntry();
+
+                            STQrEntry = STQREntry.InsertSTQREntry(frename.Mainfrm.TreeSource, NewWrapperSTQR, Filename);
+                            NewWrapperSTQR.Tag = STQrEntry;
+                            NewWrapperSTQR.Text = STQrEntry.TrueName;
+                            NewWrapperSTQR.Name = STQrEntry.TrueName;
+                            NewWrapperSTQR.FileExt = STQrEntry.FileExt;
+                            NewWrapperSTQR.entryData = STQrEntry;
+                            NewWrapperSTQR.entryfile = STQrEntry;
+
+                            frename.Mainfrm.IconSetter(NewWrapperSTQR, NewWrapperSTQR.FileExt);
+
+                            NewWrapperSTQR.ContextMenuStrip = TXTContextAdder(NewWrapperSTQR, frename.Mainfrm.TreeSource);
+
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperSTQR);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperSTQR;
+
+                            frename.Mainfrm.OpenFileModified = true;
+
+                            frename.Mainfrm.isFinishRPLRead = false;
+
+                            string typeSTQR = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            TreeNode rootnodeSTQR = new TreeNode();
+                            TreeNode selectednodeSTQR = new TreeNode();
+                            selectednodeSTQR = frename.Mainfrm.TreeSource.SelectedNode;
+                            rootnodeSTQR = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                            frename.Mainfrm.TreeSource.SelectedNode = rootnodeSTQR;
+
+                            int filecountSTQR = 0;
+
+                            ArcFile rootarcSTQR = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                            if (rootarcSTQR != null)
+                            {
+                                filecountSTQR = rootarcSTQR.FileCount;
+                                filecountSTQR++;
+                                rootarcSTQR.FileCount++;
+                                rootarcSTQR.FileAmount++;
+                                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSTQR;
+                            }
+
+                            frename.Mainfrm.isFinishRPLRead = true;
+
+                            //Writes to log file.
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                            {
+                                sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + filecountSTQR);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeSTQR.Parent;
+
+                            //Creates the STQR Children of the new node.
+                            frename.Mainfrm.STQRChildrenCreation(selectednodeSTQR, selectednodeSTQR.Tag as STQREntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeSTQR.Parent;
+
+
+                            break;
+
+                        #endregion
+
+
                         //For everything else.
                         default:
                             frename.Mainfrm.TreeSource.BeginUpdate();
@@ -9282,6 +9727,23 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath + sloENT.FileName + sloENT.FileExt;
                                 ExportFileWriter.StageOBJLayoutWriter(ExportPath, sloENT);
                             }
+
+                            else if (kid.Tag is STQREntry)
+                            {
+                                STQREntry stqrENT = kid.Tag as STQREntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + stqrENT.FileName + stqrENT.FileExt;
+                                ExportFileWriter.STQRWriter(ExportPath, stqrENT);
+                            }
+
                             /*
                             //New Formats go like this!!
                             else if (kid.Tag is ****Entry)
@@ -10424,6 +10886,49 @@ namespace ThreeWorkTool
                     break;
                 #endregion
 
+                #region STQR
+
+                case "ThreeWorkTool.Resources.Wrappers.STQREntry":
+                    ArcEntryWrapper stqrchild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+                    STQREntry stqrent = new STQREntry();
+                    stqrent = FEntry as STQREntry;
+                    stqrchild.Name = I;
+                    stqrchild.Tag = FEntry as STQREntry;
+                    stqrchild.Text = I;
+                    stqrchild.entryfile = FEntry as STQREntry;
+                    stqrchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
+
+                    TreeSource.SelectedNode = stqrchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(stqrchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var sqrtrootNode = FindRootNode(stqrchild);
+
+                    TreeSource.SelectedNode = stqrchild;
+                    TreeSource.SelectedNode.ImageIndex = 27;
+                    TreeSource.SelectedNode.SelectedImageIndex = 27;
+
+
+                    stqrchild.ContextMenuStrip = STQRFileContextAdder(stqrchild, TreeSource);
+
+                    //Makes Child Nodes for STQR Group references. More to come.
+                    STQRChildrenCreation(stqrchild, stqrent);
+
+                    TreeSource.SelectedNode = sqrtrootNode;
+
+                    tcount++;
+
+                    break;
+
+                #endregion
+
                 #region New Formats
                 //New Format go like this!
                 /*
@@ -10743,6 +11248,11 @@ namespace ThreeWorkTool
                     {
                         TreeSource.SelectedNode.ImageIndex = 26;
                         TreeSource.SelectedNode.SelectedImageIndex = 26;
+                    }
+                    else if (G == ".stqr")
+                    {
+                        TreeSource.SelectedNode.ImageIndex = 27;
+                        TreeSource.SelectedNode.SelectedImageIndex = 27;
                     }
                     else
                     {
@@ -11111,6 +11621,67 @@ namespace ThreeWorkTool
                 TreeSource.SelectedNode.Nodes.Add(slog);
 
             }
+        }
+
+        public void STQRChildrenCreation(TreeNode MEntry, STQREntry stqr)
+        {
+            TreeSource.SelectedNode = MEntry;
+
+            //Makes the Material Subfolder.
+            TreeNode foldert = new TreeNode();
+            foldert.Name = "Entries";
+            foldert.Tag = "Folder";
+            foldert.Text = "Entries";
+            //foldert.ContextMenuStrip = FolderContextAdder(foldert, TreeSource);
+            TreeSource.SelectedNode.Nodes.Add(foldert);
+            TreeSource.SelectedNode = foldert;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+            //Fills in the STQR.
+            for (int i = 0; i < stqr.EntryCount; i++)
+            {
+                ArcEntryWrapper stq = new ArcEntryWrapper();
+                stq.Name = Convert.ToString(stqr.EntryList[i].FilePath);
+                stq.Tag = stqr.EntryList[i];
+                stq.Text = Convert.ToString(stqr.EntryList[i].FilePath);
+                stq.ImageIndex = 16;
+                stq.SelectedImageIndex = 16;
+                TreeSource.SelectedNode.Nodes.Add(stq);
+                ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            }
+
+            TreeSource.SelectedNode = MEntry;
+
+            //Makes the Material Subfolder.
+            TreeNode folderev = new TreeNode();
+            folderev.Name = "Events";
+            folderev.Tag = "Folder";
+            folderev.Text = "Events";
+            //foldert.ContextMenuStrip = FolderContextAdder(foldert, TreeSource);
+            TreeSource.SelectedNode.Nodes.Add(folderev);
+            TreeSource.SelectedNode = folderev;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+
+            //Fills in the Event Data from the STQR.
+            for (int j = 0; j < stqr.MetadataEntryCount; j++)
+            {
+                ArcEntryWrapper stqev = new ArcEntryWrapper();
+                stqev.Name = Convert.ToString(stqr.Events[j].EventEntryID);
+                stqev.Tag = stqr.Events[j];
+                stqev.Text = Convert.ToString(stqr.Events[j].EventEntryID);
+                stqev.ImageIndex = 16;
+                stqev.SelectedImageIndex = 16;
+                TreeSource.SelectedNode.Nodes.Add(stqev);
+                ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            }
+
+
+
         }
 
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
@@ -11597,6 +12168,21 @@ namespace ThreeWorkTool
                                 break;
                             }
 
+                        case "ThreeWorkTool.Resources.Wrappers.STQREntry":
+                            STQREntry stqrme = new STQREntry();
+                            stqrme = ArcEntry as STQREntry;
+                            if (stqrme != null)
+                            {
+                                TreeChildInsert(NCount, stqrme.EntryName, stqrme.FileExt, stqrme.EntryDirs, stqrme.TrueName, stqrme);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
                         //New Formats go like this!
                         /*
                            case "ThreeWorkTool.Resources.Wrappers.*****Entry":
@@ -11951,6 +12537,48 @@ namespace ThreeWorkTool
 
             switch (type)
             {
+
+                #region STQRNode
+                case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.STQREventData":
+                    STQREventData stqrevent = new STQREventData();
+                    stqrevent = TreeSource.SelectedNode.Tag as STQREventData;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+                #endregion
+
+                #region STQRNode
+                case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.STQRNode":
+                    STQRNode stqrnent = new STQRNode();
+                    stqrnent = TreeSource.SelectedNode.Tag as STQRNode;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+                #endregion
+
+                #region STQR
+                case "ThreeWorkTool.Resources.Wrappers.STQREntry":
+                    STQREntry stqrent = new STQREntry();
+                    stqrent = TreeSource.SelectedNode.Tag as STQREntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+                #endregion
 
                 #region StageObjLayoutGroup
                 case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.StageObjLayoutGroup":

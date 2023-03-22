@@ -253,6 +253,8 @@
     <Compile Include="Resources\Wrappers\ExtraNodes\Kaitai\LmtCodec.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\Mission.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\StageObjLayoutGroup.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\STQREventData.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\STQRNode.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
     <Compile Include="Resources\Wrappers\GemEntry.cs" />
     <Compile Include="Resources\Wrappers\LMTEntry.cs" />
@@ -270,6 +272,7 @@
     <Compile Include="Resources\Wrappers\ResourcePathListEntry.cs" />
     <Compile Include="Resources\Wrappers\ShotListEntry.cs" />
     <Compile Include="Resources\Wrappers\StageObjLayoutEntry.cs" />
+    <Compile Include="Resources\Wrappers\STQREntry.cs" />
     <Compile Include="Resources\Wrappers\TextureEntry.cs" />
     <Compile Include="Resources\Wrappers\RIFFEntry.cs" />
     <Compile Include="Resources\Zlibber.cs" />
