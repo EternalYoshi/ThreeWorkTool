@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Numerics;
 using System.Windows.Forms;
 using System.Diagnostics;
+using ThreeWorkTool.Resources.Archives;
 
 namespace ThreeWorkTool.Resources.Utility
 {
@@ -135,6 +136,53 @@ namespace ThreeWorkTool.Resources.Utility
 
 
             return str;
+        }
+
+        //Looks through the cfg file to find the Typehash and returns it.
+        public static string TypeHashFinder(string hashtext)
+        {
+            string TypeHash = "";
+
+            if (hashtext.Length == 9)
+            {
+                TypeHash = hashtext;
+                TypeHash = TypeHash.Substring(1);
+                if (System.Text.RegularExpressions.Regex.IsMatch(TypeHash, @"\A\b[0-9A-F]+\b\Z") == true)
+                {
+                    return TypeHash;
+                }
+            }
+
+            //Gets the Corrected path for the cfg.
+            string ProperPath = "";
+            ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+            //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
+            try
+            {
+                using (var sr2 = new StreamReader(ProperPath))
+                {
+                    while (!sr2.EndOfStream)
+                    {
+                        var keyword = Console.ReadLine() ?? hashtext;
+                        var line = sr2.ReadLine();
+                        if (String.IsNullOrEmpty(line)) continue;
+                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        {
+                            TypeHash = line;
+                            TypeHash = TypeHash.Split(' ')[0];
+
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", " ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Process.GetCurrentProcess().Kill();
+            }
+
+            return TypeHash;
         }
 
         //Creates an older version of the .cfg file.

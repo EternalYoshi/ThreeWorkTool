@@ -1518,10 +1518,13 @@ namespace ThreeWorkTool
                                                 DataEntryOffset = DataEntryOffset + ComSize;
 
                                             }
-
                                             else if (treno.Tag as STQREntry != null)
                                             {
                                                 stqrenty = treno.Tag as STQREntry;
+
+                                                //Gotta Update The StageObjLayout File First.
+                                                stqrenty = STQREntry.SaveSTQREntry(stqrenty, treno, frename.Mainfrm.TreeSource);
+
                                                 exportname = "";
 
                                                 exportname = treno.FullPath;
@@ -2935,10 +2938,13 @@ namespace ThreeWorkTool
                 bwr.Write(DEOffed, 0, DEOffed.Length);
                 DataEntryOffset = DataEntryOffset + ComSize;
             }
-
             else if (treno.Tag as STQREntry != null)
             {
                 stqrenty = treno.Tag as STQREntry;
+
+                //Gotta Update The StageObjLayout File First.
+                stqrenty = STQREntry.SaveSTQREntry(stqrenty, treno, frename.Mainfrm.TreeSource);
+
                 exportname = "";
 
                 exportname = treno.FullPath;
@@ -3912,8 +3918,14 @@ namespace ThreeWorkTool
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
             //Add Entry.
-            var addstqritem = new ToolStripMenuItem("Add New STQR Node", null, AddSTQRNode_Click, Keys.Control | Keys.E);
+            var addstqritem = new ToolStripMenuItem("Add New STQR Node", null, AddSTQRNode_Click, Keys.Control | Keys.Shift | Keys.A);
             conmenu.Items.Add(addstqritem);
+
+            //Add Event.
+            var addstqrevent = new ToolStripMenuItem("Add New STQR Event", null, AddSTQREvent_Click, Keys.Control | Keys.Shift | Keys.Q);
+            conmenu.Items.Add(addstqrevent);
+
+            conmenu.Items.Add(new ToolStripSeparator());
 
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
@@ -3983,6 +3995,11 @@ namespace ThreeWorkTool
         }
 
         private static void AddSTQRNode_Click(Object sender, System.EventArgs e)
+        {
+
+        }
+
+        private static void AddSTQREvent_Click(Object sender, System.EventArgs e)
         {
 
         }

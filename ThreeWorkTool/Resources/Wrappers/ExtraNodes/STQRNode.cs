@@ -18,7 +18,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
 {
     public class STQRNode : DefaultWrapper
     {
-
+        public int index;
         public int FileNameOffset;
         public int FileSize;
         public int Duration;
@@ -32,6 +32,20 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         public int UnknownDataB;
         public byte[] UnknownDataC;
 
+
+        [Category("STQR"), ReadOnlyAttribute(true)]
+        public int Index
+        {
+
+            get
+            {
+                return index;
+            }
+            set
+            {
+                index = value;
+            }
+        }
 
         [Category("STQR"), ReadOnlyAttribute(false)]
         public int AudioDuration

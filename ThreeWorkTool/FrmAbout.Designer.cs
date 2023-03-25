@@ -78,7 +78,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(201, 72);
             this.label1.TabIndex = 3;
-            this.label1.Text = "ThreeWork Tool V0.61\r\n 2022-2023\r\nby Eternal Yoshi";
+            this.label1.Text = "ThreeWork Tool V0.63\r\n 2022-2023\r\nby Eternal Yoshi";
             // 
             // pictureBox1
             // 

@@ -20,20 +20,32 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
     {
 
         static int ENTRYSIZE = 0x98;
-        public int EventEntryID;
+        public int index;
+        public short EventEntryID;
+        public short UnknownValue02;
         public int UnknownValue04;
         public int UnknownValue08;
         public int UnknownValue0C;
-        public int UnknownValue10;
-        public int UnknownValue14;
-        public int UnknownValue18;
-        public int UnknownValue1C;
-        public int UnknownValue20;
-        public int UnknownValue24;
-        public int UnknownValue28;
+        public sbyte UnknownValue10;
+        public sbyte UnknownValue11;
+        public short UnknownValue12;
+        public short UnknownValue14;
+        public short UnknownValue16;
+        public sbyte UnknownValue18;
+        public sbyte UnknownValue19;
+        public sbyte UnknownValue1A;
+        public sbyte UnknownValue1B;
+        public sbyte UnknownValue1C;
+        public short UnknownValue1D;
+        public sbyte UnknownValue1F;
+        public short UnknownValue20;
+        public short UnknownValue22;
+        public float UnknownValue24;
+        public float UnknownValue28;
         public int UnknownValue2C;
         public int UnknownValue30;
-        public int UnknownValue34;
+        public short UnknownValue34;
+        public short UnknownValue36;
         public int UnknownValue38;
         public int UnknownValue3C;
         public int UnknownValue40;
@@ -43,13 +55,15 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         public int UnknownValue50;
         public int UnknownValue54;
         public int UnknownValue58;
-        public int UnknownValue5C;
+        public int PossibleEntryID;
         public int UnknownValue60;
-        public int UnknownValue64;
+        public float UnknownValue64;
         public int UnknownValue68;
         public int UnknownValue6C;
-        public int UnknownValue70;
-        public int UnknownValue74;
+        public short UnknownValue70;
+        public short UnknownValue72;
+        public short UnknownValue74;
+        public short UnknownValue76;
         public int UnknownValue78;
         public int UnknownValue7C;
         public int UnknownValue80;
@@ -61,7 +75,21 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
 
         #region STQREvent
         [Category("STQR Event Data"), ReadOnlyAttribute(true)]
-        public int ID
+        public int Index
+        {
+
+            get
+            {
+                return index;
+            }
+            set
+            {
+                index = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(true)]
+        public short ID
         {
 
             get
@@ -71,6 +99,20 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             set
             {
                 EventEntryID = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public short SomeValue02
+        {
+
+            get
+            {
+                return UnknownValue02;
+            }
+            set
+            {
+                UnknownValue02 = value;
             }
         }
 
@@ -117,7 +159,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue10
+        public sbyte SomeValue10
         {
 
             get
@@ -131,7 +173,35 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue14
+        public sbyte SomeValue11
+        {
+
+            get
+            {
+                return UnknownValue11;
+            }
+            set
+            {
+                UnknownValue11 = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public short SomeValue12
+        {
+
+            get
+            {
+                return UnknownValue12;
+            }
+            set
+            {
+                UnknownValue12 = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public short SomeValue14
         {
 
             get
@@ -145,7 +215,21 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue18
+        public short SomeValue16
+        {
+
+            get
+            {
+                return UnknownValue16;
+            }
+            set
+            {
+                UnknownValue16 = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public sbyte SomeValue18
         {
 
             get
@@ -159,7 +243,49 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue1C
+        public sbyte SomeValue19
+        {
+
+            get
+            {
+                return UnknownValue19;
+            }
+            set
+            {
+                UnknownValue19 = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public sbyte SomeValue1A
+        {
+
+            get
+            {
+                return UnknownValue1A;
+            }
+            set
+            {
+                UnknownValue1A = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public sbyte SomeValue1B
+        {
+
+            get
+            {
+                return UnknownValue1B;
+            }
+            set
+            {
+                UnknownValue1B = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public sbyte SomeValue1C
         {
 
             get
@@ -173,7 +299,35 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue20
+        public short SomeValue1D
+        {
+
+            get
+            {
+                return UnknownValue1D;
+            }
+            set
+            {
+                UnknownValue1D = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public sbyte SomeValue1F
+        {
+
+            get
+            {
+                return UnknownValue1F;
+            }
+            set
+            {
+                UnknownValue1F = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public short SomeValue20
         {
 
             get
@@ -187,7 +341,21 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue24
+        public short SomeValue22
+        {
+
+            get
+            {
+                return UnknownValue22;
+            }
+            set
+            {
+                UnknownValue22 = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public float SomeValue24
         {
 
             get
@@ -201,7 +369,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue28
+        public float SomeValue28
         {
 
             get
@@ -243,7 +411,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue34
+        public short SomeValue34
         {
 
             get
@@ -255,6 +423,21 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
                 UnknownValue34 = value;
             }
         }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public short SomeValue36
+        {
+
+            get
+            {
+                return UnknownValue36;
+            }
+            set
+            {
+                UnknownValue36 = value;
+            }
+        }
+
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
         public int SomeValue38
@@ -383,16 +566,16 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue5C
+        public int MaybeCorrespondsWithEntryID
         {
 
             get
             {
-                return UnknownValue5C;
+                return PossibleEntryID;
             }
             set
             {
-                UnknownValue5C = value;
+                PossibleEntryID = value;
             }
         }
 
@@ -411,7 +594,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue64
+        public float SomeValue64
         {
 
             get
@@ -453,7 +636,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue70
+        public short SomeValue70
         {
 
             get
@@ -467,7 +650,21 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public int SomeValue74
+        public short SomeValue72
+        {
+
+            get
+            {
+                return UnknownValue72;
+            }
+            set
+            {
+                UnknownValue72 = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public short SomeValue74
         {
 
             get
@@ -477,6 +674,20 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             set
             {
                 UnknownValue74 = value;
+            }
+        }
+
+        [Category("STQR Event Data"), ReadOnlyAttribute(false)]
+        public short SomeValue76
+        {
+
+            get
+            {
+                return UnknownValue76;
+            }
+            set
+            {
+                UnknownValue76 = value;
             }
         }
 
