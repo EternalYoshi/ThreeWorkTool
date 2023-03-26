@@ -3996,11 +3996,98 @@ namespace ThreeWorkTool
 
         private static void AddSTQRNode_Click(Object sender, System.EventArgs e)
         {
+            
+            //Time To add the new entry to the data of the sqtr.
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            STQREntry stqr = tag as STQREntry;
+            int NewIndex = stqr.EntryList.Count;
+            STQRNode entry = new STQRNode();
+            entry.FilePath = "NewFilePath";
+            entry.LoopStart = -1;
+            entry.LoopEnd = -1;
+            entry.FileSize = 0;
+            entry.index = NewIndex;
+            stqr.EntryList.Add(entry);
+
+            TreeNodeCollection TNoCollection = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
+
+            foreach (TreeNode node in TNoCollection)
+            {
+                if (node.Tag as string != null)
+                {
+                    if (node.Text as string == "Entries")
+                    {
+                        frename.Mainfrm.TreeSource.SelectedNode = node;
+                        break;
+                    }
+                }
+            }
+
+            //New node time.
+            ArcEntryWrapper stq = new ArcEntryWrapper();
+            stq.Name = Convert.ToString(stqr.EntryList[NewIndex].FilePath);
+            stq.Tag = stqr.EntryList[NewIndex];
+            stq.Text = Convert.ToString(stqr.EntryList[NewIndex].FilePath);
+            stq.ImageIndex = 16;
+            stq.SelectedImageIndex = 16;
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+            stqr.EntryCount = stqr.EntryCount + 1;
 
         }
 
         private static void AddSTQREvent_Click(Object sender, System.EventArgs e)
         {
+            //Time To add the new event to the data of the sqtr.
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            STQREntry stqr = tag as STQREntry;
+            int NewIndex = stqr.Events.Count;
+            STQREventData stqrevent = new STQREventData();
+            stqrevent.EventEntryID = Convert.ToInt16(NewIndex);
+            //These are common values for these variables in many files so I'd assume these are ideal for a "default" valued event.
+            stqrevent.index = stqrevent.EventEntryID;
+            stqrevent.PossibleEntryID = -1;
+            stqrevent.UnknownValue20 = -1;
+            stqrevent.UnknownValue22 = -1;
+            stqrevent.UnknownValue24 = -4;
+            stqrevent.UnknownValue28 = -96;
+            stqrevent.UnknownValue38 = -1;
+            stqrevent.UnknownValue3C = -1;
+            stqrevent.UnknownValue40 = -1;
+            stqrevent.UnknownValue48 = 1000;
+            stqrevent.UnknownValue64 = -96;
+            stqrevent.UnknownValue68 = 100;
+            stqrevent.UnknownValue6C = -1;
+            stqrevent.UnknownValue70 = -1;
+            stqrevent.UnknownValue72 = -1;
+            stqrevent.UnknownValue80 = -1;
+
+            stqr.Events.Add(stqrevent);
+
+            TreeNodeCollection TNoCollection = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
+
+            foreach (TreeNode node in TNoCollection)
+            {
+                if (node.Tag as string != null)
+                {
+                    if (node.Text as string == "Events")
+                    {
+                        frename.Mainfrm.TreeSource.SelectedNode = node;
+                        break;
+                    }
+                }
+            }
+
+            //New node time.
+            ArcEntryWrapper stq = new ArcEntryWrapper();
+            stq.Name = Convert.ToString(stqr.Events[NewIndex].EventEntryID);
+            stq.Tag = stqr.Events[NewIndex];
+            stq.Text = Convert.ToString(stqr.Events[NewIndex].EventEntryID);
+            stq.ImageIndex = 16;
+            stq.SelectedImageIndex = 16;
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+            stqr.MetadataEntryCount = stqr.MetadataEntryCount + 1;
 
         }
 
@@ -11793,6 +11880,11 @@ namespace ThreeWorkTool
             {
                 wrapper.ImageIndex = 26;
                 wrapper.SelectedImageIndex = 26;
+            }
+            else if (extension == ".stqr")
+            {
+                wrapper.ImageIndex = 27;
+                wrapper.SelectedImageIndex = 27;
             }
             else
             {
