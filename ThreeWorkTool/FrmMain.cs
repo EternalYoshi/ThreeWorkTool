@@ -1787,7 +1787,7 @@ namespace ThreeWorkTool
                                             else if (treno.Tag as STQREntry != null)
                                             {
                                                 stqrenty = treno.Tag as STQREntry;
-                                                byte[] CompData = sloenty.CompressedData;
+                                                byte[] CompData = stqrenty.CompressedData;
                                                 bwr.Write(CompData, 0, CompData.Length);
                                                 frename.Mainfrm.SaveCounterB++;
                                             }
