@@ -126,22 +126,47 @@ namespace ThreeWorkTool.Resources.Wrappers
             //Now For the FileNames.
             for (int j = 0; j < stqrentry.EntryList.Count; j++)
             {
-                bnr.BaseStream.Position = stqrentry.EntryList[j].FileNameOffset;
-                //Gets the name length to avoid going out of bounds.
-                int namelength = 0;
-                if ((j + 1) != stqrentry.EntryList.Count)
+                if (stqrentry.EntryList[j].FileNameOffset == 0)
                 {
-                    namelength = stqrentry.EntryList[j + 1].FileNameOffset - stqrentry.EntryList[j].FileNameOffset;
+                    stqrentry.EntryList[j].FilePath = "";
                 }
                 else
                 {
-                    namelength = stqrentry.UncompressedData.Length - stqrentry.EntryList[j].FileNameOffset;
-                }
-                byte[] PLName = new byte[] { };
-                PLName = stqrentry.UncompressedData.Skip(stqrentry.EntryList[j].FileNameOffset).Take(namelength).Where(x => x != 0x00).ToArray();
-                Teme = ascii.GetString(PLName);
-                stqrentry.EntryList[j].FilePath = Teme;
+                    bnr.BaseStream.Position = stqrentry.EntryList[j].FileNameOffset;
+                    //Gets the name length to avoid going out of bounds.
+                    int namelength = 0;
+                    if ((j + 1) != stqrentry.EntryList.Count)
+                    {
+                        if (stqrentry.EntryList[j + 1].FileNameOffset == 0)
+                        {
+                            if ((j + 2) != stqrentry.EntryList.Count)
+                            {
+                                if (stqrentry.EntryList[j + 2].FileNameOffset == 0)
+                                {
+                                    namelength = stqrentry.EntryList[j + 3].FileNameOffset - stqrentry.EntryList[j].FileNameOffset;
+                                }
+                                else
+                                {
+                                    namelength = stqrentry.EntryList[j + 2].FileNameOffset - stqrentry.EntryList[j].FileNameOffset;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            namelength = stqrentry.EntryList[j + 1].FileNameOffset - stqrentry.EntryList[j].FileNameOffset;
+                        }
 
+                    }
+                    else
+                    {
+                        namelength = stqrentry.UncompressedData.Length - stqrentry.EntryList[j].FileNameOffset;
+                    }
+                    byte[] PLName = new byte[] { };
+                    PLName = stqrentry.UncompressedData.Skip(stqrentry.EntryList[j].FileNameOffset).Take(namelength).Where(x => x != 0x00).ToArray();
+                    Teme = ascii.GetString(PLName);
+                    stqrentry.EntryList[j].FilePath = Teme;
+
+                }
             }
 
             //For The Event data.
@@ -329,9 +354,16 @@ namespace ThreeWorkTool.Resources.Wrappers
             for (int w = 0; w < stqrentry.EntryList.Count; w++)
             {
                 //Filename Position.
-                PTemp = (StartOfFilenames + (PreviousLengths));
-                newSTQRData.AddRange(BitConverter.GetBytes(PTemp));
-
+                if (string.IsNullOrWhiteSpace(stqrentry.EntryList[w].FilePath))
+                {
+                    PTemp = 0;
+                    newSTQRData.AddRange(BitConverter.GetBytes(PTemp));
+                }
+                else
+                {
+                    PTemp = (StartOfFilenames + (PreviousLengths));
+                    newSTQRData.AddRange(BitConverter.GetBytes(PTemp));
+                }
                 //File Size of file referenced in Entry and Event.
                 newSTQRData.AddRange(BitConverter.GetBytes(stqrentry.EntryList[w].FileSize));
 
