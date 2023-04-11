@@ -196,7 +196,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 sTQREvent.UnknownValue1F = bnr.ReadSByte();
                 sTQREvent.UnknownValue20 = bnr.ReadInt16();
                 sTQREvent.UnknownValue22 = bnr.ReadInt16();
-                sTQREvent.UnknownValue24 = bnr.ReadSingle();
+                sTQREvent.VolumeModifier = bnr.ReadSingle();
                 sTQREvent.UnknownValue28 = bnr.ReadSingle();
                 sTQREvent.UnknownValue2C = bnr.ReadInt32();
                 sTQREvent.UnknownValue30 = bnr.ReadInt32();
@@ -426,7 +426,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 newSTQRData.Add(Convert.ToByte(stqrentry.Events[w].UnknownValue1F));
                 newSTQRData.AddRange(BitConverter.GetBytes(stqrentry.Events[w].UnknownValue20));
                 newSTQRData.AddRange(BitConverter.GetBytes(stqrentry.Events[w].UnknownValue22));
-                newSTQRData.AddRange(BitConverter.GetBytes(stqrentry.Events[w].UnknownValue24));
+                newSTQRData.AddRange(BitConverter.GetBytes(stqrentry.Events[w].VolumeModifier));
                 newSTQRData.AddRange(BitConverter.GetBytes(stqrentry.Events[w].UnknownValue28));
                 newSTQRData.AddRange(BitConverter.GetBytes(stqrentry.Events[w].UnknownValue2C));
                 newSTQRData.AddRange(BitConverter.GetBytes(stqrentry.Events[w].UnknownValue30));

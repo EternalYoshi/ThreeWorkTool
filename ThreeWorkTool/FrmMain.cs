@@ -4049,7 +4049,7 @@ namespace ThreeWorkTool
             stqrevent.PossibleEntryID = -1;
             stqrevent.UnknownValue20 = -1;
             stqrevent.UnknownValue22 = -1;
-            stqrevent.UnknownValue24 = -4;
+            stqrevent.VolumeModifier = -4;
             stqrevent.UnknownValue28 = -96;
             stqrevent.UnknownValue38 = -1;
             stqrevent.UnknownValue3C = -1;

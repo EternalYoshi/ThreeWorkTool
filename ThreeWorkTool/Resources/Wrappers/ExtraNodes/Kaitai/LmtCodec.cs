@@ -14,20 +14,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes.Kaitai
 {
     public static class LmtCodec
     {
-        /*
-                public static object Unpack_bytes(object b)
-                {
-                    return b.@int / ((1 << b.Count - 2) - 1);
-                }
-
-                public static object Pack_bytes(int bitcount, float f)
-                {
-                    int bitmask2 = Convert.ToInt32(Math.Pow(2, bitcount) - 1);
-                    int bitmask3 = Convert.ToInt32(Math.Pow(2, bitcount - 2) - 1);
-                    int r = Convert.ToInt32(f * bitmask3) + Math.Pow(2, bitcount) & bitmask2;
-                    return bitstring.Bits(Convert.ToUInt32(r), length: bitcount);
-                }
-
+        
                 public static Vector4 Vec3to4(Vector3 d)
                 {
                     Vector4 Vex4 = new Vector4();
@@ -58,6 +45,22 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes.Kaitai
                     Vex3.X = d.Z;
                     return Vex3;
                 }
+
+        /*
+                public static object Unpack_bytes(object b)
+                {
+                    return b.@int / ((1 << b.Count - 2) - 1);
+                }
+
+                public static object Pack_bytes(int bitcount, float f)
+                {
+                    int bitmask2 = Convert.ToInt32(Math.Pow(2, bitcount) - 1);
+                    int bitmask3 = Convert.ToInt32(Math.Pow(2, bitcount - 2) - 1);
+                    int r = Convert.ToInt32(f * bitmask3) + Math.Pow(2, bitcount) & bitmask2;
+                    return bitstring.Bits(Convert.ToUInt32(r), length: bitcount);
+                }
+
+
 
                 public static object Id(object d)
                 {

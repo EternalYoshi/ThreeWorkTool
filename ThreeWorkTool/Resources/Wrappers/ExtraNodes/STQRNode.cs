@@ -131,7 +131,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             }
         }
 
-        [Category("STQR"), ReadOnlyAttribute(false)]
+        [Category("STQR"), ReadOnlyAttribute(true)]
         public int ProjectedFileNamePos
         {
 

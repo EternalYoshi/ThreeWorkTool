@@ -40,7 +40,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         public sbyte UnknownValue1F;
         public short UnknownValue20;
         public short UnknownValue22;
-        public float UnknownValue24;
+        public float VolumeModifier;
         public float UnknownValue28;
         public int UnknownValue2C;
         public int UnknownValue30;
@@ -355,16 +355,16 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("STQR Event Data"), ReadOnlyAttribute(false)]
-        public float SomeValue24
+        public float VolumeAmplifier
         {
 
             get
             {
-                return UnknownValue24;
+                return VolumeModifier;
             }
             set
             {
-                UnknownValue24 = value;
+                VolumeModifier = value;
             }
         }
 
