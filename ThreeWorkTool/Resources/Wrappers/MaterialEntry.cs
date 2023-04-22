@@ -22,6 +22,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public const int SIZE = 0x28;
         public const int MATSIZE = 0x48;
         public const int MAX_NAME_LENGTH = 64;
+        public const int TEXENTRYSIZE = 0x58;
         public string Magic;
         public string Constant;
         public int EntryCount;
@@ -29,8 +30,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int SomethingCount;
         public int TextureCount;
         public int MaterialCount;
-        public int TextureOffset;
-        public int MaterialOffset;
+        public long TextureOffset;
+        public long MaterialOffset;
         public int UnknownField;
         public string WeirdHash;
         public int Field14;
@@ -135,6 +136,51 @@ namespace ThreeWorkTool.Resources.Wrappers
         public static MaterialEntry BuildMatEntry(BinaryReader MBR, MaterialEntry MATEntry)
         {
 
+#if DEBUG
+            //Experimental.
+
+            //Header variables.
+            MATEntry.Magic = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MATEntry.Magic);
+            MATEntry.SomethingCount = MBR.ReadInt32();
+            MATEntry.MaterialCount = MBR.ReadInt32();
+            MATEntry.TextureCount = MBR.ReadInt32();
+            MATEntry.WeirdHash = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MATEntry.Magic);
+            MATEntry.Field14 = MBR.ReadInt32();
+            MATEntry.TextureOffset = MBR.ReadInt64();
+            MATEntry.MaterialOffset = MBR.ReadInt64();
+
+            //For the Texture References.
+            MATEntry.Textures = new List<MaterialTextureReference>();
+            MBR.BaseStream.Position = MATEntry.TextureOffset;
+            for (int i = 0; i < MATEntry.TextureCount; i++)
+            {
+                MaterialTextureReference TexTemp = new MaterialTextureReference();
+                TexTemp = TexTemp.FillMaterialTexReference(MATEntry, i, MBR, TexTemp);
+                MATEntry.Textures.Add(TexTemp);
+            }
+
+            //Now for the Materials themselves.
+            MATEntry.Materials = new List<MaterialMaterialEntry>();
+            byte[] ShadeTemp = new byte[4];
+            int PrevOffset = Convert.ToInt32(MBR.BaseStream.Position);
+
+            //Materials.
+            for (int i = 0; i < MATEntry.MaterialCount; i++)
+            {
+
+                MaterialMaterialEntry MMEntry = new MaterialMaterialEntry();
+                MMEntry = MMEntry.FIllMatMatEntryPropertiesPart1(MMEntry, MATEntry, MBR, PrevOffset, i);
+                MMEntry = MMEntry.FIllMatMatEntryPropertiesPart2(MMEntry, MATEntry, MBR, PrevOffset, i);
+
+                MATEntry.Materials.Add(MMEntry);
+                PrevOffset = PrevOffset + 72;
+                MBR.BaseStream.Position = PrevOffset;
+
+            }
+
+#else
+
+
             //Header variables.
             MATEntry.Magic = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MATEntry.Magic);
             MATEntry.SomethingCount = MBR.ReadInt32();
@@ -180,6 +226,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 MBR.BaseStream.Position = PrevOffset;
 
             }
+#endif
 
             return MATEntry;
 
@@ -256,7 +303,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Material Data"), ReadOnlyAttribute(true)]
-        public int TextureStartingOffset
+        public long TextureStartingOffset
         {
             get
             {
@@ -269,7 +316,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [Category("Material Data"), ReadOnlyAttribute(true)]
-        public int MaterialStartingOffset
+        public long MaterialStartingOffset
         {
             get
             {

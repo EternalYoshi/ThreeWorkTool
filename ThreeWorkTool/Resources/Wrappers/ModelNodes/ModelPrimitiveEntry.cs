@@ -14,16 +14,22 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 {
     public class ModelPrimitiveEntry : DefaultWrapper
     {
-        public int ID, Flags, VerticeCount, VertexFlags, RenderMode, VertexStartIndex, VertexBufferOffset, IndexBufferOffset, 
+        public int ID, Flags, VerticeCount, VertexFlags, RenderMode, VertexStartIndex, VertexBufferOffset, IndexBufferOffset,
             IndexCount, IndexStartIndex, BoneMapStartIndex, PrimitiveJointLinkCount, MinVertexindex, MaxVertexIndex, Unknown2C,
              p, VertexStride, reIndexBufferOffset;
 
         public long PrimitiveJointLinkPtr;
 
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public struct Indices
         {
-            public int GroupID, MaterialIndex, LODIndex;            
+
+            public int GroupID { get; set; }
+            public int MaterialIndex { get; set; }
+            public int LODIndex { get; set; }
+
         }
+
         public Indices Indice;
 
         public struct MTShader
@@ -133,21 +139,13 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
             }
         }
 
+        
         [Category("Primitive"), ReadOnlyAttribute(true)]
         public Indices IndiceList
         {
-
-            get
-            {
-                return Indice;
-            }
-            set
-            {
-                Indice = value;
-            }
+            get { return Indice; }
         }
-
-
+        
         [Category("Primitive"), ReadOnlyAttribute(true)]
         public int PrimitiveJointLinkTotal
         {
@@ -205,7 +203,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
         }
 
         [Category("Primitive"), ReadOnlyAttribute(true)]
-        public long PrimJointLinkPointer 
+        public long PrimJointLinkPointer
         {
 
             get
@@ -217,6 +215,21 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
                 PrimitiveJointLinkPtr = value;
             }
         }
+        /*
+        [Category("Primitive"), ReadOnlyAttribute(true)]
+        public byte[] IndexByteArray
+        {
+
+            get
+            {
+                return IndexBuffer;
+            }
+            set
+            {
+                IndexBuffer = value;
+            }
+        }
+        */
 
         #endregion
 

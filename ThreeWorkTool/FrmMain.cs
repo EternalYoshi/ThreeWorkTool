@@ -21,6 +21,7 @@ using static ThreeWorkTool.Resources.Wrappers.MaterialEntry;
 using Kaitai;
 using System.Numerics;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes.Kaitai;
+using ThreeWorkTool.Resources.Utility;
 
 namespace ThreeWorkTool
 {
@@ -81,6 +82,7 @@ namespace ThreeWorkTool
         public List<string> RPLNameList;
         public bool UseManifest, ExportAsDDS;
         public static FrmRename frename;
+        public static FrmSpecialRename fspcrename;
         public static FrmReplace freplace;
         public static FrmTxtEditor frmTxtEdit;
         public static FrmTexEncodeDialog frmtexencode;
@@ -3921,9 +3923,17 @@ namespace ThreeWorkTool
             var addstqritem = new ToolStripMenuItem("Add New STQR Node", null, AddSTQRNode_Click, Keys.Control | Keys.Shift | Keys.A);
             conmenu.Items.Add(addstqritem);
 
+            //Add Entry from sngw file.
+            var addstqritemfromSNGW = new ToolStripMenuItem("Add New STQR Node For BGM .SNGW File", null, AddSTQRNodeFromBGM_Click, Keys.Control | Keys.Shift | Keys.A);
+            conmenu.Items.Add(addstqritemfromSNGW);
+
             //Add Event.
             var addstqrevent = new ToolStripMenuItem("Add New STQR Event", null, AddSTQREvent_Click, Keys.Control | Keys.Shift | Keys.Q);
-            conmenu.Items.Add(addstqrevent);
+            conmenu.Items.Add(addstqrevent);            
+
+            //Add Event, but with a template for new character BGM.
+            var addstqrbgmevent = new ToolStripMenuItem("Add New STQR Event for Character Themes", null, AddSTQREventForBGM_Click, Keys.Control | Keys.Shift | Keys.Q);
+            conmenu.Items.Add(addstqrbgmevent);
 
             conmenu.Items.Add(new ToolStripSeparator());
 
@@ -3996,7 +4006,7 @@ namespace ThreeWorkTool
 
         private static void AddSTQRNode_Click(Object sender, System.EventArgs e)
         {
-            
+
             //Time To add the new entry to the data of the sqtr.
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
             STQREntry stqr = tag as STQREntry;
@@ -4033,8 +4043,108 @@ namespace ThreeWorkTool
             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
             ContextMenuStrip conmenu = new ContextMenuStrip();
             stqr.EntryCount = stqr.EntryCount + 1;
+            frename.Mainfrm.OpenFileModified = true;
 
         }
+
+        private static void AddSTQRNodeFromBGM_Click(Object sender, System.EventArgs e)
+        {
+
+            MessageBox.Show("First, hand over the .sngw file so I can fill in the file data.\n Make sure it's in the correct directory.\n( i.e sound\\bgm\\source)");
+            OpenFileDialog IMPDialog = new OpenFileDialog();
+            IMPDialog.Filter = "MT Framework Background Music File (*.sngw)|*.sngw";
+            if (IMPDialog.ShowDialog() == DialogResult.OK)
+            {
+                
+                //Time To add the new entry to the data of the sqtr.
+                var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+                STQREntry stqr = tag as STQREntry;
+                int NewIndex = stqr.EntryList.Count;
+                STQRNode entry = new STQRNode();
+
+                //This is where we read the file to fill in the data.
+
+                string TempName = IMPDialog.FileName;
+                string TrueName = "";
+                List<string> subnames = new List<string>();
+
+                //Gets the filename without subdirectories.
+                if (TempName.Contains("\\"))
+                {
+                    string[] splstr = TempName.Split('\\');
+
+                    //foreach (string v in splstr)
+                    for (int v = 0; v < (splstr.Length - 1); v++)
+                    {
+                        if (!subnames.Contains(splstr[v]))
+                        {
+                            subnames.Add(splstr[v]);
+                        }
+                    }
+
+
+                    TrueName = TempName.Substring(TempName.IndexOf("\\") + 1);
+                    Array.Clear(splstr, 0, splstr.Length);
+
+                    while (TrueName.Contains("\\"))
+                    {
+                        TrueName = TrueName.Substring(TrueName.IndexOf("\\") + 1);
+                    }
+                }
+                else
+                {
+                    TrueName = TempName;
+                }
+
+                TrueName = Path.GetFileNameWithoutExtension(TrueName);
+
+
+
+                string ProperPath = "sound\\bgm\\source\\" + TrueName;
+
+                entry.FilePath = ProperPath;
+                entry.LoopStart = -1;
+                entry.LoopEnd = -1;
+                entry.FileSize = Convert.ToInt32(new System.IO.FileInfo(IMPDialog.FileName).Length);
+                entry.index = NewIndex;
+                entry.SampleRate = 48000;
+                entry.EntryTypeHash = "255D51CD";
+                entry.ChannelCount = 6;
+
+                stqr.EntryList.Add(entry);
+
+                TreeNodeCollection TNoCollection = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
+
+                foreach (TreeNode node in TNoCollection)
+                {
+                    if (node.Tag as string != null)
+                    {
+                        if (node.Text as string == "Entries")
+                        {
+                            frename.Mainfrm.TreeSource.SelectedNode = node;
+                            break;
+                        }
+                    }
+                }
+
+                //New node time.
+                ArcEntryWrapper stq = new ArcEntryWrapper();
+                stq.Name = Convert.ToString(stqr.EntryList[NewIndex].FilePath);
+                stq.Tag = stqr.EntryList[NewIndex];
+                stq.Text = Convert.ToString(stqr.EntryList[NewIndex].FilePath);
+                stq.ImageIndex = 16;
+                stq.SelectedImageIndex = 16;
+                frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
+                ContextMenuStrip conmenu = new ContextMenuStrip();
+                stqr.EntryCount = stqr.EntryCount + 1;
+                frename.Mainfrm.OpenFileModified = true;
+                
+            }
+
+
+
+
+            }
 
         private static void AddSTQREvent_Click(Object sender, System.EventArgs e)
         {
@@ -4088,6 +4198,69 @@ namespace ThreeWorkTool
             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
             ContextMenuStrip conmenu = new ContextMenuStrip();
             stqr.MetadataEntryCount = stqr.MetadataEntryCount + 1;
+            frename.Mainfrm.OpenFileModified = true;
+
+        }
+
+        private static void AddSTQREventForBGM_Click(Object sender, System.EventArgs e)
+        {
+            //Time To add the new event to the data of the sqtr.
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            STQREntry stqr = tag as STQREntry;
+            int NewIndex = stqr.Events.Count;
+            STQREventData stqrevent = new STQREventData();
+            stqrevent.EventEntryID = Convert.ToInt16(NewIndex);
+            //These are common values for these variables in many files so I'd assume these are ideal for a "default" valued event.
+            stqrevent.index = stqrevent.EventEntryID;
+            stqrevent.UnknownValue04 = 1;
+            stqrevent.UnknownValue08 = 10;
+            stqrevent.UnknownValue0C = 1;
+            stqrevent.UnknownValue19 = 1;
+            stqrevent.UnknownValue1C = 1;
+            stqrevent.UnknownValue20 = -1;
+            stqrevent.UnknownValue22 = -1;
+            stqrevent.UnknownValue28 = -96;
+            stqrevent.UnknownValue38 = -1;
+            stqrevent.UnknownValue3C = -1;
+            stqrevent.UnknownValue40 = -1;
+            stqrevent.UnknownValue48 = 1000;
+            stqrevent.UnknownValue60 = 1;
+            stqrevent.UnknownValue64 = -96;
+            stqrevent.UnknownValue68 = 100;
+            stqrevent.UnknownValue6C = -1;
+            stqrevent.UnknownValue70 = -1;
+            stqrevent.UnknownValue72 = -1;
+            stqrevent.UnknownValue80 = -1;
+            stqrevent.VolumeModifier = -4;
+            stqrevent.PossibleEntryID = (stqr.EntryList.Count);
+
+            stqr.Events.Add(stqrevent);
+
+            TreeNodeCollection TNoCollection = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
+
+            foreach (TreeNode node in TNoCollection)
+            {
+                if (node.Tag as string != null)
+                {
+                    if (node.Text as string == "Events")
+                    {
+                        frename.Mainfrm.TreeSource.SelectedNode = node;
+                        break;
+                    }
+                }
+            }
+
+            //New node time.
+            ArcEntryWrapper stq = new ArcEntryWrapper();
+            stq.Name = Convert.ToString(stqr.Events[NewIndex].EventEntryID);
+            stq.Tag = stqr.Events[NewIndex];
+            stq.Text = Convert.ToString(stqr.Events[NewIndex].EventEntryID);
+            stq.ImageIndex = 16;
+            stq.SelectedImageIndex = 16;
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+            stqr.MetadataEntryCount = stqr.MetadataEntryCount + 1;
+            frename.Mainfrm.OpenFileModified = true;
 
         }
 
@@ -4807,11 +4980,15 @@ namespace ThreeWorkTool
                             //Removes the old child nodes.
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
 
+
+
                             //Creates the Material Children of the new node.
                             frename.Mainfrm.MaterialChildrenCreation(NewWrapper, NewWrapper.Tag as MaterialEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
                             frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
                             frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
+
+
                             break;
 
                         default:
@@ -7296,6 +7473,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.TreeSource.SelectedNode = MRLselectednode;
 
+
                         //Creates the Material Children of the new node.
                         frename.Mainfrm.MaterialChildrenCreation(MRLselectednode, MRLselectednode.Tag as MaterialEntry);
                         frename.Mainfrm.TreeSource.SelectedNode = MRLselectednode;
@@ -8640,6 +8818,7 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = MRLselectednode.Parent;
+
 
                             //Creates the Material Children of the new node.
                             frename.Mainfrm.MaterialChildrenCreation(MRLselectednode, MRLselectednode.Tag as MaterialEntry);
@@ -10467,6 +10646,13 @@ namespace ThreeWorkTool
             frename.Mainfrm.TreeSource.EndUpdate();
         }
 
+        private static void RenameMaterialNode(Object sender, System.EventArgs e)
+        {
+            FrmSpecialRename frsn = new FrmSpecialRename();
+            frsn = fspcrename;
+            frsn.ShowIt();
+        }
+
         private void TreeFill(string D, int E, ArcFile archivearc)
         {
             TreeSource.Nodes.Clear();
@@ -10729,6 +10915,7 @@ namespace ThreeWorkTool
 
 
                     matchild.ContextMenuStrip = MaterialContextAddder(matchild, TreeSource);
+
 
                     //Makes Child Nodes for Texture references. More to come.
                     MaterialChildrenCreation(matchild, ment);
@@ -11452,42 +11639,11 @@ namespace ThreeWorkTool
 
             TreeSource.SelectedNode = MEntry;
 
-            //Makes the Material Subfolder.
-            TreeNode foldert = new TreeNode();
-            foldert.Name = "Textures";
-            foldert.Tag = "Folder";
-            foldert.Text = "Textures";
-            //foldert.ContextMenuStrip = FolderContextAdder(foldert, TreeSource);
-            TreeSource.SelectedNode.Nodes.Add(foldert);
-            TreeSource.SelectedNode = foldert;
-            TreeSource.SelectedNode.ImageIndex = 2;
-            TreeSource.SelectedNode.SelectedImageIndex = 2;
-
-            //Fills in Textures used in the Texture folder.
-            for (int i = 0; i < material.TextureCount; i++)
-            {
-
-                ArcEntryWrapper Texture = new ArcEntryWrapper();
-                Texture.Name = material.Textures[i].FullTexName;
-                Texture.Tag = material.Textures[i];
-                Texture.Text = material.Textures[i].FullTexName;
-                TreeSource.SelectedNode.Nodes.Add(Texture);
-                ContextMenuStrip conmenu = new ContextMenuStrip();
-
-                var Mrnitem = new ToolStripMenuItem("Change Texture Reference via Rename", null, MenuItemRenameFile_Click, Keys.F2);
-                conmenu.Items.Add(Mrnitem);
-                Texture.ContextMenuStrip = conmenu;
-
-            }
-
-            TreeSource.SelectedNode = MEntry;
-
-            //Makes the Texture Subfolder.
+            //Makes the Materials Subfolder.
             TreeNode folder = new TreeNode();
             folder.Name = "Materials";
             folder.Tag = "Folder";
             folder.Text = "Materials";
-            //folder.ContextMenuStrip = FolderContextAdder(folder, TreeSource);
 
             TreeSource.SelectedNode.Nodes.Add(folder);
             TreeSource.SelectedNode = folder;
@@ -11499,11 +11655,26 @@ namespace ThreeWorkTool
             {
 
                 ArcEntryWrapper Material = new ArcEntryWrapper();
-                Material.Name = material.Materials[i].NameHash;
+
+                long intValue = Convert.ToInt64(material.Materials[i].NameHash, 16);
+                string IntHash = Convert.ToString(intValue);
+                //Gets the actual Material Name.
+                Material.Name = CFGHandler.MaterialHashToName(Material.Name, IntHash);
                 Material.Tag = material.Materials[i];
-                Material.Text = material.Materials[i].NameHash;
-                TreeSource.SelectedNode.Nodes.Add(Material);
+                Material.Text = CFGHandler.MaterialHashToName(Material.Text, IntHash);
                 ContextMenuStrip conmenu = new ContextMenuStrip();
+
+                //Rename.
+                var rnitem = new ToolStripMenuItem("Rename Material", null, RenameMaterialNode, Keys.F2);
+                conmenu.Items.Add(rnitem);
+
+                //Delete.
+                var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+                conmenu.Items.Add(delitem);
+
+                Material.ContextMenuStrip = conmenu;
+                TreeSource.SelectedNode.Nodes.Add(Material);
+
 
             }
 
@@ -12338,6 +12509,10 @@ namespace ThreeWorkTool
                 frn.Mainfrm = this;
                 frename = frn;
 
+                FrmSpecialRename frsn = new FrmSpecialRename();
+                frsn.Mainfrm = this;
+                fspcrename = frsn;
+
                 FrmReplace frp = new FrmReplace();
                 frn.Mainfrm = this;
                 freplace = frp;
@@ -12762,7 +12937,7 @@ namespace ThreeWorkTool
 
                 #endregion
 
-                #region Model Primitives
+                #region Model
                 case "ThreeWorkTool.Resources.Wrappers.ModelEntry":
                     ModelEntry modelEntry = new ModelEntry();
                     modelEntry = TreeSource.SelectedNode.Tag as ModelEntry;
@@ -12777,7 +12952,22 @@ namespace ThreeWorkTool
 
                 #endregion
 
-                #region Model
+                #region Model Group
+                case "ThreeWorkTool.Resources.Wrappers.ModelNodes.ModelGroupEntry":
+                    ModelGroupEntry modelGroupEntry = new ModelGroupEntry();
+                    modelGroupEntry = TreeSource.SelectedNode.Tag as ModelGroupEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                #endregion
+
+                #region Model Primitives
                 case "ThreeWorkTool.Resources.Wrappers.ModelNodes.ModelPrimitiveEntry":
                     ModelPrimitiveEntry modelPrimEntry = new ModelPrimitiveEntry();
                     modelPrimEntry = TreeSource.SelectedNode.Tag as ModelPrimitiveEntry;

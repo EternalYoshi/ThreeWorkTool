@@ -47,9 +47,10 @@ namespace ThreeWorkTool.Resources.Wrappers
         public struct MaterialCmdListInfo
         {
             public int Count;
-            public int Unknown;
+            public int CmdListFlags;
         }
 
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public struct MatCmd
         {
             public const int SIZE = 0x18;
@@ -60,6 +61,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             public int SomeField14;
         }
 
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public struct MatCmdInfo
         {
             public int SomeValue;
@@ -67,6 +69,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             public int ShaderObjectIndex;
         }
 
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public struct MatCmdData
         {
             public ulong ConstantBufferDataOffset;
@@ -76,7 +79,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         public MaterialMaterialEntry FIllMatMatEntryPropertiesPart1(MaterialMaterialEntry MME, MaterialEntry ParentMat ,BinaryReader bnr, int OffsetToStart, int ID)
         {
-            
+
+            //Experimental.
             MME.Index = ID;
             MME.TypeHash = ByteUtilitarian.BytesToStringL2R(bnr.ReadBytes(4).ToList(), MME.TypeHash);
 
@@ -87,7 +91,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             byte[] NameHashBytes = bnr.ReadBytes(4);
             MME.NameHash = ByteUtilitarian.BytesToStringL2R(NameHashBytes.ToList(), MME.TypeHash);
             NameTemp = BitConverter.ToUInt32(NameHashBytes, 0);
-            
+
             //ShaderObjects.
             MME.BlendState = new MatShaderObject();
             MME.DepthStencilState = new MatShaderObject();
@@ -107,7 +111,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             MME.DepthStencilState.Hash = "";
             MME.DepthStencilState.Hash = CFGHandler.ShaderHashToName(MME.DepthStencilState.Hash, Convert.ToInt32(MME.DepthStencilState.Index));
 
-
             ShadeTemp = bnr.ReadBytes(4);
             ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
             MME.RasterizerState.Index = (ShadeUInt & 0x00000FFF);
@@ -119,7 +122,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             ShadeTemp = bnr.ReadBytes(4);
             ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
             MME.MaterialCommandListInfo.Count = Convert.ToInt32(ShadeUInt & 0xFFF);
-            MME.MaterialCommandListInfo.Unknown = Convert.ToInt32(ShadeUInt & 0xFFFF000);
+            MME.MaterialCommandListInfo.CmdListFlags = Convert.ToInt32(ShadeUInt >> 0xC);
             MME.MaterialinfoFlags = ByteUtilitarian.BytesToStringL2R(bnr.ReadBytes(4).ToList(), MME.MaterialinfoFlags);
             MME.UnknownField24 = bnr.ReadInt32();
             MME.UnknownField28 = bnr.ReadInt32();
@@ -129,7 +132,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             MME.CmdListOffset = Convert.ToInt32(bnr.ReadInt64());
             MME.AnimDataOffset = Convert.ToInt32(bnr.ReadInt64());
             OffsetToStart = Convert.ToInt32(bnr.BaseStream.Position);
-            
+
             return MME;
 
         }
@@ -190,8 +193,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        #region MaterialSubEntry Properties
-        [Category("Material Data"), ReadOnlyAttribute(true)]
+#region MaterialSubEntry Properties
+        [Category("Material Data"), ReadOnlyAttribute(false)]
         public string MaterialType
         {
 
@@ -206,22 +209,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        [Category("Material Data"), ReadOnlyAttribute(true)]
-        public ulong BlendStateIndex
-        {
-
-            get
-            {
-                return BlendState.Index;
-            }
-            set
-            {
-                BlendState.Index = value;
-            }
-
-        }
-
-        [Category("Material Data"), ReadOnlyAttribute(true)]
+        [Category("Material Data"), ReadOnlyAttribute(false)]
         public string BlendStateType
         {
 
@@ -236,22 +224,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        [Category("Material Data"), ReadOnlyAttribute(true)]
-        public ulong DepthStencilStateIndex
-        {
-
-            get
-            {
-                return DepthStencilState.Index;
-            }
-            set
-            {
-                DepthStencilState.Index = value;
-            }
-
-        }
-
-        [Category("Material Data"), ReadOnlyAttribute(true)]
+        [Category("Material Data"), ReadOnlyAttribute(false)]
         public string DepthStencilStateType
         {
 
@@ -266,22 +239,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        [Category("Material Data"), ReadOnlyAttribute(true)]
-        public ulong RasterizerStateIndex
-        {
-
-            get
-            {
-                return RasterizerState.Index;
-            }
-            set
-            {
-                RasterizerState.Index = value;
-            }
-
-        }
-
-        [Category("Material Data"), ReadOnlyAttribute(true)]
+        [Category("Material Data"), ReadOnlyAttribute(false)]
         public string RasterizerStateType
         {
 
@@ -294,6 +252,34 @@ namespace ThreeWorkTool.Resources.Wrappers
                 RasterizerState.Hash = value;
             }
 
+        }
+
+        [Category("Material Data"), ReadOnlyAttribute(false)]
+        public string matFlags
+        {
+
+            get
+            {
+                return MaterialinfoFlags;
+            }
+            set
+            {
+                MaterialinfoFlags = value;
+            }
+        }
+
+        [Category("Material Data"), ReadOnlyAttribute(false)]
+        public int cmdListFlags
+        {
+
+            get
+            {
+                return MaterialCommandListInfo.CmdListFlags;
+            }
+            set
+            {
+                MaterialCommandListInfo.CmdListFlags = value;
+            }
         }
 
         private string _Name;
@@ -353,7 +339,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
         }
 
-        #endregion
+#endregion
 
 
     }

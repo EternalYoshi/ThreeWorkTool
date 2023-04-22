@@ -13,6 +13,7 @@ namespace ThreeWorkTool.Resources.Wrappers
     {
         public string FullTexName;
         public string TypeHash;
+        public string TypeName;
         public int UnknownParam04;
         public int UnknownParam08;
         public int UnknownParam0C;

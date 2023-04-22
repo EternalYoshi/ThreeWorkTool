@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -20,10 +21,12 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
         public int Field08;
         public int Field0C;
         public BoundingSphere SphereBound;
+
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public struct BoundingSphere
         {
             public Vector3 Center;
-            public float Radius;
+            public float Radius { get; set; }
         }
 
         public ModelGroupEntry FillModelGroupEntry(ModelGroupEntry MGE, ModelEntry ParentMod, BinaryReader bnr, int OffsetToStart, int ID)
@@ -46,7 +49,25 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 
         }
 
+        #region Model Group Entry Properties
 
+        [Category("Group"), ReadOnlyAttribute(true)]
+        public float Radius 
+        {
+
+            get
+            {
+                return SphereBound.Radius;
+            }
+            set
+            {
+                SphereBound.Radius = value;
+            }
+        }
+
+
+
+        #endregion
 
 
 

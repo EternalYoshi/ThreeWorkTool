@@ -1,4 +1,5 @@
 ﻿using Ionic.Zlib;
+using Kaitai;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,6 +24,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int Length;
         public List<int> OffsetList;
         public List<LMTM3AEntry> LstM3A;
+        public Lmt MotionData;
+        //public List<Lmt.Animentry> MotionEntries;
 
         public static LMTEntry FillLMTEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -88,11 +91,58 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     }
 
+                    bnr.BaseStream.Position = 0;
+
                 }
 
-                return lmtentry;
+            }
+
+            //Only runs in debug mode. Nabs the Keyframes through the KaitaiStruct coding.
+#if DEBUG
+            lmtentry.MotionData = new Lmt(new KaitaiStream(lmtentry.UncompressedData));
+
+
+            for (int j = 0; j < lmtentry.LstM3A.Count; j++)
+            {
+                Lmt.Animentry Anim = lmtentry.MotionData.Entries[j].Entry;
+                if (Anim != null)
+                {
+                    int Framecount = Anim.Numframes;
+                    for (int k = 0; k < Anim.Tracklist.Count; k++)
+                    {
+                        if (Anim.Tracklist[k].Boneid == 255)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            if (Anim.Tracklist[k].Buffer != null)
+                            {
+
+
+
+
+                            }
+
+
+                        }
+
+
+
+                    }
+
+                }
+                //    var anim = 
 
             }
+
+#endif
+
+
+            return lmtentry;
+
+
+
         }
 
         public static LMTEntry ReplaceLMTEntry(TreeView tree, ArcEntryWrapper node, ArcEntryWrapper OldNode, string filename, Type filetype = null)

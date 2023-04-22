@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Archives;
+using ThreeWorkTool.Resources.Utility;
 using ThreeWorkTool.Resources.Wrappers;
 using static ThreeWorkTool.Resources.Wrappers.MaterialEntry;
 
@@ -59,8 +60,16 @@ namespace ThreeWorkTool
 
         private void btnROK_Click(object sender, EventArgs e)
         {
-
             string newname = txtRename.Text;
+
+            /*
+            //Checks the filename for legal characters.
+            if (CFGHandler.ContainsInValidFilenameCharacters(newname) == true)
+            {
+                MessageBox.Show("The chosen name has invalid filename characters. Take them out.", "Uhhh");
+                return;
+            }
+            */
 
             //Checks for blank/null names.
             if (newname == null || newname == "")
@@ -85,7 +94,7 @@ namespace ThreeWorkTool
                 {
                     ae = node_.Tag as ArcEntry;
                 }
-                
+
                 if (c.Tag is ArcEntry)
                 {
                     se = c.Tag as ArcEntry;
@@ -122,6 +131,7 @@ namespace ThreeWorkTool
             }
             else if (treeview.SelectedNode.Tag != null && treeview.SelectedNode.Tag is MaterialTextureReference)
             {
+
                 //Goes about accessing and updating the data inside the material in a roundabout way.
                 MaterialTextureReference texref = treeview.SelectedNode.Tag as MaterialTextureReference;
                 MaterialEntry mentry = new MaterialEntry();
@@ -131,7 +141,7 @@ namespace ThreeWorkTool
                 parent = treeview.SelectedNode.Parent;
                 treeview.SelectedNode = parent;
                 mentry = treeview.SelectedNode.Tag as MaterialEntry;
-                if(mentry != null)
+                if (mentry != null)
                 {
                     //Now for the actual file update.                    
                     List<byte> NameToInject = new List<byte>();
@@ -146,8 +156,50 @@ namespace ThreeWorkTool
                 }
                 treeview.SelectedNode = child;
             }
+            else if (treeview.SelectedNode.Tag as string == "Model Material Reference")
+            {
+
+                treeview.Update();
+                ModelEntry mentry = new ModelEntry();
+                TreeNode parent = treeview.SelectedNode.Parent;
+                TreeNode child = treeview.SelectedNode;
+                treeview.SelectedNode = parent;
+                TreeNode folder = treeview.SelectedNode;
+                parent = treeview.SelectedNode.Parent;
+                treeview.SelectedNode = parent;
+                mentry = treeview.SelectedNode.Tag as ModelEntry;
+                int OffsetToUse;
+
+                if (mentry != null)
+                {
+                    for(int w = 0; w < folder.Nodes.Count; w++)
+                    {
+                        //Now for the actual file update.                    
+                        List<byte> NameToInject = new List<byte>();
+                        NameToInject.AddRange(Encoding.ASCII.GetBytes(folder.Nodes[w].Text));
+                        OffsetToUse = mentry.MaterialsOffset + (128 *(w));
+                        byte[] NewName = new byte[128];
+
+                        Array.Copy(NameToInject.ToArray(), 0, NewName, 0, NameToInject.ToArray().Length);
+                        Array.Copy(NewName, 0, mentry.UncompressedData, OffsetToUse, NewName.Length);
+                        mentry.CompressedData = Zlibber.Compressor(mentry.UncompressedData);
+                        parent.Tag = mentry;
+
+                    }
+                    treeview.SelectedNode = child;
+
+                    //Gets the names first.
+                    //List<NamesToUse>
+
+                    //Now for the actual file update.
+
+
+                }
+
+            }
 
             Mainfrm.OpenFileModified = true;
+            treeview.EndUpdate();
 
             //Closes form with changes made above.
             DialogResult = DialogResult.OK;

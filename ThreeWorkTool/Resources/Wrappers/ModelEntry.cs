@@ -40,8 +40,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int ExtraDataOffset;
         public Vector3 BoundingSphere;
         public float BoundingSphereRadius;
-        public Vector4 BoundingBoxMin;
-        public Vector4 BoundingBoxMax;
+        public Vector4 BoundingBoxCenter;
+        public Vector4 BoundingBoxRadius;
         public new static string TypeHash = "58A15856";
         public int Field90;
         public int Field94;
@@ -52,6 +52,10 @@ namespace ThreeWorkTool.Resources.Wrappers
         public List<ModelBoneEntry> Bones;
         public List<ModelGroupEntry> Groups;
         public List<ModelPrimitiveEntry> Primitives;
+        public List<ModelPrimitiveJointLinkEntry> PLJs;
+        public byte[] VertexBuffer;
+        public byte[] IndexBuffer;
+        public byte[] ExtraDataBuffer;
 
         public static ModelEntry FillModelEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -160,18 +164,18 @@ namespace ThreeWorkTool.Resources.Wrappers
             modentry.BoundingSphereRadius = bnr.ReadSingle();
 
             //Bounding Boxes.
-            modentry.BoundingBoxMin = new Vector4();
-            modentry.BoundingBoxMax = new Vector4();
+            modentry.BoundingBoxCenter = new Vector4();
+            modentry.BoundingBoxRadius = new Vector4();
 
-            modentry.BoundingBoxMin.X = bnr.ReadSingle();
-            modentry.BoundingBoxMin.Y = bnr.ReadSingle();
-            modentry.BoundingBoxMin.Z = bnr.ReadSingle();
-            modentry.BoundingBoxMin.W = bnr.ReadSingle();
+            modentry.BoundingBoxCenter.X = bnr.ReadSingle();
+            modentry.BoundingBoxCenter.Y = bnr.ReadSingle();
+            modentry.BoundingBoxCenter.Z = bnr.ReadSingle();
+            modentry.BoundingBoxCenter.W = bnr.ReadSingle();
 
-            modentry.BoundingBoxMax.X = bnr.ReadSingle();
-            modentry.BoundingBoxMax.Y = bnr.ReadSingle();
-            modentry.BoundingBoxMax.Z = bnr.ReadSingle();
-            modentry.BoundingBoxMax.W = bnr.ReadSingle();
+            modentry.BoundingBoxRadius.X = bnr.ReadSingle();
+            modentry.BoundingBoxRadius.Y = bnr.ReadSingle();
+            modentry.BoundingBoxRadius.Z = bnr.ReadSingle();
+            modentry.BoundingBoxRadius.W = bnr.ReadSingle();
 
             modentry.Field90 = bnr.ReadInt32();
             modentry.Field94 = bnr.ReadInt32();
@@ -235,7 +239,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 //For the Indice.
                 Prim.Indice = new ModelPrimitiveEntry.Indices();
-                Prim.Indice.GroupID = Convert.ToInt32(PrimIndTemp & 0xFF);
+                Prim.Indice.GroupID = Convert.ToInt32(PrimIndTemp & 0xFFF);
                 Prim.Indice.LODIndex = Convert.ToInt32((PrimIndTemp >> (8 * 3)) & 0xFF);
                 Prim.Indice.MaterialIndex = Convert.ToInt32((PrimIndTemp & 0xFFF000) >> 12);
 
@@ -263,26 +267,119 @@ namespace ThreeWorkTool.Resources.Wrappers
                 Prim.Unknown2C = bnr.ReadInt32();
                 Prim.PrimitiveJointLinkPtr = bnr.ReadInt64();
 
+                modentry.Primitives.Add(Prim);
+                /*
                 //Saves the current position then gets the Indexbuffer.
                 PrevAddr = Convert.ToInt32(bnr.BaseStream.Position);
                 bnr.BaseStream.Position = IndexBufferOffset;
                 IndexBufferByteCount = Prim.IndexCount * 2;
                 Prim.IndexBuffer = bnr.ReadBytes(IndexBufferByteCount);
 
-                //Now for the Vertex Buffer.
-
-                //bnr.BaseStream.Position = VertBufferOffset;
-
                 //Adds the finished Primitive data to the list of Primitives.
                 modentry.Primitives.Add(Prim);
                 IndexBufferOffset = Convert.ToInt32(bnr.BaseStream.Position);
+                
                 bnr.BaseStream.Position = PrevAddr;
+                */
+            }
+
+            int OffsetSaverA = Convert.ToInt32(bnr.BaseStream.Position);
+            modentry.PLJs = new List<ModelPrimitiveJointLinkEntry>();
+
+            //Primitive Joint Links.
+            for (int v = 0; v < modentry.PrimitiveJointLinkCount; v++)
+            {
+                ModelPrimitiveJointLinkEntry plj = new ModelPrimitiveJointLinkEntry();
+
+                plj.JointIndex = bnr.ReadInt32();
+                plj.Unknwon04 = bnr.ReadInt32();
+                plj.Unknown08 = bnr.ReadInt32();
+                plj.Unknwon0C = bnr.ReadInt32();
+
+                plj.BoundingSphere = new Vector4();
+                plj.BoundingSphere.X = bnr.ReadSingle();
+                plj.BoundingSphere.Y = bnr.ReadSingle();
+                plj.BoundingSphere.Z = bnr.ReadSingle();
+                plj.BoundingSphere.W = bnr.ReadSingle();
+
+                plj.PLJMin = new Vector4();
+                plj.PLJMin.X = bnr.ReadSingle();
+                plj.PLJMin.Y = bnr.ReadSingle();
+                plj.PLJMin.Z = bnr.ReadSingle();
+                plj.PLJMin.W = bnr.ReadSingle();
+
+                plj.PLJMax = new Vector4();
+                plj.PLJMax.X = bnr.ReadSingle();
+                plj.PLJMax.Y = bnr.ReadSingle();
+                plj.PLJMax.Z = bnr.ReadSingle();
+                plj.PLJMax.W = bnr.ReadSingle();
+
+                plj.LocalMtx = new ModelPrimitiveJointLinkEntry.MTMatrix();
+                plj.LocalMtx.Rows = new List<Vector4>();
+
+                Vector4 VexM1 = new Vector4();
+                VexM1.X = bnr.ReadSingle();
+                VexM1.Y = bnr.ReadSingle();
+                VexM1.Z = bnr.ReadSingle();
+                VexM1.W = bnr.ReadSingle();
+
+                plj.LocalMtx.Rows.Add(VexM1);
+
+                Vector4 VexM2 = new Vector4();
+                VexM2.X = bnr.ReadSingle();
+                VexM2.Y = bnr.ReadSingle();
+                VexM2.Z = bnr.ReadSingle();
+                VexM2.W = bnr.ReadSingle();
+
+                plj.LocalMtx.Rows.Add(VexM2);
+
+                Vector4 VexM3 = new Vector4();
+                VexM3.X = bnr.ReadSingle();
+                VexM3.Y = bnr.ReadSingle();
+                VexM3.Z = bnr.ReadSingle();
+                VexM3.W = bnr.ReadSingle();
+
+                plj.LocalMtx.Rows.Add(VexM3);
+
+                Vector4 VexM4 = new Vector4();
+                VexM4.X = bnr.ReadSingle();
+                VexM4.Y = bnr.ReadSingle();
+                VexM4.Z = bnr.ReadSingle();
+                VexM4.W = bnr.ReadSingle();
+
+                plj.LocalMtx.Rows.Add(VexM4);
+
+                plj.UnknownVec80 = new Vector4();
+                plj.UnknownVec80.X = bnr.ReadSingle();
+                plj.UnknownVec80.Y = bnr.ReadSingle();
+                plj.UnknownVec80.Z = bnr.ReadSingle();
+                plj.UnknownVec80.W = bnr.ReadSingle();
+
+                modentry.PLJs.Add(plj);
+
 
             }
+
+            //Now for the Vertex Buffer.
+            bnr.BaseStream.Position = modentry.VertexBufferOffset;
+            modentry.VertexBuffer = bnr.ReadBytes(modentry.VertexBufferSize);
+
+            //And The Indice Buffer.
+            bnr.BaseStream.Position = modentry.IndexBufferOffset;
+            modentry.IndexBuffer = bnr.ReadBytes(modentry.IndexCount);
+
+
 
             return modentry;
 
         }
+
+        //public static ModelEntry UpdateModelMatNames(BinaryReader bnr, ModelEntry modentry)
+        //{
+
+
+
+        //}
 
         #region Model Entry Properties
         [Category("Filename"), ReadOnlyAttribute(true)]
@@ -489,11 +586,11 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
             get
             {
-                return BoundingBoxMin;
+                return BoundingBoxCenter;
             }
             set
             {
-                BoundingBoxMin = value;
+                BoundingBoxCenter = value;
             }
         }
 
@@ -502,11 +599,11 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
             get
             {
-                return BoundingBoxMax;
+                return BoundingBoxRadius;
             }
             set
             {
-                BoundingBoxMax = value;
+                BoundingBoxRadius = value;
             }
         }
 
