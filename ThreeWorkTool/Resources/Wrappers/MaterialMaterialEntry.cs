@@ -37,6 +37,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public List<MatCmd> MaterialCommands;
         public byte[] ConstantBufferData;
         public int CommandBufferIndex;
+        public string SubMaterialYMLData;
 
         public struct MatShaderObject
         {
@@ -54,11 +55,17 @@ namespace ThreeWorkTool.Resources.Wrappers
         public struct MatCmd
         {
             public const int SIZE = 0x18;
+            public int cmdInt;
+            public string CmdType;
+            public string CmdName;
             public MatCmdInfo MCInfo;
             public int SomeField04;
-            public MatCmdData MaterialCommandValue;
+            public MatCmdData MaterialCommandData;
             public MatShaderObject CmdShaderObject;
             public int SomeField14;
+            public string DataStr;
+            public List<float> RawFloats;
+            public string FinalData;
         }
 
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -67,19 +74,24 @@ namespace ThreeWorkTool.Resources.Wrappers
             public int SomeValue;
             public string CmdFlag;
             public int ShaderObjectIndex;
+            public int TypeInt;
         }
 
         [TypeConverter(typeof(ExpandableObjectConverter))]
         public struct MatCmdData
         {
-            public ulong ConstantBufferDataOffset;
+
+            public long ConstantBufferDataOffset;
             public MatShaderObject VShaderObjectID;
-            public int TextureIndex;
+            public long TextureIndex;
+            public string FileRef;
+            public List<float> RawFloats;
+
         }
 
-        public MaterialMaterialEntry FIllMatMatEntryPropertiesPart1(MaterialMaterialEntry MME, MaterialEntry ParentMat ,BinaryReader bnr, int OffsetToStart, int ID)
+        public MaterialMaterialEntry FIllMatMatEntryPropertiesPart1(MaterialMaterialEntry MME, MaterialEntry ParentMat, BinaryReader bnr, int OffsetToStart, int ID)
         {
-
+            MME.SubMaterialYMLData = "";
             //Experimental.
             MME.Index = ID;
             MME.TypeHash = ByteUtilitarian.BytesToStringL2R(bnr.ReadBytes(4).ToList(), MME.TypeHash);
@@ -143,57 +155,235 @@ namespace ThreeWorkTool.Resources.Wrappers
             bnr.BaseStream.Position = MME.CmdListOffset;
             MME.MaterialCommands = new List<MatCmd>();
             ulong ShadeUInt = 0;
+            ulong TempUintTwo = 0;
             long UnionUTemp = 0;
+            long OffTemp = 0;
             byte[] ShadeTemp = new byte[4];
             byte[] UnionTemp = new byte[8];
 
-            
+
             for (int i = 0; i < MME.MaterialCommandListInfo.Count; i++)
             {
-                
+
                 MatCmd Command = new MatCmd();
 
                 //For the Command Info.
                 ShadeTemp = bnr.ReadBytes(4);
                 uint CmdInfoTemp = BitConverter.ToUInt32(ShadeTemp, 0);
-                Command.MCInfo = new MatCmdInfo();
-                Command.MCInfo.CmdFlag = ((ENumerators.IMatType)Convert.ToInt32(ShadeUInt & 0x1f)).ToString();
-                Command.MCInfo.SomeValue = Convert.ToInt32(ShadeUInt & 0x0000FFF0);
-                Command.MCInfo.ShaderObjectIndex = Convert.ToInt32((ShadeUInt >> 20) & 0x1fff);
 
+                //First Param.
+                Command.MCInfo = new MatCmdInfo();
+                Command.MCInfo.CmdFlag = ((ENumerators.IMatType)Convert.ToInt32(CmdInfoTemp & 0x1F)).ToString();
+                Command.MCInfo.SomeValue = Convert.ToInt32(CmdInfoTemp & 0x0000FFF0);
+                Command.MCInfo.ShaderObjectIndex = Convert.ToInt32((CmdInfoTemp >> 20) & 0x1fff);
+                Command.MCInfo.TypeInt = Convert.ToInt32(CmdInfoTemp & 0x1F);
                 Command.SomeField04 = bnr.ReadInt32();
 
-                //For the Union. Uggggh.
-                //0x0000000F
+                //For the Union.
                 UnionTemp = bnr.ReadBytes(8);
                 UnionUTemp = BitConverter.ToInt64(UnionTemp, 0);
-                Command.MaterialCommandValue = new MatCmdData();
-                Command.MaterialCommandValue.ConstantBufferDataOffset = Convert.ToUInt64(UnionUTemp);
-                Command.MaterialCommandValue.VShaderObjectID = new MatShaderObject();
-                Command.MaterialCommandValue.VShaderObjectID.Index = (BitConverter.ToUInt64(UnionTemp, 0) & 0x00000FFF);
-                Command.MaterialCommandValue.VShaderObjectID.Hash = "";
-                Command.MaterialCommandValue.VShaderObjectID.Hash = CFGHandler.ShaderHashToName(Command.MaterialCommandValue.VShaderObjectID.Hash, Convert.ToInt32(Command.MaterialCommandValue.VShaderObjectID.Index));
-                Command.MaterialCommandValue.TextureIndex = BitConverter.ToInt32(UnionTemp, 0);
 
-                Command.MaterialCommandValue.VShaderObjectID = new MatShaderObject();
                 ShadeTemp = bnr.ReadBytes(4);
-                Command.MaterialCommandValue.VShaderObjectID.Index = (BitConverter.ToUInt32(ShadeTemp, 0) & 0x00000FFF);
-                Command.MaterialCommandValue.VShaderObjectID.Hash = "";
-                Command.MaterialCommandValue.VShaderObjectID.Hash = CFGHandler.ShaderHashToName(MME.DepthStencilState.Hash, Convert.ToInt32(MME.DepthStencilState.Index));
-
+                uint ShObIDTemp = BitConverter.ToUInt32(ShadeTemp, 0);
+                ShObIDTemp = (ShObIDTemp & 0xFFFFF000) >> 12;
                 Command.SomeField14 = bnr.ReadInt32();
+                Command.cmdInt = Convert.ToInt32(ShadeUInt & 0x1f);
+                Command.CmdType = ((ENumerators.IMatType)Convert.ToInt32(ShadeUInt & 0x1f)).ToString();
+                Command.CmdName = CFGHandler.ShaderHashToName(Command.CmdName, Convert.ToInt32(BitConverter.ToUInt64(UnionTemp, 0) & 0x00000FFF));
+
+                OffTemp = bnr.BaseStream.Position;
+
+                //Second Param.
+                Command.MaterialCommandData = new MatCmdData();
+                Command.MaterialCommandData.ConstantBufferDataOffset = Convert.ToInt64(UnionUTemp);
+
+                Command.MaterialCommandData = GetMaterialCmdData(MME, Command, Command.MaterialCommandData, ShadeTemp, UnionTemp, Command.cmdInt, bnr, ShObIDTemp);
+                if(Command.MaterialCommandData.RawFloats != null)
+                {
+                    Command.RawFloats = new List<float>();
+                    Command.RawFloats = Command.MaterialCommandData.RawFloats;
+                }
+
+                if (Command.MCInfo.CmdFlag == "Texture")
+                {
+                    if (Command.MaterialCommandData.TextureIndex > 0)
+                    {
+                        Command.DataStr = ParentMat.Textures[Convert.ToInt32(Command.MaterialCommandData.TextureIndex - 1)].FullTexName;
+                    }
+                    else
+                    {
+                        Command.FinalData = Command.FinalData + "";
+                    }
+                }
+                else if (Command.MCInfo.CmdFlag == "Flag" || Command.MCInfo.CmdFlag == "Samplerstate")
+                {
+                    //Command.DataStr = CFGHandler.ShaderHashToName(Command.DataStr, Convert.ToInt32(BitConverter.ToUInt64(UnionTemp, 0) & 0x00000FFF));
+                    Command.DataStr = Command.MCInfo.CmdFlag;
+                }
+                else if (Command.MCInfo.CmdFlag == "Cbuffer")
+                {
+                    Command.DataStr = string.Join(",", Command.RawFloats);
+                }
+                else
+                {
+                    Command.DataStr = Command.MCInfo.CmdFlag;
+                }
 
                 MME.MaterialCommands.Add(Command);
-                
+                bnr.BaseStream.Position = OffTemp;
             }
-            
+
             MME.ConstantBufferData = bnr.ReadBytes(MME.CmdBufferSize);
 
+            int inttemp = int.Parse(MME.NameHash, System.Globalization.NumberStyles.HexNumber);
+            string DerpTemp = Convert.ToString(inttemp);
+            MME.MatName = CFGHandler.MaterialHashToName(MME.MatName, DerpTemp);
             return MME;
 
         }
 
-#region MaterialSubEntry Properties
+        //Gets all the needed data associated with the material command. Based off the code TGE wrote for the original model importer.
+        public static MatCmdData GetMaterialCmdData(MaterialMaterialEntry MME, MatCmd Command, MatCmdData cmd, byte[] ShadeTemp, byte[] UnionTemp, int cmdType, BinaryReader bnr, uint WeirdUint)
+        {
+
+            switch (Command.MCInfo.TypeInt)
+            {
+                //SetFlag
+                case 0:
+                    cmd.VShaderObjectID = new MatShaderObject();
+                    uint ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
+                    cmd.VShaderObjectID.Index = ShadeUInt & 0x00000FFF;
+                    cmd.VShaderObjectID.Hash = "";
+                    cmd.VShaderObjectID.Hash = CFGHandler.ShaderHashToName(cmd.VShaderObjectID.Hash, Convert.ToInt32(cmd.VShaderObjectID.Index));
+
+                    break;
+
+                //SetConstantBuffer
+                case 1:
+                    long temp = bnr.BaseStream.Position;
+
+                    //byte[] BTemp = new byte[] { };
+                    //BTemp = bnr.ReadBytes(4);
+                    //ulong BUInt = BitConverter.ToUInt32(BTemp, 0);
+                    //ulong Bindex = (BUInt & 0x00000FFF);
+
+                    bnr.BaseStream.Position = (long)MME.CmdListOffset + Command.MaterialCommandData.ConstantBufferDataOffset;
+                    string ShashT = WeirdUint.ToString("X");
+                    string HashTemp = "";
+
+                    HashTemp = CFGHandler.ShaderHashToNameTwo(HashTemp, ShashT);
+
+                    cmd.VShaderObjectID = new MatShaderObject();
+                    ShadeUInt = BitConverter.ToUInt32(ShadeTemp, 0);
+                    cmd.VShaderObjectID.Index = ShadeUInt & 0x00000FFF;
+                    cmd.VShaderObjectID.Hash = "";
+                    cmd.VShaderObjectID.Hash = CFGHandler.ShaderHashToName(cmd.VShaderObjectID.Hash, Convert.ToInt32(cmd.VShaderObjectID.Index));
+
+                    cmd.RawFloats = new List<float>();
+
+                    switch (HashTemp)
+                    {
+                        case "CBMaterial":
+
+                            for(int r = 0; r < 32; r++)
+                            {
+                                cmd.RawFloats.Add(bnr.ReadSingle());
+                            }
+
+                            break;
+
+                        case "$Globals":
+
+                            for (int r = 0; r < 76; r++)
+                            {
+                                cmd.RawFloats.Add(bnr.ReadSingle());
+                            }
+                            break;
+
+                        case "CBDiffuseColorCorect":
+
+                            for (int r = 0; r < 4; r++)
+                            {
+                                cmd.RawFloats.Add(bnr.ReadSingle());
+                            }
+                            break;
+
+                        case "CBHalfLambert":
+
+                            for (int r = 0; r < 4; r++)
+                            {
+                                cmd.RawFloats.Add(bnr.ReadSingle());
+                            }
+                            break;
+
+                        case "CBToon2":
+
+                            for (int r = 0; r < 4; r++)
+                            {
+                                cmd.RawFloats.Add(bnr.ReadSingle());
+                            }
+                            break;
+
+                        case "CBIndirectUser":
+
+                            for (int r = 0; r < 12; r++)
+                            {
+                                cmd.RawFloats.Add(bnr.ReadSingle());
+                            }
+                            break;
+
+                        default:
+                            MessageBox.Show("A constant buffer hasn't been handled properly.");
+                            break;
+                    }
+
+                    bnr.BaseStream.Position = temp;
+
+
+                    break;
+
+                //SetSamplerState
+                case 2:
+
+                    cmd.VShaderObjectID = new MatShaderObject();
+                    uint ShadeUIntTWO = BitConverter.ToUInt32(ShadeTemp, 0);
+                    cmd.VShaderObjectID.Index = ShadeUIntTWO & 0x00000FFF;
+                    cmd.VShaderObjectID.Hash = "";
+                    cmd.VShaderObjectID.Hash = CFGHandler.ShaderHashToName(cmd.VShaderObjectID.Hash, Convert.ToInt32(cmd.VShaderObjectID.Index));
+
+                    break;
+
+                //SetTexture
+                case 3:
+
+                    uint ShadeUIntST = BitConverter.ToUInt32(UnionTemp, 0);
+                    cmd.TextureIndex = ShadeUIntST;
+
+
+                    break;
+
+                default:
+                    break;
+
+
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+            return cmd;
+
+        }
+
+        #region MaterialSubEntry Properties
         [Category("Material Data"), ReadOnlyAttribute(false)]
         public string MaterialType
         {
@@ -339,7 +529,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
         }
 
-#endregion
+        #endregion
 
 
     }

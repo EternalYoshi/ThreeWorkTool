@@ -3877,13 +3877,6 @@ namespace ThreeWorkTool
             var reptxtitem = new ToolStripMenuItem("Replace Text in Material References", null, MenuItemReplaceTextInFile_Click, Keys.Control | Keys.E | Keys.ShiftKey);
             conmenu.Items.Add(reptxtitem);
 
-            /*
-#if DEBUG
-            //Export as .yml.
-            var exportymlitem = new ToolStripMenuItem("Export as YML", null, MenuExportAsYML_Click, Keys.Control | Keys.ShiftKey | Keys.E);
-            conmenu.Items.Add(exportymlitem);
-#endif
-            */
             conmenu.Items.Add(new ToolStripSeparator());
 
             //Export.
@@ -3972,10 +3965,8 @@ namespace ThreeWorkTool
             if (tag is MaterialEntry)
             {
                 MaterialEntry Material = new MaterialEntry();
-                //Next we need to get the respective Model file.
 
-                MessageBox.Show("Choose the respective Model file.");
-
+                MenuExportFile_Click(sender,e);
 
 
             }

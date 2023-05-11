@@ -37,6 +37,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int Field14;
         public List<MaterialTextureReference> Textures;
         public List<MaterialMaterialEntry> Materials;
+        public string YMLText;
 
         public static MaterialEntry FillMatEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -136,7 +137,6 @@ namespace ThreeWorkTool.Resources.Wrappers
         public static MaterialEntry BuildMatEntry(BinaryReader MBR, MaterialEntry MATEntry)
         {
 
-#if DEBUG
             //Experimental.
 
             //Header variables.
@@ -178,58 +178,46 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             }
 
-#else
-
-
-            //Header variables.
-            MATEntry.Magic = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MATEntry.Magic);
-            MATEntry.SomethingCount = MBR.ReadInt32();
-            MATEntry.MaterialCount = MBR.ReadInt32();
-            MATEntry.TextureCount = MBR.ReadInt32();
-            MATEntry.WeirdHash = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MATEntry.Magic);
-            MATEntry.Field14 = MBR.ReadInt32();
-            MATEntry.TextureOffset = MBR.ReadInt32();
-            MBR.BaseStream.Position = MBR.BaseStream.Position + 4;
-            MATEntry.MaterialOffset = MBR.ReadInt32();
-            MBR.BaseStream.Position = MBR.BaseStream.Position + 4;
-
-            //For the Texture References.
-            MATEntry.Textures = new List<MaterialTextureReference>();
-            MBR.BaseStream.Position = MATEntry.TextureOffset;
-            for (int i = 0; i < MATEntry.TextureCount; i++)
-            {
-                MaterialTextureReference TexTemp = new MaterialTextureReference();
-                TexTemp = TexTemp.FillMaterialTexReference(MATEntry, i, MBR, TexTemp);
-                MATEntry.Textures.Add(TexTemp);
-            }
-
-            //Now for the Materials themselves.
-
-            MATEntry.Materials = new List<MaterialMaterialEntry>();
-            byte[] ShadeTemp = new byte[4];
-            int PrevOffset = Convert.ToInt32(MBR.BaseStream.Position);
-            //uint ShadeUInt;
-            //byte[] NameHashBytes;
-            //uint NameTemp;
-
-
-            //Part 1 of Materials.
-            for (int i = 0; i < MATEntry.MaterialCount; i++)
-            {
-
-                MaterialMaterialEntry MMEntry = new MaterialMaterialEntry();
-                MMEntry = MMEntry.FIllMatMatEntryPropertiesPart1(MMEntry, MATEntry, MBR, PrevOffset, i);
-                MMEntry = MMEntry.FIllMatMatEntryPropertiesPart2(MMEntry, MATEntry, MBR, PrevOffset, i);
-
-                MATEntry.Materials.Add(MMEntry);
-                PrevOffset = PrevOffset + 72;
-                MBR.BaseStream.Position = PrevOffset;
-
-            }
-#endif
+            MATEntry = BuildYML(MATEntry, MATEntry.YMLText);
 
             return MATEntry;
 
+        }
+
+        public static MaterialEntry BuildYML(MaterialEntry MATEntry, string YML)
+        {
+
+            YML = "";
+            YML = YML + "version: 1\n";
+            YML = YML + "materials:\n";
+
+            //Materials.
+            for (int y = 0; y < MATEntry.Materials.Count; y++)
+            {
+
+                YML = YML + "    - " + MATEntry.Materials[y].MatName + ":\n";
+                YML = YML + "        type: " + MATEntry.Materials[y].MatType + "\n";
+                YML = YML + "        blendState: " + MATEntry.Materials[y].BlendStateType + "\n";
+                YML = YML + "        depthStencilState: " + MATEntry.Materials[y].DepthStencilStateType + "\n";
+                YML = YML + "        rasterizerState: " + MATEntry.Materials[y].RasterizerStateType + "\n";
+                YML = YML + "        cmdListFlags: 0x" + MATEntry.Materials[y].cmdListFlags.ToString("X") + "\n";
+                YML = YML + "        matFlags: 0x" + MATEntry.Materials[y].matFlags + "\n";
+                YML = YML + "        cmds:\n";
+
+
+                //Commands.
+                for (int z = 0; z < MATEntry.Materials[y].MaterialCommands.Count; z++)
+                {
+
+                    //YML = YML + " ";
+
+                }
+
+            }
+
+            MATEntry.YMLText = YML;
+
+            return MATEntry;
         }
 
         #region Material Properties

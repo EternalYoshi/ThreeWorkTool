@@ -132,6 +132,49 @@ namespace ThreeWorkTool.Resources.Utility
                 return null;
             }
             str = line;
+            str = str.Split(' ')[0];
+
+
+            return str;
+        }
+
+        public static string ShaderHashToNameTwo(string str, string Typehash)
+        {
+            //Looks through the archive_filetypes.cfg file to find the extension associated with the typehash.
+            try
+            {
+                //Gets the Corrected path for the cfg.
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "mvc3shadertypes.cfg";
+                using (var sr = new StreamReader(ProperPath))
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        var keyword = Console.ReadLine() ?? Typehash;
+                        var line = sr.ReadLine();
+                        if (String.IsNullOrEmpty(line)) continue;
+                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        {
+                            str = line;
+                            str = str.Split(' ')[0];
+                            break;
+                        }
+                    }
+                }
+
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("I cannot find archive_filetypes.cfg so I cannot finish parsing this file.", "Oh Boy");
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt";
+                using (StreamWriter sw = File.AppendText(ProperPath))
+                {
+                    sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.");
+                    Process.GetCurrentProcess().Kill();
+                }
+                return null;
+            }
 
 
 

@@ -205,11 +205,28 @@ namespace ThreeWorkTool.Resources
         {
             try
             {
-
-                using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                string ext = Path.GetExtension(filename);
+                if (ext == ".mrl")
                 {
-                    bw.Write(entrytowrite.UncompressedData);
-                    bw.Close();
+                    using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                    {
+
+                        bw.Write(entrytowrite.UncompressedData);
+                        bw.Close();
+
+                    }
+                }
+                else if (ext == ".yml")
+                {
+
+                    using (StreamWriter sw = new StreamWriter(File.Open(filename, FileMode.Create)))
+                    {
+
+                        sw.Write(entrytowrite.YMLText);
+                        sw.Close();
+
+                    }
+
                 }
 
             }
@@ -218,6 +235,9 @@ namespace ThreeWorkTool.Resources
                 ExceptionCatchAll(ex);
                 return;
             }
+
+
+
         }
 
         public static void ChainListEntryWriter(string filename, ChainListEntry entrytowrite)

@@ -17,5 +17,11 @@ namespace ThreeWorkTool.Resources.Utility
         };
         //enum IMatType {flag, cbuffer, samplerstate, texture};
 
+        public enum ShaderObjectInfo
+        {
+
+
+        };
+
     }
 }
