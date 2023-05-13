@@ -9832,7 +9832,7 @@ namespace ThreeWorkTool
                                 ExportPath = ExportPath.Substring(0, dindex);
                                 ExportPath = BaseDirectory + ExportPath + "\\";
                                 System.IO.Directory.CreateDirectory(ExportPath);
-                                ExportPath = ExportPath + MSDENT.FileName;
+                                ExportPath = ExportPath + MSDENT.FileName + ".msd";
                                 ExportFileWriter.MSDEntryWriter(ExportPath, MSDENT);
                             }
                             else if (kid.Tag is ModelEntry)

@@ -65,6 +65,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             public int SomeField14;
             public string DataStr;
             public List<float> RawFloats;
+            public string FloatStr;
             public string FinalData;
         }
 
@@ -198,7 +199,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                 Command.MaterialCommandData.ConstantBufferDataOffset = Convert.ToInt64(UnionUTemp);
 
                 Command.MaterialCommandData = GetMaterialCmdData(MME, Command, Command.MaterialCommandData, ShadeTemp, UnionTemp, Command.cmdInt, bnr, ShObIDTemp);
-                if(Command.MaterialCommandData.RawFloats != null)
+                
+                if (Command.MaterialCommandData.RawFloats != null)
                 {
                     Command.RawFloats = new List<float>();
                     Command.RawFloats = Command.MaterialCommandData.RawFloats;
@@ -223,6 +225,24 @@ namespace ThreeWorkTool.Resources.Wrappers
                 else if (Command.MCInfo.CmdFlag == "Cbuffer")
                 {
                     Command.DataStr = string.Join(",", Command.RawFloats);
+
+                    Command.FloatStr = "";
+                    Command.FloatStr = Command.FloatStr + "[\n                ";
+                    for (int f = 0; f < Command.MaterialCommandData.RawFloats.Count; f++)
+                    {
+
+                        if (((f + 0) % 4) == 0 && f > 3)
+                        {
+                            Command.FloatStr = Command.FloatStr + "\n                " + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
+                        }
+                        else
+                        {
+                            Command.FloatStr = Command.FloatStr + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
+                        }
+
+                    }
+                    Command.FloatStr = Command.FloatStr + "\n              ]";
+
                 }
                 else
                 {
@@ -285,7 +305,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     {
                         case "CBMaterial":
 
-                            for(int r = 0; r < 32; r++)
+                            for (int r = 0; r < 32; r++)
                             {
                                 cmd.RawFloats.Add(bnr.ReadSingle());
                             }
@@ -358,7 +378,11 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     uint ShadeUIntST = BitConverter.ToUInt32(UnionTemp, 0);
                     cmd.TextureIndex = ShadeUIntST;
-
+                    uint ShadeUIntTHREE = BitConverter.ToUInt32(ShadeTemp, 0);
+                    cmd.VShaderObjectID = new MatShaderObject();
+                    cmd.VShaderObjectID.Index = ShadeUIntTHREE & 0x00000FFF;
+                    cmd.VShaderObjectID.Hash = "";
+                    cmd.VShaderObjectID.Hash = CFGHandler.ShaderHashToName(cmd.VShaderObjectID.Hash, Convert.ToInt32(cmd.VShaderObjectID.Index));
 
                     break;
 

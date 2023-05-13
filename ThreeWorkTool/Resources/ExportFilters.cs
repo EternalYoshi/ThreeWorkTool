@@ -11,7 +11,7 @@
 
         public static string rResourcePathList = "Resources Path List (*.lrp)|*.lrp";
 
-        public static string rMaterial = "Material File (*.mrl)|*.mrl|YAML MT Material File(*.yml)| *.yml";
+        public static string rMaterial = "MT Material File(*.mrl;*.yml)|*.mrl;*.yml|Material File (*.mrl)|*.mrl|YAML MT Material File(*.yml)| *.yml";
 
         public static string rMotionList = "MotionList (*.lmt)|*.lmt";
 

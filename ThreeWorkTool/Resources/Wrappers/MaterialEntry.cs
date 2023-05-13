@@ -184,6 +184,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
+        //This function based off code TGE Wrote for Material support in the importer.
         public static MaterialEntry BuildYML(MaterialEntry MATEntry, string YML)
         {
 
@@ -208,7 +209,21 @@ namespace ThreeWorkTool.Resources.Wrappers
                 //Commands.
                 for (int z = 0; z < MATEntry.Materials[y].MaterialCommands.Count; z++)
                 {
+                    if(MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "Cbuffer")
+                    {
+                    YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].FloatStr + "]\n";
 
+                    }
+                    else if (MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "Flag" || MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "Samplerstate")
+                    {
+                        YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].CmdName + " ]\n";
+
+                    }
+                    else if (MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "Texture")
+                    {
+                        YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].DataStr + " ]\n";
+
+                    }
                     //YML = YML + " ";
 
                 }
