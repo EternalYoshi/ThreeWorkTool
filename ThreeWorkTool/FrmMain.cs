@@ -11630,6 +11630,37 @@ namespace ThreeWorkTool
 
             TreeSource.SelectedNode = MEntry;
 
+            //Makes the Material Subfolder.
+            TreeNode foldert = new TreeNode();
+            foldert.Name = "Textures";
+            foldert.Tag = "Folder";
+            foldert.Text = "Textures";
+            //foldert.ContextMenuStrip = FolderContextAdder(foldert, TreeSource);
+            TreeSource.SelectedNode.Nodes.Add(foldert);
+            TreeSource.SelectedNode = foldert;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+            //Fills in Textures used in the Texture folder.
+            for (int i = 0; i < material.TextureCount; i++)
+            {
+
+                ArcEntryWrapper Texture = new ArcEntryWrapper();
+                Texture.Name = material.Textures[i].FullTexName;
+                Texture.Tag = material.Textures[i];
+                Texture.Text = material.Textures[i].FullTexName;
+                TreeSource.SelectedNode.Nodes.Add(Texture);
+                ContextMenuStrip conmenu = new ContextMenuStrip();
+
+                var Mrnitem = new ToolStripMenuItem("Change Texture Reference via Rename", null, MenuItemRenameFile_Click, Keys.F2);
+                conmenu.Items.Add(Mrnitem);
+                Texture.ContextMenuStrip = conmenu;
+
+            }
+
+            TreeSource.SelectedNode = MEntry;
+
+
             //Makes the Materials Subfolder.
             TreeNode folder = new TreeNode();
             folder.Name = "Materials";

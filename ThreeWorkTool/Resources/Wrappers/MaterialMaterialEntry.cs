@@ -6,6 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Reflection;
+using System.Collections;
+using System.Runtime.InteropServices;
 using ThreeWorkTool.Resources.Utility;
 
 namespace ThreeWorkTool.Resources.Wrappers
@@ -34,7 +37,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public MatShaderObject DepthStencilState;
         public MatShaderObject RasterizerState;
         public MaterialCmdListInfo MaterialCommandListInfo;
-        public List<MatCmd> MaterialCommands;
+        public List<MatCmd> MaterialCommands { get; set; }
         public byte[] ConstantBufferData;
         public int CommandBufferIndex;
         public string SubMaterialYMLData;
@@ -52,8 +55,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             public int CmdListFlags;
         }
 
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public struct MatCmd
+        [TypeConverter(typeof(CollectionConverter))]
+        public class MatCmd
         {
             public const int SIZE = 0x18;
             public int cmdInt;
@@ -65,10 +68,30 @@ namespace ThreeWorkTool.Resources.Wrappers
             public MatShaderObject CmdShaderObject;
             public int SomeField14;
             public string DataStr;
-            public List<float> RawFloats;
+            public List<float> RawFloats { get; set; }
             public string FloatStr;
             public string FinalData;
         }
+
+        /*        
+        [TypeConverter(typeof(CollectionConverter))]
+        public class MatCmd
+        {
+            public const int SIZE = 0x18;
+            public int cmdInt;
+            public string CmdType;
+            public string CmdName;
+            public MatCmdInfo MCInfo;
+            public int SomeField04;
+            public MatCmdData MaterialCommandData;
+            public MatShaderObject CmdShaderObject;
+            public int SomeField14;
+            public string DataStr;
+            public List<float> RawFloats { get; set; }
+            public string FloatStr;
+            public string FinalData;
+        }
+        */
 
         [TypeConverter(typeof(ExpandableObjectConverter))]
         public struct MatCmdInfo
