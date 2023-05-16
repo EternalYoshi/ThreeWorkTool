@@ -38,6 +38,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public byte[] ConstantBufferData;
         public int CommandBufferIndex;
         public string SubMaterialYMLData;
+        public byte[] NameHashBytes;
 
         public struct MatShaderObject
         {
@@ -101,7 +102,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             MME.MatType = CFGHandler.ArchiveHashToName(MME.MatType, MME.TypeHash);
 
             MME.UnknownField04 = bnr.ReadInt32();
-            byte[] NameHashBytes = bnr.ReadBytes(4);
+            MME.NameHashBytes = bnr.ReadBytes(4);
             MME.NameHash = ByteUtilitarian.BytesToStringL2R(NameHashBytes.ToList(), MME.TypeHash);
             NameTemp = BitConverter.ToUInt32(NameHashBytes, 0);
 
@@ -206,7 +207,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Command.RawFloats = Command.MaterialCommandData.RawFloats;
                 }
 
-                if (Command.MCInfo.CmdFlag == "Texture")
+                if (Command.MCInfo.CmdFlag == "texture")
                 {
                     if (Command.MaterialCommandData.TextureIndex > 0)
                     {
@@ -217,31 +218,59 @@ namespace ThreeWorkTool.Resources.Wrappers
                         Command.FinalData = Command.FinalData + "";
                     }
                 }
-                else if (Command.MCInfo.CmdFlag == "Flag" || Command.MCInfo.CmdFlag == "Samplerstate")
+                else if (Command.MCInfo.CmdFlag == "flag" || Command.MCInfo.CmdFlag == "samplerstate")
                 {
                     //Command.DataStr = CFGHandler.ShaderHashToName(Command.DataStr, Convert.ToInt32(BitConverter.ToUInt64(UnionTemp, 0) & 0x00000FFF));
                     Command.DataStr = Command.MCInfo.CmdFlag;
                 }
-                else if (Command.MCInfo.CmdFlag == "Cbuffer")
+                else if (Command.MCInfo.CmdFlag == "cbuffer")
                 {
                     Command.DataStr = string.Join(",", Command.RawFloats);
 
                     Command.FloatStr = "";
-                    Command.FloatStr = Command.FloatStr + "[\n                ";
-                    for (int f = 0; f < Command.MaterialCommandData.RawFloats.Count; f++)
+                    if(Command.MaterialCommandData.RawFloats.Count <= 4)
                     {
+                        Command.FloatStr = Command.FloatStr + "[";
 
-                        if (((f + 0) % 4) == 0 && f > 3)
+                        for (int f = 0; f < Command.MaterialCommandData.RawFloats.Count; f++)
                         {
-                            Command.FloatStr = Command.FloatStr + "\n                " + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
-                        }
-                        else
-                        {
-                            Command.FloatStr = Command.FloatStr + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
-                        }
 
+                            if (((f + 0) % 4) == 0 && f > 3)
+                            {
+                                Command.FloatStr = Command.FloatStr + "\n                " + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
+                            }
+                            else if (f == 3)
+                            {
+                                Command.FloatStr = Command.FloatStr + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]);
+                            }
+                            else
+                            {
+                                Command.FloatStr = Command.FloatStr + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
+                            }
+
+                        }
+                        Command.FloatStr = Command.FloatStr + "]";
                     }
-                    Command.FloatStr = Command.FloatStr + "\n              ]";
+                    else
+                    {
+                        Command.FloatStr = Command.FloatStr + "[\n                ";
+
+                        for (int f = 0; f < Command.MaterialCommandData.RawFloats.Count; f++)
+                        {
+
+                            if (((f + 0) % 4) == 0 && f > 3)
+                            {
+                                Command.FloatStr = Command.FloatStr + "\n                " + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
+                            }
+                            else
+                            {
+                                Command.FloatStr = Command.FloatStr + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
+                            }
+
+                        }
+                        Command.FloatStr = Command.FloatStr + "\n              ]";
+                    }
+
 
                 }
                 else
@@ -255,9 +284,17 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             MME.ConstantBufferData = bnr.ReadBytes(MME.CmdBufferSize);
 
-            int inttemp = int.Parse(MME.NameHash, System.Globalization.NumberStyles.HexNumber);
-            string DerpTemp = Convert.ToString(inttemp);
-            MME.MatName = CFGHandler.MaterialHashToName(MME.MatName, DerpTemp);
+            //int inttemp = int.Parse(MME.NameHash, System.Globalization.NumberStyles.HexNumber);
+            //string DerpTemp = Convert.ToString(inttemp);
+
+            long intValue = Convert.ToInt64(MME.NameHash, 16);
+            string IntHash = Convert.ToString(intValue);
+
+            MME.MatName = CFGHandler.MaterialHashToName(MME.MatName, IntHash);
+
+
+
+
             return MME;
 
         }

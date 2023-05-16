@@ -209,17 +209,23 @@ namespace ThreeWorkTool.Resources.Wrappers
                 //Commands.
                 for (int z = 0; z < MATEntry.Materials[y].MaterialCommands.Count; z++)
                 {
-                    if(MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "Cbuffer")
+                    if (MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "cbuffer")
                     {
-                    YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].FloatStr + "]\n";
-
+                        if (MATEntry.Materials[y].MaterialCommands[z].RawFloats.Count <= 4)
+                        {
+                            YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].FloatStr + " ]\n";
+                        }
+                        else
+                        {
+                            YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].FloatStr + "]\n";
+                        }
                     }
-                    else if (MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "Flag" || MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "Samplerstate")
+                    else if (MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "flag" || MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "samplerstate")
                     {
                         YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].CmdName + " ]\n";
 
                     }
-                    else if (MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "Texture")
+                    else if (MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "texture")
                     {
                         YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].DataStr + " ]\n";
 

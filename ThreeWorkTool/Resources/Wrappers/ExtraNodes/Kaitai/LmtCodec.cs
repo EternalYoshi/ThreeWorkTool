@@ -14,37 +14,44 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes.Kaitai
 {
     public static class LmtCodec
     {
-        
-                public static Vector4 Vec3to4(Vector3 d)
-                {
-                    Vector4 Vex4 = new Vector4();
-                    Vex4.X = d.X;
-                    Vex4.Y = d.Y;
-                    Vex4.Z = d.Z;
-                    Vex4.W = 1;
-                    return Vex4;
-                }
 
-                public static Vector4 Vec3to4Q(Vector3 d)
-                {
+        public static Vector4 Vec3to4(Vector3 d)
+        {
+            Vector4 Vex4 = new Vector4();
+            Vex4.X = d.X;
+            Vex4.Y = d.Y;
+            Vex4.Z = d.Z;
+            Vex4.W = 1;
+            return Vex4;
+        }
 
-                    Vector4 Vex4 = new Vector4();
-                    Vex4.X = d.X;
-                    Vex4.Y = d.Y;
-                    Vex4.Z = d.Z;
-                    Vex4.W = Convert.ToSingle(Math.Sqrt((1 - Math.Pow(d.X, 2) - Math.Pow(d.Y, 2) - Math.Pow(d.Z, 2))));
-                    return Vex4;
+        public static Vector4 Vec3to4Q(Vector3 d)
+        {
 
-                }
+            Vector4 Vex4 = new Vector4();
+            Vex4.X = d.X;
+            Vex4.Y = d.Y;
+            Vex4.Z = d.Z;
+            Vex4.W = Convert.ToSingle(Math.Sqrt((1 - Math.Pow(d.X, 2) - Math.Pow(d.Y, 2) - Math.Pow(d.Z, 2))));
+            return Vex4;
 
-                public static Vector3 Vec4to3(Vector4 d)
-                {
-                    Vector3 Vex3 = new Vector3();
-                    Vex3.X = d.X;
-                    Vex3.X = d.Y;
-                    Vex3.X = d.Z;
-                    return Vex3;
-                }
+        }
+
+        public static Vector3 Vec4to3(Vector4 d)
+        {
+            Vector3 Vex3 = new Vector3();
+            Vex3.X = d.X;
+            Vex3.X = d.Y;
+            Vex3.X = d.Z;
+            return Vex3;
+        }
+
+
+        public static object Id(object d)
+        {
+            return d;
+        }
+
 
         /*
                 public static object Unpack_bytes(object b)
@@ -62,10 +69,6 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes.Kaitai
 
 
 
-                public static object Id(object d)
-                {
-                    return d;
-                }
 
                 public static object Buffer2bits(object d)
                 {
@@ -469,7 +472,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes.Kaitai
             }
             return Tuple.Create(buffer, extremes);
         }
-
+*/
         public static object Codec = new List<object>
                 {
                 Lmt.Track.Compression.Singlevector3,
@@ -485,7 +488,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes.Kaitai
                 Lmt.Track.Compression.Bilinearrotationquat4_11bit,
                 Lmt.Track.Compression.Bilinearrotationquat4_9bit
                 };
-                */
+
 
     }
 

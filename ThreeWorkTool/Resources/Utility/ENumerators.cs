@@ -10,10 +10,10 @@ namespace ThreeWorkTool.Resources.Utility
     {
         public enum IMatType
         {
-            Flag = 0,
-            Cbuffer = 1,
-            Samplerstate = 2,
-            Texture = 3
+            flag = 0,
+            cbuffer = 1,
+            samplerstate = 2,
+            texture = 3
         };
         //enum IMatType {flag, cbuffer, samplerstate, texture};
 

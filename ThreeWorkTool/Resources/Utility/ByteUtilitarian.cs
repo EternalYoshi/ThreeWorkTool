@@ -446,6 +446,29 @@ namespace ThreeWorkTool.Resources.Utility
             return tru;
         }
 
+        public static string HashToMatName(string s, byte[] HashBytes )
+        {
+            string name = "";
+            int ZestyTest = 0;
+            Ionic.Zlib.CRC32 crc = new Ionic.Zlib.CRC32();
+
+            ZestyTest = HashBytes.GetHashCode();
+            string testthing = "XfB_N__E_m01_7";
+            int testint = testthing.GetHashCode();
+            /*
+            using (MemoryStream HB = new MemoryStream(HashBytes))
+            {
+                ZestyTest = crc.GetCrc32(HB);
+
+            }
+
+            s = ZestyTest.ToString();
+            */
+            //crc.GetHashCode
+
+            return name;
+        }
+
         //Makes Bitmap from byte array containing DDS file.
         public static Bitmap BitmapBuilderDX(byte[] ddsfile, TextureEntry textureEntry)
         {
