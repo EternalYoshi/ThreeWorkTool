@@ -195,8 +195,14 @@ namespace ThreeWorkTool.Resources.Wrappers
             //Materials.
             for (int y = 0; y < MATEntry.Materials.Count; y++)
             {
-
-                YML = YML + "    - " + MATEntry.Materials[y].MatName + ":\n";
+                if (MATEntry.Materials[y].MatName == "" || MATEntry.Materials[y].MatName == null)
+                {
+                    YML = YML + "    - _0x" + MATEntry.Materials[y].NameHash + ":\n";
+                }
+                else
+                {
+                    YML = YML + "    - " + MATEntry.Materials[y].MatName + ":\n";
+                }
                 YML = YML + "        type: " + MATEntry.Materials[y].MatType + "\n";
                 YML = YML + "        blendState: " + MATEntry.Materials[y].BlendStateType + "\n";
                 YML = YML + "        depthStencilState: " + MATEntry.Materials[y].DepthStencilStateType + "\n";

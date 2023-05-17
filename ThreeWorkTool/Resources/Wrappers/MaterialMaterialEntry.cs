@@ -314,7 +314,10 @@ namespace ThreeWorkTool.Resources.Wrappers
             string IntHash = Convert.ToString(intValue);
 
             MME.MatName = CFGHandler.MaterialHashToName(MME.MatName, IntHash);
-
+            if(MME.MatName == null)
+            {
+                MME.MatName = "_0x" +MME.NameHash;
+            }
 
 
 

@@ -11681,9 +11681,17 @@ namespace ThreeWorkTool
                 long intValue = Convert.ToInt64(material.Materials[i].NameHash, 16);
                 string IntHash = Convert.ToString(intValue);
                 //Gets the actual Material Name.
+
                 Material.Name = CFGHandler.MaterialHashToName(Material.Name, IntHash);
                 Material.Tag = material.Materials[i];
                 Material.Text = CFGHandler.MaterialHashToName(Material.Text, IntHash);
+                
+                if (Material.Name == null || Material.Name == "")
+                {
+                    Material.Name = material.Materials[i].NameHash;
+                    Material.Text = material.Materials[i].NameHash;
+                }
+                
                 ContextMenuStrip conmenu = new ContextMenuStrip();
 
                 //Rename.
