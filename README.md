@@ -8,7 +8,7 @@ Expect weirdness and glitches. They will be fixed over time.
 
 This is built targeting .NET Framework 4.7 if that concerns anyone.
 
-Thanks to TGE and smb123w64gb for assistance and giving me the resources that massively help made this a thing.
+Thanks to TGE, Gneiss, and smb123w64gb for assistance and giving me the resources that massively help made this a thing.
 
 By Eternal Yoshi
 
