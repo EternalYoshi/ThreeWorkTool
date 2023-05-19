@@ -14,6 +14,15 @@ By Eternal Yoshi
 
 Current Changelog:
 
+V6.3
+- Fixed an issue where .msd files weren't given any extension when using Export All.
+- STQR Support Implemented.
+- Material names in Model Entries can be edited.
+- Model and Material files are more defined overall.
+- Added the ability to export .mrl files as .YML files. Will add more functionality soon.
+- Adjusted archive_filetypes.cfg to replace double underscore with double colons to be more accurate to the game.
+- Added .cfg with the game's known default Material names.
+
 V6.1
 
 - Fixed an issue that occurred when deleting folders in arc files above a certain file count.
