@@ -499,7 +499,7 @@ namespace ThreeWorkTool.Resources
             }
             else
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                MessageBox.Show("Unable to complete the operation. Here's details: \n" + ex, "Cannot write this file.");
                 return;
             }
 

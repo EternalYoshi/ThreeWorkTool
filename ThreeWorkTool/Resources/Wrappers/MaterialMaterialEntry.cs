@@ -10,6 +10,8 @@ using System.Reflection;
 using System.Collections;
 using System.Runtime.InteropServices;
 using ThreeWorkTool.Resources.Utility;
+using System.Numerics;
+using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -37,7 +39,11 @@ namespace ThreeWorkTool.Resources.Wrappers
         public MatShaderObject DepthStencilState;
         public MatShaderObject RasterizerState;
         public MaterialCmdListInfo MaterialCommandListInfo;
-        public List<MatCmd> MaterialCommands { get; set; }
+
+        [TypeConverter(typeof(MaterialCommandCollectionConverter))]
+        public MaterialCommandCollection MaterialCommands { get; set; }
+        //public List<MatCmd> MaterialCommands { get; set; }
+
         public byte[] ConstantBufferData;
         public int CommandBufferIndex;
         public string SubMaterialYMLData;
@@ -55,10 +61,11 @@ namespace ThreeWorkTool.Resources.Wrappers
             public int CmdListFlags;
         }
 
-        [TypeConverter(typeof(CollectionConverter))]
+        [TypeConverter(typeof(MaterialCommandConverter))]
         public class MatCmd
         {
             public const int SIZE = 0x18;
+            public int cmdindex;
             public int cmdInt;
             public string CmdType;
             public string CmdName;
@@ -68,7 +75,11 @@ namespace ThreeWorkTool.Resources.Wrappers
             public MatShaderObject CmdShaderObject;
             public int SomeField14;
             public string DataStr;
-            public List<float> RawFloats { get; set; }
+
+            [TypeConverter(typeof(Vector4CommandCollectionConverter))]
+            public Vector4Collection RawFloats { get; set; }
+
+            //public List<float> RawFloats { get; set; }
             public string FloatStr;
             public string FinalData;
         }
@@ -110,7 +121,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             public MatShaderObject VShaderObjectID;
             public long TextureIndex;
             public string FileRef;
-            public List<float> RawFloats;
+            public Vector4Collection RawFloats;
 
         }
 
@@ -178,7 +189,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
 
             bnr.BaseStream.Position = MME.CmdListOffset;
-            MME.MaterialCommands = new List<MatCmd>();
+            MME.MaterialCommands = new MaterialCommandCollection();
             ulong ShadeUInt = 0;
             ulong TempUintTwo = 0;
             long UnionUTemp = 0;
@@ -195,7 +206,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 //For the Command Info.
                 ShadeTemp = bnr.ReadBytes(4);
                 uint CmdInfoTemp = BitConverter.ToUInt32(ShadeTemp, 0);
-
+                Command.cmdindex = i;
                 //First Param.
                 Command.MCInfo = new MatCmdInfo();
                 Command.MCInfo.CmdFlag = ((ENumerators.IMatType)Convert.ToInt32(CmdInfoTemp & 0x1F)).ToString();
@@ -223,10 +234,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                 Command.MaterialCommandData.ConstantBufferDataOffset = Convert.ToInt64(UnionUTemp);
 
                 Command.MaterialCommandData = GetMaterialCmdData(MME, Command, Command.MaterialCommandData, ShadeTemp, UnionTemp, Command.cmdInt, bnr, ShObIDTemp);
-                
+
                 if (Command.MaterialCommandData.RawFloats != null)
                 {
-                    Command.RawFloats = new List<float>();
+                    Command.RawFloats = new Vector4Collection();
                     Command.RawFloats = Command.MaterialCommandData.RawFloats;
                 }
 
@@ -251,28 +262,20 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Command.DataStr = string.Join(",", Command.RawFloats);
 
                     Command.FloatStr = "";
-                    if(Command.MaterialCommandData.RawFloats.Count <= 4)
+                    if (Command.MaterialCommandData.RawFloats.Count <= 1)
                     {
                         Command.FloatStr = Command.FloatStr + "[";
 
                         for (int f = 0; f < Command.MaterialCommandData.RawFloats.Count; f++)
                         {
 
-                            if (((f + 0) % 4) == 0 && f > 3)
-                            {
-                                Command.FloatStr = Command.FloatStr + "\n                " + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
-                            }
-                            else if (f == 3)
-                            {
-                                Command.FloatStr = Command.FloatStr + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]);
-                            }
-                            else
-                            {
-                                Command.FloatStr = Command.FloatStr + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
-                            }
+                            Command.FloatStr = Command.FloatStr + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].W)
+                                + ", " + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].X) + ", " +
+                                String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].Y) + ", " +
+                                String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].Z);
 
+                            Command.FloatStr = Command.FloatStr + "]";
                         }
-                        Command.FloatStr = Command.FloatStr + "]";
                     }
                     else
                     {
@@ -280,16 +283,20 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         for (int f = 0; f < Command.MaterialCommandData.RawFloats.Count; f++)
                         {
-
-                            if (((f + 0) % 4) == 0 && f > 3)
+                            if (f == 0)
                             {
-                                Command.FloatStr = Command.FloatStr + "\n                " + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
+                                Command.FloatStr = Command.FloatStr + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].W)
+                                + ", " + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].X) + ", " +
+                                String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].Y) + ", " +
+                                String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].Z) + ", ";
                             }
                             else
                             {
-                                Command.FloatStr = Command.FloatStr + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f]) + ", ";
+                                Command.FloatStr = Command.FloatStr + "\n                " + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].W)
+                                + ", " + String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].X) + ", " +
+                                String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].Y) + ", " +
+                                String.Format("{0:0.0###############}", Command.MaterialCommandData.RawFloats[f].Z) + ", ";
                             }
-
                         }
                         Command.FloatStr = Command.FloatStr + "\n              ]";
                     }
@@ -314,9 +321,9 @@ namespace ThreeWorkTool.Resources.Wrappers
             string IntHash = Convert.ToString(intValue);
 
             MME.MatName = CFGHandler.MaterialHashToName(MME.MatName, IntHash);
-            if(MME.MatName == null)
+            if (MME.MatName == null)
             {
-                MME.MatName = "_0x" +MME.NameHash;
+                MME.MatName = "_0x" + MME.NameHash;
             }
 
 
@@ -362,56 +369,81 @@ namespace ThreeWorkTool.Resources.Wrappers
                     cmd.VShaderObjectID.Hash = "";
                     cmd.VShaderObjectID.Hash = CFGHandler.ShaderHashToName(cmd.VShaderObjectID.Hash, Convert.ToInt32(cmd.VShaderObjectID.Index));
 
-                    cmd.RawFloats = new List<float>();
+                    cmd.RawFloats = new Vector4Collection();
 
                     switch (HashTemp)
                     {
                         case "CBMaterial":
 
-                            for (int r = 0; r < 32; r++)
+                            for (int r = 0; r < 8; r++)
                             {
-                                cmd.RawFloats.Add(bnr.ReadSingle());
+                                Vector4 vex = new Vector4();
+                                vex.W = bnr.ReadSingle();
+                                vex.X = bnr.ReadSingle();
+                                vex.Y = bnr.ReadSingle();
+                                vex.Z = bnr.ReadSingle();
+                                cmd.RawFloats.Add(vex);
+
                             }
 
                             break;
 
                         case "$Globals":
 
-                            for (int r = 0; r < 76; r++)
+                            for (int r = 0; r < 19; r++)
                             {
-                                cmd.RawFloats.Add(bnr.ReadSingle());
+                                Vector4 vexG = new Vector4();
+                                vexG.W = bnr.ReadSingle();
+                                vexG.X = bnr.ReadSingle();
+                                vexG.Y = bnr.ReadSingle();
+                                vexG.Z = bnr.ReadSingle();
+                                cmd.RawFloats.Add(vexG);
                             }
                             break;
 
                         case "CBDiffuseColorCorect":
 
-                            for (int r = 0; r < 4; r++)
-                            {
-                                cmd.RawFloats.Add(bnr.ReadSingle());
-                            }
+                            Vector4 vexF = new Vector4();
+                            vexF.W = bnr.ReadSingle();
+                            vexF.X = bnr.ReadSingle();
+                            vexF.Y = bnr.ReadSingle();
+                            vexF.Z = bnr.ReadSingle();
+                            cmd.RawFloats.Add(vexF);
+
                             break;
 
                         case "CBHalfLambert":
 
-                            for (int r = 0; r < 4; r++)
-                            {
-                                cmd.RawFloats.Add(bnr.ReadSingle());
-                            }
+                            Vector4 vexH = new Vector4();
+                            vexH.W = bnr.ReadSingle();
+                            vexH.X = bnr.ReadSingle();
+                            vexH.Y = bnr.ReadSingle();
+                            vexH.Z = bnr.ReadSingle();
+                            cmd.RawFloats.Add(vexH);
+
                             break;
 
                         case "CBToon2":
 
-                            for (int r = 0; r < 4; r++)
-                            {
-                                cmd.RawFloats.Add(bnr.ReadSingle());
-                            }
+                            Vector4 vexT = new Vector4();
+                            vexT.W = bnr.ReadSingle();
+                            vexT.X = bnr.ReadSingle();
+                            vexT.Y = bnr.ReadSingle();
+                            vexT.Z = bnr.ReadSingle();
+                            cmd.RawFloats.Add(vexT);
+
                             break;
 
                         case "CBIndirectUser":
 
-                            for (int r = 0; r < 12; r++)
+                            for (int r = 0; r < 3; r++)
                             {
-                                cmd.RawFloats.Add(bnr.ReadSingle());
+                                Vector4 vexI = new Vector4();
+                                vexI.W = bnr.ReadSingle();
+                                vexI.X = bnr.ReadSingle();
+                                vexI.Y = bnr.ReadSingle();
+                                vexI.Z = bnr.ReadSingle();
+                                cmd.RawFloats.Add(vexI);
                             }
                             break;
 
@@ -471,7 +503,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         #region MaterialSubEntry Properties
-        [Category("Material Data"), ReadOnlyAttribute(false)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public string MaterialType
         {
 
@@ -486,7 +518,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        [Category("Material Data"), ReadOnlyAttribute(false)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public string BlendStateType
         {
 
@@ -501,7 +533,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        [Category("Material Data"), ReadOnlyAttribute(false)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public string DepthStencilStateType
         {
 
@@ -516,7 +548,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        [Category("Material Data"), ReadOnlyAttribute(false)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public string RasterizerStateType
         {
 
@@ -531,7 +563,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        [Category("Material Data"), ReadOnlyAttribute(false)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public string matFlags
         {
 
@@ -545,7 +577,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
         }
 
-        [Category("Material Data"), ReadOnlyAttribute(false)]
+        [Category("Material Data"), ReadOnlyAttribute(true)]
         public int cmdListFlags
         {
 

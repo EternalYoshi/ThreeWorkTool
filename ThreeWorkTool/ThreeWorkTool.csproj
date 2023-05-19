@@ -244,6 +244,7 @@
     </Compile>
     <Compile Include="Resources\Utility\ByteUtilitarian.cs" />
     <Compile Include="Resources\Utility\CFGHandler.cs" />
+    <Compile Include="Resources\Utility\TypeConverter.cs" />
     <Compile Include="Resources\Utility\ENumerators.cs" />
     <Compile Include="Resources\Utility\QToEuler.cs" />
     <Compile Include="Resources\Wrappers\AnimNodes\LMTM3ATrackBuffer.cs" />
@@ -260,10 +261,15 @@
     <Compile Include="Resources\Wrappers\ExtraNodes\Kaitai\KaitaiStruct.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\Kaitai\Lmt.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\Kaitai\LmtCodec.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\MaterialCommandCollection.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\MaterialCommandCollectionPropertyDescriptor.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\Mission.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\StageObjLayoutGroup.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\STQREventData.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\STQRNode.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\Vector4Collection.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\Vector4CollectionPropertyDescriptor.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\Vec4.cs" />
     <Compile Include="Resources\Wrappers\FolderWrapper.cs" />
     <Compile Include="Resources\Wrappers\GemEntry.cs" />
     <Compile Include="Resources\Wrappers\LMTEntry.cs" />

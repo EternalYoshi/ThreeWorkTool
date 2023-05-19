@@ -217,7 +217,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 {
                     if (MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "cbuffer")
                     {
-                        if (MATEntry.Materials[y].MaterialCommands[z].RawFloats.Count <= 4)
+                        if (MATEntry.Materials[y].MaterialCommands[z].RawFloats.Count <= 1)
                         {
                             YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].FloatStr + " ]\n";
                         }
