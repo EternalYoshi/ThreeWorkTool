@@ -14296,6 +14296,7 @@ namespace ThreeWorkTool
                     }
                     else
                     {
+                        OFDialog.FileName = files[0];
                         NCount = 0;
                         isFinishRPLRead = false;
                         OpenFileModified = false;
