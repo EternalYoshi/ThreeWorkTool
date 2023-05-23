@@ -28,6 +28,10 @@ namespace ThreeWorkTool.Resources.Wrappers
             public string TypeHash;
             public string FileExt;
             public string TotalName;
+            public int Flag1;
+            public int Flag2;
+            public int Flag3;
+            public int Flag4;
         }
 
         public struct CCLEntry
@@ -107,8 +111,14 @@ namespace ThreeWorkTool.Resources.Wrappers
                             return null;
                         }
 
+                        cHN.Flag1 = bnr.ReadInt32();
+                        cHN.Flag2 = bnr.ReadInt32();
+                        cHN.Flag3 = bnr.ReadInt32();
+                        cHN.Flag4 = bnr.ReadInt32();
+
+
                         cslentry.ChainEntries.Add(cHN);
-                        bnr.BaseStream.Position = bnr.BaseStream.Position + 16;
+                        //bnr.BaseStream.Position = bnr.BaseStream.Position + 16;
                     }
 
                     for (int h = 0; h < cslentry.CCLEntryCount; h++)
@@ -178,8 +188,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 for (int t = 0; t < chlste.ChainEntries.Count; t++)
                 {
-                    texbox.Text = texbox.Text + chlste.ChainEntries[t].TotalName + Environment.NewLine;
-                    chlste.TextBackup.Add(chlste.ChainEntries[t].TotalName + Environment.NewLine);
+                    texbox.Text = texbox.Text + chlste.ChainEntries[t].TotalName + " [" + chlste.ChainEntries[t].Flag1 + "," + chlste.ChainEntries[t].Flag2 + "," + chlste.ChainEntries[t].Flag3 + "," + chlste.ChainEntries[t].Flag4 + "]" + Environment.NewLine;
+                    chlste.TextBackup.Add(chlste.ChainEntries[t].TotalName + " [" + chlste.ChainEntries[t].Flag1 + "," + chlste.ChainEntries[t].Flag2 + "," + chlste.ChainEntries[t].Flag3 + "," + chlste.ChainEntries[t].Flag4 + "]" + Environment.NewLine);
                 }
             }
             else
@@ -187,7 +197,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 for (int t = 0; t < chlste.ChainEntries.Count; t++)
                 {
-                    texbox.Text = texbox.Text + chlste.ChainEntries[t].TotalName + Environment.NewLine;
+                    texbox.Text = texbox.Text + chlste.ChainEntries[t].TotalName + " [" + chlste.ChainEntries[t].Flag1 + "," + chlste.ChainEntries[t].Flag2 + "," + chlste.ChainEntries[t].Flag3 + "," + chlste.ChainEntries[t].Flag4 + "]" + Environment.NewLine;
                 }
             }
 
@@ -233,7 +243,12 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             SPLT = txbtxt.Split('\n');
             int index = 0;
-
+            int brindex = 0;
+            int secondbrindex = 0;
+            int thirdbrindex = 0;
+            int fourthbrindex = 0;
+            int endbrindex = 0;
+            string strtemp = "";
             chlste.ChainEntries = new List<CHNEntry>();
             chlste.ChainCollEntries = new List<CCLEntry>();
 
@@ -244,6 +259,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                 if (Isvalidline == true)
                 {
                     index = SPLT[i].LastIndexOf(".");
+                    brindex = (SPLT[i].IndexOf("[") + 1);
+                    secondbrindex = (ByteUtilitarian.GetNthIndex(SPLT[i], ',', 1));
+                    thirdbrindex = (ByteUtilitarian.GetNthIndex(SPLT[i],',',2));
+                    fourthbrindex = (ByteUtilitarian.GetNthIndex(SPLT[i], ',', 3));
+                    endbrindex = SPLT[i].LastIndexOf("]");
                     ExtTemp = SPLT[i].Substring(index, 4);
 
                     if (ExtTemp == ".chn" || ExtTemp == "chn")
@@ -253,8 +273,20 @@ namespace ThreeWorkTool.Resources.Wrappers
                         cHN.TypeHash = "3E363245";
                         cHN.TotalName = cHN.FullPath + ExtTemp;
                         cHN.FileExt = SPLT[i].Substring((index), 4);
-                        chlste.ChainEntries.Add(cHN);
 
+                        strtemp = SPLT[i].Substring(brindex,(secondbrindex - brindex));
+                        cHN.Flag1 = Convert.ToInt32(strtemp);
+
+                        strtemp = SPLT[i].Substring((secondbrindex+1), ((thirdbrindex-1) - secondbrindex));
+                        cHN.Flag2 = Convert.ToInt32(strtemp);
+
+                        strtemp = SPLT[i].Substring((thirdbrindex+1), ((fourthbrindex-1) - thirdbrindex));
+                        cHN.Flag3 = Convert.ToInt32(strtemp);
+
+                        strtemp = SPLT[i].Substring((fourthbrindex+1), ((endbrindex-1) - fourthbrindex));
+                        cHN.Flag4 = Convert.ToInt32(strtemp);
+
+                        chlste.ChainEntries.Add(cHN);
                     }
                     else if (ExtTemp == ".ccl" || ExtTemp == "ccl")
                     {
@@ -320,7 +352,10 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     NEWCST.AddRange(writenamedata);
                     NEWCST.AddRange(CHNHash);
-                    NEWCST.AddRange(FillerLine);
+                    NEWCST.AddRange(BitConverter.GetBytes(chlste.ChainEntries[k].Flag1));
+                    NEWCST.AddRange(BitConverter.GetBytes(chlste.ChainEntries[k].Flag2));
+                    NEWCST.AddRange(BitConverter.GetBytes(chlste.ChainEntries[k].Flag3));
+                    NEWCST.AddRange(BitConverter.GetBytes(chlste.ChainEntries[k].Flag4));
                     ChainCount++;
                 }
             }
