@@ -10834,7 +10834,7 @@ namespace ThreeWorkTool
 
                                     }
 
-                                    if(tag is ResourcePathListEntry)
+                                    if (tag is ResourcePathListEntry)
                                     {
                                         string helper = ".lrp";
                                         string TexToCheck = "";
@@ -13117,9 +13117,18 @@ namespace ThreeWorkTool
 
             if (chainList != null)
             {
-                chainList = ChainListEntry.RenewCSTList(txtRPList, chainList);
-                TreeSource.SelectedNode.Tag = chainList;
-                this.OpenFileModified = true;
+                try
+                {
+                    chainList = ChainListEntry.RenewCSTList(txtRPList, chainList);
+                    TreeSource.SelectedNode.Tag = chainList;
+                    this.OpenFileModified = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("The entered text's syntax for the ChainListEntry's is incorrect.");
+                }
+                
+
             }
 
             GemEntry gementry = new GemEntry();

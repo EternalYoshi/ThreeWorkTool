@@ -247,6 +247,52 @@ namespace ThreeWorkTool.Resources.Wrappers
             return MATEntry;
         }
 
+        //This function also based off code TGE wrote for Material support in the importer.
+        public static MaterialEntry ReplaceYMLToMRL(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
+        {
+
+            MaterialEntry matentry = new MaterialEntry();
+            MaterialEntry oldentry = new MaterialEntry();
+            string strtemp = "";
+
+            //Time to check the yml file.
+            using (StreamReader sr = new StreamReader(filename))
+            {
+                strtemp = sr.ReadLine();
+
+                //Checks the yml version.
+                if (strtemp == "version: 1")
+                {
+
+                }
+                else
+                {
+                    MessageBox.Show("The selected yml file is not a supported material library version. Apologies.");
+                    return null;
+                }
+
+            }
+
+            /*
+            tree.BeginUpdate();
+            
+            ReplaceEntry(tree, node, filename, matentry, oldentry);
+
+            //Type Specific Work Here.
+            using (MemoryStream LmtStream = new MemoryStream(matentry.UncompressedData))
+            {
+                using (BinaryReader bnr = new BinaryReader(LmtStream))
+                {
+                    BuildMatEntry(bnr, matentry);
+                }
+            }
+            */
+
+
+            return node.entryfile as MaterialEntry;
+
+        }
+
         #region Material Properties
 
         [Category("Material Data"), ReadOnlyAttribute(true)]
