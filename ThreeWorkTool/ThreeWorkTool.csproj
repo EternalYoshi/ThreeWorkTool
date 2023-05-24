@@ -264,6 +264,7 @@
     <Compile Include="Resources\Wrappers\ExtraNodes\MaterialCommandCollection.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\MaterialCommandCollectionPropertyDescriptor.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\Mission.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\MTMaterial.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\StageObjLayoutGroup.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\STQREventData.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\STQRNode.cs" />

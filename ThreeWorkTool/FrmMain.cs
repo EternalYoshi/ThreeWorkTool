@@ -7827,6 +7827,7 @@ namespace ThreeWorkTool
                     #region ShotList
 
                     case ".lsh":
+                    case ".141D851F":
                         frename.Mainfrm.TreeSource.BeginUpdate();
                         ArcEntryWrapper NewWrapperLSH = new ArcEntryWrapper();
                         ShotListEntry LSHEntry = new ShotListEntry();

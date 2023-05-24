@@ -13,6 +13,10 @@ using System.Text;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
+using YamlDotNet.Core;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
+using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using static ThreeWorkTool.Resources.Wrappers.MaterialMaterialEntry;
 
 namespace ThreeWorkTool.Resources.Wrappers
@@ -38,6 +42,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public List<MaterialTextureReference> Textures;
         public List<MaterialMaterialEntry> Materials;
         public string YMLText;
+        public MTMaterial YMLMat { get; set; }
 
         public static MaterialEntry FillMatEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -256,6 +261,13 @@ namespace ThreeWorkTool.Resources.Wrappers
             string strtemp = "";
 
             //Time to check the yml file.
+            var deserializer = new YamlDotNet.Serialization.DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+
+            var p = deserializer.Deserialize<MTMaterial>(filename);
+
+            //var myConfig = deserializer.Deserialize<Configuration>(File.ReadAllText(filename));
+
+            /*
             using (StreamReader sr = new StreamReader(filename))
             {
                 strtemp = sr.ReadLine();
@@ -272,7 +284,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 }
 
             }
-
+            */
             /*
             tree.BeginUpdate();
             
