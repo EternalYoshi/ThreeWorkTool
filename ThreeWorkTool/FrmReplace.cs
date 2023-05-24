@@ -297,6 +297,13 @@ namespace ThreeWorkTool
                     text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                     Mainfrm.txtRPList.Text = text;
                 }
+                if (Mainfrm.TreeSource.SelectedNode.Tag is ChainListEntry)
+                {
+                    //Gets the text, then replaces every instance of the search term with the new term.
+                    string text = Mainfrm.txtRPList.Text;
+                    text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                    Mainfrm.txtRPList.Text = text;
+                }
                 else if (Mainfrm.TreeSource.SelectedNode.Tag is ShotListEntry)
                 {
                     //Gets the text, then replaces every instance of the search term with the new term.

@@ -11292,7 +11292,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 19;
 
 
-                    cstchild.ContextMenuStrip = GenericFileContextAdder(cstchild, TreeSource);
+                    cstchild.ContextMenuStrip = TXTContextAdder(cstchild, TreeSource);
 
                     TreeSource.SelectedNode = cstrootNode;
 
