@@ -14,7 +14,14 @@ By Eternal Yoshi
 
 Current Changelog:
 
-V6.3
+V0.63b
+- Fixed an issue where .cst files would not be built properly and cause abnormalities in game.
+- ChainList format redefined, the text box now has numerical values for each Chain references.
+- Fixed an issue where drag and drop opening a file would not be counted as a open file, which prevented saving.
+- Replace Text now supports ChainList and Gem Entries.
+- Fixed an issue where imported ShotLists would not be recognized as such and could not have been edited.
+
+V0.63
 - Fixed an issue where .msd files weren't given any extension when using Export All.
 - STQR Support Implemented.
 - Material names in Model Entries can be edited.
@@ -31,7 +38,7 @@ V6.1
 
 
 
-V6.0
+V0.6
 
 - StgObjLayout file support implemented.
 - Fixed an issue with importing .riff files that resulted in incorrect pathing.
@@ -45,13 +52,13 @@ V6.0
 - All other changes from Bimonthly builds implemented.
 
 
-V5.1
+V0.51
 
 - Added Jump To Line Function to the MSD Viewer/Editor.
 - Improved M3a Error Checking so the program reports the problematic entry and continues to read the rest of the arc and file.
 - Fixed an issue with Manifest text separation.
 
-V5.0
+V0.5
 
 ANIMATION IMPORTING IS NOT READY YET, BUT MANY THINGS HAVE BEEN FIXED/CHANGE ENOUGH TO WARRANT ONE MORE UPDATE.
 
@@ -72,14 +79,14 @@ ANIMATION IMPORTING IS NOT READY YET, BUT MANY THINGS HAVE BEEN FIXED/CHANGE ENO
 - Fixed unhandled exception when replacing & importing textures with malinformed or unsupported .DDS file.
 - Fixed unhandled exception when attempting to save over an arc file or export and replace a file in use by another process. 
 
-V4.0
+V0.4
 - Fixed an issue resulting in Cube Maps crashing on Export/Export All. Can only export them as raw .tex files.
 - Fixed an issue that happens when replacing Normal Maps.
 - Added support for importing multiple raw .tex files simultaneously.
 - No longer will stop you from having multiple Sub-Materials with the same texture reference.
 - Fixed the formula used for "Change Texture Reference Via rename" so it works properly now.
 
-V3.5
+V0.35
 - Wrote and Rewrote Partial Model and Material Support - Not all information is shown but some of it is in Read Only Form.
 - Added a touch more information on LMT files.
 - Made better attempt to log exceptions in log.txt.
@@ -92,7 +99,7 @@ when selecting a Texture node.
 - Fixed an issue with Export All not exporting defined extensions correctly.
 - Replacing of LMTs, Materials, and Models now update the child nodes to accurately reflect the new file.
 
-V3.1
+V0.31
 - Fixed an issue resulting in textures failling to load in game.
 - Files/Nodes from Archives that are in the same directory are no longer ordered alphabetically.
 - Added the option to reorder Files in the same directory manually.
@@ -115,10 +122,10 @@ V0.30
 - Added the selected Item's Context Menu Options to the Edit button dynamically; anything you have to right click to do can be done in the Edit Menu.
 - LMT support that still needs more testing, right now supports replacing and exporting individual entries in the .LMT files.
 
-V2.1
+V0.21
 - Fixed an issue that prevented Arc files with more than 255 files from being read and saved correctly.
 
-V2.0
+V0.2
 - Added a near complete resource hashes in the cfg thanks to TGE.
 - Added texture preview support via Pfim
 - Added support for importing DDS files as textures, along with setting the texture type to the more well known and used formats. (Cube Maps not supported)
