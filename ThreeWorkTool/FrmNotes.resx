@@ -170,6 +170,11 @@ You are free to add and subtract, but make sure that anything you add exists. Ot
 
 - The Replace All commands are case sensitive. You can access one by selecting a Folder or Material and right click it. Best used to port costume files from one number to another. Be caerful when working with the numbers 00 and 01.
 
-- GEM, or .gem files are what link a prop model file to a .lmt and .anm file. They're not easy to use but remember to follow the syntax. If the second line is blank that generally means there's no .anm file for the named prop.</value>
+- GEM, or .gem files are what link a prop model file to a .lmt and .anm file. They're not easy to use but remember to follow the syntax. If the second line is blank that generally means there's no .anm file for the named prop.
+
+- You can export Material files as .yml files that aim to be compatible with the model importer's tools. Floating point estimations may differ slightly in the ten thousandths but the overall values should check out when converting.
+
+- .cst, aka Chain List Files have 4 numerical values at the end of each .chn reference. Make sure to follow the syntax or the changes you make in the textbox will NOT be saved.
+</value>
   </data>
 </root>

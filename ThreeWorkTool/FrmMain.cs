@@ -3488,7 +3488,7 @@ namespace ThreeWorkTool
                     }
                     else if (ex is ZlibException)
                     {
-                        MessageBox.Show("Unable to decompress the file because the arc is in a corrupted state.", "Oh no it's an error.");
+                        MessageBox.Show("Unable to decompress the file because the arc is in a corrupted state. Here's details\n" + ex, "Oh no it's an error.");
                         string ProperPath = "";
                         ProperPath = Globals.ToolPath + "Log.txt";
                         using (StreamWriter sw = File.AppendText(ProperPath))
@@ -4898,7 +4898,7 @@ namespace ThreeWorkTool
                 MaterialEntry MatEntEntry = new MaterialEntry();
                 MatEntEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MaterialEntry;
                 //To Do next time; finish yml support.
-                RPDialog.Filter = "Material File (*.mrl)|*.mrl|YAML MT Material File(*.yml)| *.yml";
+                RPDialog.Filter = "Material File (*.mrl)|*.mrl";
                 //RPDialog.Filter = ExportFilters.GetFilter(MatEntEntry.FileExt);
 
                 if (RPDialog.ShowDialog() == DialogResult.OK)
@@ -4926,17 +4926,26 @@ namespace ThreeWorkTool
                             string[] paths = temp.Split('\\');
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
-                            NewWrapper.Tag = MaterialEntry.ReplaceMat(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-
-                            //Material specific work here.
-                            MaterialEntry TempMat = new MaterialEntry();
-                            TempMat = NewWrapper.Tag as MaterialEntry;
-                            using (MemoryStream MatStream = new MemoryStream(TempMat.UncompressedData))
+                            string CheckExt = Path.GetExtension(RPDialog.FileName);
+                            if (CheckExt == ".mrl")
                             {
-                                using (BinaryReader MBR = new BinaryReader(MatStream))
+                                NewWrapper.Tag = MaterialEntry.ReplaceMat(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+
+                                //Material specific work here.
+                                MaterialEntry TempMat = new MaterialEntry();
+                                TempMat = NewWrapper.Tag as MaterialEntry;
+                                using (MemoryStream MatStream = new MemoryStream(TempMat.UncompressedData))
                                 {
-                                    BuildMatEntry(MBR, NewWrapper.Tag as MaterialEntry);
+                                    using (BinaryReader MBR = new BinaryReader(MatStream))
+                                    {
+                                        BuildMatEntry(MBR, NewWrapper.Tag as MaterialEntry);
+                                    }
                                 }
+                            }
+                            else if (CheckExt == ".yml")
+                            {
+                                NewWrapper.Tag = MaterialEntry.ReplaceYMLToMRL(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+
                             }
 
                             NewWrapper.ContextMenuStrip = MaterialContextAddder(NewWrapper, frename.Mainfrm.TreeSource);
@@ -8097,6 +8106,12 @@ namespace ThreeWorkTool
                         frename.Mainfrm.STQRChildrenCreation(selectednodeSTQR, selectednodeSTQR.Tag as STQREntry);
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeSTQR.Parent;
 
+                        break;
+                    #endregion
+
+                    #region YML
+                    case ".yml":
+                        MessageBox.Show("Sorry but YML importing to MRLs is not finished yet so nothing will happen.");
                         break;
                     #endregion
 
@@ -11456,7 +11471,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 23;
 
 
-                    gemchild.ContextMenuStrip = GenericFileContextAdder(gemchild, TreeSource);
+                    gemchild.ContextMenuStrip = TXTContextAdder(gemchild, TreeSource);
 
                     TreeSource.SelectedNode = gemrootNode;
 
@@ -13128,7 +13143,7 @@ namespace ThreeWorkTool
                 {
                     MessageBox.Show("The entered text's syntax for the ChainListEntry's is incorrect.");
                 }
-                
+
 
             }
 

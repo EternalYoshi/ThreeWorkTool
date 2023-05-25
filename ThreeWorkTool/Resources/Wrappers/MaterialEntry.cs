@@ -262,8 +262,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //Time to check the yml file.
             var deserializer = new YamlDotNet.Serialization.DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
-
-            var p = deserializer.Deserialize<MTMaterial>(filename);
+            strtemp = File.ReadAllText(filename);
+            var p = deserializer.Deserialize<MTMaterial>(strtemp);
 
             //var myConfig = deserializer.Deserialize<Configuration>(File.ReadAllText(filename));
 
