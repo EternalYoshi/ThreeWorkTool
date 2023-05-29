@@ -83,7 +83,8 @@ namespace ThreeWorkTool
             {
                 if ((treno.Tag as string != null && treno.Tag as string == "Folder") || treno.Tag as string == "MaterialChildMaterial" || treno.Tag as string == "Model Material Reference" ||
                     treno.Tag as string == "Model Primitive Group" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
-                    || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission)
+                    || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce 
+                    || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelPrimitiveJointLinkEntry || treno.Tag is StageObjLayoutGroup || treno.Tag is STQRNode || treno.Tag is STQREventData )
                 {
 
                 }
@@ -115,9 +116,9 @@ namespace ThreeWorkTool
 
         private void btnRefreshList_Click(object sender, EventArgs e)
         {
-            DialogResult refsh = MessageBox.Show("Refreshing this list means the program will check all nodes for files and list them in that order. You will lose any unique ordering you have now. Are you sure you want to do this?","Caution",MessageBoxButtons.YesNo,MessageBoxIcon.Exclamation);
+            DialogResult refsh = MessageBox.Show("Refreshing this list means the program will check all nodes for files and list them in that order. You will lose any unique ordering you have now. Are you sure you want to do this?", "Caution", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
 
-            if(refsh == DialogResult.Yes)
+            if (refsh == DialogResult.Yes)
             {
                 RefreshManifest(Mainfrm.Manifest, Mainfrm);
 
