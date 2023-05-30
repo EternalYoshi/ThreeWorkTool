@@ -173,7 +173,7 @@ namespace ThreeWorkTool.Resources.Archives
                             break;
 
 
-                        //Materials. Incomplete.                        
+                        //Materials. Almost there.                        
                         case "2749C8A8":
                             MaterialEntry Maten = MaterialEntry.FillMatEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(Maten);
@@ -336,7 +336,23 @@ namespace ThreeWorkTool.Resources.Archives
                             IDCounter++;
                             break;
 
+                        //SBKR files.
+                        case "15D782FB":
+                            SoundBankEntry SoundBanken = SoundBankEntry.FillSoundBankEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(SoundBanken);
+                            arcfile.FileList.Add(SoundBanken.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
 
+                        //SRQR files.
+                        case "1BCC4966":
+                            SoundRequestEntry SoundRequesten = SoundRequestEntry.FillSoundRequestEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(SoundRequesten);
+                            arcfile.FileList.Add(SoundRequesten.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
 
                         //New Formats go like this!   
                         /*

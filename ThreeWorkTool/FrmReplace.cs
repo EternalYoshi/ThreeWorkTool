@@ -112,6 +112,8 @@ namespace ThreeWorkTool
                                     ShotEntry shtenty = new ShotEntry();
                                     AnmCmdEntry anmenty = new AnmCmdEntry();
                                     ChrBaseActEntry cbaenty = new ChrBaseActEntry();
+                                    SoundBankEntry sbkrenty = new SoundBankEntry();
+                                    SoundRequestEntry srqrenty = new SoundRequestEntry();
 
                                     if (tno.Tag as ArcEntry != null)
                                     {
@@ -300,6 +302,26 @@ namespace ThreeWorkTool
                                         cbaenty.TrueName = cbaenty.TrueName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                         cbaenty.FileName = cbaenty.FileName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                         tno.Tag = cbaenty;
+                                        tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                    }
+                                    else if (tno.Tag as SoundBankEntry != null)
+                                    {
+                                        sbkrenty = tno.Tag as SoundBankEntry;
+                                        sbkrenty.EntryName = sbkrenty.EntryName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        sbkrenty.TrueName = sbkrenty.TrueName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        sbkrenty.FileName = sbkrenty.FileName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Tag = sbkrenty;
+                                        tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                    }
+                                    else if (tno.Tag as SoundRequestEntry != null)
+                                    {
+                                        srqrenty = tno.Tag as SoundRequestEntry;
+                                        srqrenty.EntryName = srqrenty.EntryName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        srqrenty.TrueName = srqrenty.TrueName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        srqrenty.FileName = srqrenty.FileName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Tag = srqrenty;
                                         tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                         tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                     }

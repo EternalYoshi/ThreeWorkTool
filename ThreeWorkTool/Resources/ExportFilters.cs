@@ -59,7 +59,11 @@
 
         public static string rStgObjLayout = "Stage Object Layout (*.slo)|*.slo";
 
-        public static string rSoundStreamRequest = "Sound Stream Request File (*.stqr)|*.stqr|Moveset File (*.167DBBFF)|*.167DBBFF";
+        public static string rSoundStreamRequest = "Sound Stream Request File (*.stqr)|*.stqr|Sound Stream Request File (*.167DBBFF)|*.167DBBFF";
+
+        public static string rSoundBank = "Sound Bank File (*.sbkr)|*.sbkr|Sound Bank File (*.15D782FB)|*.15D782FB";
+
+        public static string rSoundRequest = "Sound Bank File (*.srqr)|*.srqr|Sound Bank File (*.1BCC4966)|*.1BCC4966";
 
         public static string GetFilter(string filetype)
         {
@@ -155,6 +159,14 @@
                 case ".stqr":
                 case ".167DBBFF":
                     return rSoundStreamRequest;
+
+                case ".sbkr":
+                case ".15D782FB":
+                    return rSoundBank;
+
+                case ".srqr":
+                case ".1BCC4966":
+                    return rSoundRequest;
 
                 default:
                     return Etc; 

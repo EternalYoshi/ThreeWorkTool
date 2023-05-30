@@ -358,6 +358,8 @@
             this.imageList1.Images.SetKeyName(27, "STQR.png");
             this.imageList1.Images.SetKeyName(28, "ANM.png");
             this.imageList1.Images.SetKeyName(29, "CBA.png");
+            this.imageList1.Images.SetKeyName(30, "SBKR.png");
+            this.imageList1.Images.SetKeyName(31, "SRQR.png");
             // 
             // splitContainer1
             // 

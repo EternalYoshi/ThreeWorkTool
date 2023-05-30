@@ -299,6 +299,8 @@
     <Compile Include="Resources\Wrappers\ResourcePathListEntry.cs" />
     <Compile Include="Resources\Wrappers\ShotEntry.cs" />
     <Compile Include="Resources\Wrappers\ShotListEntry.cs" />
+    <Compile Include="Resources\Wrappers\SoundBankEntry.cs" />
+    <Compile Include="Resources\Wrappers\SoundRequestEntry.cs" />
     <Compile Include="Resources\Wrappers\StageObjLayoutEntry.cs" />
     <Compile Include="Resources\Wrappers\STQREntry.cs" />
     <Compile Include="Resources\Wrappers\TextureEntry.cs" />
