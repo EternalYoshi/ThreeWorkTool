@@ -54,6 +54,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             rifentry.CompressedFileLength = rifentry.CompressedData.Length;
             rifentry._CompressedFileLength = rifentry.CompressedData.Length;
             rifentry._FileName = rifentry.TrueName;
+            rifentry.FileName = rifentry.TrueName;
 
             return node.entryfile as RIFFEntry;
         }

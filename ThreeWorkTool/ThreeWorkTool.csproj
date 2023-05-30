@@ -256,11 +256,14 @@
     <Compile Include="Resources\Utility\ENumerators.cs" />
     <Compile Include="Resources\Utility\QToEuler.cs" />
     <Compile Include="Resources\Wrappers\AnimNodes\LMTM3ATrackBuffer.cs" />
+    <Compile Include="Resources\Wrappers\AnmCmdEntry.cs" />
     <Compile Include="Resources\Wrappers\ArcEntryWrapper.cs" />
     <Compile Include="Resources\Wrappers\ArcFileWrapper.cs" />
+    <Compile Include="Resources\Wrappers\AtkInfoEntry.cs" />
     <Compile Include="Resources\Wrappers\ChainCollisionEntry.cs" />
     <Compile Include="Resources\Wrappers\ChainEntry.cs" />
     <Compile Include="Resources\Wrappers\ChainListEntry.cs" />
+    <Compile Include="Resources\Wrappers\ChrBaseActEntry.cs" />
     <Compile Include="Resources\Wrappers\DefaultWrapper.cs" />
     <Compile Include="Resources\Wrappers\EffectListEntry.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\EffectFieldTextureRefernce.cs" />
@@ -294,6 +297,7 @@
     <Compile Include="Resources\Wrappers\ModelNodes\ModelPrimitiveJointLinkEntry.cs" />
     <Compile Include="Resources\Wrappers\MSDEntry.cs" />
     <Compile Include="Resources\Wrappers\ResourcePathListEntry.cs" />
+    <Compile Include="Resources\Wrappers\ShotEntry.cs" />
     <Compile Include="Resources\Wrappers\ShotListEntry.cs" />
     <Compile Include="Resources\Wrappers\StageObjLayoutEntry.cs" />
     <Compile Include="Resources\Wrappers\STQREntry.cs" />

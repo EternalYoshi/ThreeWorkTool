@@ -356,6 +356,8 @@
             this.imageList1.Images.SetKeyName(25, "lsh.png");
             this.imageList1.Images.SetKeyName(26, "SLO.png");
             this.imageList1.Images.SetKeyName(27, "STQR.png");
+            this.imageList1.Images.SetKeyName(28, "ANM.png");
+            this.imageList1.Images.SetKeyName(29, "CBA.png");
             // 
             // splitContainer1
             // 
@@ -551,7 +553,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
-            this.Text = "ThreeWork Tool V0.63b";
+            this.Text = "ThreeWork Tool V0.63c";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
             this.Load += new System.EventHandler(this.FrmMainThree_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMainThree_KeyDown);

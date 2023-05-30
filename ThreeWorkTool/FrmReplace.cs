@@ -108,6 +108,10 @@ namespace ThreeWorkTool
                                     EffectListEntry eflenty = new EffectListEntry();
                                     ShotListEntry lshenty = new ShotListEntry();
                                     RIFFEntry riffenty = new RIFFEntry();
+                                    AtkInfoEntry atienty = new AtkInfoEntry();
+                                    ShotEntry shtenty = new ShotEntry();
+                                    AnmCmdEntry anmenty = new AnmCmdEntry();
+                                    ChrBaseActEntry cbaenty = new ChrBaseActEntry();
 
                                     if (tno.Tag as ArcEntry != null)
                                     {
@@ -256,6 +260,46 @@ namespace ThreeWorkTool
                                         lshenty.TrueName = lshenty.TrueName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                         lshenty.FileName = lshenty.FileName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                         tno.Tag = lshenty;
+                                        tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                    }
+                                    else if (tno.Tag as AtkInfoEntry != null)
+                                    {
+                                        atienty = tno.Tag as AtkInfoEntry;
+                                        atienty.EntryName = atienty.EntryName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        atienty.TrueName = atienty.TrueName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        atienty.FileName = atienty.FileName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Tag = atienty;
+                                        tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                    }
+                                    else if (tno.Tag as ShotEntry != null)
+                                    {
+                                        shtenty = tno.Tag as ShotEntry;
+                                        shtenty.EntryName = shtenty.EntryName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        shtenty.TrueName = shtenty.TrueName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        shtenty.FileName = shtenty.FileName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Tag = shtenty;
+                                        tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                    }
+                                    else if (tno.Tag as AnmCmdEntry != null)
+                                    {
+                                        anmenty = tno.Tag as AnmCmdEntry;
+                                        anmenty.EntryName = anmenty.EntryName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        anmenty.TrueName = anmenty.TrueName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        anmenty.FileName = anmenty.FileName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Tag = anmenty;
+                                        tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                    }
+                                    else if (tno.Tag as ChrBaseActEntry != null)
+                                    {
+                                        cbaenty = tno.Tag as ChrBaseActEntry;
+                                        cbaenty.EntryName = cbaenty.EntryName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        cbaenty.TrueName = cbaenty.TrueName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        cbaenty.FileName = cbaenty.FileName.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                        tno.Tag = cbaenty;
                                         tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                         tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                     }

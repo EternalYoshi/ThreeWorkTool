@@ -43,7 +43,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             tree.BeginUpdate();
 
             ReplaceEntry(tree, node, filename, chnentry, oldentry);
-
+            chnentry.FileName = chnentry.TrueName;
             chnentry.DecompressedFileLength = chnentry.UncompressedData.Length;
             chnentry._DecompressedFileLength = chnentry.UncompressedData.Length;
             chnentry.CompressedFileLength = chnentry.CompressedData.Length;

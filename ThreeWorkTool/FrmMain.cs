@@ -474,6 +474,10 @@ namespace ThreeWorkTool
                                         ShotListEntry lshenty = new ShotListEntry();
                                         StageObjLayoutEntry sloenty = new StageObjLayoutEntry();
                                         STQREntry stqrenty = new STQREntry();
+                                        AtkInfoEntry atienty = new AtkInfoEntry();
+                                        ShotEntry shtenty = new ShotEntry();
+                                        AnmCmdEntry anmenty = new AnmCmdEntry();
+                                        ChrBaseActEntry cbaenty = new ChrBaseActEntry();
 
                                         //New Format should start here!
                                         /*
@@ -1589,7 +1593,260 @@ namespace ThreeWorkTool
                                                 DataEntryOffset = DataEntryOffset + ComSize;
 
                                             }
+                                            else if (treno.Tag as AtkInfoEntry != null)
+                                            {
+                                                atienty = treno.Tag as AtkInfoEntry;
+                                                exportname = "";
 
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "227A8048";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = atienty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = atienty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+                                            else if (treno.Tag as ShotEntry != null)
+                                            {
+                                                shtenty = treno.Tag as ShotEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "10BE43D4";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = shtenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = shtenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+                                            else if (treno.Tag as AnmCmdEntry != null)
+                                            {
+                                                anmenty = treno.Tag as AnmCmdEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "5A7E5D8A";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = anmenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = anmenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+                                            else if (treno.Tag as ChrBaseActEntry != null)
+                                            {
+                                                cbaenty = treno.Tag as ChrBaseActEntry;
+                                                exportname = "";
+
+                                                exportname = treno.FullPath;
+                                                int inp = (exportname.IndexOf("\\")) + 1;
+                                                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                                                int NumberChars = exportname.Length;
+                                                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                                                int nblength = namebuffer.Length;
+
+                                                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                                                byte[] writenamedata = new byte[64];
+                                                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                                                for (int i = 0; i < namebuffer.Length; ++i)
+                                                {
+                                                    writenamedata[i] = namebuffer[i];
+                                                }
+
+                                                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                                                //For the typehash.
+                                                HashType = "3C6EA504";
+                                                byte[] HashBrown = new byte[4];
+                                                HashBrown = StringToByteArray(HashType);
+                                                Array.Reverse(HashBrown);
+                                                if (HashBrown.Length < 4)
+                                                {
+                                                    byte[] PartHash = new byte[] { };
+                                                    PartHash = HashBrown;
+                                                    Array.Resize(ref HashBrown, 4);
+                                                }
+                                                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                                                //For the compressed size.
+                                                ComSize = cbaenty.CompressedData.Length;
+                                                string ComSizeHex = ComSize.ToString("X8");
+                                                byte[] ComPacked = new byte[4];
+                                                ComPacked = StringToByteArray(ComSizeHex);
+                                                Array.Reverse(ComPacked);
+                                                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                                                //For the unpacked size. No clue why all the entries "start" with 40.
+                                                DecSize = cbaenty.UncompressedData.Length + 1073741824;
+                                                string DecSizeHex = DecSize.ToString("X8");
+                                                byte[] DePacked = new byte[4];
+                                                DePacked = StringToByteArray(DecSizeHex);
+                                                Array.Reverse(DePacked);
+                                                bwr.Write(DePacked, 0, DePacked.Length);
+
+                                                //Starting Offset.
+                                                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                                                byte[] DEOffed = new byte[4];
+                                                DEOffed = StringToByteArray(DataEntrySizeHex);
+                                                Array.Reverse(DEOffed);
+                                                bwr.Write(DEOffed, 0, DEOffed.Length);
+                                                DataEntryOffset = DataEntryOffset + ComSize;
+
+                                            }
+                                            
+                                            
                                             #region New Format Code
                                             //New format Entry data insertion goes like this!
                                             /*
@@ -1750,7 +2007,6 @@ namespace ThreeWorkTool
                                                 bwr.Write(CompData, 0, CompData.Length);
                                                 frename.Mainfrm.SaveCounterB++;
                                             }
-
                                             else if (treno.Tag as GemEntry != null)
                                             {
                                                 gementy = treno.Tag as GemEntry;
@@ -1758,7 +2014,6 @@ namespace ThreeWorkTool
                                                 bwr.Write(CompData, 0, CompData.Length);
                                                 frename.Mainfrm.SaveCounterB++;
                                             }
-
                                             else if (treno.Tag as EffectListEntry != null)
                                             {
                                                 eflenty = treno.Tag as EffectListEntry;
@@ -1766,7 +2021,6 @@ namespace ThreeWorkTool
                                                 bwr.Write(CompData, 0, CompData.Length);
                                                 frename.Mainfrm.SaveCounterB++;
                                             }
-
                                             else if (treno.Tag as RIFFEntry != null)
                                             {
                                                 rifenty = treno.Tag as RIFFEntry;
@@ -1795,6 +2049,35 @@ namespace ThreeWorkTool
                                                 bwr.Write(CompData, 0, CompData.Length);
                                                 frename.Mainfrm.SaveCounterB++;
                                             }
+                                            else if (treno.Tag as AtkInfoEntry != null)
+                                            {
+                                                atienty = treno.Tag as AtkInfoEntry;
+                                                byte[] CompData = atienty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                                frename.Mainfrm.SaveCounterB++;
+                                            }
+                                            else if (treno.Tag as ShotEntry != null)
+                                            {
+                                                shtenty = treno.Tag as ShotEntry;
+                                                byte[] CompData = shtenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                                frename.Mainfrm.SaveCounterB++;
+                                            }
+                                            else if (treno.Tag as AnmCmdEntry != null)
+                                            {
+                                                anmenty = treno.Tag as AnmCmdEntry;
+                                                byte[] CompData = anmenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                                frename.Mainfrm.SaveCounterB++;
+                                            }
+                                            else if (treno.Tag as ChrBaseActEntry != null)
+                                            {
+                                                cbaenty = treno.Tag as ChrBaseActEntry;
+                                                byte[] CompData = cbaenty.CompressedData;
+                                                bwr.Write(CompData, 0, CompData.Length);
+                                                frename.Mainfrm.SaveCounterB++;
+                                            }
+
                                             //New format compression data goes like this!
                                             /*
                                             else if(treno.Tag as ***** != null)
@@ -1908,6 +2191,10 @@ namespace ThreeWorkTool
             ShotListEntry lshenty = new ShotListEntry();
             StageObjLayoutEntry sloenty = new StageObjLayoutEntry();
             STQREntry stqrenty = new STQREntry();
+            AtkInfoEntry atienty = new AtkInfoEntry();
+            ShotEntry shtenty = new ShotEntry();
+            AnmCmdEntry anmenty = new AnmCmdEntry();
+            ChrBaseActEntry cbaenty = new ChrBaseActEntry();
 
             //Saving generic files.
             if (treno.Tag as ArcEntry != null)
@@ -3008,6 +3295,257 @@ namespace ThreeWorkTool
                 bwr.Write(DEOffed, 0, DEOffed.Length);
                 DataEntryOffset = DataEntryOffset + ComSize;
             }
+            else if (treno.Tag as AtkInfoEntry != null)
+            {
+                atienty = treno.Tag as AtkInfoEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "227A8048";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = atienty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = atienty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+            }
+            else if (treno.Tag as ShotEntry != null)
+            {
+                shtenty = treno.Tag as ShotEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "10BE43D4";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = shtenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = shtenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+            else if (treno.Tag as AnmCmdEntry != null)
+            {
+                anmenty = treno.Tag as AnmCmdEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "5A7E5D8A";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = anmenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = anmenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
+            else if (treno.Tag as ChrBaseActEntry != null)
+            {
+                cbaenty = treno.Tag as ChrBaseActEntry;
+                exportname = "";
+
+                exportname = treno.FullPath;
+                int inp = (exportname.IndexOf("\\")) + 1;
+                exportname = exportname.Substring(inp, exportname.Length - inp);
+
+                int NumberChars = exportname.Length;
+                byte[] namebuffer = Encoding.ASCII.GetBytes(exportname);
+                int nblength = namebuffer.Length;
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] writenamedata = new byte[64];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                for (int i = 0; i < namebuffer.Length; ++i)
+                {
+                    writenamedata[i] = namebuffer[i];
+                }
+
+                bwr.Write(writenamedata, 0, writenamedata.Length);
+
+                //For the typehash.
+                HashType = "3C6EA504";
+                byte[] HashBrown = new byte[4];
+                HashBrown = StringToByteArray(HashType);
+                Array.Reverse(HashBrown);
+                if (HashBrown.Length < 4)
+                {
+                    byte[] PartHash = new byte[] { };
+                    PartHash = HashBrown;
+                    Array.Resize(ref HashBrown, 4);
+                }
+                bwr.Write(HashBrown, 0, HashBrown.Length);
+
+                //For the compressed size.
+                ComSize = cbaenty.CompressedData.Length;
+                string ComSizeHex = ComSize.ToString("X8");
+                byte[] ComPacked = new byte[4];
+                ComPacked = StringToByteArray(ComSizeHex);
+                Array.Reverse(ComPacked);
+                bwr.Write(ComPacked, 0, ComPacked.Length);
+
+                //For the unpacked size. No clue why all the entries "start" with 40.
+                DecSize = cbaenty.UncompressedData.Length + 1073741824;
+                string DecSizeHex = DecSize.ToString("X8");
+                byte[] DePacked = new byte[4];
+                DePacked = StringToByteArray(DecSizeHex);
+                Array.Reverse(DePacked);
+                bwr.Write(DePacked, 0, DePacked.Length);
+
+                //Starting Offset.
+                string DataEntrySizeHex = DataEntryOffset.ToString("X8");
+                byte[] DEOffed = new byte[4];
+                DEOffed = StringToByteArray(DataEntrySizeHex);
+                Array.Reverse(DEOffed);
+                bwr.Write(DEOffed, 0, DEOffed.Length);
+                DataEntryOffset = DataEntryOffset + ComSize;
+
+            }
 
             #region New Format Code
             //New format Entry data insertion goes like this!
@@ -3106,6 +3644,10 @@ namespace ThreeWorkTool
             ShotListEntry lshenty = new ShotListEntry();
             StageObjLayoutEntry sloenty = new StageObjLayoutEntry();
             STQREntry stqrenty = new STQREntry();
+            AtkInfoEntry atienty = new AtkInfoEntry();
+            ShotEntry shtenty = new ShotEntry();
+            AnmCmdEntry anmenty = new AnmCmdEntry();
+            ChrBaseActEntry cbaenty = new ChrBaseActEntry();
 
             if (treno.Tag as ArcEntry != null)
             {
@@ -3213,6 +3755,31 @@ namespace ThreeWorkTool
                 byte[] CompData = stqrenty.CompressedData;
                 bwr.Write(CompData, 0, CompData.Length);
             }
+            else if (treno.Tag as AtkInfoEntry != null)
+            {
+                atienty = treno.Tag as AtkInfoEntry;
+                byte[] CompData = atienty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as ShotEntry != null)
+            {
+                shtenty = treno.Tag as ShotEntry;
+                byte[] CompData = shtenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as AnmCmdEntry != null)
+            {
+                anmenty = treno.Tag as AnmCmdEntry;
+                byte[] CompData = anmenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+            else if (treno.Tag as ChrBaseActEntry != null)
+            {
+                cbaenty = treno.Tag as ChrBaseActEntry;
+                byte[] CompData = cbaenty.CompressedData;
+                bwr.Write(CompData, 0, CompData.Length);
+            }
+
             //New format compression data goes like this!
             /*
             else if(treno.Tag as ***** != null)
@@ -4649,7 +5216,7 @@ namespace ThreeWorkTool
                     //Writes to log file.
                     ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
-                        sw.WriteLine("Exported a ***** Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                        sw.WriteLine("Exported a StageDataObjectList Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -4672,6 +5239,94 @@ namespace ThreeWorkTool
                     ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
                         sw.WriteLine("Exported a STQR Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.AtkInfoEntry":
+                    AtkInfoEntry atientry = new AtkInfoEntry();
+                    if (tag is AtkInfoEntry)
+                    {
+
+                        atientry = frename.Mainfrm.TreeSource.SelectedNode.Tag as AtkInfoEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(atientry.FileExt);
+                    }
+                    EXDialog.FileName = atientry.FileName + atientry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.AtkInfoWriter(EXDialog.FileName, atientry);
+                    }
+
+                    //Writes to log file.
+                    ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                    {
+                        sw.WriteLine("Exported a AtkInfo Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ShotEntry":
+                    ShotEntry shtentry = new ShotEntry();
+                    if (tag is ShotEntry)
+                    {
+
+                        shtentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ShotEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(shtentry.FileExt);
+                    }
+                    EXDialog.FileName = shtentry.FileName + shtentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.ShotWriter(EXDialog.FileName, shtentry);
+                    }
+
+                    //Writes to log file.
+                    ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                    {
+                        sw.WriteLine("Exported a Shot Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.AnmCmdEntry":
+                    AnmCmdEntry anmentry = new AnmCmdEntry();
+                    if (tag is AnmCmdEntry)
+                    {
+
+                        anmentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as AnmCmdEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(anmentry.FileExt);
+                    }
+                    EXDialog.FileName = anmentry.FileName + anmentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.AnmCmdWriter(EXDialog.FileName, anmentry);
+                    }
+
+                    //Writes to log file.
+                    ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                    {
+                        sw.WriteLine("Exported a AnmCmd Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
+                case "ThreeWorkTool.Resources.Wrappers.ChrBaseActEntry":
+                    ChrBaseActEntry cbaentry = new ChrBaseActEntry();
+                    if (tag is ChrBaseActEntry)
+                    {
+
+                        cbaentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ChrBaseActEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(cbaentry.FileExt);
+                    }
+                    EXDialog.FileName = cbaentry.FileName + cbaentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.ChrBaseActWriter(EXDialog.FileName, cbaentry);
+                    }
+
+                    //Writes to log file.
+                    ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                    {
+                        sw.WriteLine("Exported a ChrBaseAct Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -6342,6 +6997,342 @@ namespace ThreeWorkTool
 
             }
 
+            else if (tag is AtkInfoEntry)
+            {
+                AtkInfoEntry SLOEntEntry = new AtkInfoEntry();
+                SLOEntEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as AtkInfoEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(SLOEntEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            AtkInfoEntry Oldaent = new AtkInfoEntry();
+                            AtkInfoEntry Newaent = new AtkInfoEntry();
+                            Oldaent = OldWrapper.entryfile as AtkInfoEntry;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = AtkInfoEntry.ReplaceAtkInfoEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as AtkInfoEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+            }
+
+            else if (tag is ShotEntry)
+            {
+                ShotEntry SLOEntEntry = new ShotEntry();
+                SLOEntEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ShotEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(SLOEntEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            ShotEntry Oldaent = new ShotEntry();
+                            ShotEntry Newaent = new ShotEntry();
+                            Oldaent = OldWrapper.entryfile as ShotEntry;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = ShotEntry.ReplaceShotEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as ShotEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+            }
+
+            else if (tag is AnmCmdEntry)
+            {
+                AnmCmdEntry SLOEntEntry = new AnmCmdEntry();
+                SLOEntEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as AnmCmdEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(SLOEntEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            AnmCmdEntry Oldaent = new AnmCmdEntry();
+                            AnmCmdEntry Newaent = new AnmCmdEntry();
+                            Oldaent = OldWrapper.entryfile as AnmCmdEntry;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = AnmCmdEntry.ReplaceAnmCmdEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as AnmCmdEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+            }
+
+            else if (tag is ChrBaseActEntry)
+            {
+                ChrBaseActEntry SLOEntEntry = new ChrBaseActEntry();
+                SLOEntEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ChrBaseActEntry;
+                RPDialog.Filter = ExportFilters.GetFilter(SLOEntEntry.FileExt);
+
+                if (RPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+
+                    switch (helper)
+                    {
+                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            ChrBaseActEntry Oldaent = new ChrBaseActEntry();
+                            ChrBaseActEntry Newaent = new ChrBaseActEntry();
+                            Oldaent = OldWrapper.entryfile as ChrBaseActEntry;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = ChrBaseActEntry.ReplaceChrBaseActEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as ChrBaseActEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                    frename.Mainfrm.TreeSource.EndUpdate();
+
+                }
+
+            }
+
 
             else
             {
@@ -7982,75 +8973,6 @@ namespace ThreeWorkTool
                         break;
                     #endregion
 
-                    #region ANM
-
-                    case ".anm":
-                    case ".5A7E5D8A":
-                        frename.Mainfrm.TreeSource.BeginUpdate();
-                        ArcEntryWrapper NewWrapperANM = new ArcEntryWrapper();
-                        ArcEntry ANMEntry = new ArcEntry();
-
-                        ANMEntry = ArcEntry.InsertArcEntry(frename.Mainfrm.TreeSource, NewWrapperANM, IMPDialog.FileName);
-                        NewWrapperANM.Tag = ANMEntry;
-                        NewWrapperANM.Text = ANMEntry.TrueName;
-                        NewWrapperANM.Name = ANMEntry.TrueName;
-                        NewWrapperANM.FileExt = ANMEntry.FileExt;
-                        NewWrapperANM.entryData = ANMEntry;
-
-                        string actualname = DefaultWrapper.HashExtensionCheck(IMPDialog.FileName);
-
-
-                        frename.Mainfrm.IconSetter(NewWrapperANM, NewWrapperANM.FileExt);
-
-                        NewWrapperANM.ContextMenuStrip = GenericFileContextAdder(NewWrapperANM, frename.Mainfrm.TreeSource);
-
-                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperANM);
-
-                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperANM;
-
-                        frename.Mainfrm.OpenFileModified = true;
-
-                        string typeANM = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
-                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                        frename.Mainfrm.TreeSource.EndUpdate();
-
-                        TreeNode rootnodeANM = new TreeNode();
-                        TreeNode selectednodeANM = new TreeNode();
-                        selectednodeANM = frename.Mainfrm.TreeSource.SelectedNode;
-                        rootnodeANM = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeANM;
-
-                        int filecountANM = 0;
-
-                        ArcFile rootarcANM = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
-                        if (rootarcANM != null)
-                        {
-                            filecountANM = rootarcANM.FileCount;
-                            filecountANM++;
-                            rootarcANM.FileCount++;
-                            rootarcANM.FileAmount++;
-                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcANM;
-                        }
-
-
-
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountANM);
-                            sw.WriteLine("===============================================================================================================");
-                        }
-
-                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeANM;
-                        break;
-
-                    #endregion
-
                     #region STQR
                     case ".stqr":
                         frename.Mainfrm.TreeSource.BeginUpdate();
@@ -8117,6 +9039,264 @@ namespace ThreeWorkTool
 
                         break;
                     #endregion
+
+                    #region AtkInfo
+                    case ".ati":
+                    case ".227A8048":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperAtkInfo = new ArcEntryWrapper();
+                        AtkInfoEntry atiEntry = new AtkInfoEntry();
+
+                        atiEntry = AtkInfoEntry.InsertAtkInfoEntry(frename.Mainfrm.TreeSource, NewWrapperAtkInfo, IMPDialog.FileName);
+                        NewWrapperAtkInfo.Tag = atiEntry;
+                        NewWrapperAtkInfo.Text = atiEntry.TrueName;
+                        NewWrapperAtkInfo.Name = atiEntry.TrueName;
+                        NewWrapperAtkInfo.FileExt = atiEntry.FileExt;
+                        NewWrapperAtkInfo.entryData = atiEntry;
+                        NewWrapperAtkInfo.entryfile = atiEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperAtkInfo, NewWrapperAtkInfo.FileExt);
+
+                        NewWrapperAtkInfo.ContextMenuStrip = GenericFileContextAdder(NewWrapperAtkInfo, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperAtkInfo);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperAtkInfo;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string typeAtkInfo = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeAtkInfo = new TreeNode();
+                        TreeNode selectednodeAtkInfo = new TreeNode();
+                        selectednodeAtkInfo = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeAtkInfo = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeAtkInfo;
+
+                        int filecountAtkInfo = 0;
+
+                        ArcFile rootarcAtkInfo = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcAtkInfo != null)
+                        {
+                            filecountAtkInfo = rootarcAtkInfo.FileCount;
+                            filecountAtkInfo++;
+                            rootarcAtkInfo.FileCount++;
+                            rootarcAtkInfo.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcAtkInfo;
+                        }
+
+                        //Writes to log file.
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountAtkInfo);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeAtkInfo;
+
+                        break;
+                    #endregion
+
+                    #region Shot
+                    case ".sht":
+                    case ".10BE43D4":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperShot = new ArcEntryWrapper();
+                        ShotEntry shtEntry = new ShotEntry();
+
+                        shtEntry = ShotEntry.InsertShotEntry(frename.Mainfrm.TreeSource, NewWrapperShot, IMPDialog.FileName);
+                        NewWrapperShot.Tag = shtEntry;
+                        NewWrapperShot.Text = shtEntry.TrueName;
+                        NewWrapperShot.Name = shtEntry.TrueName;
+                        NewWrapperShot.FileExt = shtEntry.FileExt;
+                        NewWrapperShot.entryData = shtEntry;
+                        NewWrapperShot.entryfile = shtEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperShot, NewWrapperShot.FileExt);
+
+                        NewWrapperShot.ContextMenuStrip = GenericFileContextAdder(NewWrapperShot, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperShot);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperShot;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string typeShot = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeShot = new TreeNode();
+                        TreeNode selectednodeShot = new TreeNode();
+                        selectednodeShot = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeShot = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeShot;
+
+                        int filecountShot = 0;
+
+                        ArcFile rootarcShot = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcShot != null)
+                        {
+                            filecountShot = rootarcShot.FileCount;
+                            filecountShot++;
+                            rootarcShot.FileCount++;
+                            rootarcShot.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcShot;
+                        }
+
+                        //Writes to log file.
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountShot);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeShot;
+
+                        break;
+                    #endregion
+
+                    #region AnmCmd
+                    case ".anm":
+                    case ".5A7E5D8A":
+
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperAnmCmd = new ArcEntryWrapper();
+                        AnmCmdEntry anmEntry = new AnmCmdEntry();
+
+                        anmEntry = AnmCmdEntry.InsertAnmCmdEntry(frename.Mainfrm.TreeSource, NewWrapperAnmCmd, IMPDialog.FileName);
+                        NewWrapperAnmCmd.Tag = anmEntry;
+                        NewWrapperAnmCmd.Text = anmEntry.TrueName;
+                        NewWrapperAnmCmd.Name = anmEntry.TrueName;
+                        NewWrapperAnmCmd.FileExt = anmEntry.FileExt;
+                        NewWrapperAnmCmd.entryData = anmEntry;
+                        NewWrapperAnmCmd.entryfile = anmEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperAnmCmd, NewWrapperAnmCmd.FileExt);
+
+                        NewWrapperAnmCmd.ContextMenuStrip = GenericFileContextAdder(NewWrapperAnmCmd, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperAnmCmd);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperAnmCmd;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string typeAnmCmd = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeAnmCmd = new TreeNode();
+                        TreeNode selectednodeAnmCmd = new TreeNode();
+                        selectednodeAnmCmd = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeAnmCmd = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeAnmCmd;
+
+                        int filecountAnmCmd = 0;
+
+                        ArcFile rootarcAnmCmd = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcAnmCmd != null)
+                        {
+                            filecountAnmCmd = rootarcAnmCmd.FileCount;
+                            filecountAnmCmd++;
+                            rootarcAnmCmd.FileCount++;
+                            rootarcAnmCmd.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcAnmCmd;
+                        }
+
+                        //Writes to log file.
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountAnmCmd);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeAnmCmd;
+
+                        break;
+                    #endregion
+
+                    #region ChrBaseAct
+                    case ".cba":
+                    case ".3C6EA504":
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+                        ArcEntryWrapper NewWrapperChrBaseAct = new ArcEntryWrapper();
+                        ChrBaseActEntry cbaEntry = new ChrBaseActEntry();
+
+                        cbaEntry = ChrBaseActEntry.InsertChrBaseActEntry(frename.Mainfrm.TreeSource, NewWrapperChrBaseAct, IMPDialog.FileName);
+                        NewWrapperChrBaseAct.Tag = cbaEntry;
+                        NewWrapperChrBaseAct.Text = cbaEntry.TrueName;
+                        NewWrapperChrBaseAct.Name = cbaEntry.TrueName;
+                        NewWrapperChrBaseAct.FileExt = cbaEntry.FileExt;
+                        NewWrapperChrBaseAct.entryData = cbaEntry;
+                        NewWrapperChrBaseAct.entryfile = cbaEntry;
+
+                        frename.Mainfrm.IconSetter(NewWrapperChrBaseAct, NewWrapperChrBaseAct.FileExt);
+
+                        NewWrapperChrBaseAct.ContextMenuStrip = GenericFileContextAdder(NewWrapperChrBaseAct, frename.Mainfrm.TreeSource);
+
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperChrBaseAct);
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperChrBaseAct;
+
+                        frename.Mainfrm.OpenFileModified = true;
+
+                        string typeChrBaseAct = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        TreeNode rootnodeChrBaseAct = new TreeNode();
+                        TreeNode selectednodeChrBaseAct = new TreeNode();
+                        selectednodeChrBaseAct = frename.Mainfrm.TreeSource.SelectedNode;
+                        rootnodeChrBaseAct = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeChrBaseAct;
+
+                        int filecountChrBaseAct = 0;
+
+                        ArcFile rootarcChrBaseAct = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                        if (rootarcChrBaseAct != null)
+                        {
+                            filecountChrBaseAct = rootarcChrBaseAct.FileCount;
+                            filecountChrBaseAct++;
+                            rootarcChrBaseAct.FileCount++;
+                            rootarcChrBaseAct.FileAmount++;
+                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcChrBaseAct;
+                        }
+
+                        //Writes to log file.
+                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                        {
+                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
+                            sw.WriteLine("===============================================================================================================");
+                            int entrycount = 0;
+                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                            sw.WriteLine("Current file Count: " + filecountChrBaseAct);
+                            sw.WriteLine("===============================================================================================================");
+                        }
+
+                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeChrBaseAct;
+
+                        break;
+                    #endregion
+
 
                     #region YML
                     case ".yml":
@@ -9420,6 +10600,264 @@ namespace ThreeWorkTool
 
                         #endregion
 
+                        #region AtkInfo
+                        case ".ati":
+                        case ".227A8048":
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+                            ArcEntryWrapper NewWrapperAtkInfo = new ArcEntryWrapper();
+                            AtkInfoEntry atiEntry = new AtkInfoEntry();
+
+                            atiEntry = AtkInfoEntry.InsertAtkInfoEntry(frename.Mainfrm.TreeSource, NewWrapperAtkInfo, Filename);
+                            NewWrapperAtkInfo.Tag = atiEntry;
+                            NewWrapperAtkInfo.Text = atiEntry.TrueName;
+                            NewWrapperAtkInfo.Name = atiEntry.TrueName;
+                            NewWrapperAtkInfo.FileExt = atiEntry.FileExt;
+                            NewWrapperAtkInfo.entryData = atiEntry;
+                            NewWrapperAtkInfo.entryfile = atiEntry;
+
+                            frename.Mainfrm.IconSetter(NewWrapperAtkInfo, NewWrapperAtkInfo.FileExt);
+
+                            NewWrapperAtkInfo.ContextMenuStrip = GenericFileContextAdder(NewWrapperAtkInfo, frename.Mainfrm.TreeSource);
+
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperAtkInfo);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperAtkInfo;
+
+                            frename.Mainfrm.OpenFileModified = true;
+
+                            string typeAtkInfo = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            TreeNode rootnodeAtkInfo = new TreeNode();
+                            TreeNode selectednodeAtkInfo = new TreeNode();
+                            selectednodeAtkInfo = frename.Mainfrm.TreeSource.SelectedNode;
+                            rootnodeAtkInfo = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                            frename.Mainfrm.TreeSource.SelectedNode = rootnodeAtkInfo;
+
+                            int filecountAtkInfo = 0;
+
+                            ArcFile rootarcAtkInfo = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                            if (rootarcAtkInfo != null)
+                            {
+                                filecountAtkInfo = rootarcAtkInfo.FileCount;
+                                filecountAtkInfo++;
+                                rootarcAtkInfo.FileCount++;
+                                rootarcAtkInfo.FileAmount++;
+                                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcAtkInfo;
+                            }
+
+                            //Writes to log file.
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                            {
+                                sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + filecountAtkInfo);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeAtkInfo;
+
+                            break;
+                        #endregion
+
+                        #region Shot
+                        case ".sht":
+                        case ".10BE43D4":
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+                            ArcEntryWrapper NewWrapperShot = new ArcEntryWrapper();
+                            ShotEntry shtEntry = new ShotEntry();
+
+                            shtEntry = ShotEntry.InsertShotEntry(frename.Mainfrm.TreeSource, NewWrapperShot, Filename);
+                            NewWrapperShot.Tag = shtEntry;
+                            NewWrapperShot.Text = shtEntry.TrueName;
+                            NewWrapperShot.Name = shtEntry.TrueName;
+                            NewWrapperShot.FileExt = shtEntry.FileExt;
+                            NewWrapperShot.entryData = shtEntry;
+                            NewWrapperShot.entryfile = shtEntry;
+
+                            frename.Mainfrm.IconSetter(NewWrapperShot, NewWrapperShot.FileExt);
+
+                            NewWrapperShot.ContextMenuStrip = GenericFileContextAdder(NewWrapperShot, frename.Mainfrm.TreeSource);
+
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperShot);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperShot;
+
+                            frename.Mainfrm.OpenFileModified = true;
+
+                            string typeShot = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            TreeNode rootnodeShot = new TreeNode();
+                            TreeNode selectednodeShot = new TreeNode();
+                            selectednodeShot = frename.Mainfrm.TreeSource.SelectedNode;
+                            rootnodeShot = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                            frename.Mainfrm.TreeSource.SelectedNode = rootnodeShot;
+
+                            int filecountShot = 0;
+
+                            ArcFile rootarcShot = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                            if (rootarcShot != null)
+                            {
+                                filecountShot = rootarcShot.FileCount;
+                                filecountShot++;
+                                rootarcShot.FileCount++;
+                                rootarcShot.FileAmount++;
+                                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcShot;
+                            }
+
+                            //Writes to log file.
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                            {
+                                sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + filecountShot);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeShot;
+
+                            break;
+                        #endregion
+
+                        #region AnmCmd
+                        case ".anm":
+                        case ".5A7E5D8A":
+
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+                            ArcEntryWrapper NewWrapperAnmCmd = new ArcEntryWrapper();
+                            AnmCmdEntry anmEntry = new AnmCmdEntry();
+
+                            anmEntry = AnmCmdEntry.InsertAnmCmdEntry(frename.Mainfrm.TreeSource, NewWrapperAnmCmd, Filename);
+                            NewWrapperAnmCmd.Tag = anmEntry;
+                            NewWrapperAnmCmd.Text = anmEntry.TrueName;
+                            NewWrapperAnmCmd.Name = anmEntry.TrueName;
+                            NewWrapperAnmCmd.FileExt = anmEntry.FileExt;
+                            NewWrapperAnmCmd.entryData = anmEntry;
+                            NewWrapperAnmCmd.entryfile = anmEntry;
+
+                            frename.Mainfrm.IconSetter(NewWrapperAnmCmd, NewWrapperAnmCmd.FileExt);
+
+                            NewWrapperAnmCmd.ContextMenuStrip = GenericFileContextAdder(NewWrapperAnmCmd, frename.Mainfrm.TreeSource);
+
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperAnmCmd);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperAnmCmd;
+
+                            frename.Mainfrm.OpenFileModified = true;
+
+                            string typeAnmCmd = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            TreeNode rootnodeAnmCmd = new TreeNode();
+                            TreeNode selectednodeAnmCmd = new TreeNode();
+                            selectednodeAnmCmd = frename.Mainfrm.TreeSource.SelectedNode;
+                            rootnodeAnmCmd = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                            frename.Mainfrm.TreeSource.SelectedNode = rootnodeAnmCmd;
+
+                            int filecountAnmCmd = 0;
+
+                            ArcFile rootarcAnmCmd = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                            if (rootarcAnmCmd != null)
+                            {
+                                filecountAnmCmd = rootarcAnmCmd.FileCount;
+                                filecountAnmCmd++;
+                                rootarcAnmCmd.FileCount++;
+                                rootarcAnmCmd.FileAmount++;
+                                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcAnmCmd;
+                            }
+
+                            //Writes to log file.
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                            {
+                                sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + filecountAnmCmd);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeAnmCmd;
+
+                            break;
+                        #endregion
+
+                        #region ChrBaseAct
+                        case ".cba":
+                        case ".3C6EA504":
+                            frename.Mainfrm.TreeSource.BeginUpdate();
+                            ArcEntryWrapper NewWrapperChrBaseAct = new ArcEntryWrapper();
+                            ChrBaseActEntry cbaEntry = new ChrBaseActEntry();
+
+                            cbaEntry = ChrBaseActEntry.InsertChrBaseActEntry(frename.Mainfrm.TreeSource, NewWrapperChrBaseAct, Filename);
+                            NewWrapperChrBaseAct.Tag = cbaEntry;
+                            NewWrapperChrBaseAct.Text = cbaEntry.TrueName;
+                            NewWrapperChrBaseAct.Name = cbaEntry.TrueName;
+                            NewWrapperChrBaseAct.FileExt = cbaEntry.FileExt;
+                            NewWrapperChrBaseAct.entryData = cbaEntry;
+                            NewWrapperChrBaseAct.entryfile = cbaEntry;
+
+                            frename.Mainfrm.IconSetter(NewWrapperChrBaseAct, NewWrapperChrBaseAct.FileExt);
+
+                            NewWrapperChrBaseAct.ContextMenuStrip = GenericFileContextAdder(NewWrapperChrBaseAct, frename.Mainfrm.TreeSource);
+
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperChrBaseAct);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperChrBaseAct;
+
+                            frename.Mainfrm.OpenFileModified = true;
+
+                            string typeChrBaseAct = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                            frename.Mainfrm.TreeSource.EndUpdate();
+
+                            TreeNode rootnodeChrBaseAct = new TreeNode();
+                            TreeNode selectednodeChrBaseAct = new TreeNode();
+                            selectednodeChrBaseAct = frename.Mainfrm.TreeSource.SelectedNode;
+                            rootnodeChrBaseAct = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                            frename.Mainfrm.TreeSource.SelectedNode = rootnodeChrBaseAct;
+
+                            int filecountChrBaseAct = 0;
+
+                            ArcFile rootarcChrBaseAct = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                            if (rootarcChrBaseAct != null)
+                            {
+                                filecountChrBaseAct = rootarcChrBaseAct.FileCount;
+                                filecountChrBaseAct++;
+                                rootarcChrBaseAct.FileCount++;
+                                rootarcChrBaseAct.FileAmount++;
+                                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcChrBaseAct;
+                            }
+
+                            //Writes to log file.
+                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                            {
+                                sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
+                                sw.WriteLine("===============================================================================================================");
+                                int entrycount = 0;
+                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                sw.WriteLine("Current file Count: " + filecountChrBaseAct);
+                                sw.WriteLine("===============================================================================================================");
+                            }
+
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeChrBaseAct;
+
+                            break;
+                        #endregion
+
+
 
                         //For everything else.
                         default:
@@ -10044,6 +11482,70 @@ namespace ThreeWorkTool
                                 System.IO.Directory.CreateDirectory(ExportPath);
                                 ExportPath = ExportPath + stqrENT.FileName + stqrENT.FileExt;
                                 ExportFileWriter.STQRWriter(ExportPath, stqrENT);
+                            }
+
+                            else if (kid.Tag is AtkInfoEntry)
+                            {
+                                AtkInfoEntry atiENT = kid.Tag as AtkInfoEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + atiENT.FileName + atiENT.FileExt;
+                                ExportFileWriter.AtkInfoWriter(ExportPath, atiENT);
+                            }
+
+                            else if (kid.Tag is ShotEntry)
+                            {
+                                ShotEntry shtENT = kid.Tag as ShotEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + shtENT.FileName + shtENT.FileExt;
+                                ExportFileWriter.ShotWriter(ExportPath, shtENT);
+                            }
+
+                            else if (kid.Tag is AnmCmdEntry)
+                            {
+                                AnmCmdEntry anmENT = kid.Tag as AnmCmdEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + anmENT.FileName + anmENT.FileExt;
+                                ExportFileWriter.AnmCmdWriter(ExportPath, anmENT);
+                            }
+
+                            else if (kid.Tag is ChrBaseActEntry)
+                            {
+                                ChrBaseActEntry cbaENT = kid.Tag as ChrBaseActEntry;
+                                if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                                {
+                                    ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                                    ExportPath = FolderName + ExportPath;
+                                }
+                                dindex = ExportPath.LastIndexOf('\\') + 1;
+                                ExportPath = ExportPath.Substring(0, dindex);
+                                ExportPath = BaseDirectory + ExportPath + "\\";
+                                System.IO.Directory.CreateDirectory(ExportPath);
+                                ExportPath = ExportPath + cbaENT.FileName + cbaENT.FileExt;
+                                ExportFileWriter.ChrBaseActWriter(ExportPath, cbaENT);
                             }
 
                             /*
@@ -12198,23 +13700,23 @@ namespace ThreeWorkTool
 
                                     }
 
-                                    else if (tag is STQREntry)
+                                    else if (tag is AtkInfoEntry)
                                     {
                                         string TexToCheck = "";
-                                        TexToCheck = NeededFilePath + ".stqr";
+                                        TexToCheck = NeededFilePath + ".ati";
 
                                         if (File.Exists(TexToCheck))
                                         {
                                             frename.Mainfrm.TreeSource.SelectedNode = tno;
-                                            STQREntry Mentry = tno.Tag as STQREntry;
+                                            AtkInfoEntry Mentry = tno.Tag as AtkInfoEntry;
                                             ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
                                             ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
 
                                             OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                                             string oldname = OldWrapper.Name;
-                                            STQREntry Oldaent = new STQREntry();
-                                            STQREntry Newaent = new STQREntry();
-                                            Oldaent = OldWrapper.entryfile as STQREntry;
+                                            AtkInfoEntry Oldaent = new AtkInfoEntry();
+                                            AtkInfoEntry Newaent = new AtkInfoEntry();
+                                            Oldaent = OldWrapper.entryfile as AtkInfoEntry;
                                             string temp = OldWrapper.FullPath;
                                             temp = temp.Substring(temp.IndexOf(("\\")) + 1);
                                             temp = temp.Substring(0, temp.LastIndexOf(("\\")));
@@ -12222,12 +13724,12 @@ namespace ThreeWorkTool
                                             string[] paths = temp.Split('\\');
                                             NewWrapper = tno as ArcEntryWrapper;
                                             int indexZ = tno.Index;
-                                            NewWrapper.Tag = STQREntry.ReplaceSTQREntry(frename.Mainfrm.TreeSource, NewWrapper, TexToCheck);
+                                            NewWrapper.Tag = AtkInfoEntry.ReplaceAtkInfoEntry(frename.Mainfrm.TreeSource, NewWrapper, TexToCheck);
                                             NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
 
                                             //Takes the path data from the old node and slaps it on the new node.
-                                            Newaent = NewWrapper.entryfile as STQREntry;
+                                            Newaent = NewWrapper.entryfile as AtkInfoEntry;
                                             Newaent.EntryDirs = paths;
                                             NewWrapper.entryfile = Newaent;
 
@@ -12255,14 +13757,84 @@ namespace ThreeWorkTool
 
                                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
-                                            //Removes the old child nodes.
-                                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+                                            frename.Mainfrm.OpenFileModified = true;
+                                            frename.Mainfrm.TreeSource.SelectedNode.GetType();
 
-                                            //Creates the SLO Children of the new node.
-                                            frename.Mainfrm.STQRChildrenCreation(NewWrapper, NewWrapper.Tag as STQREntry);
+                                            string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                            frename.Mainfrm.TreeSource.EndUpdate();
+                                            //Writes to log file.
+                                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                                            {
+                                                sw.WriteLine("Replaced a file: " + TexToCheck + "\nCurrent File List:\n");
+                                                sw.WriteLine("===============================================================================================================");
+                                                int entrycount = 0;
+                                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                                sw.WriteLine("Current file Count: " + entrycount);
+                                                sw.WriteLine("===============================================================================================================");
+                                            }
+
+                                        }
+
+                                    }
+
+                                    else if (tag is ShotEntry)
+                                    {
+                                        string TexToCheck = "";
+                                        TexToCheck = NeededFilePath + ".sht";
+
+                                        if (File.Exists(TexToCheck))
+                                        {
+                                            frename.Mainfrm.TreeSource.SelectedNode = tno;
+                                            ShotEntry Mentry = tno.Tag as ShotEntry;
+                                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                            string oldname = OldWrapper.Name;
+                                            ShotEntry Oldaent = new ShotEntry();
+                                            ShotEntry Newaent = new ShotEntry();
+                                            Oldaent = OldWrapper.entryfile as ShotEntry;
+                                            string temp = OldWrapper.FullPath;
+                                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                                            string[] paths = temp.Split('\\');
+                                            NewWrapper = tno as ArcEntryWrapper;
+                                            int indexZ = tno.Index;
+                                            NewWrapper.Tag = ShotEntry.ReplaceShotEntry(frename.Mainfrm.TreeSource, NewWrapper, TexToCheck);
+                                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+
+                                            //Takes the path data from the old node and slaps it on the new node.
+                                            Newaent = NewWrapper.entryfile as ShotEntry;
+                                            Newaent.EntryDirs = paths;
+                                            NewWrapper.entryfile = Newaent;
+
+                                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                                            //Pathing.
+                                            foreach (string Folder in paths)
+                                            {
+                                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                                {
+                                                    TreeNode folder = new TreeNode();
+                                                    folder.Name = Folder;
+                                                    folder.Tag = Folder;
+                                                    folder.Text = Folder;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                                }
+                                                else
+                                                {
+                                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                                }
+                                            }
+
                                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
-                                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
-                                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                                             frename.Mainfrm.OpenFileModified = true;
                                             frename.Mainfrm.TreeSource.SelectedNode.GetType();
@@ -12286,12 +13858,188 @@ namespace ThreeWorkTool
 
                                     }
 
+                                    else if (tag is AnmCmdEntry)
+                                    {
+                                        string TexToCheck = "";
+                                        TexToCheck = NeededFilePath + ".anm";
+
+                                        if (File.Exists(TexToCheck))
+                                        {
+                                            frename.Mainfrm.TreeSource.SelectedNode = tno;
+                                            AnmCmdEntry Mentry = tno.Tag as AnmCmdEntry;
+                                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                            string oldname = OldWrapper.Name;
+                                            AnmCmdEntry Oldaent = new AnmCmdEntry();
+                                            AnmCmdEntry Newaent = new AnmCmdEntry();
+                                            Oldaent = OldWrapper.entryfile as AnmCmdEntry;
+                                            string temp = OldWrapper.FullPath;
+                                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                                            string[] paths = temp.Split('\\');
+                                            NewWrapper = tno as ArcEntryWrapper;
+                                            int indexZ = tno.Index;
+                                            NewWrapper.Tag = AnmCmdEntry.ReplaceAnmCmdEntry(frename.Mainfrm.TreeSource, NewWrapper, TexToCheck);
+                                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+
+                                            //Takes the path data from the old node and slaps it on the new node.
+                                            Newaent = NewWrapper.entryfile as AnmCmdEntry;
+                                            Newaent.EntryDirs = paths;
+                                            NewWrapper.entryfile = Newaent;
+
+                                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                                            //Pathing.
+                                            foreach (string Folder in paths)
+                                            {
+                                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                                {
+                                                    TreeNode folder = new TreeNode();
+                                                    folder.Name = Folder;
+                                                    folder.Tag = Folder;
+                                                    folder.Text = Folder;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                                }
+                                                else
+                                                {
+                                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                                }
+                                            }
+
+                                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                                            frename.Mainfrm.OpenFileModified = true;
+                                            frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                                            string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                            frename.Mainfrm.TreeSource.EndUpdate();
+                                            //Writes to log file.
+                                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                                            {
+                                                sw.WriteLine("Replaced a file: " + TexToCheck + "\nCurrent File List:\n");
+                                                sw.WriteLine("===============================================================================================================");
+                                                int entrycount = 0;
+                                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                                sw.WriteLine("Current file Count: " + entrycount);
+                                                sw.WriteLine("===============================================================================================================");
+                                            }
+
+                                        }
+
+                                    }
+
+                                    else if (tag is ChrBaseActEntry)
+                                    {
+                                        string TexToCheck = "";
+                                        TexToCheck = NeededFilePath + ".cba";
+
+                                        if (File.Exists(TexToCheck))
+                                        {
+                                            frename.Mainfrm.TreeSource.SelectedNode = tno;
+                                            ChrBaseActEntry Mentry = tno.Tag as ChrBaseActEntry;
+                                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                            string oldname = OldWrapper.Name;
+                                            ChrBaseActEntry Oldaent = new ChrBaseActEntry();
+                                            ChrBaseActEntry Newaent = new ChrBaseActEntry();
+                                            Oldaent = OldWrapper.entryfile as ChrBaseActEntry;
+                                            string temp = OldWrapper.FullPath;
+                                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                                            string[] paths = temp.Split('\\');
+                                            NewWrapper = tno as ArcEntryWrapper;
+                                            int indexZ = tno.Index;
+                                            NewWrapper.Tag = ChrBaseActEntry.ReplaceChrBaseActEntry(frename.Mainfrm.TreeSource, NewWrapper, TexToCheck);
+                                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+
+                                            //Takes the path data from the old node and slaps it on the new node.
+                                            Newaent = NewWrapper.entryfile as ChrBaseActEntry;
+                                            Newaent.EntryDirs = paths;
+                                            NewWrapper.entryfile = Newaent;
+
+                                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                                            //Pathing.
+                                            foreach (string Folder in paths)
+                                            {
+                                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                                {
+                                                    TreeNode folder = new TreeNode();
+                                                    folder.Name = Folder;
+                                                    folder.Tag = Folder;
+                                                    folder.Text = Folder;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                                }
+                                                else
+                                                {
+                                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                                }
+                                            }
+
+                                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                                            frename.Mainfrm.OpenFileModified = true;
+                                            frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                                            string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                            frename.Mainfrm.TreeSource.EndUpdate();
+                                            //Writes to log file.
+                                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                                            {
+                                                sw.WriteLine("Replaced a file: " + TexToCheck + "\nCurrent File List:\n");
+                                                sw.WriteLine("===============================================================================================================");
+                                                int entrycount = 0;
+                                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                                sw.WriteLine("Current file Count: " + entrycount);
+                                                sw.WriteLine("===============================================================================================================");
+                                            }
+
+                                        }
+
+                                    }
+
+
                                     else
                                     {
                                         string TexToCheck = "";
                                         TexToCheck = NeededFilePath + ".*";
+                                        //var files = Directory.GetFiles(NeededFilePath + ".*");
 
-                                        if (File.Exists(TexToCheck))
+                                        string PathToCheck = NeededFilePath.Substring(0, (NeededFilePath.LastIndexOf("\\") + 1));
+                                        int numcheck = NeededFilePath.Length - NeededFilePath.LastIndexOf("\\");
+                                        string FilenameToCheck = NeededFilePath.Substring((NeededFilePath.LastIndexOf("\\") + 1), (numcheck - 1));
+
+                                        string[] files = System.IO.Directory.GetFiles(PathToCheck, (FilenameToCheck + ".*"));
+
+
+                                        /*
+                                        DirectoryInfo root = new DirectoryInfo(NeededFilePath);
+                                        string PathToCheck = NeededFilePath.Substring(0, (NeededFilePath.LastIndexOf("\\")+1));
+                                        int numcheck = NeededFilePath.Length - NeededFilePath.LastIndexOf("\\");
+                                        string FilenameToCheck = NeededFilePath.Substring((NeededFilePath.LastIndexOf("\\")+1), (numcheck-1));
+
+                                        FileInfo[] listfiles = root.GetFiles("dummy.*");
+                                        */
+
+                                        if (files.Length > 0 && files.Length < 1)
                                         {
                                             frename.Mainfrm.TreeSource.SelectedNode = tno;
                                             ArcEntry Mentry = tno.Tag as ArcEntry;
@@ -12310,7 +14058,7 @@ namespace ThreeWorkTool
                                             string[] paths = temp.Split('\\');
                                             NewWrapper = tno as ArcEntryWrapper;
                                             int indexZ = tno.Index;
-                                            NewWrapper.Tag = ArcEntry.ReplaceArcEntry(frename.Mainfrm.TreeSource, NewWrapper, TexToCheck);
+                                            NewWrapper.Tag = ArcEntry.ReplaceArcEntry(frename.Mainfrm.TreeSource, NewWrapper, files[0]);
                                             NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
 
@@ -12353,7 +14101,78 @@ namespace ThreeWorkTool
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
-                                                sw.WriteLine("Replaced a file: " + TexToCheck + "\nCurrent File List:\n");
+                                                sw.WriteLine("Replaced a file: " + files[0] + "\nCurrent File List:\n");
+                                                sw.WriteLine("===============================================================================================================");
+                                                int entrycount = 0;
+                                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                                                sw.WriteLine("Current file Count: " + entrycount);
+                                                sw.WriteLine("===============================================================================================================");
+                                            }
+
+                                        }
+                                        else if (files.Length > 0)
+                                        {
+                                            frename.Mainfrm.TreeSource.SelectedNode = tno;
+                                            ArcEntry Mentry = tno.Tag as ArcEntry;
+                                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+
+                                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                            string oldname = OldWrapper.Name;
+                                            ArcEntry Oldaent = new ArcEntry();
+                                            ArcEntry Newaent = new ArcEntry();
+                                            Oldaent = OldWrapper.entryfile as ArcEntry;
+                                            string temp = OldWrapper.FullPath;
+                                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                                            string[] paths = temp.Split('\\');
+                                            NewWrapper = tno as ArcEntryWrapper;
+                                            int indexZ = tno.Index;
+                                            NewWrapper.Tag = ArcEntry.ReplaceArcEntry(frename.Mainfrm.TreeSource, NewWrapper, files[0]);
+                                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+
+                                            //Takes the path data from the old node and slaps it on the new node.
+                                            Newaent = NewWrapper.entryfile as ArcEntry;
+                                            Newaent.EntryDirs = paths;
+                                            NewWrapper.entryfile = Newaent;
+
+                                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                                            //Pathing.
+                                            foreach (string Folder in paths)
+                                            {
+                                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                                {
+                                                    TreeNode folder = new TreeNode();
+                                                    folder.Name = Folder;
+                                                    folder.Tag = Folder;
+                                                    folder.Text = Folder;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                                }
+                                                else
+                                                {
+                                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                                }
+                                            }
+
+                                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                                            frename.Mainfrm.OpenFileModified = true;
+                                            frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                                            string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                            frename.Mainfrm.TreeSource.EndUpdate();
+                                            //Writes to log file.
+                                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                                            {
+                                                sw.WriteLine("Replaced a file: " + files[0] + "\nCurrent File List:\n");
                                                 sw.WriteLine("===============================================================================================================");
                                                 int entrycount = 0;
                                                 frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
@@ -13283,6 +15102,164 @@ namespace ThreeWorkTool
 
                 #endregion
 
+                #region AtkInfo
+
+                case "ThreeWorkTool.Resources.Wrappers.AtkInfoEntry":
+                    ArcEntryWrapper atichild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+                    AtkInfoEntry atient = new AtkInfoEntry();
+                    atient = FEntry as AtkInfoEntry;
+                    atichild.Name = I;
+                    atichild.Tag = FEntry as AtkInfoEntry;
+                    atichild.Text = I;
+                    atichild.entryfile = FEntry as AtkInfoEntry;
+                    atichild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
+
+                    TreeSource.SelectedNode = atichild;
+
+                    TreeSource.SelectedNode.Nodes.Add(atichild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var atirootNode = FindRootNode(atichild);
+
+                    TreeSource.SelectedNode = atichild;
+                    TreeSource.SelectedNode.ImageIndex = 4;
+                    TreeSource.SelectedNode.SelectedImageIndex = 4;
+
+                    atichild.ContextMenuStrip = GenericFileContextAdder(atichild, TreeSource);
+
+                    TreeSource.SelectedNode = atirootNode;
+
+                    tcount++;
+
+                    break;
+
+                #endregion
+
+                #region Shot
+
+                case "ThreeWorkTool.Resources.Wrappers.ShotEntry":
+                    ArcEntryWrapper shtchild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+                    ShotEntry shtent = new ShotEntry();
+                    shtent = FEntry as ShotEntry;
+                    shtchild.Name = I;
+                    shtchild.Tag = FEntry as ShotEntry;
+                    shtchild.Text = I;
+                    shtchild.entryfile = FEntry as ShotEntry;
+                    shtchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
+
+                    TreeSource.SelectedNode = shtchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(shtchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var shtrootNode = FindRootNode(shtchild);
+
+                    TreeSource.SelectedNode = shtchild;
+                    TreeSource.SelectedNode.ImageIndex = 14;
+                    TreeSource.SelectedNode.SelectedImageIndex = 14;
+
+                    shtchild.ContextMenuStrip = GenericFileContextAdder(shtchild, TreeSource);
+
+                    TreeSource.SelectedNode = shtrootNode;
+
+                    tcount++;
+
+                    break;
+
+                #endregion
+
+                #region AnmCmd
+
+                case "ThreeWorkTool.Resources.Wrappers.AnmCmdEntry":
+                    ArcEntryWrapper anmchild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+                    AnmCmdEntry anment = new AnmCmdEntry();
+                    anment = FEntry as AnmCmdEntry;
+                    anmchild.Name = I;
+                    anmchild.Tag = FEntry as AnmCmdEntry;
+                    anmchild.Text = I;
+                    anmchild.entryfile = FEntry as AnmCmdEntry;
+                    anmchild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
+
+                    TreeSource.SelectedNode = anmchild;
+
+                    TreeSource.SelectedNode.Nodes.Add(anmchild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var anmrootNode = FindRootNode(anmchild);
+
+                    TreeSource.SelectedNode = anmchild;
+                    TreeSource.SelectedNode.ImageIndex = 28;
+                    TreeSource.SelectedNode.SelectedImageIndex = 28;
+
+                    anmchild.ContextMenuStrip = GenericFileContextAdder(anmchild, TreeSource);
+
+                    TreeSource.SelectedNode = anmrootNode;
+
+                    tcount++;
+
+                    break;
+
+                #endregion
+
+                #region ChrBaseAct
+
+                case "ThreeWorkTool.Resources.Wrappers.ChrBaseActEntry":
+                    ArcEntryWrapper cbachild = new ArcEntryWrapper();
+
+                    TreeSource.BeginUpdate();
+                    ChrBaseActEntry cbaent = new ChrBaseActEntry();
+                    cbaent = FEntry as ChrBaseActEntry;
+                    cbachild.Name = I;
+                    cbachild.Tag = FEntry as ChrBaseActEntry;
+                    cbachild.Text = I;
+                    cbachild.entryfile = FEntry as ChrBaseActEntry;
+                    cbachild.FileExt = G;
+
+                    //Checks for subdirectories. Makes folder if they don't exist already.
+                    TreeSource.SelectedNode = FolderMakeAndSort(H, TreeSource.SelectedNode);
+
+                    TreeSource.SelectedNode = cbachild;
+
+                    TreeSource.SelectedNode.Nodes.Add(cbachild);
+
+                    TreeSource.ImageList = imageList1;
+
+                    var cbarootNode = FindRootNode(cbachild);
+
+                    TreeSource.SelectedNode = cbachild;
+                    TreeSource.SelectedNode.ImageIndex = 29;
+                    TreeSource.SelectedNode.SelectedImageIndex = 29;
+
+                    cbachild.ContextMenuStrip = GenericFileContextAdder(cbachild, TreeSource);
+
+                    TreeSource.SelectedNode = cbarootNode;
+
+                    tcount++;
+
+                    break;
+
+                #endregion
+
+
+
                 //Cases for future file supports go here. For example;
                 //case ".mod":
                 //{
@@ -13946,6 +15923,26 @@ namespace ThreeWorkTool
                 wrapper.ImageIndex = 27;
                 wrapper.SelectedImageIndex = 27;
             }
+            else if (extension == ".ati")
+            {
+                wrapper.ImageIndex = 4;
+                wrapper.SelectedImageIndex = 4;
+            }
+            else if (extension == ".sht")
+            {
+                wrapper.ImageIndex = 14;
+                wrapper.SelectedImageIndex = 14;
+            }
+            else if (extension == ".anm")
+            {
+                wrapper.ImageIndex = 28;
+                wrapper.SelectedImageIndex = 28;
+            }
+            else if (extension == ".cba")
+            {
+                wrapper.ImageIndex = 29;
+                wrapper.SelectedImageIndex = 29;
+            }
             else
             {
                 wrapper.ImageIndex = 16;
@@ -14352,6 +16349,66 @@ namespace ThreeWorkTool
                                 break;
                             }
 
+                        case "ThreeWorkTool.Resources.Wrappers.AtkInfoEntry":
+                            AtkInfoEntry atime = new AtkInfoEntry();
+                            atime = ArcEntry as AtkInfoEntry;
+                            if (atime != null)
+                            {
+                                TreeChildInsert(NCount, atime.EntryName, atime.FileExt, atime.EntryDirs, atime.TrueName, atime);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
+                        case "ThreeWorkTool.Resources.Wrappers.ShotEntry":
+                            ShotEntry shtme = new ShotEntry();
+                            shtme = ArcEntry as ShotEntry;
+                            if (shtme != null)
+                            {
+                                TreeChildInsert(NCount, shtme.EntryName, shtme.FileExt, shtme.EntryDirs, shtme.TrueName, shtme);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
+                        case "ThreeWorkTool.Resources.Wrappers.AnmCmdEntry":
+                            AnmCmdEntry anmme = new AnmCmdEntry();
+                            anmme = ArcEntry as AnmCmdEntry;
+                            if (anmme != null)
+                            {
+                                TreeChildInsert(NCount, anmme.EntryName, anmme.FileExt, anmme.EntryDirs, anmme.TrueName, anmme);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
+                        case "ThreeWorkTool.Resources.Wrappers.ChrBaseActEntry":
+                            ChrBaseActEntry cbame = new ChrBaseActEntry();
+                            cbame = ArcEntry as ChrBaseActEntry;
+                            if (cbame != null)
+                            {
+                                TreeChildInsert(NCount, cbame.EntryName, cbame.FileExt, cbame.EntryDirs, cbame.TrueName, cbame);
+                                TreeSource.SelectedNode = FindRootNode(TreeSource.SelectedNode);
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("We got a read error here!", "YIKES");
+                                break;
+                            }
+
                         //New Formats go like this!
                         /*
                            case "ThreeWorkTool.Resources.Wrappers.*****Entry":
@@ -14719,6 +16776,62 @@ namespace ThreeWorkTool
 
             switch (type)
             {
+
+                #region CBA
+                case "ThreeWorkTool.Resources.Wrappers.ChrBaseActEntry":
+                    ChrBaseActEntry cbaent = new ChrBaseActEntry();
+                    cbaent = TreeSource.SelectedNode.Tag as ChrBaseActEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+                #endregion
+
+                #region ANM
+                case "ThreeWorkTool.Resources.Wrappers.AnmCmdEntry":
+                    AnmCmdEntry anment = new AnmCmdEntry();
+                    anment = TreeSource.SelectedNode.Tag as AnmCmdEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+                #endregion
+
+                #region SHT
+                case "ThreeWorkTool.Resources.Wrappers.ShotEntry":
+                    ShotEntry shtent = new ShotEntry();
+                    shtent = TreeSource.SelectedNode.Tag as ShotEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+                #endregion
+
+                #region ATI
+                case "ThreeWorkTool.Resources.Wrappers.AtkInfoEntry":
+                    AtkInfoEntry atient = new AtkInfoEntry();
+                    atient = TreeSource.SelectedNode.Tag as AtkInfoEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+                #endregion
 
                 #region STQRNode
                 case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.STQREventData":

@@ -551,7 +551,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 {
 
                     ReplaceKnownEntry(tree, node, filename, rpathentry, rpoldentry);
-
+                    rpathentry.FileName = rpathentry.TrueName;
                     ASCIIEncoding ascii = new ASCIIEncoding();
 
                     //Gets the Magic.

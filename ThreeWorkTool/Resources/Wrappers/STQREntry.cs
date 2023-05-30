@@ -247,7 +247,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             tree.BeginUpdate();
 
             ReplaceEntry(tree, node, filename, stqrentry, oldentry);
-
+            stqrentry.FileName = stqrentry.TrueName;
             //Type Specific Work Here.
             using (MemoryStream LmtStream = new MemoryStream(stqrentry.UncompressedData))
             {

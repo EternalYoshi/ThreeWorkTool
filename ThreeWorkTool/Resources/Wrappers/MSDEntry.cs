@@ -509,6 +509,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             tree.BeginUpdate();
 
             ReplaceKnownEntry(tree, node, filename, MSDNentry, MSDoldentry);
+            MSDNentry.FileName = MSDNentry.TrueName;
 
             //Gets the Magic.
             MSDNentry.Magic = BitConverter.ToString(MSDNentry.UncompressedData, 0, 4).Replace("-", string.Empty);

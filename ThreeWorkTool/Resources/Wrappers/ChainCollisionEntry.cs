@@ -41,13 +41,13 @@ namespace ThreeWorkTool.Resources.Wrappers
             tree.BeginUpdate();
 
             ReplaceEntry(tree, node, filename, ccolentry, oldentry);
-
             ccolentry.DecompressedFileLength = ccolentry.UncompressedData.Length;
             ccolentry._DecompressedFileLength = ccolentry.UncompressedData.Length;
             ccolentry.CompressedFileLength = ccolentry.CompressedData.Length;
             ccolentry._CompressedFileLength = ccolentry.CompressedData.Length;
             ccolentry._FileName = ccolentry.TrueName;
             ccolentry._FileType = ccolentry.FileExt;
+            ccolentry.FileName = ccolentry.TrueName;
 
             return node.entryfile as ChainCollisionEntry;
         }

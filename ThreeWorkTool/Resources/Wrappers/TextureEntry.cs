@@ -243,6 +243,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         //Enters name related parameters of the arcentry.
                         texentry.TrueName = trname;
                         texentry._FileName = texentry.TrueName;
+                        texentry.FileName = texentry.TrueName;
                         texentry.TrueName = Path.GetFileNameWithoutExtension(trname);
                         texentry.FileExt = trname.Substring(trname.LastIndexOf("."));
 
@@ -587,6 +588,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     FTED.TXfilename = teXentry.EntryName;
                     FTED.TXfilename = teXentry.TrueName;
                     teXentry._FileName = teXentry.TrueName;
+                    teXentry.FileName = teXentry.TrueName;
                     teXentry.FileExt = ".tex";
 
                     //Gets Dimensions and Tex Type.                    

@@ -153,7 +153,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             tree.BeginUpdate();
 
             ReplaceEntry(tree, node, filename, eflentry, oldentry);
-
+            eflentry.FileName = eflentry.TrueName;
             //Type Specific Work Here.
             using (MemoryStream LmtStream = new MemoryStream(eflentry.UncompressedData))
             {

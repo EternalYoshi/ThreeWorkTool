@@ -177,6 +177,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //Enters name related parameters of the lmtentry.
                     lmtentry.TrueName = trname;
                     lmtentry._FileName = lmtentry.TrueName;
+                    lmtentry.FileName = lmtentry.TrueName;
                     lmtentry.TrueName = Path.GetFileNameWithoutExtension(trname);
                     lmtentry.FileExt = trname.Substring(trname.LastIndexOf("."));
                     lmtentry._FileType = lmtentry.FileExt;

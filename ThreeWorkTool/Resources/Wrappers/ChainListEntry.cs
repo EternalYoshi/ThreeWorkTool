@@ -471,6 +471,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     ReplaceKnownEntry(tree, node, filename, cstnentry, cstoldentry);
 
                     cstnentry._FileName = cstnentry.TrueName;
+                    cstnentry.FileName = cstnentry.TrueName;
                     cstnentry._DecompressedFileLength = cstnentry.UncompressedData.Length;
                     cstnentry._CompressedFileLength = cstnentry.CompressedData.Length;
 

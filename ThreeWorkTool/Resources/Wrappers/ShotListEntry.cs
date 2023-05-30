@@ -263,6 +263,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             tree.BeginUpdate();
 
             ReplaceEntry(tree, node, filename, gementry, oldentry);
+            gementry.FileName = gementry.TrueName;
 
             ASCIIEncoding ascii = new ASCIIEncoding();
 

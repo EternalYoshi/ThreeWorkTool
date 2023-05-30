@@ -46,7 +46,7 @@ namespace ThreeWorkTool.Resources.Archives
             arcentry._CompressedFileLength = arcentry.CompressedData.Length;
             arcentry._FileName = arcentry.TrueName;
             arcentry._FileType = arcentry.FileExt;
-
+            arcentry.FileName = arcentry.TrueName;
             return node.entryfile as ArcEntry;
         }
 

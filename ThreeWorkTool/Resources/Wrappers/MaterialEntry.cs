@@ -76,7 +76,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             tree.BeginUpdate();
 
             ReplaceEntry(tree, node, filename, matentry, oldentry);
-
+            matentry.FileName = matentry.TrueName;
             //Type Specific Work Here.
             using (MemoryStream LmtStream = new MemoryStream(matentry.UncompressedData))
             {

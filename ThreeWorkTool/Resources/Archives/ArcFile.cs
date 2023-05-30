@@ -300,6 +300,44 @@ namespace ThreeWorkTool.Resources.Archives
                             IDCounter++;
                             break;
 
+                        //ATI files.
+                        case "227A8048":
+                            AtkInfoEntry AtkInfoen = AtkInfoEntry.FillAtkInfoEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(AtkInfoen);
+                            arcfile.FileList.Add(AtkInfoen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
+                        //SHT files.
+                        case "10BE43D4":
+                            ShotEntry Shoten = ShotEntry.FillShotEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(Shoten);
+                            arcfile.FileList.Add(Shoten.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
+                        //ANM files.
+                        case "5A7E5D8A":
+                            AnmCmdEntry AnmCmden = AnmCmdEntry.FillAnmCmdEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(AnmCmden);
+                            arcfile.FileList.Add(AnmCmden.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+                        
+                        //CBA files.
+                        case "3C6EA504":
+                            ChrBaseActEntry ChrBaseActen = ChrBaseActEntry.FillChrBaseActEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(ChrBaseActen);
+                            arcfile.FileList.Add(ChrBaseActen.EntryName);
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
+
+
                         //New Formats go like this!   
                         /*
                         case "********":
