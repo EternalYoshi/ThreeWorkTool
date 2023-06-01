@@ -14114,7 +14114,7 @@ namespace ThreeWorkTool
                                     else if (tag is RIFFEntry)
                                     {
                                         string TexToCheck = "";
-                                        TexToCheck = NeededFilePath + ".riff";
+                                        TexToCheck = NeededFilePath + ".xsew";
 
                                         if (File.Exists(TexToCheck))
                                         {
@@ -18509,6 +18509,15 @@ namespace ThreeWorkTool
             var mruFilePath = Path.Combine(appDataPath, "MRU.txt");
             if (!Directory.Exists(mruFilePath) && !String.IsNullOrEmpty(txtBoxCurrentFile.Text))
             {
+
+                //Checks for a too long MRU list and removes the oldest filepaths from the list.
+                if(_MostRecentlyUsedList.Count > 12)
+                {
+                    int Amounttoremove = _MostRecentlyUsedList.Count - 12;
+                    for(int v = 0; v < Amounttoremove; v++)
+                        _MostRecentlyUsedList.RemoveAt(_MostRecentlyUsedList.Count - 1);
+
+                }
 
                 //Checks Text File for lines matching incoming line and deletes duplicate.
                 List<string> FilePaths = _MostRecentlyUsedList.Distinct().ToList();
