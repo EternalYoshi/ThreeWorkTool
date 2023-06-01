@@ -14,6 +14,13 @@ By Eternal Yoshi
 
 Current Changelog:
 
+V0.63c
+- Replace All feature implemented for files on Arc and Folder nodes.
+- Limited Most Recently Used list to 12 items maximum to prevent performance hit when loading the program.
+- Updated Notes and Advice.
+- Fixed an issue with the Manifest Tool's Refresh File list button including nodes that were not meant to be included.
+- Added basic support for various file formats that have matching names for the sake of disambiguation for the Replace All feature. They shall be expanded upon another time.
+
 V0.63b
 - Fixed an issue where .cst files would not be built properly and cause abnormalities in game.
 - ChainList format redefined, the text box now has numerical values for each Chain references.
