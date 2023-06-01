@@ -120,10 +120,14 @@
   <data name="txtNotes.Text" xml:space="preserve">
     <value>--------------------------|Notes and Advice|--------------------------
 
+- The Replace All command for Arc and Folder nodes requires that you have an EXACT directory match for it to work, as you are meant to select the same named folder at the same level, or if using it on an arc, the folder with the arc's name. If you are porting things, like say for the Clone Engine, be sure to run this BEFORE you rename anything inside the arc. 
+
+- Any directory level above the arc name doesn't matter for Replace All/Export All provided the total directory character count does not exceed 255.
+
 - LRP files are formatted the way they are for a reason. If you wish to add a file, follow the syntax and do not make typos 
 in the extension or you will have problems. It's always path then filename then extension.
 
-- Transparency is now expressed with a checkerboard background, similar to photoshop.
+- Transparency is expressed with a checkerboard background, similar to photoshop.
 
  -DXT1 and DXT5 have differing compression formulas meaning you can't interchange them or you will get corrupted pixels in game or just straight up crashing.
 This is why there's a failsafe against selecting texture types not compatible with the texture compression algorithm of the chosen file.
@@ -137,7 +141,11 @@ This is why there's a failsafe against selecting texture types not compatible wi
 - Portraits have to be saved DXT5 in your image editing software to work, no need to save it as a DXT1 and then hex edit it to DXT5. In the TexConverter Dialog, select the option that says DXT5 when importing. 
 Make sure it has an alpha channel in your image editing software before you save it. This program was designed around DDS files generated from the 
 newer NVIDA Photoshop DDS Plugin found here: https://developer.nvidia.com/2020.1.1/nvidia_texture_tools_exporter_photoshop_plugin
-You can also use Paint.Net in a roundabout way with the right plugin as well.
+You can also use Paint.Net in a roundabout way with the right plugin as well. 
+
+Remember to turn off the option to generate Mip Maps when making UI elements in your image editing software. A good rule of thumb is that
+if the filename has a NOMIP suffix on it, make sure there are no mip maps added to the portrat or the image will get blurry for users with lower end
+PC settings.
 
 - MSD files must be viewed and edited by Right Clicking/Selecting Edit and selecting Preview/Edit. The encoding is unknown(it is NOT ASCII) 
 and only English Alphabet characters and accents used in French and Spanish are supported. 
@@ -153,7 +161,7 @@ The Line break denotations are there for a reason; don't remove them unless you 
 
 - Remember that you can export textures as .DDS files. You can select the extension between .tex(which is by default), .dds, and .png via the Export option's Dialog.
 
-- You can now reorder nodes in the same directory. You can do so by right clicking and selecting move up or move down, or just press CTRL + UP/CTRL + DOWN.
+- You can reorder nodes in the same directory. You can do so by right clicking and selecting move up or move down, or just press CTRL + UP/CTRL + DOWN. This will affect looading order too.
 
 - Chain List files control what physics files(.chn and .ccl)are used on the character. Removing an entry will disable that physics file from being used.
 
@@ -168,13 +176,15 @@ You are free to add and subtract, but make sure that anything you add exists. Ot
 
 - If you want to use the Manifest while saving, make sure that Use Manifest in the settings is checked. Otherwise it will just use the original save coding and save files in the order displayed on the TreeView.
 
-- The Replace All commands are case sensitive. You can access one by selecting a Folder or Material and right click it. Best used to port costume files from one number to another. Be caerful when working with the numbers 00 and 01.
+- The Replace All Text based commands are case sensitive. You can access one by selecting a Folder or Material and right click it. Best used to port costume files from one number to another. Be caerful when working with the numbers 00 and 01.
 
 - GEM, or .gem files are what link a prop model file to a .lmt and .anm file. They're not easy to use but remember to follow the syntax. If the second line is blank that generally means there's no .anm file for the named prop.
 
 - You can export Material files as .yml files that aim to be compatible with the model importer's tools. Floating point estimations may differ slightly in the ten thousandths but the overall values should check out when converting.
 
 - .cst, aka Chain List Files have 4 numerical values at the end of each .chn reference. Make sure to follow the syntax or the changes you make in the textbox will NOT be saved.
+
+The Most Recently Used list is now limited to 12 items and will flush oldest items on the list upon closing the program. If there's more than that it could mean that the program didn't close properly.
 </value>
   </data>
 </root>
