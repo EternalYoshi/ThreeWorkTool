@@ -226,14 +226,16 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //Primitives. Still Under Construction.
             uint PrimIndTemp, ShaderTemp;
-            int PrevAddr, IndexBufferByteCount, IndexBufferOffset, VertBufferOffset;
+            int PrevAddr, IndexBufferByteCount, IndexBufferOffset, VertBufferOffset, CurrentIndexBufferPosition;
             bnr.BaseStream.Position = modentry.PrimitveOffset;
             IndexBufferOffset = modentry.IndexBufferOffset;
+            CurrentIndexBufferPosition = IndexBufferOffset;
             VertBufferOffset = modentry.VertexBufferOffset;
             modentry.Primitives = new List<ModelPrimitiveEntry>();
             for (int v = 0; v < modentry.PrimitiveCount; v++)
             {
                 ModelPrimitiveEntry Prim = new ModelPrimitiveEntry();
+                Prim.PrimOffset = Convert.ToInt32(bnr.BaseStream.Position);
                 Prim.Flags = bnr.ReadInt16();
                 Prim.VerticeCount = bnr.ReadInt16();
                 PrimIndTemp = bnr.ReadUInt32();
@@ -268,20 +270,28 @@ namespace ThreeWorkTool.Resources.Wrappers
                 Prim.Unknown2C = bnr.ReadInt32();
                 Prim.PrimitiveJointLinkPtr = bnr.ReadInt64();
 
-                modentry.Primitives.Add(Prim);
-                /*
-                //Saves the current position then gets the Indexbuffer.
-                PrevAddr = Convert.ToInt32(bnr.BaseStream.Position);
-                bnr.BaseStream.Position = IndexBufferOffset;
-                IndexBufferByteCount = Prim.IndexCount * 2;
-                Prim.IndexBuffer = bnr.ReadBytes(IndexBufferByteCount);
 
-                //Adds the finished Primitive data to the list of Primitives.
+                //Validates the Primitive's Index count.
+                if (Prim.IndexCount > 0)
+                {
+                    //Saves the current position then gets the Indexbuffer.
+                    PrevAddr = Convert.ToInt32(bnr.BaseStream.Position);
+                    bnr.BaseStream.Position = CurrentIndexBufferPosition;
+                    Prim.IndexBuffer = new List<short>();
+                    for (int e = 0; e < Prim.IndexCount; e++)
+                        Prim.IndexBuffer.Add(bnr.ReadInt16());
+
+                    //Adds the finished Primitive data to the list of Primitives.
+                    IndexBufferOffset = Convert.ToInt32(bnr.BaseStream.Position);
+                    CurrentIndexBufferPosition = Convert.ToInt32(bnr.BaseStream.Position);
+                    bnr.BaseStream.Position = PrevAddr;
+                }
+
+
+
                 modentry.Primitives.Add(Prim);
-                IndexBufferOffset = Convert.ToInt32(bnr.BaseStream.Position);
-                
-                bnr.BaseStream.Position = PrevAddr;
-                */
+
+
             }
 
             int OffsetSaverA = Convert.ToInt32(bnr.BaseStream.Position);
@@ -374,13 +384,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             return modentry;
 
         }
-
-        //public static ModelEntry UpdateModelMatNames(BinaryReader bnr, ModelEntry modentry)
-        //{
-
-
-
-        //}
 
         #region Model Entry Properties
         [Category("Filename"), ReadOnlyAttribute(true)]

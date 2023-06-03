@@ -18,6 +18,8 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
             IndexCount, IndexStartIndex, BoneMapStartIndex, PrimitiveJointLinkCount, MinVertexindex, MaxVertexIndex, Unknown2C,
              p, VertexStride, reIndexBufferOffset;
 
+        public int PrimOffset { get; set; }
+
         public long PrimitiveJointLinkPtr;
 
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -39,7 +41,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
         }
         public MTShader Shaders;
 
-        public byte[] IndexBuffer;
+        public List<short> IndexBuffer { get; set; }
 
         public List<ModelPrimitiveJointLinkEntry> PJLs;
 
@@ -215,21 +217,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
                 PrimitiveJointLinkPtr = value;
             }
         }
-        /*
-        [Category("Primitive"), ReadOnlyAttribute(true)]
-        public byte[] IndexByteArray
-        {
-
-            get
-            {
-                return IndexBuffer;
-            }
-            set
-            {
-                IndexBuffer = value;
-            }
-        }
-        */
+                
 
         #endregion
 
