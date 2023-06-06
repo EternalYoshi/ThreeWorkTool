@@ -22,7 +22,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int SomeValue1;
         public int OffsetOfInterest;
         public int Length;
-        public List<int> OffsetList;
+        public List<long> OffsetList;
         public List<LMTM3AEntry> LstM3A;
         public Lmt MotionData;
         //public List<Lmt.Animentry> MotionEntries;
@@ -48,7 +48,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             byte[] OTemp = new byte[4];
 
             lmtentry.LstM3A = new List<LMTM3AEntry>();
-            lmtentry.OffsetList = new List<int>();
+            lmtentry.OffsetList = new List<long>();
             int SecondaryCount = 0;
 
             using (MemoryStream LmtStream = new MemoryStream(lmtentry.UncompressedData))
@@ -62,8 +62,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //Gets all the offsets. ALL OF THEM.
                     while (count < (lmtentry.Version))
                     {
-                        lmtentry.OffsetList.Add(bnr.ReadInt32());
-                        bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                        lmtentry.OffsetList.Add(bnr.ReadInt64());
                         count++;
 
                     }
@@ -229,14 +228,13 @@ namespace ThreeWorkTool.Resources.Wrappers
                             bnr.BaseStream.Position = 6;
                             lmtentry.Version = bnr.ReadInt16();
                             lmtentry.EntryCount = lmtentry.Version;
-                            lmtentry.OffsetList = new List<int>();
+                            lmtentry.OffsetList = new List<long>();
                             lmtentry.LstM3A = new List<LMTM3AEntry>();
 
                             //Gets all the offsets. ALL OF THEM.
                             while (count < (lmtentry.Version))
                             {
-                                lmtentry.OffsetList.Add(bnr.ReadInt32());
-                                bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                                lmtentry.OffsetList.Add(bnr.ReadInt64());
                                 count++;
 
                             }
@@ -368,7 +366,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     lmtentry._FileType = lmtentry.FileExt;
 
                     lmtentry.LstM3A = new List<LMTM3AEntry>();
-                    lmtentry.OffsetList = new List<int>();
+                    lmtentry.OffsetList = new List<long>();
 
                     bnr.BaseStream.Position = 6;
                     lmtentry.Version = bnr.ReadInt16();
@@ -379,8 +377,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //Gets all the offsets. ALL OF THEM.
                     while (count < (lmtentry.Version))
                     {
-                        lmtentry.OffsetList.Add(bnr.ReadInt32());
-                        bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                        lmtentry.OffsetList.Add(bnr.ReadInt64());
                         count++;
 
                     }
@@ -480,8 +477,6 @@ namespace ThreeWorkTool.Resources.Wrappers
                 ChildCount++;
             }
 
-
-
             //Now to rebuild from scratch.
             List<byte> NewUncompressedData = new List<byte>();
             byte[] Header = { 0x4C, 0x4D, 0x54, 0x00, 0x43, 0x00 };
@@ -500,7 +495,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                 NewUncompressedData.AddRange(PlaceHolderEntry);
             }
             int MA3DataStart = NewUncompressedData.Count;
-            lMT.OffsetList = new List<int>();
+            lMT.OffsetList = new List<long>();
+            List<int> TempOffsetList = new List<int>();
             List<int> DataOffsetList = new List<int>();
             List<bool> IsBlank = new List<bool>();
             //Starts putting in the Block Data and updating the offset list.
@@ -514,19 +510,23 @@ namespace ThreeWorkTool.Resources.Wrappers
                     IsBlank.Add(tag.IsBlank);
                     if (tag.IsBlank == false)
                     {
+
+                        //Checks the BlockData for the ReuseAnmation Flag and sets it based on user setting.
+
+
                         NewUncompressedData.AddRange(tag.MotionData);
-                        /*
+                        
                         //The ending of the block data segments always has the raw data start on the 8 of the hex instead of the 0 of the hex offset for some reason.
                         //This is there to preserve that.
                         if (x == (Children.Count - 1))
                         {
-                            NewUncompressedData.AddRange(BlankHalf);
+
                         }
                         else
                         {
-                            NewUncompressedData.AddRange(BlankLine);
+                            NewUncompressedData.AddRange(BlankHalf);
                         }
-                        */
+                        
                     }
 
                 }
@@ -540,8 +540,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                 LMTM3AEntry tag = TN.Tag as LMTM3AEntry;
                 if (tag != null)
                 {
+                    //int Tempint = tag.RawData.Length - 88;
                     if (IsBlank[y] == false)
                     {
+                        //Gotta ensure the bottom 88 bytes are not written to the NewUncompressedData.
                         NewUncompressedData.AddRange(tag.RawData);
                         DataOffsetList.Add(NewUncompressedData.Count);
                     }
@@ -566,7 +568,6 @@ namespace ThreeWorkTool.Resources.Wrappers
                             if (IsBlank[z] == false)
                             {
                                 bw3.Write(lMT.OffsetList[z]);
-                                bw3.BaseStream.Position = bw3.BaseStream.Position + 4;
                             }
                             else
                             {
@@ -621,6 +622,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                                     bw3.Write(OffTemp);
                                 }
                                 bw3.BaseStream.Position = DataOffsetList[yy] + 40 + (48 * xx);
+
                                 OffTemp = br3.ReadInt32();
                                 bw3.BaseStream.Position = (bw3.BaseStream.Position - 4);
                                 if (OffTemp > 0)

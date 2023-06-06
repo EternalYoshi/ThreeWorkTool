@@ -4618,6 +4618,11 @@ namespace ThreeWorkTool
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
+            //Refresh LMT.
+            var refreshlmt = new ToolStripMenuItem("Rebuild LMT", null, MenuRebuildLMT_Click);
+            refreshlmt.ShortcutKeys = Keys.Control | Keys.Shift | Keys.R;
+            conmenu.Items.Add(refreshlmt);
+
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click);
             exportitem.ShortcutKeys = Keys.Control | Keys.E;
@@ -15142,6 +15147,36 @@ namespace ThreeWorkTool
 
         }
 
+        public static void MenuRebuildLMT_Click(Object sender, System.EventArgs e)
+        {
+
+            //Rebuilds the LMT. Hoo Boy.
+            frename.Mainfrm.TreeSource.BeginUpdate();
+            LMTEntry NewaentN = new LMTEntry();
+            ArcEntryWrapper OutdatedWrapper = new ArcEntryWrapper();
+            ArcEntryWrapper RebuiltLMTWrapper = new ArcEntryWrapper();
+            //frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+            RebuiltLMTWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+            NewaentN = RebuiltLMTWrapper.Tag as LMTEntry;
+            NewaentN = LMTEntry.RebuildLMTEntry(frename.Mainfrm.TreeSource, RebuiltLMTWrapper);
+            RebuiltLMTWrapper.ContextMenuStrip = LMTContextAdder(RebuiltLMTWrapper, frename.Mainfrm.TreeSource);
+            frename.Mainfrm.IconSetter(RebuiltLMTWrapper, RebuiltLMTWrapper.FileExt);
+            //Takes the path data from the old node and slaps it on the new node.
+            OutdatedWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+            LMTEntry OldLMT = new LMTEntry();
+            OldLMT = OutdatedWrapper.entryfile as LMTEntry;
+            //Transfer the LMT's properties that can't really be done outside of that class.
+            NewaentN = LMTEntry.TransferLMTEntryProperties(OldLMT, NewaentN);
+            string[] paths = OldLMT.EntryDirs;
+            //NewaentN = RebuiltLMTWrapper.entryfile as LMTEntry;
+            NewaentN.EntryDirs = paths;
+            RebuiltLMTWrapper.Tag = NewaentN;
+            RebuiltLMTWrapper.entryfile = NewaentN;
+
+            frename.Mainfrm.TreeSource.SelectedNode = RebuiltLMTWrapper;
+            frename.Mainfrm.TreeSource.EndUpdate();
+        }
+        
         //TO DO, next big release, not now.
         private static void ImportYML(Object sender, System.EventArgs e)
         {
