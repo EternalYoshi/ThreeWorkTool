@@ -688,16 +688,42 @@ namespace ThreeWorkTool.Resources.Wrappers
                                     bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
                                     if (OffTemp > 0)
                                     {
-                                        OffTemp = OffTemp - Convert.ToInt32(m3aentry.TrackPointer);
-                                        bwm3a.Write(OffTemp);
+                                        //Gotta Correct this. It's outputting negative values...
+                                        //OffTemp = OffTemp - Convert.ToInt32(m3aentry.TrackPointer);
+                                        //OffTemp = OffTemp + Convert.ToInt32(oldentry.TrackPointer);
+                                        OffTemp = OffTemp + Convert.ToInt32(oldentry.TrackPointer) + 64;
+                                        /*
+                                        if (OffTemp < 0)
+                                        {
+
+                                        }
+                                        else
+                                        {
+                                            bwm3a.Write(OffTemp);
+                                        }
+                                        */
+                                        //bwm3a.Write(OffTemp);
                                     }
                                     bwm3a.BaseStream.Position = 40 + (48 * y);
                                     OffTemp = brm3a.ReadInt32();
                                     bwm3a.BaseStream.Position = (bwm3a.BaseStream.Position - 4);
                                     if (OffTemp > 0)
                                     {
-                                        OffTemp = OffTemp - Convert.ToInt32(m3aentry.TrackPointer);
-                                        bwm3a.Write(OffTemp);
+                                        //Gotta Correct this. It's outputting negative values...
+                                        //OffTemp = OffTemp - Convert.ToInt32(m3aentry.TrackPointer);
+                                        //OffTemp = OffTemp + Convert.ToInt32(oldentry.TrackPointer);
+                                        OffTemp = OffTemp + Convert.ToInt32(oldentry.TrackPointer) + 64;
+                                        /*
+                                        if (OffTemp < 0)
+                                        {
+
+                                        }
+                                        else
+                                        {
+                                            bwm3a.Write(OffTemp);
+                                        }
+                                        */
+                                        //bwm3a.Write(OffTemp);
                                     }
 
                                 }
