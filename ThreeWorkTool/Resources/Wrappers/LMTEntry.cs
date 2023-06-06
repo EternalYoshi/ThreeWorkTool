@@ -510,10 +510,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                     IsBlank.Add(tag.IsBlank);
                     if (tag.IsBlank == false)
                     {
-
-                        //Checks the BlockData for the ReuseAnmation Flag and sets it based on user setting.
-
-
+                        
+                        tag = LMTM3AEntry.UpdateAnimDataFlag(tag);
                         NewUncompressedData.AddRange(tag.MotionData);
                         
                         //The ending of the block data segments always has the raw data start on the 8 of the hex instead of the 0 of the hex offset for some reason.

@@ -21,7 +21,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         [YamlIgnore] public byte[] MotionData;
         [YamlIgnore] public int AnimationID;
         public int version = 1;
-        public bool IsReusingTrackData { get; set; }
+        public bool IsReusingTrackData
+        { get; set; }
         public int TrackDataReference { get; set; }
         [YamlIgnore] public string FileName;
         [YamlMember(Alias = "Name", ApplyNamingConventions = false)] public string ShortName;
@@ -857,6 +858,22 @@ namespace ThreeWorkTool.Resources.Wrappers
 
 
 
+
+        }
+
+        public static LMTM3AEntry UpdateAnimDataFlag(LMTM3AEntry M3a)
+        {
+            //Checks the BlockData for the ReuseAnmation Flag and sets it based on user setting.
+            if (M3a.IsReusingTrackData == true)
+            {
+                M3a.MotionData[67] = 0x01;
+            }
+            else
+            {
+                M3a.MotionData[67] = 0x00;
+            }
+
+            return M3a;
 
         }
 
