@@ -23,7 +23,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int version = 1;
         public bool IsReusingTrackData
         { get; set; }
-        public int TrackDataReference { get; set; }
+        //public int TrackDataReference { get; set; }
         [YamlIgnore] public string FileName;
         [YamlMember(Alias = "Name", ApplyNamingConventions = false)] public string ShortName;
         [YamlMember(ApplyNamingConventions = false)] public int FrameCount;
