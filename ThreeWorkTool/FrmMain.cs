@@ -6244,7 +6244,7 @@ namespace ThreeWorkTool
 
                                         frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
                                         frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
-                                        frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Text = "AnimationID" + oldname;
 
                                     }
 

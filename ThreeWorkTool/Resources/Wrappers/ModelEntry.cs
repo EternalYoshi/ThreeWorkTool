@@ -38,6 +38,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int VertexBufferOffset;
         public int IndexBufferOffset;
         public int ExtraDataOffset;
+        public List<byte> BoneMap;
         public Vector3 BoundingSphere;
         public float BoundingSphereRadius;
         public Vector4 BoundingBoxCenter;
@@ -47,6 +48,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int Field94;
         public int Field98;
         public int Field9C;
+        public int BoneMapOffset;
         public int PrimitiveJointLinkCount;
         public List<string> MaterialNames;
         public List<ModelBoneEntry> Bones;
@@ -198,6 +200,12 @@ namespace ThreeWorkTool.Resources.Wrappers
                 modentry.Bones.Add(Bone);
                 PrevOffset = PrevOffset + 24;
             }
+
+            //BoneMap. To Be Continued. 
+            modentry.BoneMapOffset = modentry.BoneInvBindMatrixOffset + (modentry.BoneCount * 64);
+            bnr.BaseStream.Position = modentry.BoneMapOffset;
+            modentry.BoneMap = new List<byte>();
+            modentry.BoneMap.AddRange(bnr.ReadBytes(256));
 
             //Material Names.
             bnr.BaseStream.Position = modentry.MaterialsOffset;
