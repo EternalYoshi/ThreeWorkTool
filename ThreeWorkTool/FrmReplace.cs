@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
+using ThreeWorkTool.Resources.Wrappers.AnimNodes;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using ThreeWorkTool.Resources.Wrappers.ModelNodes;
 
@@ -78,7 +79,7 @@ namespace ThreeWorkTool
                     {
                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
-                        || awrapper.Tag as EffectNode == null)
+                        || awrapper.Tag as EffectNode == null || awrapper.Tag as STQREventData == null || awrapper.Tag as STQRNode == null || awrapper.Tag as LMTTrackNode == null)
                         {
                             {
                                 if (awrapper.Tag as string != null)

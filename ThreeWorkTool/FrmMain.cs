@@ -23,6 +23,7 @@ using System.Numerics;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes.Kaitai;
 using ThreeWorkTool.Resources.Utility;
 using Ookii.Dialogs.Wpf;
+using ThreeWorkTool.Resources.Wrappers.AnimNodes;
 
 namespace ThreeWorkTool
 {
@@ -89,6 +90,8 @@ namespace ThreeWorkTool
         public static FrmTexEncodeDialog frmtexencode;
         public static FrmNotes frmNote;
         public static FrmManifestEditor frmManiEditor;
+        public static ModelViewer RenderView;
+        public static FrmTrackEditor TrackEditor;
         public string RPLBackup;
         public bool isFinishRPLRead;
         public bool HasSaved;
@@ -305,7 +308,7 @@ namespace ThreeWorkTool
                                                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                         || awrapper.Tag as ModelPrimitiveJointLinkEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
-                                                        || awrapper.Tag as STQREventData == null)
+                                                        || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null)
                                                         {
                                                             {
                                                                 //Removes the archive name from the FullPath for a proper search.
@@ -358,7 +361,7 @@ namespace ThreeWorkTool
                                                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                         || awrapper.Tag as ModelPrimitiveJointLinkEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
-                                                        || awrapper.Tag as STQREventData == null)
+                                                        || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null)
                                                         {
                                                             //Removes the archive name from the FullPath for a proper search.
                                                             string FullPathSearch = awrapper.FullPath;
@@ -434,7 +437,7 @@ namespace ThreeWorkTool
                                                 treno.Tag as string == "Model Primitive Group" || treno.Tag as string == "Events" || treno.Tag as string == "Entries" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
                                                 || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce
                                                 || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelPrimitiveJointLinkEntry || treno.Tag is StageObjLayoutGroup || treno.Tag is STQRNode
-                                                || treno.Tag is STQREventData)
+                                                || treno.Tag is STQREventData || treno.Tag as LMTTrackNode == null)
                                             {
 
                                             }
@@ -480,7 +483,7 @@ namespace ThreeWorkTool
                                         ChrBaseActEntry cbaenty = new ChrBaseActEntry();
                                         SoundBankEntry sbkrenty = new SoundBankEntry();
                                         SoundRequestEntry srqrenty = new SoundRequestEntry();
-                                        
+
                                         //New Format should start here!
                                         /*
                                         ***** *****enty = new *****();
@@ -4820,6 +4823,69 @@ namespace ThreeWorkTool
             return conmenu;
         }
 
+        //Adds Context Menu for model files. Coming Soon.
+        public static ContextMenuStrip ModelFileContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
+            conmenu.Items.Add(rnitem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp, Keys.Control | Keys.Up);
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
+            conmenu.Items.Add(mditem);
+
+#if DEBUG
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Coming Soon.
+            var mrenderitem = new ToolStripMenuItem("Preview Model(WIP)", null, RenderModel_Click, Keys.Delete);
+            conmenu.Items.Add(mrenderitem);
+#endif
+
+            return conmenu;
+        }
+
+        //Adds Context Menu for M3A Files.
+        public static ContextMenuStrip M3aFileContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Track Edit.
+            var trackitem = new ToolStripMenuItem("Edit Tracks", null, EditTracks, Keys.Control | Keys.Shift | Keys.T);
+            conmenu.Items.Add(trackitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            return conmenu;
+        }
+
         private static void MenuExportAsYML_Click(Object sender, System.EventArgs e)
         {
             //First we get the Material.
@@ -6236,7 +6302,7 @@ namespace ThreeWorkTool
                                     }
                                     else
                                     {
-                                        NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                        NewWrapper.ContextMenuStrip = M3aFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                                         frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                                         //Takes the path data from the old node and slaps it on the new node.
                                         Newaent = NewWrapper.entryfile as LMTM3AEntry;
@@ -6619,7 +6685,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ModelEntry.ReplaceModelEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = ModelFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as ModelEntry;
@@ -8981,7 +9047,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperMOD, NewWrapperMOD.FileExt);
 
-                        NewWrapperMOD.ContextMenuStrip = GenericFileContextAdder(NewWrapperMOD, frename.Mainfrm.TreeSource);
+                        NewWrapperMOD.ContextMenuStrip = ModelFileContextAdder(NewWrapperMOD, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperMOD);
 
@@ -10650,7 +10716,7 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.IconSetter(NewWrapperMOD, NewWrapperMOD.FileExt);
 
-                            NewWrapperMOD.ContextMenuStrip = GenericFileContextAdder(NewWrapperMOD, frename.Mainfrm.TreeSource);
+                            NewWrapperMOD.ContextMenuStrip = ModelFileContextAdder(NewWrapperMOD, frename.Mainfrm.TreeSource);
 
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperMOD);
 
@@ -12550,7 +12616,8 @@ namespace ThreeWorkTool
                             if (awrapper.Tag as MaterialTextureReference == null && awrapper.Tag as LMTM3AEntry == null && awrapper.Tag as ModelBoneEntry == null
                             && awrapper.Tag as MaterialMaterialEntry == null && awrapper.Tag as ModelGroupEntry == null && awrapper.Tag as Mission == null
                             && awrapper.Tag as EffectNode == null && awrapper.Tag as EffectFieldTextureRefernce == null && awrapper.Tag as ModelPrimitiveEntry == null
-                            && awrapper.Tag as ModelPrimitiveJointLinkEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null && awrapper.Tag as STQRNode == null)
+                            && awrapper.Tag as ModelPrimitiveJointLinkEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null 
+                            && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null)
                             {
                                 {
                                     ArcEntry Aentry = tno.Tag as ArcEntry;
@@ -12887,7 +12954,8 @@ namespace ThreeWorkTool
                             if (awrapper.Tag as MaterialTextureReference == null && awrapper.Tag as LMTM3AEntry == null && awrapper.Tag as ModelBoneEntry == null
                             && awrapper.Tag as MaterialMaterialEntry == null && awrapper.Tag as ModelGroupEntry == null && awrapper.Tag as Mission == null
                             && awrapper.Tag as EffectNode == null && awrapper.Tag as EffectFieldTextureRefernce == null && awrapper.Tag as ModelPrimitiveEntry == null
-                            && awrapper.Tag as ModelPrimitiveJointLinkEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null && awrapper.Tag as STQRNode == null)
+                            && awrapper.Tag as ModelPrimitiveJointLinkEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null 
+                            && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null)
                             {
                                 {
                                     CurrentFilePath = tno.FullPath;
@@ -13294,7 +13362,7 @@ namespace ThreeWorkTool
                                             NewWrapper = tno as ArcEntryWrapper;
                                             int indexZ = tno.Index;
                                             NewWrapper.Tag = ModelEntry.ReplaceModelEntry(frename.Mainfrm.TreeSource, NewWrapper, TexToCheck);
-                                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                            NewWrapper.ContextMenuStrip = ModelFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
 
                                             //Takes the path data from the old node and slaps it on the new node.
@@ -15176,13 +15244,33 @@ namespace ThreeWorkTool
             frename.Mainfrm.TreeSource.SelectedNode = RebuiltLMTWrapper;
             frename.Mainfrm.TreeSource.EndUpdate();
         }
-        
+
         //TO DO, next big release, not now.
         private static void ImportYML(Object sender, System.EventArgs e)
         {
 
 
 
+        }
+
+        //Don't get your hopes up. Construction JUST began.
+        private static void RenderModel_Click(Object sender, System.EventArgs e)
+        {
+
+            //ModelViewer
+            ModelViewer RendView = new ModelViewer();
+            RendView = RenderView;
+            RendView.Show();
+
+
+        }
+
+        private static void EditTracks(Object sender, System.EventArgs e)
+        {
+            //Opens the Track Editor.
+            FrmTrackEditor Teditor = new FrmTrackEditor();
+            Teditor = TrackEditor;
+            TrackEditor.ShowTrackEditor();
         }
 
         private static void MoveNodeUp(Object sender, System.EventArgs e)
@@ -15704,7 +15792,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 11;
 
 
-                    modchild.ContextMenuStrip = GenericFileContextAdder(modchild, TreeSource);
+                    modchild.ContextMenuStrip = ModelFileContextAdder(modchild, TreeSource);
 
                     ModelChildrenCreation(modchild, modchild.Tag as ModelEntry);
 
@@ -16583,6 +16671,7 @@ namespace ThreeWorkTool
             //Fills in MA3 files used in the Animation folder.
             for (int i = 0; i < lmtentry.LstM3A.Count; i++)
             {
+                TreeSource.SelectedNode = MEntry;
 
                 ArcEntryWrapper lma3 = new ArcEntryWrapper();
                 lma3.Name = Convert.ToString(lmtentry.LstM3A[i].AnimationID);
@@ -16591,18 +16680,32 @@ namespace ThreeWorkTool
                 lma3.ImageIndex = 18;
                 lma3.SelectedImageIndex = 18;
                 TreeSource.SelectedNode.Nodes.Add(lma3);
-                ContextMenuStrip conmenu = new ContextMenuStrip();
-                conmenu.Items.Add("Export", null, MenuExportFile_Click);
-                conmenu.Items.Add("Replace", null, MenuReplaceFile_Click);
+                lma3.ContextMenuStrip = M3aFileContextAdder(lma3, TreeSource);
+                //Too Many Nodes.
+                /*
+                TreeSource.SelectedNode = lma3;
+                if (lmtentry.LstM3A[i].IsBlank == false)
+                {
+                    //Now To Expand the TrackData.
+                    for (int j = 0; j < lmtentry.LstM3A[i].Tracks.Count; j++)
+                    {
 
-                //Debug Only until next release.
-#if DEBUG
-                conmenu.Items.Add("Extract KeyFrames(Beta)", null, ExtractKeyFrames_Click);
-#endif
-                lma3.ContextMenuStrip = conmenu;
+                        ArcEntryWrapper AnimTrack = new ArcEntryWrapper();
+                        AnimTrack.Name = "Bone" + lmtentry.LstM3A[i].Tracks[j].BoneID + "Type" + lmtentry.LstM3A[i].Tracks[j].BufferType;
+                        AnimTrack.Tag = lmtentry.LstM3A[i].Tracks[j];
+                        AnimTrack.Text = "Bone" + lmtentry.LstM3A[i].Tracks[j].BoneID + "Type" + lmtentry.LstM3A[i].Tracks[j].BufferType;
+                        lmtentry.LstM3A[i].Tracks[j] = LMTTrackNode.SetString(lmtentry.LstM3A[i].Tracks[j]);
+                        AnimTrack.ImageIndex = 16;
+                        AnimTrack.SelectedImageIndex = 16;
+                        TreeSource.SelectedNode.Nodes.Add(AnimTrack);
+
+                    }
+
+                }
+                */
 
             }
-
+            TreeSource.SelectedNode = MEntry;
         }
 
         public void ModelChildrenCreation(TreeNode MEntry, ModelEntry model)
@@ -17532,6 +17635,14 @@ namespace ThreeWorkTool
                 frn.Mainfrm = this;
                 freplace = frp;
 
+                ModelViewer modv = new ModelViewer();
+                modv.Mainfrm = this;
+                RenderView = modv;
+
+                FrmTrackEditor tracke = new FrmTrackEditor();
+                tracke.Mainfrm = this;
+                TrackEditor = tracke;
+
                 FrmTxtEditor frmTxt = new FrmTxtEditor();
                 frmTxt.Mainfrm = this;
                 frmTxtEdit = frmTxt;
@@ -17845,6 +17956,20 @@ namespace ThreeWorkTool
 
             switch (type)
             {
+
+                #region LMTTrackNode
+                case "ThreeWorkTool.Resources.Wrappers.AnimNodes.LMTTrackNode":
+                    LMTTrackNode lmttracknent = new LMTTrackNode();
+                    lmttracknent = TreeSource.SelectedNode.Tag as LMTTrackNode;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+                #endregion
 
                 #region SRQR
                 case "ThreeWorkTool.Resources.Wrappers.SoundRequestEntry":
@@ -18546,10 +18671,10 @@ namespace ThreeWorkTool
             {
 
                 //Checks for a too long MRU list and removes the oldest filepaths from the list.
-                if(_MostRecentlyUsedList.Count > 12)
+                if (_MostRecentlyUsedList.Count > 12)
                 {
                     int Amounttoremove = _MostRecentlyUsedList.Count - 12;
-                    for(int v = 0; v < Amounttoremove; v++)
+                    for (int v = 0; v < Amounttoremove; v++)
                         _MostRecentlyUsedList.RemoveAt(_MostRecentlyUsedList.Count - 1);
 
                 }

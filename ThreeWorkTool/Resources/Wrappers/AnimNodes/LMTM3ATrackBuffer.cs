@@ -28,7 +28,7 @@ public class Vector4X
 }
 */
 
-class Extremes
+public class Extremes
 {
     public Vector4 min;
     public Vector4 max;

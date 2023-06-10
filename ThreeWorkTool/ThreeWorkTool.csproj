@@ -99,8 +99,17 @@
     <Reference Include="SharpDX.D3DCompiler, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.D3DCompiler.4.2.0\lib\net45\SharpDX.D3DCompiler.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.Desktop, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.Desktop.4.2.0\lib\net45\SharpDX.Desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct2D1, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.Direct2D1.4.2.0\lib\net45\SharpDX.Direct2D1.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX.Direct3D11, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.Direct3D11.4.2.0\lib\net45\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D9, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.Direct3D9.4.2.0\lib\net45\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.DirectInput, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.DirectInput.4.2.0\lib\net45\SharpDX.DirectInput.dll</HintPath>
@@ -110,6 +119,9 @@
     </Reference>
     <Reference Include="SharpDX.Mathematics, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.Mathematics.4.2.0\lib\net45\SharpDX.Mathematics.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.MediaFoundation, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.MediaFoundation.4.2.0\lib\net45\SharpDX.MediaFoundation.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.XInput, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.XInput.4.2.0\lib\net45\SharpDX.XInput.dll</HintPath>
@@ -229,11 +241,20 @@
     <Compile Include="FrmTexEncodeDialog.Designer.cs">
       <DependentUpon>FrmTexEncodeDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmTrackEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmTrackEditor.Designer.cs">
+      <DependentUpon>FrmTrackEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmTxtEditor.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FrmTxtEditor.Designer.cs">
       <DependentUpon>FrmTxtEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelViewer.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -256,6 +277,7 @@
     <Compile Include="Resources\Utility\ENumerators.cs" />
     <Compile Include="Resources\Utility\QToEuler.cs" />
     <Compile Include="Resources\Wrappers\AnimNodes\LMTM3ATrackBuffer.cs" />
+    <Compile Include="Resources\Wrappers\AnimNodes\LMTTrackNode.cs" />
     <Compile Include="Resources\Wrappers\AnmCmdEntry.cs" />
     <Compile Include="Resources\Wrappers\ArcEntryWrapper.cs" />
     <Compile Include="Resources\Wrappers\ArcFileWrapper.cs" />
@@ -332,8 +354,14 @@
     <EmbeddedResource Include="FrmTexEncodeDialog.resx">
       <DependentUpon>FrmTexEncodeDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FrmTrackEditor.resx">
+      <DependentUpon>FrmTrackEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmTxtEditor.resx">
       <DependentUpon>FrmTxtEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelViewer.resx">
+      <DependentUpon>ModelViewer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

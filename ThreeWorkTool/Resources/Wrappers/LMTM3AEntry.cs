@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources.Utility;
+using ThreeWorkTool.Resources.Wrappers.AnimNodes;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -78,7 +79,9 @@ namespace ThreeWorkTool.Resources.Wrappers
             xpto = 5
         }
 
-        [YamlIgnore] public List<Track> Tracks;
+        [YamlIgnore] public List<LMTTrackNode> Tracks;
+        //public List<LMTTrackNode> TrackNodes;
+        /*
         public struct Track
         {
             public int TrackNumber;
@@ -96,7 +99,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             public Extremes Extremes;
             [YamlIgnore] public float[] ExtremesArray;
         }
-
+        */
         [YamlMember(ApplyNamingConventions = false)] public List<KeyFrame> KeyFrames;
 
         public class KeyFrame
@@ -232,13 +235,13 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
 
                 //Gets the Tracks.
-                M3a.Tracks = new List<Track>();
+                M3a.Tracks = new List<LMTTrackNode>();
                 bnr.BaseStream.Position = M3a.TrackPointer;
 
                 for (int j = 0; j < M3a.TrackCount; j++)
                 {
 
-                    Track track = new Track();
+                    LMTTrackNode track = new LMTTrackNode();
                     track.TrackNumber = j;
                     track.ExtremesArray = new float[8];
 
@@ -259,6 +262,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
                     track.BufferPointer = bnr.ReadInt32();
                     bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
+                    track.ReferenceDataPointer = Convert.ToInt32(bnr.BaseStream.Position);
                     track.ReferenceData.W = bnr.ReadSingle();
                     track.ReferenceData.X = bnr.ReadSingle();
                     track.ReferenceData.Y = bnr.ReadSingle();
@@ -289,26 +293,26 @@ namespace ThreeWorkTool.Resources.Wrappers
                         //MessageBox.Show("Track # " + j + " inside " + lmtentry.EntryName + "\nhas an actual extremes pointer.", "Debug Note");
                         bnr.BaseStream.Position = Convert.ToInt32(track.ExtremesPointer);
 
-                        track.Extremes = new Extremes();
+                        track.Extreme = new LMTTrackNode.Extremes();
 
-                        track.Extremes.min.W = bnr.ReadSingle();
-                        track.Extremes.min.X = bnr.ReadSingle();
-                        track.Extremes.min.Y = bnr.ReadSingle();
-                        track.Extremes.min.Z = bnr.ReadSingle();
+                        track.Extreme.min.W = bnr.ReadSingle();
+                        track.Extreme.min.X = bnr.ReadSingle();
+                        track.Extreme.min.Y = bnr.ReadSingle();
+                        track.Extreme.min.Z = bnr.ReadSingle();
 
-                        track.Extremes.max.W = bnr.ReadSingle();
-                        track.Extremes.max.X = bnr.ReadSingle();
-                        track.Extremes.max.Y = bnr.ReadSingle();
-                        track.Extremes.max.Z = bnr.ReadSingle();
+                        track.Extreme.max.W = bnr.ReadSingle();
+                        track.Extreme.max.X = bnr.ReadSingle();
+                        track.Extreme.max.Y = bnr.ReadSingle();
+                        track.Extreme.max.Z = bnr.ReadSingle();
 
-                        track.ExtremesArray[0] = track.Extremes.min.W;
-                        track.ExtremesArray[1] = track.Extremes.min.X;
-                        track.ExtremesArray[2] = track.Extremes.min.Y;
-                        track.ExtremesArray[3] = track.Extremes.min.Z;
-                        track.ExtremesArray[4] = track.Extremes.max.W;
-                        track.ExtremesArray[5] = track.Extremes.max.X;
-                        track.ExtremesArray[6] = track.Extremes.max.Y;
-                        track.ExtremesArray[7] = track.Extremes.max.Z;
+                        track.ExtremesArray[0] = track.Extreme.min.W;
+                        track.ExtremesArray[1] = track.Extreme.min.X;
+                        track.ExtremesArray[2] = track.Extreme.min.Y;
+                        track.ExtremesArray[3] = track.Extreme.min.Z;
+                        track.ExtremesArray[4] = track.Extreme.max.W;
+                        track.ExtremesArray[5] = track.Extreme.max.X;
+                        track.ExtremesArray[6] = track.Extreme.max.Y;
+                        track.ExtremesArray[7] = track.Extreme.max.Z;
 
                         //Keyframes Take 1.
 
@@ -567,13 +571,13 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //bnr.BaseStream.Position = m3aentry.TrackPointer;
 
                     //Gets the Tracks.
-                    m3aentry.Tracks = new List<Track>();
+                    m3aentry.Tracks = new List<LMTTrackNode>();
                     bnr.BaseStream.Position = 0;
 
                     for (int j = 0; j < m3aentry.TrackCount; j++)
                     {
 
-                        Track track = new Track();
+                        LMTTrackNode track = new LMTTrackNode();
                         track.TrackNumber = j;
                         track.BufferType = bnr.ReadByte();
                         BufferType type = (BufferType)track.BufferType;
@@ -615,17 +619,17 @@ namespace ThreeWorkTool.Resources.Wrappers
                             //MessageBox.Show("Track # " + j + " inside " + lmtentry.EntryName + "\nhas an actual extremes pointer.", "Debug Note");
                             bnr.BaseStream.Position = Convert.ToInt32(track.ExtremesPointer);
 
-                            track.Extremes = new Extremes();
+                            track.Extreme = new LMTTrackNode.Extremes();
 
-                            track.Extremes.min.W = bnr.ReadSingle();
-                            track.Extremes.min.X = bnr.ReadSingle();
-                            track.Extremes.min.Y = bnr.ReadSingle();
-                            track.Extremes.min.Z = bnr.ReadSingle();
+                            track.Extreme.min.W = bnr.ReadSingle();
+                            track.Extreme.min.X = bnr.ReadSingle();
+                            track.Extreme.min.Y = bnr.ReadSingle();
+                            track.Extreme.min.Z = bnr.ReadSingle();
 
-                            track.Extremes.max.W = bnr.ReadSingle();
-                            track.Extremes.max.X = bnr.ReadSingle();
-                            track.Extremes.max.Y = bnr.ReadSingle();
-                            track.Extremes.max.Z = bnr.ReadSingle();
+                            track.Extreme.max.W = bnr.ReadSingle();
+                            track.Extreme.max.X = bnr.ReadSingle();
+                            track.Extreme.max.Y = bnr.ReadSingle();
+                            track.Extreme.max.Z = bnr.ReadSingle();
 
 
                         }
@@ -833,7 +837,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             M3a.KeyFrames = new List<KeyFrame>();
 
-            foreach (Track track in M3a.Tracks)
+            foreach (LMTTrackNode track in M3a.Tracks)
             {
                 IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind, track.TrackKind);
 
@@ -1044,7 +1048,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         [Category("Motion"), ReadOnlyAttribute(true)]
         [YamlIgnore]
-        public List<Track> CollectionTracks
+        public List<LMTTrackNode> CollectionTracks
         {
 
             get
