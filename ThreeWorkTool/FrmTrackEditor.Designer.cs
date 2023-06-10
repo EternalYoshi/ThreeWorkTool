@@ -28,65 +28,172 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.panel1 = new System.Windows.Forms.Panel();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.listBox1 = new System.Windows.Forms.ListBox();
-            this.panel1.SuspendLayout();
+            this.TrackGridView = new System.Windows.Forms.DataGridView();
+            this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column8 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TrackGridView)).BeginInit();
             this.SuspendLayout();
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.listBox1);
-            this.panel1.Location = new System.Drawing.Point(12, 12);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(820, 176);
-            this.panel1.TabIndex = 0;
             // 
             // panel2
             // 
-            this.panel2.Location = new System.Drawing.Point(12, 194);
+            this.panel2.Controls.Add(this.TrackGridView);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(0, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(382, 401);
+            this.panel2.Size = new System.Drawing.Size(1187, 607);
             this.panel2.TabIndex = 1;
             // 
-            // panel3
+            // TrackGridView
             // 
-            this.panel3.Location = new System.Drawing.Point(400, 194);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(432, 401);
-            this.panel3.TabIndex = 2;
+            dataGridViewCellStyle5.BackColor = System.Drawing.Color.DimGray;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+            this.TrackGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
+            this.TrackGridView.BackgroundColor = System.Drawing.SystemColors.GrayText;
+            this.TrackGridView.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.TrackGridView.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.TrackGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
+            this.TrackGridView.ColumnHeadersHeight = 30;
+            this.TrackGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Column1,
+            this.Column2,
+            this.Column3,
+            this.Column4,
+            this.Column5,
+            this.Column6,
+            this.Column7,
+            this.Column8});
+            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.InfoText;
+            dataGridViewCellStyle7.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.TrackGridView.DefaultCellStyle = dataGridViewCellStyle7;
+            this.TrackGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TrackGridView.Location = new System.Drawing.Point(0, 0);
+            this.TrackGridView.Name = "TrackGridView";
+            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            dataGridViewCellStyle8.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.TrackGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
+            this.TrackGridView.RowTemplate.DefaultCellStyle.BackColor = System.Drawing.Color.Empty;
+            this.TrackGridView.RowTemplate.DefaultCellStyle.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TrackGridView.RowTemplate.DefaultCellStyle.ForeColor = System.Drawing.Color.White;
+            this.TrackGridView.RowTemplate.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
+            this.TrackGridView.Size = new System.Drawing.Size(1187, 607);
+            this.TrackGridView.TabIndex = 0;
+            this.TrackGridView.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.TrackGridView_CellValidating);
             // 
-            // listBox1
+            // Column1
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(0, 3);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(820, 173);
-            this.listBox1.TabIndex = 0;
+            this.Column1.FillWeight = 56.33803F;
+            this.Column1.HeaderText = "Track#";
+            this.Column1.Name = "Column1";
+            this.Column1.ReadOnly = true;
+            this.Column1.Width = 80;
+            // 
+            // Column2
+            // 
+            this.Column2.FillWeight = 59.3503F;
+            this.Column2.HeaderText = "BoneID";
+            this.Column2.Name = "Column2";
+            this.Column2.Width = 84;
+            // 
+            // Column3
+            // 
+            this.Column3.FillWeight = 100.9945F;
+            this.Column3.HeaderText = "ReferenceType";
+            this.Column3.Name = "Column3";
+            this.Column3.Width = 144;
+            // 
+            // Column4
+            // 
+            this.Column4.FillWeight = 116.2835F;
+            this.Column4.HeaderText = "RefrenceDataW";
+            this.Column4.Name = "Column4";
+            this.Column4.Width = 165;
+            // 
+            // Column5
+            // 
+            this.Column5.FillWeight = 114.0162F;
+            this.Column5.HeaderText = "RefrenceDataX";
+            this.Column5.Name = "Column5";
+            this.Column5.Width = 162;
+            // 
+            // Column6
+            // 
+            this.Column6.FillWeight = 112.0482F;
+            this.Column6.HeaderText = "RefrenceDataY";
+            this.Column6.Name = "Column6";
+            this.Column6.Width = 159;
+            // 
+            // Column7
+            // 
+            this.Column7.FillWeight = 110.3401F;
+            this.Column7.HeaderText = "RefrenceDataZ";
+            this.Column7.Name = "Column7";
+            this.Column7.Width = 157;
+            // 
+            // Column8
+            // 
+            this.Column8.FillWeight = 130.6291F;
+            this.Column8.HeaderText = "ReferenceDataOffset";
+            this.Column8.Name = "Column8";
+            this.Column8.ReadOnly = true;
+            this.Column8.Width = 185;
             // 
             // FrmTrackEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.ClientSize = new System.Drawing.Size(844, 607);
-            this.Controls.Add(this.panel3);
+            this.ClientSize = new System.Drawing.Size(1187, 607);
             this.Controls.Add(this.panel2);
-            this.Controls.Add(this.panel1);
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.Name = "FrmTrackEditor";
             this.Text = "FrmTrackEditor";
-            this.panel1.ResumeLayout(false);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmTrackEditor_FormClosing);
+            this.panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.TrackGridView)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.DataGridView TrackGridView;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column4;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column5;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column6;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column7;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column8;
     }
 }

@@ -15270,7 +15270,7 @@ namespace ThreeWorkTool
             //Opens the Track Editor.
             FrmTrackEditor Teditor = new FrmTrackEditor();
             Teditor = TrackEditor;
-            TrackEditor.ShowTrackEditor();
+            TrackEditor.ShowTrackEditor(frename.Mainfrm.TreeSource.SelectedNode);
         }
 
         private static void MoveNodeUp(Object sender, System.EventArgs e)
