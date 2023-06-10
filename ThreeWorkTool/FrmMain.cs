@@ -437,7 +437,7 @@ namespace ThreeWorkTool
                                                 treno.Tag as string == "Model Primitive Group" || treno.Tag as string == "Events" || treno.Tag as string == "Entries" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
                                                 || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce
                                                 || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelPrimitiveJointLinkEntry || treno.Tag is StageObjLayoutGroup || treno.Tag is STQRNode
-                                                || treno.Tag is STQREventData || treno.Tag as LMTTrackNode == null)
+                                                || treno.Tag is STQREventData || treno.Tag is LMTTrackNode)
                                             {
 
                                             }
@@ -15269,8 +15269,21 @@ namespace ThreeWorkTool
         {
             //Opens the Track Editor.
             FrmTrackEditor Teditor = new FrmTrackEditor();
+            TreeNode Parent;
             Teditor = TrackEditor;
             TrackEditor.ShowTrackEditor(frename.Mainfrm.TreeSource.SelectedNode);
+            frename.Mainfrm.OpenFileModified = true;
+
+            
+            if(TrackEditor.EntryChanged == true)
+            {
+                //Rebuilds the LMT.
+                Parent = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+                frename.Mainfrm.TreeSource.SelectedNode = Parent;
+                MenuRebuildLMT_Click(sender, e);
+                frename.Mainfrm.OpenFileModified = true;
+            }
+            
         }
 
         private static void MoveNodeUp(Object sender, System.EventArgs e)

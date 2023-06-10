@@ -20,7 +20,7 @@ namespace ThreeWorkTool
         private static TreeNode node_;
         public LMTM3AEntry M3a;
         public LMTTrackNode tracks;
-        bool EntryChanged = false;
+        public bool EntryChanged = false;
         public FrmMainThree Mainfrm { get; set; }
         public bool isModified = false;
         public BindingList<LMTTrackNode> TracksList;
@@ -170,7 +170,7 @@ namespace ThreeWorkTool
                             {
                                 bw3.BaseStream.Position = PointerToUse;
                                 bw3.Write(W);
-                                bw3.Write(Z);
+                                bw3.Write(X);
                                 bw3.Write(Y);
                                 bw3.Write(Z);
                                 bw3.BaseStream.Position = (PointerToUse - 23);
