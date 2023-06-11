@@ -191,6 +191,9 @@ be sure to right click the LMT node and select Rebuild LMT after you do the abov
 
 If editing a .lmt file is causing crashes, check the m3a entries for any entries that reuse track data, denoted by the IsResuingTrackData variable being true, and set them all to false, then select the LMT and select Rebuild LMT. It will increase file size a bit but will stop crashes on the offending actions.
 
+The Track Editor will only save changes if the values are valid. TrackType and BoneID are stored as 1 byte each so the values cannot be more than 255. The Reference Data values are floating points, and the rest of the values are read only. If you are going to close the TrackEditor Form, be sure to hit enter to save your last entered value before closing.
+
+Just so you know, loose .m3a files exported via older versions of ThreeWorkTool are not going to be compatible. Either re-export the m3a file with version 0.63d or newer, or go into a hex editor and trim the last 4 bytes of the loose m3a files.
 </value>
   </data>
 </root>
