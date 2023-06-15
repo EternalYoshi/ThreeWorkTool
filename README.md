@@ -21,6 +21,17 @@ V0.63c
 - Fixed an issue with the Manifest Tool's Refresh File list button including nodes that were not meant to be included.
 - Added basic support for various file formats that have matching names for the sake of disambiguation for the Replace All feature. They shall be expanded upon another time.
 
+V0.63d
+- Updated LMT and M3a definitions.
+- New Track Editor which lets you edit the Reference Data, Track Type, BufferType, and bone ID used.
+- Can now rebuild LMT using the current .m3a files. Use this to apply certain changes like from the one below.
+- Can now set the Reuse Animation Flag in the Property Grid. Is applied to the lmt when the Rebuild LMT command is used.
+- Fixed an issue resulting in incorrect event buffer pointers in .m3a files.
+- Small update to Model Entry definition.
+- Fixed visual issue with replacing .m3a entries that resulted in the name being changed.
+- Small Addition to Notes and Advice Form. Read it if you haven't.
+NOTE: This above does mean that loose .m3a files exported/created from previous versions and methods are no longer valid without hex editing.
+
 V0.63b
 - Fixed an issue where .cst files would not be built properly and cause abnormalities in game.
 - ChainList format redefined, the text box now has numerical values for each Chain references.
