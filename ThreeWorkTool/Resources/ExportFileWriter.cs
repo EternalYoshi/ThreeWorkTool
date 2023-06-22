@@ -131,10 +131,30 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
+            else if (entrytowrite.TexType == "15" || entrytowrite.Format == "??????")
+            {
+                try
+                {
+                    MessageBox.Show("This undocumented texture type isn't supported for conversion, so only the raw .tex file can be extracted.");
+                    using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+                    {
+                        bw.Write(entrytowrite.UncompressedData);
+                        bw.Close();
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    ExceptionCatchAll(ex);
+                    return;
+                }
+
+            }
             else
             {
                 try
                 {
+
                     Stream strim = new MemoryStream(entrytowrite.OutTar);
                     //From the pfim website. Modified for my uses.
                     using (var image = Pfim.Pfim.FromStream(strim))
@@ -195,6 +215,8 @@ namespace ThreeWorkTool.Resources
                 }
                 catch (Exception ex)
                 {
+
+
                     ExceptionCatchAll(ex);
                     return;
                 }
@@ -513,7 +535,7 @@ namespace ThreeWorkTool.Resources
                 return;
             }
         }
-        
+
         public static void ChrBaseActWriter(string filename, ChrBaseActEntry entrytowrite)
         {
             try
