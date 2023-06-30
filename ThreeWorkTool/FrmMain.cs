@@ -4883,6 +4883,16 @@ namespace ThreeWorkTool
             var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
             conmenu.Items.Add(replitem);
 
+#if DEBUG
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //WIP Exporting of Keyframes.
+            var keyexplitem = new ToolStripMenuItem("Extract Keys", null, ExtractKeyFrames_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(keyexplitem);
+
+#endif
+
             return conmenu;
         }
 
@@ -11332,8 +11342,7 @@ namespace ThreeWorkTool
                                 sw.WriteLine("===============================================================================================================");
                             }
 
-                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeAtkInfo;
-
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeAtkInfo.Parent;
                             break;
                         #endregion
 
@@ -11396,7 +11405,7 @@ namespace ThreeWorkTool
                                 sw.WriteLine("===============================================================================================================");
                             }
 
-                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeShot;
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeShot.Parent;
 
                             break;
                         #endregion
@@ -11461,7 +11470,7 @@ namespace ThreeWorkTool
                                 sw.WriteLine("===============================================================================================================");
                             }
 
-                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeAnmCmd;
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeAnmCmd.Parent;
 
                             break;
                         #endregion
@@ -11525,7 +11534,7 @@ namespace ThreeWorkTool
                                 sw.WriteLine("===============================================================================================================");
                             }
 
-                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeChrBaseAct;
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeChrBaseAct.Parent;
 
                             break;
                         #endregion
@@ -11589,7 +11598,7 @@ namespace ThreeWorkTool
                                 sw.WriteLine("===============================================================================================================");
                             }
 
-                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeSoundBank;
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeSoundBank.Parent;
 
                             break;
                         #endregion
@@ -11653,7 +11662,7 @@ namespace ThreeWorkTool
                                 sw.WriteLine("===============================================================================================================");
                             }
 
-                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeSoundRequest;
+                            frename.Mainfrm.TreeSource.SelectedNode = selectednodeSoundRequest.Parent;
 
                             break;
                         #endregion
@@ -15260,7 +15269,7 @@ namespace ThreeWorkTool
             //ModelViewer
             ModelViewer RendView = new ModelViewer();
             RendView = RenderView;
-            RendView.Show();
+            RenderView.ShowMV(frename.Mainfrm.TreeSource.SelectedNode);
 
 
         }
