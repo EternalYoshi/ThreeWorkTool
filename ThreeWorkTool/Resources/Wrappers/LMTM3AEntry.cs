@@ -69,7 +69,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             bilinearrotationquat4_9bit = 15
         }
 
-        public enum TrackType
+        public enum ETrackType
         {
             localrotation = 0,
             localposition = 1,
@@ -104,12 +104,14 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         public class KeyFrame
         {
-            [YamlMember(ApplyNamingConventions = false)] public int frame;
+            [YamlMember(ApplyNamingConventions = false)] public int Frame;
             [YamlMember(ApplyNamingConventions = false)] public string KeyType;
+            [YamlMember(ApplyNamingConventions = false)] public string Buffertype;
             [YamlMember(ApplyNamingConventions = false)] public string TrackType;
             [YamlMember(ApplyNamingConventions = false)] public int BoneID;
             [YamlMember(ApplyNamingConventions = false)] public Vector4 data;
-            [YamlIgnore] public Vector3 EulerKeys;
+            public int TempFrameValue;
+            //[YamlIgnore] public Vector3 EulerKeys;
         }
 
         public class AnimEvent
@@ -252,7 +254,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     //For the Track Type.
                     track.TrackType = bnr.ReadByte();
-                    TrackType Ttype = (TrackType)track.TrackType;
+                    ETrackType Ttype = (ETrackType)track.TrackType;
                     track.TrackKind = Ttype.ToString();
 
                     track.BoneType = bnr.ReadByte();
@@ -438,6 +440,40 @@ namespace ThreeWorkTool.Resources.Wrappers
                 M3a._FileLength = M3a.FullData.LongLength;
                 Array.Copy(M3a.RawData, 0, M3a.FullData, 0, M3a.RawData.Length);
                 Array.Copy(M3a.MotionData, 0, M3a.FullData, M3a.RawData.Length, M3a.MotionData.Length);
+                Anim.KeyFrames = new List<KeyFrame>();
+                for (int i = 0; i < Anim.Tracks.Count; i++)
+                {
+                    if (Anim.Tracks[i].BoneID == 255) continue;
+
+                    if (Anim.Tracks[i].Buffer != null && Anim.Tracks[i].Buffer.Length != 0)
+                    {
+                        using (MemoryStream memory = new MemoryStream(Anim.Tracks[i].Buffer))
+                        {
+                            using (BinaryReader BufferBnr = new BinaryReader(memory))
+                            {
+                                if (Anim.Tracks[i].ExtremesArray != null)
+                                {
+                                    List<KeyFrame> CurrentKeys = new List<KeyFrame>();
+                                    CurrentKeys.AddRange(LMTM3ATrackBuffer.Convert(Anim.Tracks[i].BufferType, Anim.Tracks[i].Buffer, Anim.Tracks[i].BoneID, Anim.Tracks[i].ExtremesArray, BufferBnr, Anim.Tracks[i].TrackType));
+
+                                    Anim.KeyFrames.AddRange(CurrentKeys);
+                                }
+                                else
+                                {
+                                    Anim.KeyFrames.AddRange(LMTM3ATrackBuffer.Convert(Anim.Tracks[i].BufferType, Anim.Tracks[i].Buffer, Anim.Tracks[i].BoneID, null, BufferBnr, Anim.Tracks[i].TrackType));
+
+                                }
+                            }
+                        }
+
+
+                    }
+
+                }
+
+                //And thus Keyframes.
+                PrepareTheKeyframes(Anim);
+
             }
             catch (Exception ex)
             {
@@ -585,7 +621,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         //For the Track Type.
                         track.TrackType = bnr.ReadByte();
-                        TrackType Ttype = (TrackType)track.TrackType;
+                        ETrackType Ttype = (ETrackType)track.TrackType;
                         track.TrackKind = Ttype.ToString();
 
                         track.BoneType = bnr.ReadByte();
@@ -836,7 +872,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
 
             M3a.KeyFrames = new List<KeyFrame>();
-
+            /*
             foreach (LMTTrackNode track in M3a.Tracks)
             {
                 IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind, track.TrackKind);
@@ -852,11 +888,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                 quat.Y = M3a.KeyFrames[v].data.Z;
                 quat.Z = M3a.KeyFrames[v].data.W;
 
-                M3a.KeyFrames[v].EulerKeys = QToEuler.ToEulerAngles(quat);
+                //M3a.KeyFrames[v].EulerKeys = QToEuler.ToEulerAngles(quat);
             }
 
-            M3a.KeyFrames = M3a.KeyFrames.OrderBy(o => o.frame).ToList();
-
+            M3a.KeyFrames = M3a.KeyFrames.OrderBy(o => o.Frame).ToList();
+            */
             return M3a;
         }
 

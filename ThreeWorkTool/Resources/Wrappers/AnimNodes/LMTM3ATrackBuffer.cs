@@ -1,11 +1,16 @@
 //From EddieLopesRJ. Thank you very much for this class file.
 //Had to modify a few things to fix conflicts with custom Vector4 implementation & have Keyframes retain the bone ID for later.
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Numerics;
+using System.Windows;
+using ThreeWorkTool.Resources.Utility;
 using static ThreeWorkTool.Resources.Wrappers.LMTM3AEntry;
 
-enum BufferType
+enum EBufferType
 {
     singlevector3 = 1,
     singlerotationquat3 = 2,
@@ -20,6 +25,8 @@ enum BufferType
     bilinearrotationquat4_11bit = 14,
     bilinearrotationquat4_9bit = 15
 }
+
+
 
 /*
 public class Vector4X
@@ -41,25 +48,101 @@ class BufferConversor
     public int[] strides;
     public Func<BigInteger, float> convert;
     public Func<BigInteger, int> frames;
+    public string format;
 
-    //int bit_mask;
 
-    public KeyFrame Process(BigInteger value, float[] extremes, int Boneid, string KeyKind, string TrackKind)
+    public KeyFrame Process(BigInteger value, byte[] buffer, float[] extremes, int bufferType, string format, int BoneID, BinaryReader bnr, int TrackType, int FrameCount)
     {
-        var frame_value = frames(value);
+        var frame_value = 0;
 
         var data = new float[4];
-
         int pos = 0;
-        foreach (var stride in strides)
-        {
-            var curr_value = (value >> stride) & ((1 << bit_size) - 1);
-            Console.Write($"{curr_value} ");
-            data[pos++] = convert(curr_value);
-        }
-        Console.WriteLine();
+        float[] vecs = new float[4];
 
-        if (extremes != null)
+        //BigInteger bigin = new BigInteger(bnr.ReadBytes(buffer_size));
+        var bin_vec = new uint[strides.Length];
+        var strshorts = new string[strides.Length];
+        byte[] tempArr = new byte[buffer_size];
+        tempArr = bnr.ReadBytes(buffer_size);
+
+        switch (format)
+        {
+            case "float_format":
+                break;
+            case "signed_format":
+                if(buffer_size == 8)
+                {
+                    frame_value = tempArr[(buffer_size - 1)];
+                }
+                break;
+            case "unsigned_format":
+                break;
+            default:
+                break;
+        }
+
+        Array.Reverse(tempArr);
+        //string biginSTR = BitConverter.ToString(bnr.ReadBytes(buffer_size));
+        string BigString = "";
+        BigString = ByteUtilitarian.ByteArrayToString(tempArr);
+
+        //Converts To String To get the raw Binary.
+        string binarystring = String.Join(String.Empty, BigString.Select
+            (
+                c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0')
+            )
+        );
+        string SmallString = "";
+        //Separates the needed bits from the long as heck binary string.
+        for (int j = 0; j < strides.Length; j++)
+        {
+            SmallString = binarystring.Substring((strides[j]), bit_size);
+            strshorts[j] = SmallString;
+            bin_vec[j] = Convert.ToUInt32(SmallString, 2);
+        }
+
+        int[] bin_vecTC = new int[bin_vec.Length];
+
+        //The "Unpacking" Part.
+        switch (format)
+        {
+            case "float_format":
+                for (int k = 0; k < bin_vec.Length; k++)
+                {
+                    vecs[k] = Convert.ToSingle((decimal)(bin_vec[k] - 8) / (decimal)((Math.Pow(2, bit_size)) - 16));
+                }
+                data[0] = vecs[0];
+                data[1] = vecs[1];
+                data[2] = vecs[2];
+                data[3] = 1.0f;
+                break;
+            case "signed_format":
+                for (int k = 0; k < bin_vec.Length; k++)
+                {
+                    bin_vecTC[k] = (Int16)(bin_vec[k] << 2) / 4;
+                    vecs[k] = Convert.ToSingle((decimal)(bin_vecTC[k]) / (decimal)((1<<(bit_size - 2)) - 1));
+                }
+                data[0] = vecs[0];
+                data[1] = vecs[1];
+                data[2] = vecs[2];
+                data[3] = 1.0f;
+                break;
+            case "unsigned_format":
+                for (int k = 0; k < bin_vec.Length; k++)
+                {
+                    vecs[k] = Convert.ToSingle((decimal)(bin_vec[k] - 8) / (decimal)((Math.Pow(2, bit_size)) - 16));
+                }
+                data[0] = vecs[0];
+                data[1] = vecs[1];
+                data[2] = vecs[2];
+                data[3] = 1.0f;
+                break;
+            default:
+                MessageBox.Show("There's an exotic buffer type in here.");
+                break;
+        }
+
+        if (extremes != null && !(extremes.All(o => o == 0))) 
         {
             for (int i = 0; i < 4; i++)
             {
@@ -67,13 +150,16 @@ class BufferConversor
             }
         }
 
+        var ETrackType = (ETrackType)TrackType;
+        var EBufferType = (EBufferType)bufferType;
+
         return new KeyFrame()
         {
             data = new Vector4(data[0], data[1], data[2], data[3]),
-            frame = frame_value,
-            BoneID = Boneid,
-            KeyType = KeyKind,
-            TrackType = TrackKind
+            TempFrameValue = frame_value,
+            BoneID = BoneID,
+            TrackType = ETrackType.ToString(),
+            Buffertype = EBufferType.ToString()
         };
     }
 
@@ -89,7 +175,7 @@ public class KeyFrame
 */
 class LMTM3ATrackBuffer
 {
-    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, float[] extremes, int BoneID, string KeyKind, string TrackKind)
+    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, int BoneID, float[] extremes, BinaryReader bnr,int TrackType)
     {
         BufferConversor conversor;
 
@@ -112,7 +198,8 @@ class LMTM3ATrackBuffer
                     bit_size = 32,
                     strides = new int[] { 0, 32, 64 },
                     convert = BI2Float,
-                    frames = (val) => 1
+                    frames = (val) => 1,
+                    format = "float_format"
                 };
                 break;
             case 2: //singlerotationquat3
@@ -122,7 +209,8 @@ class LMTM3ATrackBuffer
                     bit_size = 32,
                     strides = new int[] { 0, 32, 64 },
                     convert = BI2Float,
-                    frames = (val) => 1
+                    frames = (val) => 1,
+                    format = "float_format"
                 };
                 break;
             case 3: //linearvector3
@@ -132,7 +220,8 @@ class LMTM3ATrackBuffer
                     bit_size = 32,
                     strides = new int[] { 0, 32, 64, 96 },
                     convert = BI2Float,
-                    frames = (val) => 1
+                    frames = (val) => 1,
+                    format = "float_format"
                 };
                 break;
             case 4: //bilinearvector3_16bit
@@ -140,9 +229,10 @@ class LMTM3ATrackBuffer
                 {
                     buffer_size = 8,
                     bit_size = 16,
-                    strides = new int[] { 0, 16, 32 },
+                    strides = new int[] { 48, 32, 16 },
                     convert = BI2Unsigned(16),
-                    frames = (val) => (int)((val >> 48) & ((1 << 16) - 1))
+                    frames = (val) => (int)((val >> 48) & ((1 << 16) - 1)),
+                    format = "unsigned_format"
                 };
                 break;
             case 5: //bilinearvector3_8bit
@@ -152,7 +242,8 @@ class LMTM3ATrackBuffer
                     bit_size = 8,
                     strides = new int[] { 0, 8, 16 },
                     convert = BI2Unsigned(8),
-                    frames = (val) => (int)((val >> 24) & ((1 << 8) - 1))
+                    frames = (val) => (int)((val >> 24) & ((1 << 8) - 1)),
+                    format = "unsigned_format"
                 };
                 break;
             case 6: //linearrotationquat4_14bit
@@ -160,9 +251,10 @@ class LMTM3ATrackBuffer
                 {
                     buffer_size = 8,
                     bit_size = 14,
-                    strides = new int[] { 42, 28, 14, 0, },
+                    strides = new int[] { 8, 22, 36, 50 },
                     convert = BI2Signed(14),
-                    frames = (val) => (int)((val >> 56) & ((1 << 8) - 1))
+                    frames = (val) => (int)((val >> 56) & ((1 << 8) - 1)),
+                    format = "signed_format"
                 };
                 break;
             case 7: //bilinearrotationquat4_7bit
@@ -170,9 +262,10 @@ class LMTM3ATrackBuffer
                 {
                     buffer_size = 4,
                     bit_size = 7,
-                    strides = new int[] { 21, 14, 7, 0 },
+                    strides = new int[] { 4, 11, 18, 25 },
                     convert = BI2Unsigned2(7),
-                    frames = (val) => (int)((val >> 28) & 0xf)
+                    frames = (val) => (int)((val >> 28) & 0xf),
+                    format = "unsigned_format"
                 };
                 break;
             default:
@@ -180,13 +273,15 @@ class LMTM3ATrackBuffer
         }
 
         int pos = 0;
-
+        int frame = 0;
         while (pos != buffer.Length)
         {
+            //Time to check the buffer that gets passed into the below function.
             var segment = new ArraySegment<byte>(buffer, pos, conversor.buffer_size);
             var buffer_value = new BigInteger(segment.Array);
-            yield return conversor.Process(buffer_value, extremes, BoneID, KeyKind, TrackKind);
-
+            var buffer_segment = new byte[conversor.buffer_size];
+            Array.Copy(segment.Array, pos, buffer_segment, 0, buffer_segment.Length);
+            yield return conversor.Process(buffer_value, buffer, extremes, bufferType, conversor.format, BoneID, bnr,TrackType, frame);
             pos += conversor.buffer_size;
         }
 

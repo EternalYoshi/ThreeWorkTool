@@ -11,6 +11,9 @@ using System.Windows.Forms;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
 using ThreeWorkTool.Resources.Wrappers;
+using ThreeWorkTool.Resources.Wrappers.AnimNodes;
+using ThreeWorkTool.Resources.Wrappers.ExtraNodes.Kaitai;
+using static ThreeWorkTool.Resources.Wrappers.LMTM3AEntry;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -103,35 +106,29 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             for (int j = 0; j < lmtentry.LstM3A.Count; j++)
             {
-                Lmt.Animentry Anim = lmtentry.MotionData.Entries[j].Entry;
-                if (Anim != null)
+
+                if (lmtentry.LstM3A[j].IsBlank == false)
                 {
-                    int Framecount = Anim.Numframes;
-                    for (int k = 0; k < Anim.Tracklist.Count; k++)
+                    foreach (LMTTrackNode track in lmtentry.LstM3A[j].Tracks)
                     {
-                        if (Anim.Tracklist[k].Boneid == 255)
+                        if (track.BoneID == 255 || track.BoneID == -1)
                         {
-                            continue;
+
                         }
                         else
                         {
-                            if (Anim.Tracklist[k].Buffer != null)
-                            {
 
-
-
-
-                            }
-
+                            //LmtCodec.Process(track.BufferType, track.Buffer, track.ExtremesArray);
 
                         }
+                        //IEnumerable<KeyFrame> Key = LMTM3ATrackBuffer.Convert(track.BufferType, track.Buffer, track.ExtremesArray, track.BoneID, track.BufferKind, track.TrackKind);
 
+                        //lmtentry.LstM3A[j].KeyFrames.AddRange(Key.ToList());
 
+                        
 
                     }
-
                 }
-                //    var anim = 
 
             }
 

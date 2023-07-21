@@ -17,6 +17,16 @@ namespace ThreeWorkTool.Resources.Utility
         };
         //enum IMatType {flag, cbuffer, samplerstate, texture};
 
+        public enum ETrackType
+        {
+            localrotation = 0,
+            localposition = 1,
+            localscale = 2,
+            absoluterotation = 3,
+            absoluteposition = 4,
+            xpto = 5
+        };
+
         public enum ShaderObjectInfo
         {
 

@@ -469,6 +469,26 @@ namespace ThreeWorkTool.Resources.Utility
             return name;
         }
 
+        public static string ByteArrayToString(byte[] ba)
+        {
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach (byte b in ba)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
+        }
+
+        public static short decode(string loByte, string hiByte)
+        {
+            byte lo = Convert.ToByte(loByte, 16);
+            byte hi = Convert.ToByte(hiByte, 16);
+
+            short composed = (short)(lo + (hi << 7));
+
+            short result = (short)(composed - 8192);
+
+            return result;
+        }
+
         //Makes Bitmap from byte array containing DDS file.
         public static Bitmap BitmapBuilderDX(byte[] ddsfile, TextureEntry textureEntry)
         {
