@@ -65,24 +65,32 @@ class BufferConversor
         byte[] tempArr = new byte[buffer_size];
         tempArr = bnr.ReadBytes(buffer_size);
 
-        switch (format)
+        switch (bufferType)
         {
-            case "float_format":
+            case 1:
                 break;
-            case "signed_format":
-                if(buffer_size == 8)
-                {
-                    frame_value = tempArr[(buffer_size - 1)];
-                }
+            case 2:
                 break;
-            case "unsigned_format":
+            case 3:
+                break;
+            case 4:
+                frame_value = tempArr[(buffer_size - 2)];
+                break;
+            case 5:
+                frame_value = tempArr[(buffer_size - 1)];
+                break;
+            case 6:
+                frame_value = tempArr[(buffer_size - 1)];
+                break;
+            case 7:
+                byte bt = tempArr[buffer_size - 1];
+                frame_value = bt >> 4;
                 break;
             default:
                 break;
         }
 
         Array.Reverse(tempArr);
-        //string biginSTR = BitConverter.ToString(bnr.ReadBytes(buffer_size));
         string BigString = "";
         BigString = ByteUtilitarian.ByteArrayToString(tempArr);
 
@@ -104,9 +112,11 @@ class BufferConversor
         int[] bin_vecTC = new int[bin_vec.Length];
 
         //The "Unpacking" Part.
-        switch (format)
+        switch (bufferType)
         {
-            case "float_format":
+            case 1:
+            case 2:
+            case 3:
                 for (int k = 0; k < bin_vec.Length; k++)
                 {
                     vecs[k] = Convert.ToSingle((decimal)(bin_vec[k] - 8) / (decimal)((Math.Pow(2, bit_size)) - 16));
@@ -116,18 +126,38 @@ class BufferConversor
                 data[2] = vecs[2];
                 data[3] = 1.0f;
                 break;
-            case "signed_format":
+            case 4:
                 for (int k = 0; k < bin_vec.Length; k++)
                 {
-                    bin_vecTC[k] = (Int16)(bin_vec[k] << 2) / 4;
-                    vecs[k] = Convert.ToSingle((decimal)(bin_vecTC[k]) / (decimal)((1<<(bit_size - 2)) - 1));
+                    vecs[k] = Convert.ToSingle((decimal)(bin_vec[k] - 8) / (decimal)((Math.Pow(2, bit_size)) - 16));
                 }
                 data[0] = vecs[0];
                 data[1] = vecs[1];
                 data[2] = vecs[2];
                 data[3] = 1.0f;
                 break;
-            case "unsigned_format":
+            case 5:
+                for (int k = 0; k < bin_vec.Length; k++)
+                {
+                    vecs[k] = Convert.ToSingle((decimal)(bin_vec[k] - 8) / (decimal)((Math.Pow(2, bit_size)) - 16));
+                }
+                data[0] = vecs[0];
+                data[1] = vecs[1];
+                data[2] = vecs[2];
+                data[3] = 1.0f;
+                break;
+            case 6:
+                for (int k = 0; k < bin_vec.Length; k++)
+                {
+                    bin_vecTC[k] = (Int16)(bin_vec[k] << 2) / 4;
+                    vecs[k] = Convert.ToSingle((decimal)(bin_vecTC[k]) / (decimal)((1 << (bit_size - 2)) - 1));
+                }
+                data[0] = vecs[0];
+                data[1] = vecs[1];
+                data[2] = vecs[2];
+                data[3] = 1.0f;
+                break;
+            case 7:
                 for (int k = 0; k < bin_vec.Length; k++)
                 {
                     vecs[k] = Convert.ToSingle((decimal)(bin_vec[k] - 8) / (decimal)((Math.Pow(2, bit_size)) - 16));
@@ -142,7 +172,7 @@ class BufferConversor
                 break;
         }
 
-        if (extremes != null && !(extremes.All(o => o == 0))) 
+        if (extremes != null && !(extremes.All(o => o == 0)))
         {
             for (int i = 0; i < 4; i++)
             {
@@ -175,7 +205,7 @@ public class KeyFrame
 */
 class LMTM3ATrackBuffer
 {
-    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, int BoneID, float[] extremes, BinaryReader bnr,int TrackType)
+    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, int BoneID, float[] extremes, BinaryReader bnr, int TrackType)
     {
         BufferConversor conversor;
 
@@ -240,7 +270,7 @@ class LMTM3ATrackBuffer
                 {
                     buffer_size = 4,
                     bit_size = 8,
-                    strides = new int[] { 0, 8, 16 },
+                    strides = new int[] { 24, 16, 8 },
                     convert = BI2Unsigned(8),
                     frames = (val) => (int)((val >> 24) & ((1 << 8) - 1)),
                     format = "unsigned_format"
@@ -281,7 +311,7 @@ class LMTM3ATrackBuffer
             var buffer_value = new BigInteger(segment.Array);
             var buffer_segment = new byte[conversor.buffer_size];
             Array.Copy(segment.Array, pos, buffer_segment, 0, buffer_segment.Length);
-            yield return conversor.Process(buffer_value, buffer, extremes, bufferType, conversor.format, BoneID, bnr,TrackType, frame);
+            yield return conversor.Process(buffer_value, buffer, extremes, bufferType, conversor.format, BoneID, bnr, TrackType, frame);
             pos += conversor.buffer_size;
         }
 

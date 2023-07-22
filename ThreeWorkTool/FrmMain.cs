@@ -12515,49 +12515,15 @@ namespace ThreeWorkTool
 
             //string extension = tag.GetType().ToString();
 
-            LMTM3AEntry LMThreeentry = new LMTM3AEntry();
-
-            EXDialog.Filter = "LMT (*.lmt)|*.lmt";
+            LMTM3AEntry Anim = new LMTM3AEntry();
+            Anim = tag as LMTM3AEntry;
+            EXDialog.Filter = "Animation YML (*.yml)|*.yml";
 
             if (EXDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    //Test 1.
-                    Lmt TestLMT = Lmt.FromFile(EXDialog.FileName);
-
-                    //Test 2.
-                    Lmt.Animentry anim = TestLMT.Entries[163].Entry;
-
-                    //Test 3.
-                    string TestDump = "";
-                    List<Keydata> Data = new List<Keydata>();
-                    foreach (Lmt.Track animtrack in anim.Tracklist)
-                    {
-                        if (animtrack.Boneid == 255)
-                        {
-                            continue;
-                        }
-
-                        if (animtrack.Buffer != null)
-                        {
-
-                            //Data = (from kf in LmtCodec.Process_Buffer(animtrack.Buffertype, animtrack.Buffer, animtrack.Extremes)
-                            //select kf).ToList();
-
-
-                        }
-                        else
-                        {
-
-                        }
-
-
-
-
-
-                    }
-
+                    ExportFileWriter.KeyFrameWriter(EXDialog.FileName, Anim);
 
                 }
                 catch (Exception ex)

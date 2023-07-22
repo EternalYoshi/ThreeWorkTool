@@ -11,6 +11,7 @@ using System.Drawing;
 using ThreeWorkTool.Resources.Wrappers;
 using System.Windows.Forms;
 using System.Drawing.Imaging;
+using System.Collections;
 
 namespace ThreeWorkTool.Resources.Utility
 {
@@ -632,6 +633,19 @@ namespace ThreeWorkTool.Resources.Utility
                 }
             }
             return -1;
+        }
+
+        public static void ReverseBitArray(BitArray array)
+        {
+            int length = array.Length;
+            int mid = (length / 2);
+
+            for (int i = 0; i < mid; i++)
+            {
+                bool bit = array[i];
+                array[i] = array[length - i - 1];
+                array[length - i - 1] = bit;
+            }
         }
 
     }

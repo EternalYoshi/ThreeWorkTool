@@ -22,7 +22,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         [YamlIgnore] public byte[] MotionData;
         [YamlIgnore] public int AnimationID;
         public int version = 1;
-        public bool IsReusingTrackData
+        [YamlIgnore]public bool IsReusingTrackData
         { get; set; }
         //public int TrackDataReference { get; set; }
         [YamlIgnore] public string FileName;
@@ -110,7 +110,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             [YamlMember(ApplyNamingConventions = false)] public string TrackType;
             [YamlMember(ApplyNamingConventions = false)] public int BoneID;
             [YamlMember(ApplyNamingConventions = false)] public Vector4 data;
-            public int TempFrameValue;
+            [YamlIgnore] public int TempFrameValue;
             //[YamlIgnore] public Vector3 EulerKeys;
         }
 
@@ -441,38 +441,64 @@ namespace ThreeWorkTool.Resources.Wrappers
                 Array.Copy(M3a.RawData, 0, M3a.FullData, 0, M3a.RawData.Length);
                 Array.Copy(M3a.MotionData, 0, M3a.FullData, M3a.RawData.Length, M3a.MotionData.Length);
                 Anim.KeyFrames = new List<KeyFrame>();
-                for (int i = 0; i < Anim.Tracks.Count; i++)
+                try
                 {
-                    if (Anim.Tracks[i].BoneID == 255) continue;
-
-                    if (Anim.Tracks[i].Buffer != null && Anim.Tracks[i].Buffer.Length != 0)
+                    for (int i = 0; i < Anim.Tracks.Count; i++)
                     {
-                        using (MemoryStream memory = new MemoryStream(Anim.Tracks[i].Buffer))
+                        if (Anim.Tracks[i].BoneID == 255) continue;
+
+                        if (Anim.Tracks[i].Buffer != null && Anim.Tracks[i].Buffer.Length != 0)
                         {
-                            using (BinaryReader BufferBnr = new BinaryReader(memory))
+                            using (MemoryStream memory = new MemoryStream(Anim.Tracks[i].Buffer))
                             {
-                                if (Anim.Tracks[i].ExtremesArray != null)
+                                using (BinaryReader BufferBnr = new BinaryReader(memory))
                                 {
-                                    List<KeyFrame> CurrentKeys = new List<KeyFrame>();
-                                    CurrentKeys.AddRange(LMTM3ATrackBuffer.Convert(Anim.Tracks[i].BufferType, Anim.Tracks[i].Buffer, Anim.Tracks[i].BoneID, Anim.Tracks[i].ExtremesArray, BufferBnr, Anim.Tracks[i].TrackType));
+                                    if (Anim.Tracks[i].ExtremesArray != null)
+                                    {
+                                        List<KeyFrame> CurrentKeys = new List<KeyFrame>();
+                                        CurrentKeys.AddRange(LMTM3ATrackBuffer.Convert(Anim.Tracks[i].BufferType, Anim.Tracks[i].Buffer, Anim.Tracks[i].BoneID, Anim.Tracks[i].ExtremesArray, BufferBnr, Anim.Tracks[i].TrackType));
+                                        int TempFrameCount = 0;
 
-                                    Anim.KeyFrames.AddRange(CurrentKeys);
-                                }
-                                else
-                                {
-                                    Anim.KeyFrames.AddRange(LMTM3ATrackBuffer.Convert(Anim.Tracks[i].BufferType, Anim.Tracks[i].Buffer, Anim.Tracks[i].BoneID, null, BufferBnr, Anim.Tracks[i].TrackType));
+                                        for (int l = 0; l < CurrentKeys.Count; l++)
+                                        {
+                                            CurrentKeys[l].Frame = TempFrameCount;
+                                            TempFrameCount = TempFrameCount + CurrentKeys[l].TempFrameValue;
 
+                                        }
+
+                                        Anim.KeyFrames.AddRange(CurrentKeys);
+                                    }
+                                    else
+                                    {
+                                        List<KeyFrame> CurrentKeys = new List<KeyFrame>();
+                                        CurrentKeys.AddRange(LMTM3ATrackBuffer.Convert(Anim.Tracks[i].BufferType, Anim.Tracks[i].Buffer, Anim.Tracks[i].BoneID, null, BufferBnr, Anim.Tracks[i].TrackType));
+
+                                        int TempFrameCount = 0;
+
+                                        for (int l = 0; l < CurrentKeys.Count; l++)
+                                        {
+                                            CurrentKeys[l].Frame = TempFrameCount;
+                                            TempFrameCount = TempFrameCount + CurrentKeys[l].TempFrameValue;
+
+                                        }
+
+                                        Anim.KeyFrames.AddRange(CurrentKeys);
+
+                                    }
                                 }
                             }
+
+
                         }
 
-
                     }
-
                 }
-
+                catch(Exception EXAnim)
+                {
+                    MessageBox.Show("An error occured when loading animation related data.\n" + EXAnim);
+                }
                 //And thus Keyframes.
-                PrepareTheKeyframes(Anim);
+                //PrepareTheKeyframes(Anim);
 
             }
             catch (Exception ex)
@@ -871,7 +897,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public static LMTM3AEntry PrepareTheKeyframes(LMTM3AEntry M3a)
         {
 
-            M3a.KeyFrames = new List<KeyFrame>();
+            //M3a.KeyFrames = new List<KeyFrame>();
             /*
             foreach (LMTTrackNode track in M3a.Tracks)
             {
