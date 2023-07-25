@@ -652,15 +652,20 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         }
 
+                        lMT.LstM3A = new List<LMTM3AEntry>();
+                        int SecondaryCount = 0;
+                        br3.BaseStream.Position = 0;
+                        lMT.EntryCount = Children.Count;
+                        lMT._EntryCount = Children.Count;
 
                     }
+
                 }
             }
 
             lMT.UncompressedData = UnCompressedBuffer;
             lMT.CompressedData = Zlibber.Compressor(lMT.UncompressedData);
-            lMT.EntryCount = Children.Count;
-            lMT._EntryCount = Children.Count;
+
             lMT._FileType = ".lmt";
             lMT.FileExt = ".lmt";
 

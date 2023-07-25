@@ -34,8 +34,8 @@ namespace ThreeWorkTool
         {
             for (int i = 0; i < M3a.TrackCount; i++)
             {
-                TrackGridView.Rows.Add(M3a.Tracks[i].TrackNumber, M3a.Tracks[i].BufferType, M3a.Tracks[i].BoneID, M3a.Tracks[i].TrackType, M3a.Tracks[i].ReferenceData.W,
-                    M3a.Tracks[i].ReferenceData.X, M3a.Tracks[i].ReferenceData.Y, M3a.Tracks[i].ReferenceData.Z, M3a.Tracks[i].RefDataPointer);
+                TrackGridView.Rows.Add(M3a.Tracks[i].TrackNumber, M3a.Tracks[i].BufferType, M3a.Tracks[i].BoneID, M3a.Tracks[i].TrackType, M3a.Tracks[i].ReferenceData.X,
+                    M3a.Tracks[i].ReferenceData.Y, M3a.Tracks[i].ReferenceData.Z, M3a.Tracks[i].ReferenceData.W, M3a.Tracks[i].RefDataPointer);
             }
         }
 
@@ -140,10 +140,10 @@ namespace ThreeWorkTool
                 BufferType = Convert.ToInt32(TrackGridView.Rows[v].Cells[1].Value);
                 BoneID = Convert.ToInt32(TrackGridView.Rows[v].Cells[2].Value);
                 TrackType = Convert.ToInt32(TrackGridView.Rows[v].Cells[3].Value);
-                W = Convert.ToSingle(TrackGridView.Rows[v].Cells[4].Value);
-                X = Convert.ToSingle(TrackGridView.Rows[v].Cells[5].Value);
-                Y = Convert.ToSingle(TrackGridView.Rows[v].Cells[6].Value);
-                Z = Convert.ToSingle(TrackGridView.Rows[v].Cells[7].Value);
+                X = Convert.ToSingle(TrackGridView.Rows[v].Cells[4].Value);
+                Y = Convert.ToSingle(TrackGridView.Rows[v].Cells[5].Value);
+                Z = Convert.ToSingle(TrackGridView.Rows[v].Cells[6].Value);
+                W = Convert.ToSingle(TrackGridView.Rows[v].Cells[7].Value);
                 PointerToUse = Convert.ToInt32(TrackGridView.Rows[v].Cells[8].Value) - Convert.ToInt32(M3a.TrackPointer);
 
                 if(BoneID > 255 || TrackType > 255 || BufferType > 255)

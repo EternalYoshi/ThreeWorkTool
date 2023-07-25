@@ -38,7 +38,7 @@ namespace ThreeWorkTool.Resources.Wrappers.AnimNodes
         public static LMTTrackNode SetString(LMTTrackNode Track)
         {
 
-            Track.ReferenceDataStr = "(" + Track.ReferenceData.W + "," + Track.ReferenceData.X + "," + Track.ReferenceData.Y + "," + Track.ReferenceData.Z + ")";
+            Track.ReferenceDataStr = "(" + Track.ReferenceData.X + "," + Track.ReferenceData.Y + "," + Track.ReferenceData.Z + "," + Track.ReferenceData.W + ")";
 
 
             return Track;
