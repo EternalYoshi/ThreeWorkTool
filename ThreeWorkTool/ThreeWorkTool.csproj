@@ -392,6 +392,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Lib\" />
+    <Folder Include="Resources\Geometry\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\Arc.png" />

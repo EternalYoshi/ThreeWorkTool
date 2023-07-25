@@ -15231,10 +15231,12 @@ namespace ThreeWorkTool
         //Don't get your hopes up. Construction JUST began.
         private static void RenderModel_Click(Object sender, System.EventArgs e)
         {
-
-            //ModelViewer
-            ModelViewer RendView = new ModelViewer();
-            RendView = RenderView;
+            if(RenderView == null)
+            {
+                RenderView = new ModelViewer();
+                RenderView.Mainfrm = frename.Mainfrm;
+                RenderView.FormClosed += ModelViewerClosed;
+            }
             RenderView.ShowMV(frename.Mainfrm.TreeSource.SelectedNode);
 
 
@@ -19215,7 +19217,10 @@ namespace ThreeWorkTool
 
         }
 
-
+        public static void ModelViewerClosed(Object sender, FormClosedEventArgs e)
+        {
+            RenderView = null;
+        } 
 
     }
 

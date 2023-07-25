@@ -15,7 +15,7 @@ using System.Collections;
 
 namespace ThreeWorkTool.Resources.Utility
 {
-    //This class is to store all the functions relating to bytes and conversions I used previously in other functions.
+    //This class is to store all the functions relating to bytes and conversions I used frequently in several classes and functions.
     public class ByteUtilitarian
     {
         public static StringBuilder SBname;

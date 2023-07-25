@@ -30,11 +30,11 @@
         {
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.backgroundColorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundColorToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.floorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.backgroundColorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -56,6 +56,30 @@
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
+            // optionsToolStripMenuItem1
+            // 
+            this.optionsToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.backgroundColorToolStripMenuItem1});
+            this.optionsToolStripMenuItem1.Name = "optionsToolStripMenuItem1";
+            this.optionsToolStripMenuItem1.Size = new System.Drawing.Size(61, 20);
+            this.optionsToolStripMenuItem1.Text = "Options";
+            // 
+            // backgroundColorToolStripMenuItem1
+            // 
+            this.backgroundColorToolStripMenuItem1.Name = "backgroundColorToolStripMenuItem1";
+            this.backgroundColorToolStripMenuItem1.Size = new System.Drawing.Size(170, 22);
+            this.backgroundColorToolStripMenuItem1.Text = "Background Color";
+            this.backgroundColorToolStripMenuItem1.Click += new System.EventHandler(this.backgroundColorToolStripMenuItem1_Click);
+            // 
+            // floorToolStripMenuItem
+            // 
+            this.floorToolStripMenuItem.Checked = true;
+            this.floorToolStripMenuItem.CheckOnClick = true;
+            this.floorToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.floorToolStripMenuItem.Name = "floorToolStripMenuItem";
+            this.floorToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
+            this.floorToolStripMenuItem.Text = "Floor";
+            // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -72,30 +96,6 @@
             this.backgroundColorToolStripMenuItem.Text = "Background Color";
             this.backgroundColorToolStripMenuItem.Click += new System.EventHandler(this.backgroundColorToolStripMenuItem_Click);
             // 
-            // optionsToolStripMenuItem1
-            // 
-            this.optionsToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.backgroundColorToolStripMenuItem1});
-            this.optionsToolStripMenuItem1.Name = "optionsToolStripMenuItem1";
-            this.optionsToolStripMenuItem1.Size = new System.Drawing.Size(61, 20);
-            this.optionsToolStripMenuItem1.Text = "Options";
-            // 
-            // backgroundColorToolStripMenuItem1
-            // 
-            this.backgroundColorToolStripMenuItem1.Name = "backgroundColorToolStripMenuItem1";
-            this.backgroundColorToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
-            this.backgroundColorToolStripMenuItem1.Text = "Background Color";
-            this.backgroundColorToolStripMenuItem1.Click += new System.EventHandler(this.backgroundColorToolStripMenuItem1_Click);
-            // 
-            // floorToolStripMenuItem
-            // 
-            this.floorToolStripMenuItem.Checked = true;
-            this.floorToolStripMenuItem.CheckOnClick = true;
-            this.floorToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.floorToolStripMenuItem.Name = "floorToolStripMenuItem";
-            this.floorToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
-            this.floorToolStripMenuItem.Text = "Floor";
-            // 
             // ModelViewer
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
@@ -106,6 +106,10 @@
             this.MinimizeBox = false;
             this.Name = "ModelViewer";
             this.Text = "ModelViewer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ModelViewer_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ModelViewer_FormClosed);
+            this.SizeChanged += new System.EventHandler(this.ModelViewer_SizeChanged);
+            this.Resize += new System.EventHandler(this.ModelViewer_Resize);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
