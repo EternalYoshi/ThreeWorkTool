@@ -10,7 +10,8 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
     {
         public string version { get; set; }
 
-        public List<Material> Materials { get; set; }
+        //public List<Material> Materials { get; set; }
+        public IDictionary<string,Material> Materials{ get; set; }
 
         public struct Material
         {

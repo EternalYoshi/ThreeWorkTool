@@ -58,7 +58,7 @@ class BufferConversor
         var data = new float[4];
         int pos = 0;
         float[] vecs = new float[4];
-
+        string TransType = "";
         //BigInteger bigin = new BigInteger(bnr.ReadBytes(buffer_size));
         var bin_vec = new uint[strides.Length];
         var strshorts = new string[strides.Length];
@@ -189,7 +189,8 @@ class BufferConversor
             TempFrameValue = frame_value,
             BoneID = BoneID,
             TrackType = ETrackType.ToString(),
-            Buffertype = EBufferType.ToString()
+            Buffertype = EBufferType.ToString(),
+            KeyType = TransType
         };
     }
 

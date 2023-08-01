@@ -267,7 +267,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //var myConfig = deserializer.Deserialize<Configuration>(File.ReadAllText(filename));
 
-            /*
+            
             using (StreamReader sr = new StreamReader(filename))
             {
                 strtemp = sr.ReadLine();
@@ -284,7 +284,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 }
 
             }
-            */
+            
             /*
             tree.BeginUpdate();
             

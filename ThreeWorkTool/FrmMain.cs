@@ -4891,6 +4891,10 @@ namespace ThreeWorkTool
             var keyexplitem = new ToolStripMenuItem("Extract Keys", null, ExtractKeyFrames_Click, Keys.Control | Keys.R);
             conmenu.Items.Add(keyexplitem);
 
+            //WIP IMPORTING of Keyframes.
+            var keyimpitem = new ToolStripMenuItem("Import Keys", null, ImportKeyFrames_Click, Keys.Control | Keys.I);
+            conmenu.Items.Add(keyimpitem);
+
 #endif
 
             return conmenu;
@@ -4942,8 +4946,8 @@ namespace ThreeWorkTool
             int NewIndex = stqr.EntryList.Count;
             STQRNode entry = new STQRNode();
             entry.FilePath = "NewFilePath";
-            entry.LoopStart = -1;
-            entry.LoopEnd = -1;
+            entry.LoopStart = 0;
+            entry.LoopEnd = 0;
             entry.FileSize = 0;
             entry.index = NewIndex;
             stqr.EntryList.Add(entry);
@@ -5032,8 +5036,8 @@ namespace ThreeWorkTool
                 string ProperPath = "sound\\bgm\\source\\" + TrueName;
 
                 entry.FilePath = ProperPath;
-                entry.LoopStart = -1;
-                entry.LoopEnd = -1;
+                entry.LoopStart = 0;
+                entry.LoopEnd = 0;
                 entry.FileSize = Convert.ToInt32(new System.IO.FileInfo(IMPDialog.FileName).Length);
                 entry.index = NewIndex;
                 entry.SampleRate = 48000;
@@ -5142,7 +5146,7 @@ namespace ThreeWorkTool
             //These are common values for these variables in many files so I'd assume these are ideal for a "default" valued event.
             stqrevent.index = stqrevent.EventEntryID;
             stqrevent.UnknownValue04 = 1;
-            stqrevent.UnknownValue08 = 10;
+            stqrevent.UnknownValue08 = 1;
             stqrevent.UnknownValue0C = 1;
             stqrevent.UnknownValue19 = 1;
             stqrevent.UnknownValue1C = 1;
@@ -5947,7 +5951,7 @@ namespace ThreeWorkTool
                 MaterialEntry MatEntEntry = new MaterialEntry();
                 MatEntEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MaterialEntry;
                 //To Do next time; finish yml support.
-                RPDialog.Filter = "Material File (*.mrl)|*.mrl";
+                RPDialog.Filter = "MT Material File(*.mrl;*.yml)|*.mrl;*.yml|Material File (*.mrl)|*.mrl|YAML MT Material File(*.yml)| *.yml";
                 //RPDialog.Filter = ExportFilters.GetFilter(MatEntEntry.FileExt);
 
                 if (RPDialog.ShowDialog() == DialogResult.OK)
@@ -6274,7 +6278,7 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.BeginUpdate();
 
                             LMTM3AEntry NewYMLEnt = new LMTM3AEntry();
-                            NewYMLEnt = LMTM3AEntry.ParseM3AYMLPart1(NewYMLEnt, RPDialog.FileName, LMotTEntry);
+                            //NewYMLEnt = LMTM3AEntry.ParseM3AYMLPart1(NewYMLEnt, RPDialog.FileName, LMotTEntry);
 
 
 
@@ -12517,7 +12521,7 @@ namespace ThreeWorkTool
 
             LMTM3AEntry Anim = new LMTM3AEntry();
             Anim = tag as LMTM3AEntry;
-            EXDialog.Filter = "Animation YML (*.yml)|*.yml";
+            EXDialog.Filter = "Animation YML (*.yml)|*.yml|Test Animation Export(*.anim)|*.anim";
 
             if (EXDialog.ShowDialog() == DialogResult.OK)
             {
@@ -12551,6 +12555,23 @@ namespace ThreeWorkTool
                 ExportFileWriter.KeyFrameWriter(EXDialog.FileName, MAThreeentry);
             }
             */
+        }
+
+        private static void ImportKeyFrames_Click(Object sender, System.EventArgs e)
+        {
+            OpenFileDialog RPDialog = new OpenFileDialog();
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            LMTM3AEntry M3a = tag as LMTM3AEntry;
+
+            RPDialog.Filter = "YAML M3a Keyframe File(*.yml) | *.yml";
+
+            if (RPDialog.ShowDialog() == DialogResult.OK)
+            {
+
+                M3a = LMTM3AEntry.ParseM3AYMLPart1(M3a, RPDialog.FileName);
+
+            }
+
         }
 
         private static void ReplaceAllTextures(Object sender, System.EventArgs e)
@@ -12591,7 +12612,7 @@ namespace ThreeWorkTool
                             if (awrapper.Tag as MaterialTextureReference == null && awrapper.Tag as LMTM3AEntry == null && awrapper.Tag as ModelBoneEntry == null
                             && awrapper.Tag as MaterialMaterialEntry == null && awrapper.Tag as ModelGroupEntry == null && awrapper.Tag as Mission == null
                             && awrapper.Tag as EffectNode == null && awrapper.Tag as EffectFieldTextureRefernce == null && awrapper.Tag as ModelPrimitiveEntry == null
-                            && awrapper.Tag as ModelPrimitiveJointLinkEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null 
+                            && awrapper.Tag as ModelPrimitiveJointLinkEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null
                             && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null)
                             {
                                 {
@@ -12929,7 +12950,7 @@ namespace ThreeWorkTool
                             if (awrapper.Tag as MaterialTextureReference == null && awrapper.Tag as LMTM3AEntry == null && awrapper.Tag as ModelBoneEntry == null
                             && awrapper.Tag as MaterialMaterialEntry == null && awrapper.Tag as ModelGroupEntry == null && awrapper.Tag as Mission == null
                             && awrapper.Tag as EffectNode == null && awrapper.Tag as EffectFieldTextureRefernce == null && awrapper.Tag as ModelPrimitiveEntry == null
-                            && awrapper.Tag as ModelPrimitiveJointLinkEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null 
+                            && awrapper.Tag as ModelPrimitiveJointLinkEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null
                             && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null)
                             {
                                 {
@@ -15231,7 +15252,7 @@ namespace ThreeWorkTool
         //Don't get your hopes up. Construction JUST began.
         private static void RenderModel_Click(Object sender, System.EventArgs e)
         {
-            if(RenderView == null)
+            if (RenderView == null)
             {
                 RenderView = new ModelViewer();
                 RenderView.Mainfrm = frename.Mainfrm;
@@ -15251,8 +15272,8 @@ namespace ThreeWorkTool
             TrackEditor.ShowTrackEditor(frename.Mainfrm.TreeSource.SelectedNode);
             frename.Mainfrm.OpenFileModified = true;
 
-            
-            if(TrackEditor.EntryChanged == true)
+
+            if (TrackEditor.EntryChanged == true)
             {
                 //Rebuilds the LMT.
                 Parent = frename.Mainfrm.TreeSource.SelectedNode.Parent;
@@ -15260,7 +15281,7 @@ namespace ThreeWorkTool
                 MenuRebuildLMT_Click(sender, e);
                 frename.Mainfrm.OpenFileModified = true;
             }
-            
+
         }
 
         private static void MoveNodeUp(Object sender, System.EventArgs e)
@@ -19220,7 +19241,7 @@ namespace ThreeWorkTool
         public static void ModelViewerClosed(Object sender, FormClosedEventArgs e)
         {
             RenderView = null;
-        } 
+        }
 
     }
 

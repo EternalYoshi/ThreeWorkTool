@@ -340,29 +340,51 @@ namespace ThreeWorkTool.Resources
 
         public static void KeyFrameWriter(string filename, LMTM3AEntry entrytowrite)
         {
-            try
+
+            string ext = Path.GetExtension(filename);
+            switch (ext)
             {
+                case ".yml":
+                    try
+                    {
 
-                //Prepares the Keyframes.
-                entrytowrite = LMTM3AEntry.PrepareTheKeyframes(entrytowrite);
+                        //Time to start getting the data from the M3A Entry. For Testing Purposes.
+                        using (StreamWriter sw = new StreamWriter(File.Open(filename, FileMode.Create)))
+                        {
 
-                //Time to start getting the data from the M3A Entry. For Testing Purposes.
-                using (StreamWriter sw = new StreamWriter(File.Open(filename, FileMode.Create)))
-                {
+                            var serializer = new SerializerBuilder().DisableAliases().EnsureRoundtrip().WithTagMapping("!LMTM3AEntry", typeof(ThreeWorkTool.Resources.Wrappers.LMTM3AEntry)).Build();
 
-                    var serializer = new SerializerBuilder().DisableAliases().EnsureRoundtrip().WithTagMapping("!LMTM3AEntry", typeof(ThreeWorkTool.Resources.Wrappers.LMTM3AEntry)).Build();
+                            // Save Changes
+                            serializer.Serialize(sw, entrytowrite);
 
-                    // Save Changes
-                    serializer.Serialize(sw, entrytowrite);
+                        }
 
-                }
+                    }
+                    catch (Exception ex)
+                    {
+                        ExceptionCatchAll(ex);
+                        return;
+                    }
+                    break;
+
+                case ".anim":
+                    try
+                    {
+
+                        //Prepares the Keyframes.
+
+                    }
+                    catch (Exception ex)
+                    {
+                        ExceptionCatchAll(ex);
+                        return;
+                    }
+
+                    break;
+
 
             }
-            catch (Exception ex)
-            {
-                ExceptionCatchAll(ex);
-                return;
-            }
+
         }
 
         public static void MissionWriter(string filename, MissionEntry entrytowrite)
@@ -616,7 +638,7 @@ namespace ThreeWorkTool.Resources
         {
             if (ex is UnauthorizedAccessException)
             {
-                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess?", "Cannot write this file.");
+                MessageBox.Show("Unable to access the file. Maybe it's already in use by another proccess or in a directory that requires administrative rights??", "Cannot write this file.");
                 return;
             }
             else if (ex is IOException)

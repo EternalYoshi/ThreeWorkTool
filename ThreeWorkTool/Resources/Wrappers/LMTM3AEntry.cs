@@ -22,7 +22,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         [YamlIgnore] public byte[] MotionData;
         [YamlIgnore] public int AnimationID;
         public int version = 1;
-        [YamlIgnore]public bool IsReusingTrackData
+        [YamlIgnore]
+        public bool IsReusingTrackData
         { get; set; }
         //public int TrackDataReference { get; set; }
         [YamlIgnore] public string FileName;
@@ -80,33 +81,14 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         [YamlIgnore] public List<LMTTrackNode> Tracks;
-        //public List<LMTTrackNode> TrackNodes;
-        /*
-        public struct Track
-        {
-            public int TrackNumber;
-            [YamlIgnore] public int BufferType;
-            public string BufferKind, TrackKind;
-            [YamlIgnore] public int TrackType;
-            public int BoneType;
-            public int BoneID;
-            public float Weight;
-            public int BufferSize;
-            public int BufferPointer;
-            public Vector4 ReferenceData;
-            public float ExtremesPointer;
-            public byte[] Buffer;
-            public Extremes Extremes;
-            [YamlIgnore] public float[] ExtremesArray;
-        }
-        */
+
         [YamlMember(ApplyNamingConventions = false)] public List<KeyFrame> KeyFrames;
 
         public class KeyFrame
         {
             [YamlMember(ApplyNamingConventions = false)] public int Frame;
-            [YamlMember(ApplyNamingConventions = false)] public string KeyType;
-            [YamlMember(ApplyNamingConventions = false)] public string Buffertype;
+            [YamlIgnore] public string KeyType;
+            [YamlIgnore] public string Buffertype;
             [YamlMember(ApplyNamingConventions = false)] public string TrackType;
             [YamlMember(ApplyNamingConventions = false)] public int BoneID;
             [YamlMember(ApplyNamingConventions = false)] public Vector4 data;
@@ -493,7 +475,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     }
                 }
-                catch(Exception EXAnim)
+                catch (Exception EXAnim)
                 {
                     MessageBox.Show("An error occured when loading animation related data.\n" + EXAnim);
                 }
@@ -922,7 +904,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             return M3a;
         }
 
-        public static LMTM3AEntry ParseM3AYMLPart1(LMTM3AEntry M3a, string filename, LMTM3AEntry OLdM3a)
+        public static LMTM3AEntry ParseM3AYMLPart1(LMTM3AEntry M3a, string filename)
         {
 
             LMTM3AEntry NewM3a = new LMTM3AEntry();
@@ -939,6 +921,61 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
 
             return NewM3a;
+
+        }
+
+        public static LMTM3AEntry ParseM3AYMLPart2(LMTM3AEntry M3a, string filename)
+        {
+
+            //Gonna build the M3a from scratch with the Keyframe data.
+            List<byte> NewUncompressedData = new List<byte>();
+            List<byte> TotalKeyframebufferData = new List<byte>();
+            List<byte> TotalTrackListData = new List<byte>();
+
+            int TrackCounter, PrevBoneID, FrameCount, LoopFrame;
+            string PrevTackType = "";
+
+            //These M3a files almost always have these tracks that point to bone 255.
+            byte[] FirstTracks = { 0x02, 0x03, 0x00, 0xFF, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x01, 0x04, 0x00, 0xFF, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x01, 0x05, 0x00, 0xFF, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F,
+                                   0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+
+            TrackCounter = 3;
+            PrevBoneID = 255;
+            FrameCount = M3a.FrameCount;
+            LoopFrame = M3a.LoopFrame;
+
+            for (int i = 0; i < M3a.KeyFrames.Count; i++)
+            {
+
+                if (i == 0)
+                {
+                    TrackCounter++;
+                }
+
+                //Continue the Track.
+                if (i != 0 && PrevBoneID == M3a.KeyFrames[i].BoneID && PrevTackType == M3a.KeyFrames[i].TrackType)
+                {
+
+                }
+                //End the current track and make new one.
+                if ((i != 0 && PrevBoneID != M3a.KeyFrames[i].BoneID) || (i != 0 && PrevTackType == M3a.KeyFrames[i].TrackType))
+                {
+
+                }
+
+
+
+            }
+
+            return M3a;
 
         }
 
