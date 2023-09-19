@@ -51,7 +51,7 @@ class BufferConversor
     public string format;
 
 
-    public KeyFrame Process(BigInteger value, byte[] buffer, float[] extremes, int bufferType, string format, int BoneID, BinaryReader bnr, int TrackType, int FrameCount)
+    public KeyFrame Process(BigInteger value, byte[] buffer, float[] extremes, int bufferType, string format, int BoneID, BinaryReader bnr, int TrackType, int FrameCount, int BufferSize)
     {
         var frame_value = 0;
 
@@ -70,6 +70,7 @@ class BufferConversor
             case 1:
                 break;
             case 2:
+                frame_value = tempArr[(buffer_size - 1)];
                 break;
             case 3:
                 break;
@@ -115,7 +116,18 @@ class BufferConversor
         switch (bufferType)
         {
             case 1:
+                break;
             case 2:
+                for (int k = 0; k < bin_vec.Length; k++)
+                {
+                    bin_vecTC[k] = (Int16)(bin_vec[k] << 2) / 4;
+                    vecs[k] = Convert.ToSingle((decimal)(bin_vecTC[k]) / (decimal)((1 << (bit_size - 2)) - 1));
+                }
+                data[0] = vecs[0];
+                data[1] = vecs[1];
+                data[2] = vecs[2];
+                data[3] = 1.0f;
+                break;
             case 3:
                 for (int k = 0; k < bin_vec.Length; k++)
                 {
@@ -206,7 +218,7 @@ public class KeyFrame
 */
 class LMTM3ATrackBuffer
 {
-    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, int BoneID, float[] extremes, BinaryReader bnr, int TrackType)
+    static public IEnumerable<KeyFrame> Convert(int bufferType, byte[] buffer, int BoneID, float[] extremes, BinaryReader bnr, int TrackType, int AnimIndex, int BufferSize)
     {
         BufferConversor conversor;
 
@@ -236,12 +248,12 @@ class LMTM3ATrackBuffer
             case 2: //singlerotationquat3
                 conversor = new BufferConversor()
                 {
-                    buffer_size = 12,
-                    bit_size = 32,
-                    strides = new int[] { 0, 32, 64 },
-                    convert = BI2Float,
-                    frames = (val) => 1,
-                    format = "float_format"
+                    buffer_size = 8,
+                    bit_size = 14,
+                    strides = new int[] { 8, 22, 36, 50 },
+                    convert = BI2Signed(14),
+                    frames = (val) => (int)((val >> 56) & ((1 << 8) - 1)),
+                    format = "signed_format"
                 };
                 break;
             case 3: //linearvector3
@@ -300,6 +312,7 @@ class LMTM3ATrackBuffer
                 };
                 break;
             default:
+                MessageBox.Show("Unknnown or Bogus Buffertype detected! The Buffertype: " + bufferType + "\n was detected in AnimationID" + AnimIndex + "\nThis track's going to be skipped when it comes to keyframes.", "Unknown Buffer Exception");
                 throw new Exception("Unknown Buffer Type");
         }
 
@@ -312,7 +325,7 @@ class LMTM3ATrackBuffer
             var buffer_value = new BigInteger(segment.Array);
             var buffer_segment = new byte[conversor.buffer_size];
             Array.Copy(segment.Array, pos, buffer_segment, 0, buffer_segment.Length);
-            yield return conversor.Process(buffer_value, buffer, extremes, bufferType, conversor.format, BoneID, bnr, TrackType, frame);
+            yield return conversor.Process(buffer_value, buffer, extremes, bufferType, conversor.format, BoneID, bnr, TrackType, frame, BufferSize);
             pos += conversor.buffer_size;
         }
 

@@ -438,7 +438,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                                     if (Anim.Tracks[i].ExtremesArray != null)
                                     {
                                         List<KeyFrame> CurrentKeys = new List<KeyFrame>();
-                                        CurrentKeys.AddRange(LMTM3ATrackBuffer.Convert(Anim.Tracks[i].BufferType, Anim.Tracks[i].Buffer, Anim.Tracks[i].BoneID, Anim.Tracks[i].ExtremesArray, BufferBnr, Anim.Tracks[i].TrackType));
+                                        CurrentKeys.AddRange(LMTM3ATrackBuffer.Convert(Anim.Tracks[i].BufferType, Anim.Tracks[i].Buffer, Anim.Tracks[i].BoneID, Anim.Tracks[i].ExtremesArray, BufferBnr, Anim.Tracks[i].TrackType, i, Anim.Tracks[i].BufferSize));
                                         int TempFrameCount = 0;
 
                                         for (int l = 0; l < CurrentKeys.Count; l++)
@@ -453,7 +453,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                                     else
                                     {
                                         List<KeyFrame> CurrentKeys = new List<KeyFrame>();
-                                        CurrentKeys.AddRange(LMTM3ATrackBuffer.Convert(Anim.Tracks[i].BufferType, Anim.Tracks[i].Buffer, Anim.Tracks[i].BoneID, null, BufferBnr, Anim.Tracks[i].TrackType));
+                                        CurrentKeys.AddRange(LMTM3ATrackBuffer.Convert(Anim.Tracks[i].BufferType, Anim.Tracks[i].Buffer, Anim.Tracks[i].BoneID, null, BufferBnr, Anim.Tracks[i].TrackType, i, Anim.Tracks[i].BufferSize));
 
                                         int TempFrameCount = 0;
 
@@ -915,12 +915,361 @@ namespace ThreeWorkTool.Resources.Wrappers
                 NewM3a = deserializer.Deserialize<LMTM3AEntry>(input);
             }
 
-            foreach (KeyFrame Key in NewM3a.KeyFrames)
+            NewM3a.Tracks = new List<LMTTrackNode>();
+
+            List<KeyFrame> WorkingTrack = new List<KeyFrame>();
+
+            //For the first 3 tracks I see in default characters' M3a files.
+            BuildInitalTracks(NewM3a, WorkingTrack);
+
+            for (int i = 0; i < NewM3a.KeyFrames.Count; i++)
             {
+                if (i != 0)
+                {
+                    //Gathers Keyframes in a separate list, which is then made into a track when the iterator encoutners a different TrackType or JointID.
+                    if (NewM3a.KeyFrames[i].TrackType != NewM3a.KeyFrames[(i - 1)].TrackType || NewM3a.KeyFrames[i].BoneID != NewM3a.KeyFrames[(i - 1)].BoneID)
+                    {
+                        BuildTheTracks(NewM3a, WorkingTrack, i, NewM3a);
+                        WorkingTrack.Clear();
+                        WorkingTrack.Add(NewM3a.KeyFrames[i]);
+
+                    }
+                    else
+                    {
+                        WorkingTrack.Add(NewM3a.KeyFrames[i]);
+                    }
+                }
+                else
+                {
+                    WorkingTrack.Add(NewM3a.KeyFrames[i]);
+                }
+
 
             }
 
+            /*
+            foreach (KeyFrame Key in NewM3a.KeyFrames)
+            {
+
+
+
+            }
+            */
+
             return NewM3a;
+
+        }
+
+        public static LMTM3AEntry BuildInitalTracks(LMTM3AEntry M3a, List<KeyFrame> WorkingTrack)
+        {
+
+            LMTTrackNode Track0 = new LMTTrackNode()
+            {
+                BufferType = 2,
+                TrackType = 3,
+                BoneType = 0,
+                BoneID = 255,
+                Weight = 1,
+                BufferSize = 0,
+                BufferPointer = 0,
+                ExtremesPointer = 0
+            };
+            Track0.ReferenceData.X = 0;
+            Track0.ReferenceData.Y = 0;
+            Track0.ReferenceData.Z = 0;
+            Track0.ReferenceData.W = 1;
+
+            LMTTrackNode Track1 = new LMTTrackNode()
+            {
+                BufferType = 1,
+                TrackType = 4,
+                BoneType = 0,
+                BoneID = 255,
+                Weight = 1,
+                BufferSize = 0,
+                BufferPointer = 0,
+                ExtremesPointer = 0
+            };
+            Track1.ReferenceData.X = 0;
+            Track1.ReferenceData.Y = 0;
+            Track1.ReferenceData.Z = 0;
+            Track1.ReferenceData.W = 1;
+
+
+            LMTTrackNode Track2 = new LMTTrackNode()
+            {
+                BufferType = 1,
+                TrackType = 5,
+                BoneType = 0,
+                BoneID = 255,
+                Weight = 1,
+                BufferSize = 0,
+                BufferPointer = 0,
+                ExtremesPointer = 0
+            };
+            Track1.ReferenceData.X = 1;
+            Track1.ReferenceData.Y = 1;
+            Track1.ReferenceData.Z = 1;
+            Track1.ReferenceData.W = 0;
+
+
+
+
+            M3a.Tracks.Add(Track0);
+            M3a.Tracks.Add(Track1);
+            M3a.Tracks.Add(Track2);
+            return M3a;
+
+        }
+
+        public static LMTM3AEntry BuildTheTracks(LMTM3AEntry M3a, List<KeyFrame> WorkingTrack, int i, LMTM3AEntry NewM3a)
+        {
+
+            LMTTrackNode NewTrack = new LMTTrackNode();
+
+
+            switch (WorkingTrack[0].TrackType)
+            {
+                case "localposition":
+                    if (WorkingTrack.Count == 1)
+                    {
+                        NewTrack.BufferKind = "singlevector3";
+                        NewTrack.BufferType = 1;
+                        NewTrack.BufferSize = 0;
+                        NewTrack.BufferPointer = 0;
+                    }
+                    else
+                    {
+                        NewTrack.BufferKind = "bilinearvector3_16bit";
+                        NewTrack.BufferType = 4;
+                    }
+                    NewTrack.TrackType = 1;
+                    if (WorkingTrack[0].Frame == 0)
+                    {
+                        NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
+                        NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
+                        NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
+                        NewTrack.ReferenceData.W = 0;
+                    }
+                    else
+                    {
+                        NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
+                        NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
+                        NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
+                        NewTrack.ReferenceData.W = 0;
+                    }
+
+                    break;
+                case "localrotation":
+                    if (WorkingTrack.Count == 1)
+                    {
+                        NewTrack.BufferKind = "singlerotationquat3";
+                        NewTrack.BufferType = 2;
+                        NewTrack.BufferSize = 0;
+                        NewTrack.BufferPointer = 0;
+                    }
+                    else
+                    {
+                        NewTrack.BufferKind = "linearrotationquat4_14bit";
+                        NewTrack.BufferType = 6;
+                    }
+                    NewTrack.TrackType = 0;
+                    if (WorkingTrack[0].Frame == 0)
+                    {
+                        NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
+                        NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
+                        NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
+                        NewTrack.ReferenceData.W = WorkingTrack[0].data.W;
+                    }
+                    else
+                    {
+                        NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
+                        NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
+                        NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
+                        NewTrack.ReferenceData.W = WorkingTrack[0].data.W;
+                    }
+                    break;
+                case "localscale":
+                    if (WorkingTrack.Count == 1)
+                    {
+                        NewTrack.BufferKind = "singlevector3";
+                        NewTrack.BufferType = 1;
+                        NewTrack.BufferSize = 0;
+                        NewTrack.BufferPointer = 0;
+                    }
+                    else
+                    {
+                        NewTrack.BufferKind = "bilinearvector3_16bit";
+                        NewTrack.BufferType = 4;
+                    }
+                    if (WorkingTrack[0].Frame == 0)
+                    {
+                        NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
+                        NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
+                        NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
+                        NewTrack.ReferenceData.W = 0;
+                    }
+                    else
+                    {
+                        NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
+                        NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
+                        NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
+                        NewTrack.ReferenceData.W = 0;
+                    }
+                    NewTrack.TrackType = 2;
+                    break;
+                default:
+                    MessageBox.Show("This Tracktype " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                    break;
+            }
+
+            NewTrack.BoneID = WorkingTrack[0].BoneID;
+            NewTrack.TrackNumber = i;
+            NewTrack.Weight = 1;
+            NewTrack.BoneType = 0;
+
+            //This part blank for creating buffer in case it hasn't been done before.
+            List<byte> NewBuffer = new List<byte>();
+            string binarystring = "";
+            int buffer_size = 0;
+            int bit_size = 0;
+            for (int j = 0; j < WorkingTrack.Count; j++)
+            {
+                switch (NewTrack.BufferType)
+                {
+
+                    case 1: //singlevector3
+                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                        buffer_size = 12;
+                        bit_size = 32;
+
+                        break;
+                    case 2: //singlerotationquat3
+                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                        buffer_size = 8;
+                        bit_size = 14;
+
+                        break;
+                    case 3: //linearvector3
+                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                        buffer_size = 16;
+                        bit_size = 32;
+
+                        break;
+                    case 4: //bilinearvector3_16bit
+                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                        buffer_size = 8;
+                        bit_size = 16;
+                        BuildTheKeyFrameBuffer(NewTrack, WorkingTrack, i);
+
+                        break;
+                    case 5: //bilinearvector3_8bit
+                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                        buffer_size = 4;
+                        bit_size = 8;
+
+                        break;
+                    case 6: //linearrotationquat4_14bit
+                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                        buffer_size = 8;
+                        bit_size = 14;
+
+                        break;
+                    case 7: //bilinearrotationquat4_7bit
+                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                        buffer_size = 4;
+                        bit_size = 7;
+
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+
+
+            if (NewTrack.BufferSize != 0)
+            {
+                NewTrack.Buffer = NewBuffer.ToArray();
+                NewTrack.BufferSize = NewBuffer.Count;
+            }
+
+            M3a.Tracks.Add(NewTrack);
+            return M3a;
+
+        }
+
+        public static LMTTrackNode BuildTheKeyFrameBuffer(LMTTrackNode NewTrack, List<KeyFrame> WorkingTrack, int i)
+        {
+
+            //To Be Continued....
+
+            //This area reserved for calculating Extremes. For now there are none.
+
+            int buffer_size = 0;
+            int bit_size = 0;
+            int bitmaskA = (2 ^ bit_size) - 1;
+            int BitmaskB = (2 ^ (bit_size - 2)) - 1;
+
+            switch (NewTrack.BufferType)
+            {
+                case 2: //singlerotationquat3
+                    //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                    buffer_size = 8;
+                    bit_size = 14;
+                    uint[] vec2bin3 = new uint[4];
+
+                    //vec2bin3[0] = Convert.ToUInt32((WorkingTrack[0].data.X + 8) * Convert.ToUInt32((Math.Sqrt(bit_size)) + 16));
+                    //vec2bin3[1] = Convert.ToUInt32((WorkingTrack[0].data.Y + 8) * Convert.ToUInt32((Math.Sqrt(bit_size)) + 16));
+                    //vec2bin3[2] = Convert.ToUInt32((WorkingTrack[0].data.Z + 8) * Convert.ToUInt32((Math.Sqrt(bit_size)) + 16));
+
+                    break;
+
+                case 3: //linearvector3
+                    buffer_size = 16;
+                    bit_size = 32;
+
+                    break;
+
+                case 4: //bilinearvector3_16bit
+                    //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                    buffer_size = 8;
+                    bit_size = 16;
+                    uint[] vec2bin4 = new uint[4];
+                    vec2bin4[0] = Convert.ToUInt32(WorkingTrack[0].data.X * BitmaskB);
+                    vec2bin4[0] = vec2bin4[0] + Convert.ToUInt32(2 ^ bit_size);
+                    vec2bin4[0] = Convert.ToUInt32(vec2bin4[0] & BitmaskB);
+                    //vec2bin4[0] = Convert.ToUInt32(((WorkingTrack[0].data.X * BitmaskB * Convert.ToUInt32(2 * bit_size)) & bitmaskA));
+                    //vec2bin4[1] = Convert.ToUInt32(((WorkingTrack[0].data.Y * BitmaskB * Convert.ToUInt32(2 * bit_size)) & bitmaskA));
+                    //vec2bin4[2] = Convert.ToUInt32(((WorkingTrack[0].data.Z * BitmaskB * Convert.ToUInt32(2 * bit_size)) & bitmaskA));
+
+
+                    /*
+                     
+                                     for (int k = 0; k < bin_vec.Length; k++)
+                {
+                    vecs[k] = Convert.ToSingle((decimal)(bin_vec[k] - 8) / (decimal)((Math.Pow(2, bit_size)) - 16));
+                }
+                data[0] = vecs[0];
+                data[1] = vecs[1];
+                data[2] = vecs[2];
+                data[3] = 1.0f;
+                     
+                     */
+
+                    break;
+
+                default:
+
+                    break;
+
+
+            }
+
+
+
+
+            return NewTrack;
 
         }
 
@@ -952,6 +1301,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             FrameCount = M3a.FrameCount;
             LoopFrame = M3a.LoopFrame;
 
+            //I wonder if making a 3 dimesnional list of keyframes is the way to go....
+
             for (int i = 0; i < M3a.KeyFrames.Count; i++)
             {
 
@@ -974,6 +1325,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
 
             }
+
+
 
             return M3a;
 
