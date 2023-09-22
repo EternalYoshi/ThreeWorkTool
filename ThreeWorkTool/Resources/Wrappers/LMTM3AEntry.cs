@@ -1206,6 +1206,44 @@ namespace ThreeWorkTool.Resources.Wrappers
             List<byte> NewBuffer = new List<byte>();
             //This area reserved for calculating Extremes. For now there are none.
 
+            double[] AllTheX = new double[WorkingTrack.Count];
+            double[] AllTheY = new double[WorkingTrack.Count];
+            double[] AllTheZ = new double[WorkingTrack.Count];
+            double[] AllTheW = new double[WorkingTrack.Count];
+
+            for (int n = 0; n < WorkingTrack.Count; n++)
+            {
+                AllTheX[n] = WorkingTrack[n].data.X;
+                AllTheY[n] = WorkingTrack[n].data.Y;
+                AllTheZ[n] = WorkingTrack[n].data.Z;
+                AllTheW[n] = WorkingTrack[n].data.W;
+
+            }
+
+            //The Max Extremes.
+            NewTrack.ExtremesArray = new float[8];
+            NewTrack.ExtremesArray[4] = Convert.ToSingle(AllTheX.Min());
+            NewTrack.ExtremesArray[5] = Convert.ToSingle(AllTheY.Min());
+            NewTrack.ExtremesArray[6] = Convert.ToSingle(AllTheZ.Min());
+            NewTrack.ExtremesArray[7] = Convert.ToSingle(AllTheW.Min());
+
+            //The Min Extremes. Gotta do a thing first.
+            for (int n = 0; n < WorkingTrack.Count; n++)
+            {
+                AllTheX[n] = AllTheX[n] - NewTrack.ExtremesArray[4];
+                AllTheY[n] = AllTheY[n] - NewTrack.ExtremesArray[5];
+                AllTheZ[n] = AllTheZ[n] - NewTrack.ExtremesArray[6];
+                AllTheW[n] = AllTheW[n] - NewTrack.ExtremesArray[7];
+
+            }
+
+            NewTrack.ExtremesArray[0] = Convert.ToSingle(AllTheX.Max());
+            NewTrack.ExtremesArray[1] = Convert.ToSingle(AllTheY.Max());
+            NewTrack.ExtremesArray[2] = Convert.ToSingle(AllTheZ.Max());
+            NewTrack.ExtremesArray[3] = Convert.ToSingle(AllTheW.Max());
+
+
+            // The rest of it.
             int buffer_size = 0;
             int bit_size = 0;
             int bitmaskA = (2 ^ bit_size) - 1;
@@ -1233,11 +1271,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                     break;
 
                 case 4: //bilinearvector3_16bit
-                    //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
                     buffer_size = 8;
                     bit_size = 16;
 
                     //For Testing.
+                    /*
                     float[] Extremes = new float[8];
                     Extremes[0] = 3.44876862F;
                     Extremes[1] = 7.29778147F;
@@ -1247,15 +1285,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Extremes[5] = -12.29942F;
                     Extremes[6] = -0.686316967F;
                     Extremes[7] = 0;
+                    */
 
                     //From Keyframes to removing the extremes from the values.
                     for (int k = 0; k < WorkingTrack.Count; k++)
                     {
-                        //data[i] = extremes[i + 4] + extremes[i] * data[i];
-                        data[0] = (WorkingTrack[k].data.X / Extremes[0]) - (Extremes[4] / Extremes[0]);
-                        data[1] = (WorkingTrack[k].data.Y / Extremes[1]) - (Extremes[5] / Extremes[1]);
-                        data[2] = (WorkingTrack[k].data.Z / Extremes[2]) - (Extremes[6] / Extremes[2]);
-                        //data[3] = (WorkingTrack[0].data.W / Extremes[3]) - (Extremes[7] / Extremes[3]);
+                        data[0] = (WorkingTrack[k].data.X / NewTrack.ExtremesArray[0]) - (NewTrack.ExtremesArray[4] / NewTrack.ExtremesArray[0]);
+                        data[1] = (WorkingTrack[k].data.Y / NewTrack.ExtremesArray[1]) - (NewTrack.ExtremesArray[5] / NewTrack.ExtremesArray[1]);
+                        data[2] = (WorkingTrack[k].data.Z / NewTrack.ExtremesArray[2]) - (NewTrack.ExtremesArray[6] / NewTrack.ExtremesArray[2]);
+                        //The W is assumed to be 1.0. in Vector3 type coordinates.
 
                         //"Packing" the bytes.
                         uint[] vec2bin = new uint[3];
