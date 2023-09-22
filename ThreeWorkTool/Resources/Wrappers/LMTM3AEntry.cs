@@ -1203,14 +1203,15 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
 
             //To Be Continued....
-
+            List<byte> NewBuffer = new List<byte>();
             //This area reserved for calculating Extremes. For now there are none.
 
             int buffer_size = 0;
             int bit_size = 0;
             int bitmaskA = (2 ^ bit_size) - 1;
             int BitmaskB = (2 ^ (bit_size - 2)) - 1;
-
+            var data = new float[4];
+            int CurrentFrame = 0;
             switch (NewTrack.BufferType)
             {
                 case 2: //singlerotationquat3
@@ -1235,27 +1236,79 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
                     buffer_size = 8;
                     bit_size = 16;
-                    uint[] vec2bin4 = new uint[4];
-                    vec2bin4[0] = Convert.ToUInt32(WorkingTrack[0].data.X * BitmaskB);
-                    vec2bin4[0] = vec2bin4[0] + Convert.ToUInt32(2 ^ bit_size);
-                    vec2bin4[0] = Convert.ToUInt32(vec2bin4[0] & BitmaskB);
-                    //vec2bin4[0] = Convert.ToUInt32(((WorkingTrack[0].data.X * BitmaskB * Convert.ToUInt32(2 * bit_size)) & bitmaskA));
-                    //vec2bin4[1] = Convert.ToUInt32(((WorkingTrack[0].data.Y * BitmaskB * Convert.ToUInt32(2 * bit_size)) & bitmaskA));
-                    //vec2bin4[2] = Convert.ToUInt32(((WorkingTrack[0].data.Z * BitmaskB * Convert.ToUInt32(2 * bit_size)) & bitmaskA));
 
+                    //For Testing.
+                    float[] Extremes = new float[8];
+                    Extremes[0] = 3.44876862F;
+                    Extremes[1] = 7.29778147F;
+                    Extremes[2] = 11.4667568F;
+                    Extremes[3] = 1E-05F;
+                    Extremes[4] = -1.23520362F;
+                    Extremes[5] = -12.29942F;
+                    Extremes[6] = -0.686316967F;
+                    Extremes[7] = 0;
 
-                    /*
-                     
-                                     for (int k = 0; k < bin_vec.Length; k++)
-                {
-                    vecs[k] = Convert.ToSingle((decimal)(bin_vec[k] - 8) / (decimal)((Math.Pow(2, bit_size)) - 16));
-                }
-                data[0] = vecs[0];
-                data[1] = vecs[1];
-                data[2] = vecs[2];
-                data[3] = 1.0f;
-                     
-                     */
+                    //From Keyframes to removing the extremes from the values.
+                    for (int k = 0; k < WorkingTrack.Count; k++)
+                    {
+                        //data[i] = extremes[i + 4] + extremes[i] * data[i];
+                        data[0] = (WorkingTrack[k].data.X / Extremes[0]) - (Extremes[4] / Extremes[0]);
+                        data[1] = (WorkingTrack[k].data.Y / Extremes[1]) - (Extremes[5] / Extremes[1]);
+                        data[2] = (WorkingTrack[k].data.Z / Extremes[2]) - (Extremes[6] / Extremes[2]);
+                        //data[3] = (WorkingTrack[0].data.W / Extremes[3]) - (Extremes[7] / Extremes[3]);
+
+                        //"Packing" the bytes.
+                        uint[] vec2bin = new uint[3];
+                        vec2bin[0] = Convert.ToUInt32(65520 * data[0] + 8);
+                        vec2bin[1] = Convert.ToUInt32(65520 * data[1] + 8);
+                        vec2bin[2] = Convert.ToUInt32(65520 * data[2] + 8);
+
+                        //Taking the byte data and storing it a long binary string, the reverse of what happens in the other Class.
+                        string BinaryString = "";
+                        string BinaryStringA = "";
+                        string BinaryStringB = "";
+                        string BinaryStringC = "";
+                        string BinaryStringFrame = "";
+                        BinaryStringA = Convert.ToString(vec2bin[2], 2);
+                        BinaryStringB = BinaryString + Convert.ToString(vec2bin[1], 2);
+                        BinaryStringC = BinaryString + Convert.ToString(vec2bin[0], 2);
+
+                        BinaryStringA = CheckLength4(BinaryStringA);
+                        BinaryStringB = CheckLength4(BinaryStringB);
+                        BinaryStringC = CheckLength4(BinaryStringC);
+
+                        if((k + 1) == WorkingTrack.Count)
+                        {
+                            CurrentFrame = 0;
+                        }
+                        else
+                        {
+                            CurrentFrame = (WorkingTrack[k + 1].Frame - WorkingTrack[k].Frame);
+                        }
+
+                        BinaryStringFrame = Convert.ToString(CurrentFrame, 2);
+                        BinaryStringFrame = CheckLength4(BinaryStringFrame);
+                        BinaryString = BinaryStringFrame + BinaryStringA + BinaryStringB + BinaryStringC;
+
+                        byte[] bytes = new byte[buffer_size];
+                        for (int m = 0; m < buffer_size; ++m)
+                        {
+                            bytes[m] = Convert.ToByte(BinaryString.Substring(8 * m, 8), 2);
+                        }
+                        Array.Reverse(bytes);
+                        NewBuffer.AddRange(bytes);
+
+                    }
+
+                    
+                    NewTrack.Buffer = NewBuffer.ToArray();
+                    NewTrack.BufferSize = NewBuffer.Count;
+
+#if DEBUG
+
+                    File.WriteAllBytes("D:\\Workshop\\LMTHub\\TrackBufferTest" + i + ".bin", NewTrack.Buffer);
+
+#endif 
 
                     break;
 
@@ -1267,10 +1320,37 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
 
 
-
-
+            
             return NewTrack;
 
+        }
+
+        //String gotta be 16 bits so this checks for strings less than that for type 4.
+        public static string CheckLength4(string s)
+        {
+            string NewString = "";
+            if (s.Length < 16)
+            {
+                int AmountToAdd = 16 - s.Length;
+                for (int l = 0; l < AmountToAdd; l++)
+                {
+                    NewString = NewString + "0";
+                }
+                NewString = NewString + s;
+
+            }
+            else
+            {
+                return s;
+            }
+            return NewString;
+        }
+
+        public static string Reverse(string s)
+        {
+            char[] charArray = s.ToCharArray();
+            Array.Reverse(charArray);
+            return new string(charArray);
         }
 
         public static LMTM3AEntry ParseM3AYMLPart2(LMTM3AEntry M3a, string filename)
