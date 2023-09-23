@@ -4883,8 +4883,6 @@ namespace ThreeWorkTool
             var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
             conmenu.Items.Add(replitem);
 
-#if DEBUG
-
             conmenu.Items.Add(new ToolStripSeparator());
 
             //WIP Exporting of Keyframes.
@@ -4894,8 +4892,6 @@ namespace ThreeWorkTool
             //WIP IMPORTING of Keyframes.
             var keyimpitem = new ToolStripMenuItem("Import Keys", null, ImportKeyFrames_Click, Keys.Control | Keys.I);
             conmenu.Items.Add(keyimpitem);
-
-#endif
 
             return conmenu;
         }

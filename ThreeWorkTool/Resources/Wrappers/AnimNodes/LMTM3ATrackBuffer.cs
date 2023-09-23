@@ -162,8 +162,6 @@ class BufferConversor
                 for (int k = 0; k < bin_vec.Length; k++)
                 {
                     bin_vecTC[k] = (Int16)(bin_vec[k] << 2) / 4;
-                    //float TestA = Convert.ToSingle((decimal)(bin_vecTC[k]));
-                    //float TestB = Convert.ToSingle((decimal)((1 << (bit_size - 2)) - 1));
                     vecs[k] = Convert.ToSingle((decimal)(bin_vecTC[k]) / (decimal)((1 << (bit_size - 2)) - 1));
                 }
                 data[0] = vecs[0];
@@ -179,7 +177,7 @@ class BufferConversor
                 data[0] = vecs[0];
                 data[1] = vecs[1];
                 data[2] = vecs[2];
-                data[3] = 1.0f;
+                data[3] = vecs[3];
                 break;
             default:
                 MessageBox.Show("There's an exotic buffer type in here.");
