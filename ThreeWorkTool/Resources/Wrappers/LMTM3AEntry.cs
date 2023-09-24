@@ -422,6 +422,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                 M3a._FileLength = M3a.FullData.LongLength;
                 Array.Copy(M3a.RawData, 0, M3a.FullData, 0, M3a.RawData.Length);
                 Array.Copy(M3a.MotionData, 0, M3a.FullData, M3a.RawData.Length, M3a.MotionData.Length);
+
+                //Gathers Keyframes.
                 Anim.KeyFrames = new List<KeyFrame>();
                 try
                 {
@@ -472,7 +474,23 @@ namespace ThreeWorkTool.Resources.Wrappers
 
 
                         }
+                        else if (Anim.Tracks[i].BoneID != 255)
+                        {
+                            KeyFrame Key = new KeyFrame();
+                            Key.data.X = Anim.Tracks[i].ReferenceData.W;
+                            Key.data.Y = Anim.Tracks[i].ReferenceData.X;
+                            Key.data.Z = Anim.Tracks[i].ReferenceData.Y;
+                            Key.data.W = Anim.Tracks[i].ReferenceData.Z;
+                            Key.BoneID = Anim.Tracks[i].BoneID;
+                            Key.Frame = 0;
+                            var ETrackType = (ETrackType)Anim.Tracks[i].TrackType;
+                            var EBufferType = (EBufferType)Anim.Tracks[i].BufferType;
+                            Key.TrackType = ETrackType.ToString();
+                            Key.Buffertype = EBufferType.ToString();
+                            Anim.KeyFrames.Add(Key);
 
+
+                        }
                     }
                 }
                 catch (Exception EXAnim)
@@ -906,7 +924,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         public static LMTM3AEntry ParseM3AYMLPart1(LMTM3AEntry M3a, string filename)
         {
-
+            List<byte> NewUncompressedData = new List<byte>();
             LMTM3AEntry NewM3a = new LMTM3AEntry();
             int q = 0;
             using (var input = File.OpenText(filename))
@@ -921,6 +939,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //For the first 3 tracks I see in default characters' M3a files.
             BuildInitalTracks(NewM3a, WorkingTrack);
+
+            //Inserts The First 3 tracks in the NewUncompressedData.
+
 
             for (int i = 0; i < NewM3a.KeyFrames.Count; i++)
             {
@@ -947,14 +968,103 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             }
 
-            /*
-            foreach (KeyFrame Key in NewM3a.KeyFrames)
+            //Bulds the data to be use for injection/insertion.
+            for (int r = 0; r < NewM3a.Tracks.Count; r++)
             {
+
+                byte[] EmptyLong = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+
+                using (MemoryStream msm3a = new MemoryStream(M3a.RawData))
+                {
+
+                    using (BinaryReader brm3a = new BinaryReader(msm3a))
+                    {
+                        using (BinaryWriter bwm3a = new BinaryWriter(msm3a))
+                        {
+
+                        }
+                    }
+                }
+
+
+                //NewBlockData.AddRange(EmptyLong);
+                //NewBlockData.AddRange(NewM3a.Tracks.Count);
 
 
 
             }
-            */
+
+            List<byte> NewBlockData = new List<byte>();
+            List<byte> NewFullData = new List<byte>();
+            byte[] NewMotionData = new byte[88];
+            byte[] BlankPointer = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            //Block Data.
+            using (MemoryStream ms1 = new MemoryStream(NewMotionData))
+            {
+                using (BinaryReader br1 = new BinaryReader(ms1))
+                {
+                    using (BinaryWriter bw1 = new BinaryWriter(ms1))
+                    {
+                        bw1.BaseStream.Position = 8;
+                        bw1.Write(NewM3a.Tracks.Count);
+                        bw1.Write(NewM3a.FrameCount);
+                        bw1.Write((int)-1);
+                        bw1.BaseStream.Position = 60;
+                        bw1.Write((float)1.0F);
+                        bw1.Write((int)524288);
+                    }
+                }
+            }
+
+
+#if DEBUG
+
+            File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\NewMotionDataTest" + ".bin", NewMotionData);
+
+#endif
+
+            byte[] NewTrackData = new byte[(NewM3a.Tracks.Count * 48)];
+
+
+            using (MemoryStream ms2 = new MemoryStream(NewTrackData))
+            {
+                using (BinaryReader br2 = new BinaryReader(ms2))
+                {
+                    using (BinaryWriter bw2 = new BinaryWriter(ms2))
+                    {
+                        bw2.BaseStream.Position = 0;
+                        for (int s = 0; s < NewM3a.Tracks.Count; s++)
+                        {
+                            bw2.Write(Convert.ToByte(NewM3a.Tracks[s].BufferType));
+                            bw2.Write(Convert.ToByte(NewM3a.Tracks[s].TrackType));
+                            bw2.Write(Convert.ToByte(NewM3a.Tracks[s].BoneType));
+                            bw2.Write(Convert.ToByte(NewM3a.Tracks[s].BoneID));
+
+                            bw2.Write(NewM3a.Tracks[s].Weight);
+                            bw2.Write(Convert.ToInt64(NewM3a.Tracks[s].BufferSize));
+                            bw2.Write(BlankPointer);
+
+                            bw2.Write(NewM3a.Tracks[s].ReferenceData.X);
+                            bw2.Write(NewM3a.Tracks[s].ReferenceData.Y);
+                            bw2.Write(NewM3a.Tracks[s].ReferenceData.Z);
+                            bw2.Write(NewM3a.Tracks[s].ReferenceData.W);
+                            bw2.Write(BlankPointer);
+
+
+                        }
+
+
+
+                    }
+                }
+            }
+
+#if DEBUG
+
+            File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\NewTrackDataTest" + ".bin", NewTrackData);
+
+#endif
 
             return NewM3a;
 
@@ -1189,71 +1299,85 @@ namespace ThreeWorkTool.Resources.Wrappers
             NewTrack.Weight = 1;
             NewTrack.BoneType = 0;
 
-            //This part blank for creating buffer in case it hasn't been done before.
-            List<byte> NewBuffer = new List<byte>();
-            string binarystring = "";
-            int buffer_size = 0;
-            int bit_size = 0;
-            for (int j = 0; j < WorkingTrack.Count; j++)
+            if (NewTrack.BufferKind == "singlerotationquat3" || NewTrack.BufferKind == "singlevector3")
             {
-                switch (NewTrack.BufferType)
+
+
+
+            }
+            else
+            {
+                //This part blank for creating buffer in case it hasn't been done before.
+                List<byte> NewBuffer = new List<byte>();
+                string binarystring = "";
+                int buffer_size = 0;
+                int bit_size = 0;
+                for (int j = 0; j < WorkingTrack.Count; j++)
                 {
+                    switch (NewTrack.BufferType)
+                    {
 
-                    case 1: //singlevector3
-                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
-                        buffer_size = 12;
-                        bit_size = 32;
+                        case 1: //singlevector3
+                                //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                            buffer_size = 12;
+                            bit_size = 32;
 
-                        break;
-                    case 2: //singlerotationquat3
-                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
-                        buffer_size = 8;
-                        bit_size = 14;
+                            break;
+                        case 2: //singlerotationquat3
+                                //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                            buffer_size = 8;
+                            bit_size = 14;
 
-                        break;
-                    case 3: //linearvector3
-                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
-                        buffer_size = 16;
-                        bit_size = 32;
+                            break;
+                        case 3: //linearvector3
+                                //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                            buffer_size = 16;
+                            bit_size = 32;
 
-                        break;
-                    case 4: //bilinearvector3_16bit
-                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
-                        buffer_size = 8;
-                        bit_size = 16;
-                        BuildTheKeyFrameBuffer(NewTrack, WorkingTrack, i, p);
+                            break;
+                        case 4: //bilinearvector3_16bit
+                                //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                            buffer_size = 8;
+                            bit_size = 16;
+                            BuildTheKeyFrameBuffer(NewTrack, WorkingTrack, i, p);
+                            break;
+                        case 5: //bilinearvector3_8bit
+                                //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                            buffer_size = 4;
+                            bit_size = 8;
+                            BuildTheKeyFrameBuffer(NewTrack, WorkingTrack, i, p);
+                            break;
+                        case 6: //linearrotationquat4_14bit
+                            buffer_size = 8;
+                            bit_size = 14;
+                            BuildTheKeyFrameBuffer(NewTrack, WorkingTrack, i, p);
 
-                        break;
-                    case 5: //bilinearvector3_8bit
-                        //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
-                        buffer_size = 4;
-                        bit_size = 8;
-                        BuildTheKeyFrameBuffer(NewTrack, WorkingTrack, i, p);
-                        break;
-                    case 6: //linearrotationquat4_14bit
-                        buffer_size = 8;
-                        bit_size = 14;
-                        BuildTheKeyFrameBuffer(NewTrack, WorkingTrack, i, p);
+                            break;
+                        case 7: //bilinearrotationquat4_7bit
+                            buffer_size = 4;
+                            bit_size = 7;
+                            BuildTheKeyFrameBuffer(NewTrack, WorkingTrack, i, p);
+                            break;
+                        default:
+                            break;
 
-                        break;
-                    case 7: //bilinearrotationquat4_7bit
-                        buffer_size = 4;
-                        bit_size = 7;
-                        BuildTheKeyFrameBuffer(NewTrack, WorkingTrack, i, p);
+                    }
+                }
 
-                        break;
-                    default:
-                        break;
 
+                if (NewTrack.BufferSize != 0)
+                {
+                    NewTrack.Buffer = NewBuffer.ToArray();
+                    NewTrack.BufferSize = NewBuffer.Count;
                 }
             }
 
 
-            if (NewTrack.BufferSize != 0)
-            {
-                NewTrack.Buffer = NewBuffer.ToArray();
-                NewTrack.BufferSize = NewBuffer.Count;
-            }
+
+
+
+
+
 
             M3a.Tracks.Add(NewTrack);
             return M3a;
@@ -1278,19 +1402,19 @@ namespace ThreeWorkTool.Resources.Wrappers
             switch (NewTrack.BufferType)
             {
 
+                case 1: //singlevector3
+                    MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nis not supposed to have keyframes!");
+                    break;
+
                 case 2: //singlerotationquat3
-                    //MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
+                    MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nis not supposed to have keyframes!");
                     buffer_size = 8;
                     bit_size = 14;
-                    uint[] vec2bin3 = new uint[4];
-
-                    //vec2bin3[0] = Convert.ToUInt32((WorkingTrack[0].data.X + 8) * Convert.ToUInt32((Math.Sqrt(bit_size)) + 16));
-                    //vec2bin3[1] = Convert.ToUInt32((WorkingTrack[0].data.Y + 8) * Convert.ToUInt32((Math.Sqrt(bit_size)) + 16));
-                    //vec2bin3[2] = Convert.ToUInt32((WorkingTrack[0].data.Z + 8) * Convert.ToUInt32((Math.Sqrt(bit_size)) + 16));
 
                     break;
 
                 case 3: //linearvector3
+                    MessageBox.Show("This BufferType " + WorkingTrack[0].TrackType + "\nis not supposed to have keyframes!");
                     buffer_size = 16;
                     bit_size = 32;
 
@@ -1415,7 +1539,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\TrackBufferTest_4" + p + ".bin", NewTrack.Buffer);
 
-#endif 
+#endif
 
                     break;
                 #endregion
@@ -1530,7 +1654,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\TrackBufferTest_5" + p + ".bin", NewTrack.Buffer);
 
-#endif 
+#endif
 
                     break;
 
@@ -1648,7 +1772,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\TrackBufferTest2_6" + i + ".bin", NewTrack.Buffer);
 
-#endif 
+#endif
 
                     break;
                 #endregion
@@ -1773,7 +1897,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\TrackBufferTest_7" + p + ".bin", NewTrack.Buffer);
 
-#endif 
+#endif
 
 
                     break;
