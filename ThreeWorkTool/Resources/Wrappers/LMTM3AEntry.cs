@@ -422,6 +422,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                 M3a._FileLength = M3a.FullData.LongLength;
                 Array.Copy(M3a.RawData, 0, M3a.FullData, 0, M3a.RawData.Length);
                 Array.Copy(M3a.MotionData, 0, M3a.FullData, M3a.RawData.Length, M3a.MotionData.Length);
+                /*
+                #if DEBUG
+
+                                File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\OldMotionDataTest" + ".bin", M3a.MotionData);
+                                File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\OldRawDataTest" + ".bin", M3a.RawData);
+                                File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\OldFullDataTest" + ".bin", M3a.FullData);
+
+                #endif
+                */
 
                 //Gathers Keyframes.
                 Anim.KeyFrames = new List<KeyFrame>();
@@ -922,7 +931,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             return M3a;
         }
 
-        public static LMTM3AEntry ParseM3AYMLPart1(LMTM3AEntry M3a, string filename)
+        public static LMTM3AEntry ParseM3AYMLPart1(LMTM3AEntry M3a, string filename, LMTM3AEntry oldentry)
         {
             List<byte> NewUncompressedData = new List<byte>();
             LMTM3AEntry NewM3a = new LMTM3AEntry();
@@ -942,6 +951,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             //Inserts The First 3 tracks in the NewUncompressedData.
 
+            int ExtremesCount = 0;
+            List<byte> NewBufferData = new List<byte>();
 
             for (int i = 0; i < NewM3a.KeyFrames.Count; i++)
             {
@@ -965,15 +976,44 @@ namespace ThreeWorkTool.Resources.Wrappers
                     WorkingTrack.Add(NewM3a.KeyFrames[i]);
                 }
 
+            }
 
+
+            List<byte> NewBlockData = new List<byte>();
+            List<byte> NewFullData = new List<byte>();
+            byte[] NewMotionData = new byte[88];
+            byte[] BlankPointer = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            byte[] BlankFour = { 0x00, 0x00, 0x00, 0x00 };
+            byte[] BlankLine = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            byte[] BlankHalf = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            byte[] EventsChunk = new byte[352];//Event Data for anim, 352 bytes, AKA 0x160 
+            //Block Data.
+            using (MemoryStream ms1 = new MemoryStream(NewMotionData))
+            {
+                using (BinaryReader br1 = new BinaryReader(ms1))
+                {
+                    using (BinaryWriter bw1 = new BinaryWriter(ms1))
+                    {
+                        bw1.BaseStream.Position = 8;
+                        bw1.Write(NewM3a.Tracks.Count);
+                        bw1.Write(NewM3a.FrameCount);
+                        bw1.Write((int)-1);
+                        bw1.BaseStream.Position = 60;
+                        bw1.Write((float)1.0F);
+                        bw1.Write((int)524288);
+                    }
+                }
             }
 
             //Bulds the data to be use for injection/insertion.
             for (int r = 0; r < NewM3a.Tracks.Count; r++)
             {
+                if (NewM3a.Tracks[r].ExtremesArray != null)
+                {
+                    ExtremesCount++;
+                }
 
                 byte[] EmptyLong = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
 
                 using (MemoryStream msm3a = new MemoryStream(M3a.RawData))
                 {
@@ -995,38 +1035,11 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             }
 
-            List<byte> NewBlockData = new List<byte>();
-            List<byte> NewFullData = new List<byte>();
-            byte[] NewMotionData = new byte[88];
-            byte[] BlankPointer = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-            //Block Data.
-            using (MemoryStream ms1 = new MemoryStream(NewMotionData))
-            {
-                using (BinaryReader br1 = new BinaryReader(ms1))
-                {
-                    using (BinaryWriter bw1 = new BinaryWriter(ms1))
-                    {
-                        bw1.BaseStream.Position = 8;
-                        bw1.Write(NewM3a.Tracks.Count);
-                        bw1.Write(NewM3a.FrameCount);
-                        bw1.Write((int)-1);
-                        bw1.BaseStream.Position = 60;
-                        bw1.Write((float)1.0F);
-                        bw1.Write((int)524288);
-                    }
-                }
-            }
-
-
-#if DEBUG
-
-            File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\NewMotionDataTest" + ".bin", NewMotionData);
-
-#endif
-
+            List<byte> NewExtremesData = new List<byte>();
             byte[] NewTrackData = new byte[(NewM3a.Tracks.Count * 48)];
-
-
+            long PointerOfInterest = NewM3a.Tracks.Count * 48;
+            //This builds the first part of the track data but does not apply the pointers for anything else.
+            //Gotta find a way to address that.
             using (MemoryStream ms2 = new MemoryStream(NewTrackData))
             {
                 using (BinaryReader br2 = new BinaryReader(ms2))
@@ -1042,15 +1055,64 @@ namespace ThreeWorkTool.Resources.Wrappers
                             bw2.Write(Convert.ToByte(NewM3a.Tracks[s].BoneID));
 
                             bw2.Write(NewM3a.Tracks[s].Weight);
-                            bw2.Write(Convert.ToInt64(NewM3a.Tracks[s].BufferSize));
+                            bw2.Write(NewM3a.Tracks[s].BufferSize);
+                            bw2.Write(BlankFour);
                             bw2.Write(BlankPointer);
 
                             bw2.Write(NewM3a.Tracks[s].ReferenceData.X);
                             bw2.Write(NewM3a.Tracks[s].ReferenceData.Y);
                             bw2.Write(NewM3a.Tracks[s].ReferenceData.Z);
                             bw2.Write(NewM3a.Tracks[s].ReferenceData.W);
-                            bw2.Write(BlankPointer);
 
+                            //For the Extremes. Gotta do these first before the keyframe buffers themselves.
+                            if (NewM3a.Tracks[s].ExtremesArray != null)
+                            {
+                                bw2.Write(PointerOfInterest);
+                                PointerOfInterest = PointerOfInterest + 16;
+
+                                //Adds the extremes to the Extreme Byte List.
+                                NewExtremesData.AddRange(BitConverter.GetBytes(NewM3a.Tracks[s].ExtremesArray[0]));
+                                NewExtremesData.AddRange(BitConverter.GetBytes(NewM3a.Tracks[s].ExtremesArray[1]));
+                                NewExtremesData.AddRange(BitConverter.GetBytes(NewM3a.Tracks[s].ExtremesArray[2]));
+                                NewExtremesData.AddRange(BitConverter.GetBytes(NewM3a.Tracks[s].ExtremesArray[3]));
+
+                                NewExtremesData.AddRange(BitConverter.GetBytes(NewM3a.Tracks[s].ExtremesArray[4]));
+                                NewExtremesData.AddRange(BitConverter.GetBytes(NewM3a.Tracks[s].ExtremesArray[5]));
+                                NewExtremesData.AddRange(BitConverter.GetBytes(NewM3a.Tracks[s].ExtremesArray[6]));
+                                NewExtremesData.AddRange(BitConverter.GetBytes(NewM3a.Tracks[s].ExtremesArray[7]));
+
+
+                            }
+                            else
+                            {
+                                bw2.Write(BlankPointer);
+                            }
+
+                        }
+
+                        //For the Track Buffers.
+                        bw2.BaseStream.Position = 8;
+                        for (int t = 0; t < NewM3a.Tracks.Count; t++)
+                        {
+                            bw2.BaseStream.Position = (t * 48) + 8;
+                            if (t != 0)
+                            {
+                                //To the next track.
+
+                            }
+
+                            if (NewM3a.Tracks[t].Buffer != null)
+                            {
+                                bw2.Write(NewM3a.Tracks[t].BufferSize);
+                                bw2.Write(BlankFour);
+
+
+                                bw2.Write(PointerOfInterest);
+                                NewBufferData.AddRange(NewM3a.Tracks[t].Buffer);
+                                //Recalculate the Pointer of Interest.
+                                PointerOfInterest = PointerOfInterest + NewM3a.Tracks[t].Buffer.LongLength;
+
+                            }
 
                         }
 
@@ -1060,14 +1122,148 @@ namespace ThreeWorkTool.Resources.Wrappers
                 }
             }
 
+            NewFullData.AddRange(NewTrackData);
+            NewFullData.AddRange(NewExtremesData);
+            NewFullData.AddRange(NewBufferData);
+            //Gotta add event data.
+            //Fixing up the event data.
+            int NumberToPost = 0;
+            NewM3a.Events = new List<AnimEvent>();
+            LMTM3AEntry.AnimEvent eve = new AnimEvent {
+                EventBit = 0,
+                EventCount = 1,
+                EventsTotal = 1,
+                Frame = NewM3a.FrameCount
+            };
+
+            using (MemoryStream ms3 = new MemoryStream(EventsChunk))
+            {
+                using (BinaryReader br3 = new BinaryReader(ms3))
+                {
+                    using (BinaryWriter bw3 = new BinaryWriter(ms3))
+                    {
+                        bw3.BaseStream.Position = 64;
+                        bw3.Write(Convert.ToInt32(1));
+                        bw3.BaseStream.Position = 72;
+                        NumberToPost = 320 + NewFullData.Count;
+                        bw3.Write(NumberToPost);
+                        eve.EventsPointer = NumberToPost;
+                        NewM3a.Events.Add(eve);
+
+                        bw3.BaseStream.Position = 144;
+                        bw3.Write(Convert.ToInt32(1));
+                        bw3.BaseStream.Position = 152;
+                        NumberToPost = 328 + NewFullData.Count;
+                        bw3.Write(NumberToPost);
+                        eve.EventsPointer = NumberToPost;
+                        NewM3a.Events.Add(eve);
+
+                        bw3.BaseStream.Position = 224;
+                        bw3.Write(Convert.ToInt32(1));
+                        bw3.BaseStream.Position = 232;
+                        NumberToPost = 336 + NewFullData.Count;
+                        bw3.Write(NumberToPost);
+                        eve.EventsPointer = NumberToPost;
+                        NewM3a.Events.Add(eve);
+
+                        bw3.BaseStream.Position = 304;
+                        bw3.Write(Convert.ToInt32(1));
+                        bw3.BaseStream.Position = 312;
+                        NumberToPost = 342 + NewFullData.Count;
+                        bw3.Write(NumberToPost);
+                        eve.EventsPointer = NumberToPost;
+                        NewM3a.Events.Add(eve);
+
+                        bw3.BaseStream.Position = 324;
+                        bw3.Write(NewM3a.FrameCount);
+
+                        bw3.BaseStream.Position = 332;
+                        bw3.Write(NewM3a.FrameCount);
+
+                        bw3.BaseStream.Position = 340;
+                        bw3.Write(NewM3a.FrameCount);
+
+                        bw3.BaseStream.Position = 348;
+                        bw3.Write(NewM3a.FrameCount);
+
+                    }
+                }
+            }
+
+            //Gotta update the Events Class pointer in the motion data.
+            using (MemoryStream ms4 = new MemoryStream(NewMotionData))
+            {
+                using (BinaryReader br4 = new BinaryReader(ms4))
+                {
+                    using (BinaryWriter bw4 = new BinaryWriter(ms4))
+                    {
+
+                        bw4.BaseStream.Position = 72;
+                        bw4.Write(NewFullData.Count);
+                        NewM3a.EventClassesPointer = NewFullData.Count;
+                    }
+                }
+            }
+
+            NewM3a.MotionData = NewMotionData;
+            NewFullData.AddRange(EventsChunk);
+            NewM3a.RawData = NewFullData.ToArray();
+#if DEBUG
+
+            File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\NewRawDataTest" + ".bin", NewFullData.ToArray());
+
+#endif
+
+            NewM3a.AnimDataSize = NewFullData.Count;
+            NewFullData.AddRange(NewMotionData);
+
+
+
+
+            NewM3a.FullData = NewFullData.ToArray();
+
 #if DEBUG
 
             File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\NewTrackDataTest" + ".bin", NewTrackData);
 
+            File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\NewMotionDataTest" + ".bin", NewMotionData);
+
+            File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\NewExtremesDataTest" + ".bin", NewExtremesData.ToArray());
+
+            File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\NewFullDataTest" + ".bin", NewFullData.ToArray());
+
+
 #endif
+
+            //Builds the rest of the ma3entry.
+            NewM3a._FileType = ".m3a";
+            NewM3a.FileExt = NewM3a._FileType;
+            NewM3a.AnimationID = oldentry.AnimationID;
+            NewM3a.FileName = oldentry.FileName;
+            NewM3a.ShortName = oldentry.ShortName;
+            NewM3a.AnimationLoopFrame = -1;
+            NewM3a._IsBlank = false;
+            NewM3a.AnimationFlags = 8388608;
+
+
+
 
             return NewM3a;
 
+        }
+
+        public static LMTM3AEntry ParseM3AYMLPart2(LMTM3AEntry M3a, string filename, ArcEntryWrapper NewWrapper, TreeView tree)
+        {
+
+            tree.BeginUpdate();
+
+
+
+            tree.EndUpdate();
+            NewWrapper.ImageIndex = 18;
+            NewWrapper.SelectedImageIndex = 18;
+
+            return M3a;
         }
 
         public static LMTM3AEntry BuildInitalTracks(LMTM3AEntry M3a, List<KeyFrame> WorkingTrack)
@@ -1363,13 +1559,14 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     }
                 }
-
+                /*
 
                 if (NewTrack.BufferSize != 0)
                 {
-                    NewTrack.Buffer = NewBuffer.ToArray();
-                    NewTrack.BufferSize = NewBuffer.Count;
+                    //NewTrack.Buffer = NewBuffer.ToArray();
+                    NewTrack.BufferSize = NewTrack.Buffer.Length;
                 }
+                */
             }
 
 
@@ -1945,7 +2142,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             return new string(charArray);
         }
 
-        public static LMTM3AEntry ParseM3AYMLPart2(LMTM3AEntry M3a, string filename)
+        /*
+        public static LMTM3AEntry ParseM3AYMLPart2(LMTM3AEntry M3a, string filename, ArcEntryWrapper N)
         {
 
             //Gonna build the M3a from scratch with the Keyframe data.
@@ -2003,6 +2201,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             return M3a;
 
         }
+        */
 
         public static void TestFromKeyframesToM3A(LMTM3AEntry M3a)
         {

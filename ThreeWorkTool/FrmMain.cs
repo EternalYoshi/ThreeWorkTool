@@ -6293,6 +6293,7 @@ namespace ThreeWorkTool
 
                             switch (helper)
                             {
+                                #region .M3a
                                 case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
                                     ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
                                     ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
@@ -6326,6 +6327,7 @@ namespace ThreeWorkTool
 
 
                                     break;
+                                #endregion
 
                                 default:
                                     break;
@@ -12564,9 +12566,39 @@ namespace ThreeWorkTool
             if (RPDialog.ShowDialog() == DialogResult.OK)
             {
 
-                M3a = LMTM3AEntry.ParseM3AYMLPart1(M3a, RPDialog.FileName);
+
+                ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+                OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                var oldtag = OldWrapper.Tag as LMTM3AEntry;
+                string oldname = OldWrapper.Name;
+                NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                M3a = LMTM3AEntry.ParseM3AYMLPart1(M3a, RPDialog.FileName, oldtag as LMTM3AEntry);
+                M3a = LMTM3AEntry.ParseM3AYMLPart2(M3a, RPDialog.FileName, NewWrapper, frename.Mainfrm.TreeSource);
+                NewWrapper.Tag = M3a;
+                NewWrapper.FileExt = ".m3a";
+                if (NewWrapper.Tag == null)
+                {
+                    frename.Mainfrm.InvalidImport = true;
+                }
+                else
+                {
+                    NewWrapper.ContextMenuStrip = M3aFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                    frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                    //Takes the path data from the old node and slaps it on the new node.
+                    M3a = NewWrapper.entryfile as LMTM3AEntry;
+                    NewWrapper.entryfile = M3a;
+
+                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                    frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                    frename.Mainfrm.TreeSource.SelectedNode.Text = "AnimationID" + oldname;
+                }
+
 
             }
+
+            frename.Mainfrm.OpenFileModified = true;
 
         }
 

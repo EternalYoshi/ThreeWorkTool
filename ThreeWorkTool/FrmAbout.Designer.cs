@@ -76,9 +76,9 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(178, 26);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(212, 72);
+            this.label1.Size = new System.Drawing.Size(191, 72);
             this.label1.TabIndex = 3;
-            this.label1.Text = "ThreeWork Tool V0.63d\r\n 2022-2023\r\nby Eternal Yoshi";
+            this.label1.Text = "ThreeWork Tool V0.7\n 2022-2023\r\nby Eternal Yoshi";
             // 
             // pictureBox1
             // 
