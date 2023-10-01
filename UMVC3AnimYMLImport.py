@@ -9,15 +9,12 @@ bl_info = {
 "category":"Import-Export",
 }
 
-import bpy, os, sys, io, enum, struct, math, time, pdb, traceback, mathutils, re, shutil, re, shutil
-import numpy as np
-from typing import List, Tuple
+import bpy, os, sys, time, traceback, mathutils, re
 
 import pip
 pip.main(['install', 'pyyaml', '--user'])
 
 import yaml
-import importlib
 dir = os.path.dirname(bpy.data.filepath)
 if not dir in sys.path:
     sys.path.append(dir)
@@ -25,18 +22,9 @@ if not dir in sys.path:
 
 # Import Code.
 from bpy_extras.io_utils import ImportHelper
-from bpy.types import Operator
-from pkg_resources import parse_version
-from kaitaistruct import KaitaiStruct, KaitaiStream, BytesIO
-from enum import Enum
-from numpy import little_endian, uint, uint64
-import bitstring319
-import numpy as np
 
 from bpy_extras.io_utils import ExportHelper
-from bpy.props import StringProperty, BoolProperty, EnumProperty
-from bpy.types import Operator
-from mathutils import Matrix, Quaternion
+from mathutils import Quaternion
 
 class data():
    def __init__(self, X, Y, Z, W):
@@ -1063,9 +1051,71 @@ def WriteM3AanimationData(context,filepath):
                                                 TrueKeys.append(Keyframes(index,"localposition",int(FrameText),KeyToInsert))
 
 
-                                            #gen_track(bone.name,0,bone,trans_basis_vec, index)
+                                            #gen_track(bone.name,0,bone,trans_basis_vec, index)                                                                                            
+                                        
+                                                                                                                                                                                
+                    
+                #print(bone.name)
+                print(len(FramesL))
+                print(FramesL)
+                print(len(FramesR))
+                print(FramesR)
+                print(len(FramesS))
+                print(FramesS)                
+                #print(len(Keys))
+                #print(Keys)
+                #print(("\n"))
+                #print(Interpolations)
+                #print(len(Interpolations))
+
+
+
+            #f.write("\nKeyframe Total: "+str(keycount))    
+        
+            for bone in reordered_pose_bones:
+                
+                f.write("\n____________________________________________________________________________________________________")
+                f.write("\nBone ID: "+str(bone.name))
+                print("_________________________________________________________________________\nNow Serving Bone ID: " + str(bone.name))          
+                
+                #Variables for holding Location, Rotational, and Scale Data.
+                FramesL = []
+                KeysL = []
+                KeyTypesL = []
+                InterpolationsL = []
+
+                FramesR = []
+                KeysR = []
+                KeyTypesR = []
+                InterpolationsR = []
+
+                FramesS = []
+                KeysS = []
+                KeyTypesS = []
+                InterpolationsS = []
+
+
+                for index, _ in enumerate(range(FirstFrame, FrameCount+1)):
+                    #Gets the needed values and prints them out in the console and in dump.txt.
+                    trans_basis_vec = bone_name_to_location_values[bone.name][index]
+                    trans_basis_quat = Quaternion([0, trans_basis_vec.x, trans_basis_vec.y, trans_basis_vec.z])
+                    rot_basis_vec = bone_name_to_rotation_values[bone.name][index]
+                    rot_basis_quat = Quaternion([rot_basis_vec.w, rot_basis_vec.x, rot_basis_vec.y, rot_basis_vec.z])
+                    scale_basis_vec = bone_name_to_scale_values[bone.name][index]
+                    scale_basis_quat = Quaternion([0, scale_basis_vec.x, scale_basis_vec.y, scale_basis_vec.z])
+                    
+                    f.write("\nFrame : "+str(index))
+                    #Checks for actual keys on the frame... in a roundabout way.      
+                    for fcu in action.fcurves:
+                        #Skips if the fcurve lacks the current bone name we're working with.
+                        if bone.name in fcu.data_path:
+                            
+                            #Frame Check.
+                            for keyframe in fcu.keyframe_points:                                
+                                if keyframe.co[0] == index:
+                                    #Now For Location/Rotation/Scale.
                                             
-                                    if "rotation_quaternion" in fcu.data_path:                                      
+                                    if "scale" in fcu.data_path:                                      
 
                                         #f.write("\nRotation: "+str(rot_basis_quat)) 
                                         #W
@@ -1089,19 +1139,84 @@ def WriteM3AanimationData(context,filepath):
                                                 print(fcu.data_path)
                                                 pt = [pt for pt in fcu.keyframe_points if pt.co[0] == index][0]
                                                 InterpolationsR.append(pt.interpolation)
-                                                f.write("\nRotation: "+str(rot_basis_quat))                                               
+                                                f.write("\scale: "+str(rot_basis_quat))                                               
                                                 keycount += 1
                                                 KeyedR = True
 
                                                 FramesR.append(index)
                                                 KeysR.append(rot_basis_quat)
-                                                KeyTypesR.append("Rotation")
+                                                KeyTypesR.append("scale")
                                                 FrameText = bone.name
                                                 FrameText = FrameText.replace(FrameText[:4], '')
                                                 KeyToInsert = data(scale_basis_vec.x,scale_basis_vec.y,scale_basis_vec.z,1)
                                                 TrueKeys.append(Keyframes(index,"localscale",int(FrameText),KeyToInsert))                                                       
-                                                                                                                        
-                                    if "scale" in fcu.data_path:
+                                                                                                                                                           
+                                        
+                                                                                                                                                                                
+                    
+                #print(bone.name)
+                print(len(FramesL))
+                print(FramesL)
+                print(len(FramesR))
+                print(FramesR)
+                print(len(FramesS))
+                print(FramesS)                
+                #print(len(Keys))
+                #print(Keys)
+                #print(("\n"))
+                #print(Interpolations)
+                #print(len(Interpolations))
+
+
+
+            #f.write("\nKeyframe Total: "+str(keycount))   
+        
+        
+        
+            for bone in reordered_pose_bones:
+                
+                f.write("\n____________________________________________________________________________________________________")
+                f.write("\nBone ID: "+str(bone.name))
+                print("_________________________________________________________________________\nNow Serving Bone ID: " + str(bone.name))          
+                
+                #Variables for holding Location, Rotational, and Scale Data.
+                FramesL = []
+                KeysL = []
+                KeyTypesL = []
+                InterpolationsL = []
+
+                FramesR = []
+                KeysR = []
+                KeyTypesR = []
+                InterpolationsR = []
+
+                FramesS = []
+                KeysS = []
+                KeyTypesS = []
+                InterpolationsS = []
+
+
+                for index, _ in enumerate(range(FirstFrame, FrameCount+1)):
+                    #Gets the needed values and prints them out in the console and in dump.txt.
+                    trans_basis_vec = bone_name_to_location_values[bone.name][index]
+                    trans_basis_quat = Quaternion([0, trans_basis_vec.x, trans_basis_vec.y, trans_basis_vec.z])
+                    rot_basis_vec = bone_name_to_rotation_values[bone.name][index]
+                    rot_basis_quat = Quaternion([rot_basis_vec.w, rot_basis_vec.x, rot_basis_vec.y, rot_basis_vec.z])
+                    scale_basis_vec = bone_name_to_scale_values[bone.name][index]
+                    scale_basis_quat = Quaternion([0, scale_basis_vec.x, scale_basis_vec.y, scale_basis_vec.z])
+                    
+                    f.write("\nFrame : "+str(index))
+                    #Checks for actual keys on the frame... in a roundabout way.      
+                    for fcu in action.fcurves:
+                        #Skips if the fcurve lacks the current bone name we're working with.
+                        if bone.name in fcu.data_path:
+                            
+                            #Frame Check.
+                            for keyframe in fcu.keyframe_points:                                
+                                if keyframe.co[0] == index:
+                                    #Now For Scale.
+                                                                                                                                                                         
+                                    if "rotation_quaternion" in fcu.data_path:
 
                                         #f.write("\nScale: "+str(scale_basis_vec))                                        
                                         #X
@@ -1120,13 +1235,13 @@ def WriteM3AanimationData(context,filepath):
                                                 print(fcu.data_path)
                                                 pt = [pt for pt in fcu.keyframe_points if pt.co[0] == index][0]
                                                 InterpolationsS.append(pt.interpolation)
-                                                f.write("\nScale: "+str(scale_basis_vec))
+                                                f.write("\rotation_quaternion: "+str(scale_basis_vec))
                                                 keycount += 1
                                                 KeyedR = True
 
                                                 FramesS.append(index)
                                                 KeysS.append(scale_basis_quat)
-                                                KeyTypesS.append("Scale")
+                                                KeyTypesS.append("rotation_quaternion")
                                                 FrameText = bone.name
                                                 FrameText = FrameText.replace(FrameText[:4], '')
                                                 KeyToInsert = data(rot_basis_vec.x,rot_basis_vec.y,rot_basis_vec.z,rot_basis_vec.w)
@@ -1147,9 +1262,13 @@ def WriteM3AanimationData(context,filepath):
                 #print(Interpolations)
                 #print(len(Interpolations))
 
-            #f.write("\nKeyframe Total: "+str(keycount))    
-        f.close()
+
+
+            #f.write("\nKeyframe Total: "+str(keycount))   
         
+        
+        
+        f.close()        
         
         #Prints stuff out to check.
         print(str(keycount))
@@ -1158,7 +1277,7 @@ def WriteM3AanimationData(context,filepath):
         FinalAnim = LMTM3AEntry(1,"AnimDataID0",FrameCount,-1,TrueKeys)
         yaml.emitter.Emitter.process_tag = lambda self, *args, **kw: None
         stream = open(filepath,'w')
-        yaml.dump(FinalAnim,stream)
+        yaml.dump(FinalAnim,stream,sort_keys=False)
 
         #Adds in important tag.
         GoodTag = "!LMTM3AEntry\n"
