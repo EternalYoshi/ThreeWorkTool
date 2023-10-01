@@ -947,7 +947,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             List<KeyFrame> WorkingTrack = new List<KeyFrame>();
 
             //For the first 3 tracks I see in default characters' M3a files.
-            BuildInitalTracks(NewM3a, WorkingTrack);
+            //BuildInitalTracks(NewM3a, WorkingTrack);
 
             //Inserts The First 3 tracks in the NewUncompressedData.
 
@@ -1068,7 +1068,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                             if (NewM3a.Tracks[s].ExtremesArray != null)
                             {
                                 bw2.Write(PointerOfInterest);
-                                PointerOfInterest = PointerOfInterest + 16;
+                                PointerOfInterest = PointerOfInterest + 32;
 
                                 //Adds the extremes to the Extreme Byte List.
                                 NewExtremesData.AddRange(BitConverter.GetBytes(NewM3a.Tracks[s].ExtremesArray[0]));
@@ -1091,9 +1091,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                         }
 
                         //For the Track Buffers.
+                        PointerOfInterest = (NewM3a.Tracks.Count * 48) + NewExtremesData.Count; 
                         bw2.BaseStream.Position = 8;
                         for (int t = 0; t < NewM3a.Tracks.Count; t++)
                         {
+                            if (NewM3a.Tracks[t].BoneID == 255) continue;
                             bw2.BaseStream.Position = (t * 48) + 8;
                             if (t != 0)
                             {
@@ -1129,7 +1131,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             //Fixing up the event data.
             int NumberToPost = 0;
             NewM3a.Events = new List<AnimEvent>();
-            LMTM3AEntry.AnimEvent eve = new AnimEvent {
+            LMTM3AEntry.AnimEvent eve = new AnimEvent
+            {
                 EventBit = 0,
                 EventCount = 1,
                 EventsTotal = 1,
@@ -1244,8 +1247,12 @@ namespace ThreeWorkTool.Resources.Wrappers
             NewM3a.AnimationLoopFrame = -1;
             NewM3a._IsBlank = false;
             NewM3a.AnimationFlags = 8388608;
-
-
+            NewM3a.FrameTotal = NewM3a.FrameCount;
+            NewM3a.TrackCount = NewM3a.Tracks.Count;
+            NewM3a.NumberOfTracks = NewM3a.TrackCount;
+            NewM3a.CollectionTracks = NewM3a.Tracks;
+            NewM3a.IsReusingTrackData = false;
+            NewM3a.IsBlank = false;
 
 
             return NewM3a;

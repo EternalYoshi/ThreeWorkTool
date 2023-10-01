@@ -12598,6 +12598,47 @@ namespace ThreeWorkTool
 
             }
 
+            //Checks for valid import. If the import is blank then the following commands are aborted and nothing happens to the LMT or the original M3A entry.
+            if (frename.Mainfrm.InvalidImport == true)
+            {
+
+            }
+            else
+            {
+                frename.Mainfrm.OpenFileModified = true;
+                frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                //Rebuilds the LMT. Hoo Boy.
+
+                LMTEntry NewaentN = new LMTEntry();
+                ArcEntryWrapper OutdatedWrapper = new ArcEntryWrapper();
+                ArcEntryWrapper RebuiltLMTWrapper = new ArcEntryWrapper();
+                frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+                RebuiltLMTWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                NewaentN = RebuiltLMTWrapper.Tag as LMTEntry;
+                NewaentN = LMTEntry.RebuildLMTEntry(frename.Mainfrm.TreeSource, RebuiltLMTWrapper);
+                RebuiltLMTWrapper.ContextMenuStrip = LMTContextAdder(RebuiltLMTWrapper, frename.Mainfrm.TreeSource);
+                frename.Mainfrm.IconSetter(RebuiltLMTWrapper, RebuiltLMTWrapper.FileExt);
+                //Takes the path data from the old node and slaps it on the new node.
+                OutdatedWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                LMTEntry OldLMT = new LMTEntry();
+                OldLMT = OutdatedWrapper.entryfile as LMTEntry;
+                //Transfer the LMT's properties that can't really be done outside of that class.
+                NewaentN = LMTEntry.TransferLMTEntryProperties(OldLMT, NewaentN);
+                string[] paths = OldLMT.EntryDirs;
+                //NewaentN = RebuiltLMTWrapper.entryfile as LMTEntry;
+                NewaentN.EntryDirs = paths;
+                RebuiltLMTWrapper.Tag = NewaentN;
+                RebuiltLMTWrapper.entryfile = NewaentN;
+
+                frename.Mainfrm.TreeSource.SelectedNode = RebuiltLMTWrapper;
+            }
+
+            frename.Mainfrm.TreeSource.EndUpdate();
+
             frename.Mainfrm.OpenFileModified = true;
 
         }
