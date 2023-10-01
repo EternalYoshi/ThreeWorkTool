@@ -947,7 +947,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             List<KeyFrame> WorkingTrack = new List<KeyFrame>();
 
             //For the first 3 tracks I see in default characters' M3a files.
-            //BuildInitalTracks(NewM3a, WorkingTrack);
+            BuildInitalTracks(NewM3a, WorkingTrack);
 
             //Inserts The First 3 tracks in the NewUncompressedData.
 
@@ -1000,7 +1000,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         bw1.Write((int)-1);
                         bw1.BaseStream.Position = 60;
                         bw1.Write((float)1.0F);
-                        bw1.Write((int)524288);
+                        bw1.Write((int)8388608);
                     }
                 }
             }
@@ -1253,7 +1253,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             NewM3a.CollectionTracks = NewM3a.Tracks;
             NewM3a.IsReusingTrackData = false;
             NewM3a.IsBlank = false;
-
 
             return NewM3a;
 
