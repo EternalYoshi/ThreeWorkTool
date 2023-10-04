@@ -157,7 +157,8 @@ namespace ThreeWorkTool
 
                 if (PointerToUse < 0)
                 {
-                    MessageBox.Show("There's a track pointer that's bogus in this list. at Index: " + v + "\nSo I'm Skipping it.");
+                    MessageBox.Show("The track pointers are bogus so changes won't be saved.");
+                    return;
                 }
                 else
                 {
