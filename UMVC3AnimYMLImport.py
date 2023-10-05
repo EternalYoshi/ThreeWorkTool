@@ -2,23 +2,30 @@ bl_info = {
 "name": "Yoshi's Test Script",
 "description":"For importing UMVC3 animations.",
 "author":"Eternal Yoshi",
-"version":(0,0,1),
+"version":(0,0,2),
 "blender":(3,0,0),
 "location": "File > Import",
 "warning": "Set your Armature to the Bind Pose before applying animations or risk having a bad time.",
 "category":"Import-Export",
 }
 
-import bpy, os, sys, time, traceback, mathutils, re
+import bpy, os, sys, time, traceback, mathutils, re, subprocess
+
+def install_module(module):
+    subprocess.check_call(['pip', 'install', module])
+    print(f"The module {module} was installed")
 
 import pip
 pip.main(['install', 'pyyaml', '--user'])
 
-import yaml
-dir = os.path.dirname(bpy.data.filepath)
-if not dir in sys.path:
-    sys.path.append(dir)
-    #print(sys.path)
+try: 
+    import yaml
+except ImportError:
+    print("The yaml module appears to be missing so let's attempt to install it.\n")
+    install_module('yaml')
+    import yaml
+
+
 
 # Import Code.
 from bpy_extras.io_utils import ImportHelper
@@ -975,300 +982,300 @@ def WriteM3AanimationData(context,filepath):
         '''
         action = bpy.data.actions["ArmatureAction"]
                                                 
-        with open('D:\\Workshop\\dump.txt', 'w') as f:
-            for bone in reordered_pose_bones:
+    #with open('C:\\dump.txt', 'w') as f:
+        for bone in reordered_pose_bones:
+            
+            #f.write("\n____________________________________________________________________________________________________")
+            #f.write("\nBone ID: "+str(bone.name))
+            print("_________________________________________________________________________\nNow Serving Bone ID: " + str(bone.name))          
+            
+            #Variables for holding Location, Rotational, and Scale Data.
+            FramesL = []
+            KeysL = []
+            KeyTypesL = []
+            InterpolationsL = []
+
+            FramesR = []
+            KeysR = []
+            KeyTypesR = []
+            InterpolationsR = []
+
+            FramesS = []
+            KeysS = []
+            KeyTypesS = []
+            InterpolationsS = []
+
+
+            for index, _ in enumerate(range(FirstFrame, FrameCount+1)):
+                #Gets the needed values and prints them out in the console and in dump.txt.
+                trans_basis_vec = bone_name_to_location_values[bone.name][index]
+                trans_basis_quat = Quaternion([0, trans_basis_vec.x, trans_basis_vec.y, trans_basis_vec.z])
+                rot_basis_vec = bone_name_to_rotation_values[bone.name][index]
+                rot_basis_quat = Quaternion([rot_basis_vec.w, rot_basis_vec.x, rot_basis_vec.y, rot_basis_vec.z])
+                scale_basis_vec = bone_name_to_scale_values[bone.name][index]
+                scale_basis_quat = Quaternion([0, scale_basis_vec.x, scale_basis_vec.y, scale_basis_vec.z])
                 
-                f.write("\n____________________________________________________________________________________________________")
-                f.write("\nBone ID: "+str(bone.name))
-                print("_________________________________________________________________________\nNow Serving Bone ID: " + str(bone.name))          
-                
-                #Variables for holding Location, Rotational, and Scale Data.
-                FramesL = []
-                KeysL = []
-                KeyTypesL = []
-                InterpolationsL = []
+                #f.write("\nFrame : "+str(index))
+                #Checks for actual keys on the frame... in a roundabout way.      
+                for fcu in action.fcurves:
+                    #Skips if the fcurve lacks the current bone name we're working with.
+                    if bone.name in fcu.data_path:
+                        
+                        #Frame Check.
+                        for keyframe in fcu.keyframe_points:                                
+                            if keyframe.co[0] == index:
+                                #Now For Location/Rotation/Scale.
 
-                FramesR = []
-                KeysR = []
-                KeyTypesR = []
-                InterpolationsR = []
+                                #keycount += 1
+                                if "location" in fcu.data_path:   
+                                    #f.write("\nTranslation: "+str(trans_basis_vec))
+                                    #X
+                                    #if fcu.array_index == 0:
+                                    #print("BINGO! A location Keyframe.")
+                                    #f.write("\nTranslation: "+str(trans_basis_vec.x))
 
-                FramesS = []
-                KeysS = []
-                KeyTypesS = []
-                InterpolationsS = []
-
-
-                for index, _ in enumerate(range(FirstFrame, FrameCount+1)):
-                    #Gets the needed values and prints them out in the console and in dump.txt.
-                    trans_basis_vec = bone_name_to_location_values[bone.name][index]
-                    trans_basis_quat = Quaternion([0, trans_basis_vec.x, trans_basis_vec.y, trans_basis_vec.z])
-                    rot_basis_vec = bone_name_to_rotation_values[bone.name][index]
-                    rot_basis_quat = Quaternion([rot_basis_vec.w, rot_basis_vec.x, rot_basis_vec.y, rot_basis_vec.z])
-                    scale_basis_vec = bone_name_to_scale_values[bone.name][index]
-                    scale_basis_quat = Quaternion([0, scale_basis_vec.x, scale_basis_vec.y, scale_basis_vec.z])
-                    
-                    f.write("\nFrame : "+str(index))
-                    #Checks for actual keys on the frame... in a roundabout way.      
-                    for fcu in action.fcurves:
-                        #Skips if the fcurve lacks the current bone name we're working with.
-                        if bone.name in fcu.data_path:
-                            
-                            #Frame Check.
-                            for keyframe in fcu.keyframe_points:                                
-                                if keyframe.co[0] == index:
-                                    #Now For Location/Rotation/Scale.
-
-                                    #keycount += 1
-                                    if "location" in fcu.data_path:   
-                                        #f.write("\nTranslation: "+str(trans_basis_vec))
-                                        #X
-                                        #if fcu.array_index == 0:
+                                    #Y
+                                    #if fcu.array_index == 1:
                                         #print("BINGO! A location Keyframe.")
-                                        #f.write("\nTranslation: "+str(trans_basis_vec.x))
-
-                                        #Y
-                                        #if fcu.array_index == 1:
-                                            #print("BINGO! A location Keyframe.")
-                                            #f.write("\nTranslation: "+str(trans_basis_vec.y))                                            
-                                            #keycount += 1                                        
-                                        #Z
-                                        if fcu.array_index == 2:
-                                            if NameChecker(index, fcu, bone.name):                                                
-                                                print(fcu.data_path)
-                                                pt = [pt for pt in fcu.keyframe_points if pt.co[0] == index][0]
-                                                InterpolationsL.append(pt.interpolation)
-                                                f.write("\nTranslation: "+str(trans_basis_vec))
-                                                keycount += 1
-                                                KeyedT = True
-                                                
-                                                FramesL.append(index)
-                                                KeysL.append(trans_basis_quat)
-                                                KeyTypesL.append("location")
-                                                FrameText = bone.name
-                                                FrameText = FrameText.replace(FrameText[:4], '')
-                                                KeyToInsert = data(trans_basis_vec.x,trans_basis_vec.y,trans_basis_vec.z,0)
-                                                TrueKeys.append(Keyframes(index,"localposition",int(FrameText),KeyToInsert))
-
-
-                                            #gen_track(bone.name,0,bone,trans_basis_vec, index)                                                                                            
-                                        
-                                                                                                                                                                                
-                    
-                #print(bone.name)
-                print(len(FramesL))
-                print(FramesL)
-                print(len(FramesR))
-                print(FramesR)
-                print(len(FramesS))
-                print(FramesS)                
-                #print(len(Keys))
-                #print(Keys)
-                #print(("\n"))
-                #print(Interpolations)
-                #print(len(Interpolations))
-
-
-
-            #f.write("\nKeyframe Total: "+str(keycount))    
-        
-            for bone in reordered_pose_bones:
-                
-                f.write("\n____________________________________________________________________________________________________")
-                f.write("\nBone ID: "+str(bone.name))
-                print("_________________________________________________________________________\nNow Serving Bone ID: " + str(bone.name))          
-                
-                #Variables for holding Location, Rotational, and Scale Data.
-                FramesL = []
-                KeysL = []
-                KeyTypesL = []
-                InterpolationsL = []
-
-                FramesR = []
-                KeysR = []
-                KeyTypesR = []
-                InterpolationsR = []
-
-                FramesS = []
-                KeysS = []
-                KeyTypesS = []
-                InterpolationsS = []
-
-
-                for index, _ in enumerate(range(FirstFrame, FrameCount+1)):
-                    #Gets the needed values and prints them out in the console and in dump.txt.
-                    trans_basis_vec = bone_name_to_location_values[bone.name][index]
-                    trans_basis_quat = Quaternion([0, trans_basis_vec.x, trans_basis_vec.y, trans_basis_vec.z])
-                    rot_basis_vec = bone_name_to_rotation_values[bone.name][index]
-                    rot_basis_quat = Quaternion([rot_basis_vec.w, rot_basis_vec.x, rot_basis_vec.y, rot_basis_vec.z])
-                    scale_basis_vec = bone_name_to_scale_values[bone.name][index]
-                    scale_basis_quat = Quaternion([0, scale_basis_vec.x, scale_basis_vec.y, scale_basis_vec.z])
-                    
-                    f.write("\nFrame : "+str(index))
-                    #Checks for actual keys on the frame... in a roundabout way.      
-                    for fcu in action.fcurves:
-                        #Skips if the fcurve lacks the current bone name we're working with.
-                        if bone.name in fcu.data_path:
-                            
-                            #Frame Check.
-                            for keyframe in fcu.keyframe_points:                                
-                                if keyframe.co[0] == index:
-                                    #Now For Location/Rotation/Scale.
+                                        #f.write("\nTranslation: "+str(trans_basis_vec.y))                                            
+                                        #keycount += 1                                        
+                                    #Z
+                                    if fcu.array_index == 2:
+                                        if NameChecker(index, fcu, bone.name):                                                
+                                            print(fcu.data_path)
+                                            pt = [pt for pt in fcu.keyframe_points if pt.co[0] == index][0]
+                                            InterpolationsL.append(pt.interpolation)
+                                            #f.write("\nTranslation: "+str(trans_basis_vec))
+                                            keycount += 1
+                                            KeyedT = True
                                             
-                                    if "scale" in fcu.data_path:                                      
-
-                                        #f.write("\nRotation: "+str(rot_basis_quat)) 
-                                        #W
-                                        #if fcu.array_index == 0:
-                                            #print("BINGO! A rotation Keyframe.")
-                                            #f.write("\nRotation: "+str(rot_basis_quat.w))                                            
-                                            #keycount += 1                                        
-                                        #X
-                                        #if fcu.array_index == 1:
-                                            #print("BINGO! A rotation Keyframe.")
-                                            #f.write("\nRotation: "+str(rot_basis_quat.x))                                               
-                                            #keycount += 1                                        
-                                        #Y
-                                        #if fcu.array_index == 2:
-                                            #print("BINGO! A rotation Keyframe.")
-                                            #f.write("\nRotation: "+str(rot_basis_quat.y))                                               
-                                            #keycount += 1                                        
-                                        #Z
-                                        if fcu.array_index == 3:
-                                            if NameChecker(index, fcu, bone.name):                                                   
-                                                print(fcu.data_path)
-                                                pt = [pt for pt in fcu.keyframe_points if pt.co[0] == index][0]
-                                                InterpolationsR.append(pt.interpolation)
-                                                f.write("\scale: "+str(rot_basis_quat))                                               
-                                                keycount += 1
-                                                KeyedR = True
-
-                                                FramesR.append(index)
-                                                KeysR.append(rot_basis_quat)
-                                                KeyTypesR.append("scale")
-                                                FrameText = bone.name
-                                                FrameText = FrameText.replace(FrameText[:4], '')
-                                                KeyToInsert = data(scale_basis_vec.x,scale_basis_vec.y,scale_basis_vec.z,1)
-                                                TrueKeys.append(Keyframes(index,"localscale",int(FrameText),KeyToInsert))                                                       
-                                                                                                                                                           
-                                        
-                                                                                                                                                                                
-                    
-                #print(bone.name)
-                print(len(FramesL))
-                print(FramesL)
-                print(len(FramesR))
-                print(FramesR)
-                print(len(FramesS))
-                print(FramesS)                
-                #print(len(Keys))
-                #print(Keys)
-                #print(("\n"))
-                #print(Interpolations)
-                #print(len(Interpolations))
+                                            FramesL.append(index)
+                                            KeysL.append(trans_basis_quat)
+                                            KeyTypesL.append("location")
+                                            FrameText = bone.name
+                                            FrameText = FrameText.replace(FrameText[:4], '')
+                                            KeyToInsert = data(trans_basis_vec.x,trans_basis_vec.y,trans_basis_vec.z,0)
+                                            TrueKeys.append(Keyframes(index,"localposition",int(FrameText),KeyToInsert))
 
 
-
-            #f.write("\nKeyframe Total: "+str(keycount))   
-        
-        
-        
-            for bone in reordered_pose_bones:
+                                        #gen_track(bone.name,0,bone,trans_basis_vec, index)                                                                                            
+                                    
+                                                                                                                                                                            
                 
-                f.write("\n____________________________________________________________________________________________________")
-                f.write("\nBone ID: "+str(bone.name))
-                print("_________________________________________________________________________\nNow Serving Bone ID: " + str(bone.name))          
+            #print(bone.name)
+            print(len(FramesL))
+            print(FramesL)
+            print(len(FramesR))
+            print(FramesR)
+            print(len(FramesS))
+            print(FramesS)                
+            #print(len(Keys))
+            #print(Keys)
+            #print(("\n"))
+            #print(Interpolations)
+            #print(len(Interpolations))
+
+
+
+        #f.write("\nKeyframe Total: "+str(keycount))    
+    
+        for bone in reordered_pose_bones:
+            
+            #f.write("\n____________________________________________________________________________________________________")
+            #f.write("\nBone ID: "+str(bone.name))
+            print("_________________________________________________________________________\nNow Serving Bone ID: " + str(bone.name))          
+            
+            #Variables for holding Location, Rotational, and Scale Data.
+            FramesL = []
+            KeysL = []
+            KeyTypesL = []
+            InterpolationsL = []
+
+            FramesR = []
+            KeysR = []
+            KeyTypesR = []
+            InterpolationsR = []
+
+            FramesS = []
+            KeysS = []
+            KeyTypesS = []
+            InterpolationsS = []
+
+
+            for index, _ in enumerate(range(FirstFrame, FrameCount+1)):
+                #Gets the needed values and prints them out in the console and in dump.txt.
+                trans_basis_vec = bone_name_to_location_values[bone.name][index]
+                trans_basis_quat = Quaternion([0, trans_basis_vec.x, trans_basis_vec.y, trans_basis_vec.z])
+                rot_basis_vec = bone_name_to_rotation_values[bone.name][index]
+                rot_basis_quat = Quaternion([rot_basis_vec.w, rot_basis_vec.x, rot_basis_vec.y, rot_basis_vec.z])
+                scale_basis_vec = bone_name_to_scale_values[bone.name][index]
+                scale_basis_quat = Quaternion([0, scale_basis_vec.x, scale_basis_vec.y, scale_basis_vec.z])
                 
-                #Variables for holding Location, Rotational, and Scale Data.
-                FramesL = []
-                KeysL = []
-                KeyTypesL = []
-                InterpolationsL = []
-
-                FramesR = []
-                KeysR = []
-                KeyTypesR = []
-                InterpolationsR = []
-
-                FramesS = []
-                KeysS = []
-                KeyTypesS = []
-                InterpolationsS = []
-
-
-                for index, _ in enumerate(range(FirstFrame, FrameCount+1)):
-                    #Gets the needed values and prints them out in the console and in dump.txt.
-                    trans_basis_vec = bone_name_to_location_values[bone.name][index]
-                    trans_basis_quat = Quaternion([0, trans_basis_vec.x, trans_basis_vec.y, trans_basis_vec.z])
-                    rot_basis_vec = bone_name_to_rotation_values[bone.name][index]
-                    rot_basis_quat = Quaternion([rot_basis_vec.w, rot_basis_vec.x, rot_basis_vec.y, rot_basis_vec.z])
-                    scale_basis_vec = bone_name_to_scale_values[bone.name][index]
-                    scale_basis_quat = Quaternion([0, scale_basis_vec.x, scale_basis_vec.y, scale_basis_vec.z])
-                    
-                    f.write("\nFrame : "+str(index))
-                    #Checks for actual keys on the frame... in a roundabout way.      
-                    for fcu in action.fcurves:
-                        #Skips if the fcurve lacks the current bone name we're working with.
-                        if bone.name in fcu.data_path:
-                            
-                            #Frame Check.
-                            for keyframe in fcu.keyframe_points:                                
-                                if keyframe.co[0] == index:
-                                    #Now For Scale.
-                                                                                                                                                                         
-                                    if "rotation_quaternion" in fcu.data_path:
-
-                                        #f.write("\nScale: "+str(scale_basis_vec))                                        
-                                        #X
-                                        #if fcu.array_index == 0:
-                                            #print("BINGO! A scale Keyframe.")
-                                            #f.write("\nScale: "+str(scale_basis_vec.x))
-                                            #keycount += 1                                        
-                                        #Y
-                                        #if fcu.array_index == 1:
-                                            #print("BINGO! A scale Keyframe.")
-                                            #f.write("\nScale: "+str(scale_basis_vec.y))
-                                            #keycount += 1                                        
-                                        #Z
-                                        if fcu.array_index == 2:
-                                            if NameChecker(index, fcu, bone.name):
-                                                print(fcu.data_path)
-                                                pt = [pt for pt in fcu.keyframe_points if pt.co[0] == index][0]
-                                                InterpolationsS.append(pt.interpolation)
-                                                f.write("\rotation_quaternion: "+str(scale_basis_vec))
-                                                keycount += 1
-                                                KeyedR = True
-
-                                                FramesS.append(index)
-                                                KeysS.append(scale_basis_quat)
-                                                KeyTypesS.append("rotation_quaternion")
-                                                FrameText = bone.name
-                                                FrameText = FrameText.replace(FrameText[:4], '')
-                                                KeyToInsert = data(rot_basis_vec.x,rot_basis_vec.y,rot_basis_vec.z,rot_basis_vec.w)
-                                                TrueKeys.append(Keyframes(index,"localrotation",int(FrameText),KeyToInsert))                                                
+                #f.write("\nFrame : "+str(index))
+                #Checks for actual keys on the frame... in a roundabout way.      
+                for fcu in action.fcurves:
+                    #Skips if the fcurve lacks the current bone name we're working with.
+                    if bone.name in fcu.data_path:
+                        
+                        #Frame Check.
+                        for keyframe in fcu.keyframe_points:                                
+                            if keyframe.co[0] == index:
+                                #Now For Location/Rotation/Scale.
                                         
-                                                                                                                                                                                
-                    
-                #print(bone.name)
-                print(len(FramesL))
-                print(FramesL)
-                print(len(FramesR))
-                print(FramesR)
-                print(len(FramesS))
-                print(FramesS)                
-                #print(len(Keys))
-                #print(Keys)
-                #print(("\n"))
-                #print(Interpolations)
-                #print(len(Interpolations))
+                                if "scale" in fcu.data_path:                                      
+
+                                    #f.write("\nRotation: "+str(rot_basis_quat)) 
+                                    #W
+                                    #if fcu.array_index == 0:
+                                        #print("BINGO! A rotation Keyframe.")
+                                        #f.write("\nRotation: "+str(rot_basis_quat.w))                                            
+                                        #keycount += 1                                        
+                                    #X
+                                    #if fcu.array_index == 1:
+                                        #print("BINGO! A rotation Keyframe.")
+                                        #f.write("\nRotation: "+str(rot_basis_quat.x))                                               
+                                        #keycount += 1                                        
+                                    #Y
+                                    #if fcu.array_index == 2:
+                                        #print("BINGO! A rotation Keyframe.")
+                                        #f.write("\nRotation: "+str(rot_basis_quat.y))                                               
+                                        #keycount += 1                                        
+                                    #Z
+                                    if fcu.array_index == 3:
+                                        if NameChecker(index, fcu, bone.name):                                                   
+                                            print(fcu.data_path)
+                                            pt = [pt for pt in fcu.keyframe_points if pt.co[0] == index][0]
+                                            InterpolationsR.append(pt.interpolation)
+                                            #f.write("\scale: "+str(rot_basis_quat))                                               
+                                            keycount += 1
+                                            KeyedR = True
+
+                                            FramesR.append(index)
+                                            KeysR.append(rot_basis_quat)
+                                            KeyTypesR.append("scale")
+                                            FrameText = bone.name
+                                            FrameText = FrameText.replace(FrameText[:4], '')
+                                            KeyToInsert = data(scale_basis_vec.x,scale_basis_vec.y,scale_basis_vec.z,1)
+                                            TrueKeys.append(Keyframes(index,"localscale",int(FrameText),KeyToInsert))                                                       
+                                                                                                                                                        
+                                    
+                                                                                                                                                                            
+                
+            #print(bone.name)
+            print(len(FramesL))
+            print(FramesL)
+            print(len(FramesR))
+            print(FramesR)
+            print(len(FramesS))
+            print(FramesS)                
+            #print(len(Keys))
+            #print(Keys)
+            #print(("\n"))
+            #print(Interpolations)
+            #print(len(Interpolations))
 
 
 
-            #f.write("\nKeyframe Total: "+str(keycount))   
-        
-        
-        
-        f.close()        
+        #f.write("\nKeyframe Total: "+str(keycount))   
+    
+    
+    
+        for bone in reordered_pose_bones:
+            
+            #f.write("\n____________________________________________________________________________________________________")
+            #f.write("\nBone ID: "+str(bone.name))
+            print("_________________________________________________________________________\nNow Serving Bone ID: " + str(bone.name))          
+            
+            #Variables for holding Location, Rotational, and Scale Data.
+            FramesL = []
+            KeysL = []
+            KeyTypesL = []
+            InterpolationsL = []
+
+            FramesR = []
+            KeysR = []
+            KeyTypesR = []
+            InterpolationsR = []
+
+            FramesS = []
+            KeysS = []
+            KeyTypesS = []
+            InterpolationsS = []
+
+
+            for index, _ in enumerate(range(FirstFrame, FrameCount+1)):
+                #Gets the needed values and prints them out in the console and in dump.txt.
+                trans_basis_vec = bone_name_to_location_values[bone.name][index]
+                trans_basis_quat = Quaternion([0, trans_basis_vec.x, trans_basis_vec.y, trans_basis_vec.z])
+                rot_basis_vec = bone_name_to_rotation_values[bone.name][index]
+                rot_basis_quat = Quaternion([rot_basis_vec.w, rot_basis_vec.x, rot_basis_vec.y, rot_basis_vec.z])
+                scale_basis_vec = bone_name_to_scale_values[bone.name][index]
+                scale_basis_quat = Quaternion([0, scale_basis_vec.x, scale_basis_vec.y, scale_basis_vec.z])
+                
+                #f.write("\nFrame : "+str(index))
+                #Checks for actual keys on the frame... in a roundabout way.      
+                for fcu in action.fcurves:
+                    #Skips if the fcurve lacks the current bone name we're working with.
+                    if bone.name in fcu.data_path:
+                        
+                        #Frame Check.
+                        for keyframe in fcu.keyframe_points:                                
+                            if keyframe.co[0] == index:
+                                #Now For Scale.
+                                                                                                                                                                        
+                                if "rotation_quaternion" in fcu.data_path:
+
+                                    #f.write("\nScale: "+str(scale_basis_vec))                                        
+                                    #X
+                                    #if fcu.array_index == 0:
+                                        #print("BINGO! A scale Keyframe.")
+                                        #f.write("\nScale: "+str(scale_basis_vec.x))
+                                        #keycount += 1                                        
+                                    #Y
+                                    #if fcu.array_index == 1:
+                                        #print("BINGO! A scale Keyframe.")
+                                        #f.write("\nScale: "+str(scale_basis_vec.y))
+                                        #keycount += 1                                        
+                                    #Z
+                                    if fcu.array_index == 2:
+                                        if NameChecker(index, fcu, bone.name):
+                                            print(fcu.data_path)
+                                            pt = [pt for pt in fcu.keyframe_points if pt.co[0] == index][0]
+                                            InterpolationsS.append(pt.interpolation)
+                                            #f.write("\rotation_quaternion: "+str(scale_basis_vec))
+                                            keycount += 1
+                                            KeyedR = True
+
+                                            FramesS.append(index)
+                                            KeysS.append(scale_basis_quat)
+                                            KeyTypesS.append("rotation_quaternion")
+                                            FrameText = bone.name
+                                            FrameText = FrameText.replace(FrameText[:4], '')
+                                            KeyToInsert = data(rot_basis_vec.x,rot_basis_vec.y,rot_basis_vec.z,rot_basis_vec.w)
+                                            TrueKeys.append(Keyframes(index,"localrotation",int(FrameText),KeyToInsert))                                                
+                                    
+                                                                                                                                                                            
+                
+            #print(bone.name)
+            print(len(FramesL))
+            print(FramesL)
+            print(len(FramesR))
+            print(FramesR)
+            print(len(FramesS))
+            print(FramesS)                
+            #print(len(Keys))
+            #print(Keys)
+            #print(("\n"))
+            #print(Interpolations)
+            #print(len(Interpolations))
+
+
+
+        #f.write("\nKeyframe Total: "+str(keycount))   
+    
+    
+    
+    #f.close()        
         
         #Prints stuff out to check.
         print(str(keycount))
