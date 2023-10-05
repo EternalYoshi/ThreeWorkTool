@@ -709,6 +709,8 @@ def ApplyTheTrack(Track, obj, joint, jointEdit, AnimName):
     
         if(Track[0]['TrackType'] == "localscale"):
             print("A scale Track.")
+            obj = bpy.data.objects["Armature"]
+            joint = obj.pose.bones[f'jnt_{Bone}']
             #Do Stuff here.
             try:
                 Frame = int(Keyframe['Frame'])
@@ -725,11 +727,13 @@ def ApplyTheTrack(Track, obj, joint, jointEdit, AnimName):
       
         if(Track[0]['TrackType'] == "localposition"):
             print("A Translation Track.")
+            obj = bpy.data.objects["Armature"]
+            joint = obj.pose.bones[f'jnt_{Bone}']
             #Do Stuff here.
             try:
                 Frame = int(Keyframe['Frame'])
                 joint.location = (float(Keyframe['data']['X']), float(Keyframe['data']['Y']), float(Keyframe['data']['Z']))
-                #print(joint.scale)
+                print("Bone: ", joint.name ,"Translation Keyframe: ",joint.location)
                 
                 obj.keyframe_insert(data_path='pose.bones["%s"].%s' %
                                 (f'jnt_{Bone}', "location"), frame=(Frame), group=AnimName)
