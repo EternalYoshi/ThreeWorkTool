@@ -24,6 +24,8 @@ using ThreeWorkTool.Resources.Wrappers.ExtraNodes.Kaitai;
 using ThreeWorkTool.Resources.Utility;
 using Ookii.Dialogs.Wpf;
 using ThreeWorkTool.Resources.Wrappers.AnimNodes;
+using Octokit;
+using System.Reflection;
 
 namespace ThreeWorkTool
 {
@@ -38,7 +40,7 @@ namespace ThreeWorkTool
         public WaveFileReader WFReader;
 
         private List<string> _MostRecentlyUsedList = new List<string>();
-
+        //public bool IsUpToDate;
         public FrmMainThree()
         {
             ThreeSourceTree TreeSource = new ThreeSourceTree();
@@ -49,6 +51,42 @@ namespace ThreeWorkTool
             this.AllowDrop = true;
             this.DragEnter += new DragEventHandler(FrmMainThree_DragEnter);
             this.DragDrop += new DragEventHandler(FrmMainThree_DragDrop);
+
+            try
+            {
+                var client = new GitHubClient(new ProductHeaderValue("ThreeWorkTool"));
+                var releases = client.Repository.Release.GetAll("EternalYoshi", "ThreeWorkTool").Result;
+                var latest = releases[0];
+                var LatestDateTime = latest.CreatedAt.DateTime;
+                var CurrentBuildDateTime = new FileInfo(Assembly.GetExecutingAssembly().Location).LastWriteTime;
+
+                if(CurrentBuildDateTime > LatestDateTime)
+                {
+                    //MessageBox.Show("This bulid is newer.");
+                    //IsUpToDate = true;
+                }
+                else
+                {
+                   // MessageBox.Show("This build is out of date.");
+                    this.Text = this.Text + "- UPDATE AVAILABLE ";
+                    //IsUpToDate = false;
+                }
+                this.Text = this.Text + " Build Date: " + LatestDateTime;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
+        bool OutOfDate = false;
+        public async void CheckLatestVersion()
+        {
+
+
+
+
         }
 
         public static bool NastyError = false;
@@ -189,14 +227,14 @@ namespace ThreeWorkTool
             if (OpenFileModified == true)
 
             {
-                Application.Exit();
+                System.Windows.Forms.Application.Exit();
 
             }
 
             else
 
             {
-                Application.Exit();
+                System.Windows.Forms.Application.Exit();
             }
         }
 
@@ -18744,7 +18782,7 @@ namespace ThreeWorkTool
         //Updates the MRU as the program closes.
         private void UpdateTheMostRecentlyUsedList(object sender, FormClosingEventArgs e)
         {
-            var appDataPath = Application.UserAppDataPath;
+            var appDataPath = System.Windows.Forms.Application.UserAppDataPath;
             //var myAppDataPath = Path.Combine(appDataPath, "ThreeWorkTool");
             var mruFilePath = Path.Combine(appDataPath, "MRU.txt");
             if (!Directory.Exists(mruFilePath) && !String.IsNullOrEmpty(txtBoxCurrentFile.Text))
@@ -18779,7 +18817,7 @@ namespace ThreeWorkTool
         //For MRU Implementation & File opening on startup.
         private void FrmMainThree_Load(object sender, EventArgs e)
         {
-            var appDataPath = Application.UserAppDataPath;
+            var appDataPath = System.Windows.Forms.Application.UserAppDataPath;
             //var myAppDataPath = Path.Combine(appDataPath, "ThreeWorkTool");
             var mruFilePath = Path.Combine(appDataPath, "MRU.txt");
             if (File.Exists(mruFilePath))
@@ -18974,7 +19012,7 @@ namespace ThreeWorkTool
         {
             //Empties the MRU .txt file.
             _MostRecentlyUsedList.Clear();
-            var appDataPath = Application.UserAppDataPath;
+            var appDataPath = System.Windows.Forms.Application.UserAppDataPath;
             var mruFilePath = Path.Combine(appDataPath, "MRU.txt");
             if (File.Exists(mruFilePath))
             {

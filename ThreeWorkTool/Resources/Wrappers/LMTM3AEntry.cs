@@ -1039,7 +1039,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             byte[] NewTrackData = new byte[(NewM3a.Tracks.Count * 48)];
             long PointerOfInterest = NewM3a.Tracks.Count * 48;
             //This builds the first part of the track data but does not apply the pointers for anything else.
-            //Gotta find a way to address that.
             using (MemoryStream ms2 = new MemoryStream(NewTrackData))
             {
                 using (BinaryReader br2 = new BinaryReader(ms2))
