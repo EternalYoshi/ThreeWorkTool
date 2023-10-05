@@ -1,5 +1,5 @@
 bl_info = {
-"name": "Yoshi's Test Script",
+"name": "UMVC3 Animation YML Importer",
 "description":"For importing UMVC3 animations.",
 "author":"Eternal Yoshi",
 "version":(0,0,2),
@@ -696,7 +696,7 @@ def NameChecker(index, fcu, bonename) -> bool:
 
     return True
 
-def ApplyTheTrack(Track, obj, joint, jointEdit):
+def ApplyTheTrack(Track, obj, joint, jointEdit, AnimName):
     
     Frame = 0
     Bone = Track[0]['BoneID']
@@ -716,7 +716,7 @@ def ApplyTheTrack(Track, obj, joint, jointEdit):
                 #print(joint.scale)
                 
                 obj.keyframe_insert(data_path='pose.bones["%s"].%s' %
-                                (f'jnt_{Bone}', "scale"), frame=(Frame))
+                                (f'jnt_{Bone}', "scale"), frame=(Frame), group=AnimName)
                 
                                     
             except Exception as sc:
@@ -732,7 +732,7 @@ def ApplyTheTrack(Track, obj, joint, jointEdit):
                 #print(joint.scale)
                 
                 obj.keyframe_insert(data_path='pose.bones["%s"].%s' %
-                                (f'jnt_{Bone}', "location"), frame=(Frame))
+                                (f'jnt_{Bone}', "location"), frame=(Frame), group=AnimName)
                 
                                     
             except Exception as sc:
@@ -755,7 +755,7 @@ def ApplyTheTrack(Track, obj, joint, jointEdit):
                 
                 #print(obj.pose.bones[0].rotation_mode)
                 
-                obj.keyframe_insert(data_path=joint.path_from_id("rotation_quaternion"), frame=(Frame))
+                obj.keyframe_insert(data_path=joint.path_from_id("rotation_quaternion"), frame=(Frame), group=AnimName)
                 
                                     
             except Exception as sc:
@@ -772,7 +772,7 @@ def readM3AanimationData(self,context,filepath):
     os.system('cls')
     
     print(self.files); print(filepath)
-    
+    AnimName = os.path.basename(filepath)
     #Stores the object selected.
     obj = bpy.context.active_object
 
@@ -786,6 +786,15 @@ def readM3AanimationData(self,context,filepath):
     bpy.data.objects["Armature"].rotation_mode = 'QUATERNION'
     
     try:
+        obj.animation_data.action
+    except:
+        obj.animation_data_create()
+
+    action = bpy.data.actions.new(AnimName)
+    obj.animation_data.action = action
+
+
+    try:
         #Opens the yml and deserializes.
         data_loaded = yaml.load(open(filepath, "rb"), Loader=get_loader())
         
@@ -798,7 +807,10 @@ def readM3AanimationData(self,context,filepath):
         
         #Adjust the animation timeline to fit the animation and set the current frame to zero.
         bpy.data.scenes["Scene"].frame_start = 0
+        context.scene.frame_start = 0
+
         bpy.data.scenes["Scene"].frame_end = data_loaded.FrameCount
+        context.scene.frame_end = data_loaded.FrameCount
         bpy.context.scene.frame_set(0)
         
         pose_bones = bpy.data.objects['Armature'].pose.bones
@@ -806,6 +818,7 @@ def readM3AanimationData(self,context,filepath):
         for x in range(len(pose_bones)):
             print(pose_bones[x])
             
+        
         #for idx, data_loaded.KeyFrames in enumerate(data_loaded.Keyframes):
                 #if data_loaded.KeyFrames[idx]['BoneID'] == 255:
                     #continue
@@ -845,7 +858,7 @@ def readM3AanimationData(self,context,filepath):
                     #Apply Stuff here.
                                             
                     #Go To function when Track is used to apply all keyframes to specified bone.
-                    ApplyTheTrack(Track, obj, joint, jointEdit)
+                    ApplyTheTrack(Track, obj, joint, jointEdit, AnimName)
                         
                     #Then we empty the Track.
                     del Track[:]
@@ -980,7 +993,8 @@ def WriteM3AanimationData(context,filepath):
                     x, y = keyframe.co
                     print (x,y)
         '''
-        action = bpy.data.actions["ArmatureAction"]
+        #action = bpy.data.actions["ArmatureAction"]
+        action = obj.animation_data.action
                                                 
     #with open('C:\\dump.txt', 'w') as f:
         for bone in reordered_pose_bones:
