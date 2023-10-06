@@ -890,7 +890,7 @@ def readM3AanimationData(self,context,filepath):
     except Exception as e:
         print("An error occured.",e, "\n", traceback.format_exc())    
         
-def WriteM3AanimationData(context,filepath):
+def WriteM3AanimationData(context,filepath, read_LoopFrame):
     global AnimName; AnimName = ""
     GroupCount = 0
     global FrameCount; FrameCount = 0
@@ -950,6 +950,7 @@ def WriteM3AanimationData(context,filepath):
             matches = re.match(regex, fcurve.data_path)
             if matches is None: # A fcurve in the action that isn't a bone transform, such as the user keyframing the Armature Object itself.
                 operator.report(type={'WARNING'}, message=f"The fcurve with data path {fcurve.data_path} will not be exported, since it didn't match the pattern of a bone fcurve.")
+                print("If you can read this, know that Armatures themselves are not supposed to be keyframed.\nPlease go sort that out and remove any Armature Keyframes and try again.")
                 continue
             if len(matches.groups()) != 2: # TODO: Is this possible?
                 operator.report(type={'WARNING'}, message=f"The fcurve with data path {fcurve.data_path} will not be exported, its format only partially matched the expected pattern of a bone fcurve.")
@@ -1299,7 +1300,7 @@ def WriteM3AanimationData(context,filepath):
         print(str(keycount))
         bpy.context.scene.frame_set(0)
 
-        FinalAnim = LMTM3AEntry(1,"AnimDataID0",FrameCount,-1,TrueKeys)
+        FinalAnim = LMTM3AEntry(1,"AnimDataID0",FrameCount,read_LoopFrame,TrueKeys)
         yaml.emitter.Emitter.process_tag = lambda self, *args, **kw: None
         stream = open(filepath,'w')
         yaml.dump(FinalAnim,stream,sort_keys=False)
@@ -1319,12 +1320,7 @@ def WriteM3AanimationData(context,filepath):
 
     except Exception as e:
         print("An error occured.",e, "\n", traceback.format_exc())  
-
-
-
-    
-        
-    
+           
 class YMLM3A_Import_Handler(bpy.types.Operator, ImportHelper):
     """Imports animation data from UMVC3 YML files"""
     bl_idname = ("screen.yml_import")
@@ -1374,7 +1370,7 @@ class YMLM3A_Export_Handler(bpy.types.Operator, ExportHelper):
         keywords = self.as_keywords(ignore=("filter_glob","files"))
         time_start = time.time()
         #bpy.ops.export_scene.fbx(filepath='', check_existing=True)
-        WriteM3AanimationData(context, self.filepath)
+        WriteM3AanimationData(context, self.filepath, self.read_LoopFrame)
         #writeLMTAnimationData(self, context,self.filepath, self.read_lmtindex, self.read_hasuniquebonenames)
         context.view_layer.update()
         print("Script is Done.")
