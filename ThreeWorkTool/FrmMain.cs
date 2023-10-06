@@ -40,7 +40,6 @@ namespace ThreeWorkTool
         public WaveFileReader WFReader;
 
         private List<string> _MostRecentlyUsedList = new List<string>();
-        //public bool IsUpToDate;
         public FrmMainThree()
         {
             ThreeSourceTree TreeSource = new ThreeSourceTree();
@@ -67,11 +66,9 @@ namespace ThreeWorkTool
                 }
                 else
                 {
-                   // MessageBox.Show("This build is out of date.");
                     this.Text = this.Text + "- UPDATE AVAILABLE ";
-                    //IsUpToDate = false;
                 }
-                this.Text = this.Text + " Build Date: " + LatestDateTime;
+                this.Text = this.Text + " Build Date: " + CurrentBuildDateTime;
 
             }
             catch (Exception ex)

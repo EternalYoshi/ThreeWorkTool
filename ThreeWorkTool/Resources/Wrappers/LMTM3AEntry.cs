@@ -997,7 +997,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         bw1.BaseStream.Position = 8;
                         bw1.Write(NewM3a.Tracks.Count);
                         bw1.Write(NewM3a.FrameCount);
-                        bw1.Write((int)-1);
+                        bw1.Write((int)NewM3a.LoopFrame);
                         bw1.BaseStream.Position = 60;
                         bw1.Write((float)1.0F);
                         bw1.Write((int)8388608);
@@ -1005,7 +1005,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 }
             }
 
-            //Bulds the data to be use for injection/insertion.
+            //Tallys count for Extremes.
             for (int r = 0; r < NewM3a.Tracks.Count; r++)
             {
                 if (NewM3a.Tracks[r].ExtremesArray != null)
@@ -1014,26 +1014,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                 }
 
                 byte[] EmptyLong = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
-                using (MemoryStream msm3a = new MemoryStream(M3a.RawData))
-                {
-
-                    using (BinaryReader brm3a = new BinaryReader(msm3a))
-                    {
-                        using (BinaryWriter bwm3a = new BinaryWriter(msm3a))
-                        {
-
-                        }
-                    }
-                }
-
-
                 //NewBlockData.AddRange(EmptyLong);
                 //NewBlockData.AddRange(NewM3a.Tracks.Count);
-
-
-
             }
+
+
 
             List<byte> NewExtremesData = new List<byte>();
             byte[] NewTrackData = new byte[(NewM3a.Tracks.Count * 48)];
@@ -1243,7 +1228,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             NewM3a.AnimationID = oldentry.AnimationID;
             NewM3a.FileName = oldentry.FileName;
             NewM3a.ShortName = oldentry.ShortName;
-            NewM3a.AnimationLoopFrame = -1;
+            NewM3a.AnimationLoopFrame = NewM3a.LoopFrame;
             NewM3a._IsBlank = false;
             NewM3a.AnimationFlags = 8388608;
             NewM3a.FrameTotal = NewM3a.FrameCount;
@@ -1318,10 +1303,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                 BufferPointer = 0,
                 ExtremesPointer = 0
             };
-            Track1.ReferenceData.X = 1;
-            Track1.ReferenceData.Y = 1;
-            Track1.ReferenceData.Z = 1;
-            Track1.ReferenceData.W = 0;
+            Track1.ReferenceData.X = 0;
+            Track1.ReferenceData.Y = 0;
+            Track1.ReferenceData.Z = 0;
+            Track1.ReferenceData.W = 1;
 
 
 
