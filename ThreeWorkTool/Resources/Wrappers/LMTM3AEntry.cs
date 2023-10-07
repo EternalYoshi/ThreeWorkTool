@@ -181,15 +181,15 @@ namespace ThreeWorkTool.Resources.Wrappers
             M3a.UnknownValue18 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), M3a.UnknownValue18);
             M3a.UnknownValue1C = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), M3a.UnknownValue1C);
 
-            M3a.EndFramesAdditiveScenePosition.W = bnr.ReadSingle();
             M3a.EndFramesAdditiveScenePosition.X = bnr.ReadSingle();
             M3a.EndFramesAdditiveScenePosition.Y = bnr.ReadSingle();
             M3a.EndFramesAdditiveScenePosition.Z = bnr.ReadSingle();
+            M3a.EndFramesAdditiveScenePosition.W = bnr.ReadSingle();
 
-            M3a.EndFramesAdditiveSceneRotation.W = bnr.ReadSingle();
             M3a.EndFramesAdditiveSceneRotation.X = bnr.ReadSingle();
             M3a.EndFramesAdditiveSceneRotation.Y = bnr.ReadSingle();
             M3a.EndFramesAdditiveSceneRotation.Z = bnr.ReadSingle();
+            M3a.EndFramesAdditiveSceneRotation.W = bnr.ReadSingle();
 
             M3a.AnimationFlags = bnr.ReadInt64();
 
@@ -606,15 +606,15 @@ namespace ThreeWorkTool.Resources.Wrappers
                     m3aentry.UnknownValue18 = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue18);
                     m3aentry.UnknownValue1C = ByteUtilitarian.BytesToString(bnr.ReadBytes(4), m3aentry.UnknownValue1C);
 
-                    m3aentry.EndFramesAdditiveScenePosition.W = bnr.ReadSingle();
                     m3aentry.EndFramesAdditiveScenePosition.X = bnr.ReadSingle();
                     m3aentry.EndFramesAdditiveScenePosition.Y = bnr.ReadSingle();
                     m3aentry.EndFramesAdditiveScenePosition.Z = bnr.ReadSingle();
+                    m3aentry.EndFramesAdditiveScenePosition.W = bnr.ReadSingle();
 
-                    m3aentry.EndFramesAdditiveSceneRotation.W = bnr.ReadSingle();
                     m3aentry.EndFramesAdditiveSceneRotation.X = bnr.ReadSingle();
                     m3aentry.EndFramesAdditiveSceneRotation.Y = bnr.ReadSingle();
                     m3aentry.EndFramesAdditiveSceneRotation.Z = bnr.ReadSingle();
+                    m3aentry.EndFramesAdditiveSceneRotation.W = bnr.ReadSingle();
 
                     m3aentry.AnimationFlags = bnr.ReadInt64();
 
@@ -2132,67 +2132,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             return new string(charArray);
         }
 
-        /*
-        public static LMTM3AEntry ParseM3AYMLPart2(LMTM3AEntry M3a, string filename, ArcEntryWrapper N)
-        {
-
-            //Gonna build the M3a from scratch with the Keyframe data.
-            List<byte> NewUncompressedData = new List<byte>();
-            List<byte> TotalKeyframebufferData = new List<byte>();
-            List<byte> TotalTrackListData = new List<byte>();
-
-            int TrackCounter, PrevBoneID, FrameCount, LoopFrame;
-            string PrevTackType = "";
-
-            //These M3a files almost always have these tracks that point to bone 255.
-            byte[] FirstTracks = { 0x02, 0x03, 0x00, 0xFF, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x01, 0x04, 0x00, 0xFF, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x01, 0x05, 0x00, 0xFF, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F,
-                                   0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
-
-            TrackCounter = 3;
-            PrevBoneID = 255;
-            FrameCount = M3a.FrameCount;
-            LoopFrame = M3a.LoopFrame;
-
-            //I wonder if making a 3 dimesnional list of keyframes is the way to go....
-
-            for (int i = 0; i < M3a.KeyFrames.Count; i++)
-            {
-
-                if (i == 0)
-                {
-                    TrackCounter++;
-                }
-
-                //Continue the Track.
-                if (i != 0 && PrevBoneID == M3a.KeyFrames[i].BoneID && PrevTackType == M3a.KeyFrames[i].TrackType)
-                {
-
-                }
-                //End the current track and make new one.
-                if ((i != 0 && PrevBoneID != M3a.KeyFrames[i].BoneID) || (i != 0 && PrevTackType == M3a.KeyFrames[i].TrackType))
-                {
-
-                }
-
-
-
-            }
-
-
-
-            return M3a;
-
-        }
-        */
-
         public static void TestFromKeyframesToM3A(LMTM3AEntry M3a)
         {
 
@@ -2216,8 +2155,78 @@ namespace ThreeWorkTool.Resources.Wrappers
                 M3a.MotionData[67] = 0x00;
             }
 
+            //Updates the Scene Additive Position.
+            var EFAPArray = new float[] { M3a.AdditiveScenePositionX, M3a.AdditiveScenePositionY, M3a.AdditiveScenePositionZ, M3a.AdditiveScenePositionW };
+            var byteArray = new byte[16];
+            Buffer.BlockCopy( EFAPArray ,0,byteArray,0,byteArray.Length);
+            Array.Copy(byteArray, 0, M3a.MotionData,32,byteArray.Length);
+
             return M3a;
 
+        }
+
+        [Category("Motion - Scene")]
+        [YamlIgnore]
+        public float AdditiveScenePositionX
+        {
+
+            get
+            {
+                return EndFramesAdditiveScenePosition.X;
+            }
+            set
+            {
+                EndFramesAdditiveScenePosition.X = value;
+
+            }
+        }
+
+        [Category("Motion - Scene")]
+        [YamlIgnore]
+        public float AdditiveScenePositionY
+        {
+
+            get
+            {
+                return EndFramesAdditiveScenePosition.Y;
+            }
+            set
+            {
+                EndFramesAdditiveScenePosition.Y = value;
+
+            }
+        }
+
+        [Category("Motion - Scene")]
+        [YamlIgnore]
+        public float AdditiveScenePositionZ
+        {
+
+            get
+            {
+                return EndFramesAdditiveScenePosition.Z;
+            }
+            set
+            {
+                EndFramesAdditiveScenePosition.Z = value;
+
+            }
+        }
+
+        [Category("Motion - Scene")]
+        [YamlIgnore]
+        public float AdditiveScenePositionW
+        {
+
+            get
+            {
+                return EndFramesAdditiveScenePosition.W;
+            }
+            set
+            {
+                EndFramesAdditiveScenePosition.W = value;
+
+            }
         }
 
         #region M3AEntry Properties
