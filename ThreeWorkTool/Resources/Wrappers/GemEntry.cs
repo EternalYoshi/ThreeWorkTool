@@ -188,6 +188,16 @@ namespace ThreeWorkTool.Resources.Wrappers
                 NEWGEM.AddRange(writenamedata);
             }
 
+            if(NEWGEM.Count < 290)
+            {
+                int difference = 290 - NEWGEM.Count;
+                for(int g = 0;g < difference; g++)
+                {
+                    NEWGEM.Add(0x00);
+                }
+
+            }
+
             gem.UncompressedData = NEWGEM.ToArray();
             gem.DSize = gem.UncompressedData.Length;
             gem.CompressedData = Zlibber.Compressor(gem.UncompressedData);
