@@ -485,6 +485,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             short Total = Convert.ToInt16(Children.Count);
             NewUncompressedData.AddRange(Header);
             NewUncompressedData.AddRange(BitConverter.GetBytes(Total));
+
             //Adds in dummy bytes for Entry Offset List based on amount of child nodes of the lmt node. Adds an extra entry because the default LMTs do.
             NewUncompressedData.AddRange(PlaceHolderEntry);
             for (int w = 0; w < Children.Count; w++)
@@ -496,6 +497,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             List<int> TempOffsetList = new List<int>();
             List<int> DataOffsetList = new List<int>();
             List<bool> IsBlank = new List<bool>();
+            int RealCounter = 0;
             //Starts putting in the Block Data and updating the offset list.
             lMT.OffsetList.Add(NewUncompressedData.Count);
             for (int x = 0; x < Children.Count; x++)
@@ -510,7 +512,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         
                         tag = LMTM3AEntry.UpdateAnimDataFlag(tag);
                         NewUncompressedData.AddRange(tag.MotionData);
-                        
+                        RealCounter++;
                         //The ending of the block data segments always has the raw data start on the 8 of the hex instead of the 0 of the hex offset for some reason.
                         //This is there to preserve that.
                         if (x == (Children.Count - 1))
@@ -574,7 +576,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         int OffTemp = 0;
                         bw3.BaseStream.Position = lMT.OffsetList[0];
                         List<long> DValues = lMT.OffsetList.Distinct().ToList();
-                        for (int zz = 0; zz < DataOffsetList.Count; zz++)
+                        for (int zz = 0; zz < RealCounter; zz++)
                         {
 
 
@@ -584,16 +586,17 @@ namespace ThreeWorkTool.Resources.Wrappers
                             IndexRows.Add(br3.ReadInt32());
                             bw3.BaseStream.Position = bw3.BaseStream.Position + 60;
                             //bw3.BaseStream.Position = bw3.BaseStream.Position + 68;
-                            if (zz == (DataOffsetList.Count - 1))
-                            {
-                                EndingOffset = UnCompressedBuffer.Length;
-                                bw3.Write(EndingOffset);
-                            }
-                            else
-                            {
+                            //if (zz == (RealCounter - 1))
+                            //{
+                            //    EndingOffset = UnCompressedBuffer.Length;
+                            //    bw3.Write(EndingOffset);
+                            //}
+
+                            //else
+                            //{
                                 EndingOffset = (DataOffsetList[zz + 1] - 352);
                                 bw3.Write(EndingOffset);
-                            }
+                            //}
 
 
                             bw3.BaseStream.Position = bw3.BaseStream.Position + 20;
@@ -601,8 +604,16 @@ namespace ThreeWorkTool.Resources.Wrappers
                         }
                         //Lastly the offsets in the M3A entries themeslves. Sigh........
                         bw3.BaseStream.Position = DataOffsetList[0];
-                        int CountTemp = DataOffsetList.Count - 1;
-                        for (int yy = 0; yy < CountTemp; yy++)
+                        int CountTemp = 0;
+                        if (RealCounter == (DataOffsetList.Count - 1))
+                        {
+                            CountTemp = RealCounter;
+                        }
+                        else
+                        {
+                            CountTemp = DataOffsetList.Count - 1;
+                        }
+                            for (int yy = 0; yy < CountTemp; yy++)
                         {
                             bw3.BaseStream.Position = DataOffsetList[yy];
                             //bw3.BaseStream.Position = IndexRows[yy];
