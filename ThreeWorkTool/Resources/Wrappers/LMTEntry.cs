@@ -573,6 +573,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         int EndingOffset = 0;
                         int OffTemp = 0;
                         bw3.BaseStream.Position = lMT.OffsetList[0];
+                        List<long> DValues = lMT.OffsetList.Distinct().ToList();
                         for (int zz = 0; zz < DataOffsetList.Count; zz++)
                         {
 

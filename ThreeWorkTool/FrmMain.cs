@@ -59,7 +59,7 @@ namespace ThreeWorkTool
                 var LatestDateTime = latest.CreatedAt.DateTime;
                 var CurrentBuildDateTime = new FileInfo(Assembly.GetExecutingAssembly().Location).LastWriteTime;
 
-                if(CurrentBuildDateTime > LatestDateTime)
+                if (CurrentBuildDateTime > LatestDateTime)
                 {
                     //MessageBox.Show("This bulid is newer.");
                     //IsUpToDate = true;
@@ -518,7 +518,7 @@ namespace ThreeWorkTool
                                         ChrBaseActEntry cbaenty = new ChrBaseActEntry();
                                         SoundBankEntry sbkrenty = new SoundBankEntry();
                                         SoundRequestEntry srqrenty = new SoundRequestEntry();
-
+                                        
                                         //New Format should start here!
                                         /*
                                         ***** *****enty = new *****();
@@ -2122,6 +2122,13 @@ namespace ThreeWorkTool
                                                 byte[] CompData = lmtenty.CompressedData;
                                                 bwr.Write(CompData, 0, CompData.Length);
                                                 frename.Mainfrm.SaveCounterB++;
+
+
+
+#if DEBUG
+                                            File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\__" + lmtenty.TrueName + ".bin", lmtenty.UncompressedData.ToArray());
+
+#endif
                                             }
                                             else if (treno.Tag as MaterialEntry != null)
                                             {

@@ -261,8 +261,14 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         //MessageBox.Show("Track #" + j + " inside " + lmtentry.EntryName + "\nhas a buffer size that is NOT ZERO.", "Debug Note");
                         bnr.BaseStream.Position = track.BufferPointer;
-                        track.Buffer = bnr.ReadBytes(track.BufferSize);
-
+                        if (track.BufferSize >= bnr.BaseStream.Length)
+                        {
+                            MessageBox.Show("There's a bogus buffer size here so there won't be any read here.");
+                        }
+                        else
+                        {
+                            track.Buffer = bnr.ReadBytes(track.BufferSize);
+                        }
                     }
 
                     else
@@ -438,7 +444,6 @@ namespace ThreeWorkTool.Resources.Wrappers
                 {
                     for (int i = 0; i < Anim.Tracks.Count; i++)
                     {
-                        if (Anim.Tracks[i].BoneID == 255) continue;
 
                         if (Anim.Tracks[i].Buffer != null && Anim.Tracks[i].Buffer.Length != 0)
                         {
@@ -483,7 +488,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
 
                         }
-                        else if (Anim.Tracks[i].BoneID != 255)
+                        else
                         {
                             KeyFrame Key = new KeyFrame();
                             Key.data.X = Anim.Tracks[i].ReferenceData.W;
@@ -947,7 +952,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             List<KeyFrame> WorkingTrack = new List<KeyFrame>();
 
             //For the first 3 tracks I see in default characters' M3a files.
-            BuildInitalTracks(NewM3a, WorkingTrack);
+            //BuildInitalTracks(NewM3a, WorkingTrack);
 
             //Inserts The First 3 tracks in the NewUncompressedData.
 
@@ -977,6 +982,115 @@ namespace ThreeWorkTool.Resources.Wrappers
                 }
 
             }
+
+            //Gotta sort the tracks in a way that puts the 255 tracks at top. 
+            //Make initial tracks for 255if they don't exist.
+            bool HasAbsoluteTranslation = false;
+            bool HasAbsoluteRotation = false;
+            bool HasAbsoluteScale = false;
+
+            for (int v = 0; v < NewM3a.Tracks.Count; v++)
+            {
+
+                if (NewM3a.Tracks[v].BoneID == 255)
+                {
+
+                    LMTTrackNode Track = new LMTTrackNode();
+                    Track = NewM3a.Tracks[v];
+                    switch (Track.TrackType)
+                    {
+                        case 1:
+                        case 4:
+                            HasAbsoluteTranslation = true;
+                            break;
+
+                        case 0:
+                        case 3:
+                            HasAbsoluteRotation = true;
+                            break;
+
+                        case 2:
+                        case 5:
+                            HasAbsoluteScale = true;
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    //NewM3a.Tracks.RemoveAt(v);
+                    //NewM3a.Tracks.Insert(0, Track);
+                    //if (v < 0) v = v - 1;
+                }
+
+            }
+
+
+
+            if (HasAbsoluteTranslation == false)
+            {
+                LMTTrackNode NeededTrack = new LMTTrackNode()
+                {
+                    BufferType = 5,
+                    TrackType = 4,
+                    BoneType = 0,
+                    BoneID = 255,
+                    Weight = 1,
+                    BufferSize = 0,
+                    BufferPointer = 0,
+                    ExtremesPointer = 0
+                };
+                NeededTrack.ReferenceData.X = 0;
+                NeededTrack.ReferenceData.Y = 0;
+                NeededTrack.ReferenceData.Z = 0;
+                NeededTrack.ReferenceData.W = 1;
+
+                NewM3a.Tracks.Insert(0, NeededTrack);
+
+            }
+            if (HasAbsoluteRotation == false)
+            {
+                LMTTrackNode NeededTrack = new LMTTrackNode()
+                {
+                    BufferType = 2,
+                    TrackType = 3,
+                    BoneType = 0,
+                    BoneID = 255,
+                    Weight = 1,
+                    BufferSize = 0,
+                    BufferPointer = 0,
+                    ExtremesPointer = 0
+                };
+                NeededTrack.ReferenceData.X = 0;
+                NeededTrack.ReferenceData.Y = 0;
+                NeededTrack.ReferenceData.Z = 0;
+                NeededTrack.ReferenceData.W = 1;
+
+                NewM3a.Tracks.Insert(0, NeededTrack);
+
+            }
+            if (HasAbsoluteScale == false)
+            {
+                LMTTrackNode NeededTrack = new LMTTrackNode()
+                {
+                    BufferType = 1,
+                    TrackType = 5,
+                    BoneType = 0,
+                    BoneID = 255,
+                    Weight = 1,
+                    BufferSize = 0,
+                    BufferPointer = 0,
+                    ExtremesPointer = 0
+                };
+                NeededTrack.ReferenceData.X = 0;
+                NeededTrack.ReferenceData.Y = 0;
+                NeededTrack.ReferenceData.Z = 0;
+                NeededTrack.ReferenceData.W = 1;
+
+                NewM3a.Tracks.Insert(0, NeededTrack);
+
+            }
+
 
 
             List<byte> NewBlockData = new List<byte>();
@@ -1075,11 +1189,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                         }
 
                         //For the Track Buffers.
-                        PointerOfInterest = (NewM3a.Tracks.Count * 48) + NewExtremesData.Count; 
+                        PointerOfInterest = (NewM3a.Tracks.Count * 48) + NewExtremesData.Count;
                         bw2.BaseStream.Position = 8;
                         for (int t = 0; t < NewM3a.Tracks.Count; t++)
                         {
-                            if (NewM3a.Tracks[t].BoneID == 255) continue;
                             bw2.BaseStream.Position = (t * 48) + 8;
                             if (t != 0)
                             {
@@ -1277,7 +1390,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             LMTTrackNode Track1 = new LMTTrackNode()
             {
-                BufferType = 1,
+                BufferType = 5,
                 TrackType = 4,
                 BoneType = 0,
                 BoneID = 255,
@@ -1358,7 +1471,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     }
 
                     break;
-                case "localpositionBiLi":
+                case "absoluteposition":
                     if (WorkingTrack.Count == 1)
                     {
                         NewTrack.BufferKind = "singlevector3";
@@ -1371,7 +1484,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         NewTrack.BufferKind = "bilinearvector3_8bit";
                         NewTrack.BufferType = 5;
                     }
-                    NewTrack.TrackType = 1;
+                    NewTrack.TrackType = 4;
                     if (WorkingTrack[0].Frame == 0)
                     {
                         NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
@@ -1417,7 +1530,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         NewTrack.ReferenceData.W = WorkingTrack[0].data.W;
                     }
                     break;
-                case "localrotationBI":
+                case "absoluterotation":
                     if (WorkingTrack.Count == 1)
                     {
                         NewTrack.BufferKind = "singlerotationquat3";
@@ -1430,7 +1543,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         NewTrack.BufferKind = "bilinearrotationquat4_7bit";
                         NewTrack.BufferType = 7;
                     }
-                    NewTrack.TrackType = 0;
+                    NewTrack.TrackType = 3;
                     if (WorkingTrack[0].Frame == 0)
                     {
                         NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
@@ -1445,6 +1558,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
                         NewTrack.ReferenceData.W = WorkingTrack[0].data.W;
                     }
+
                     break;
                 case "localscale":
                     if (WorkingTrack.Count == 1)
@@ -1474,6 +1588,36 @@ namespace ThreeWorkTool.Resources.Wrappers
                         NewTrack.ReferenceData.W = 0;
                     }
                     NewTrack.TrackType = 2;
+                    break;
+                case "xpto":
+                    if (WorkingTrack.Count == 1)
+                    {
+                        NewTrack.BufferKind = "singlevector3";
+                        NewTrack.BufferType = 1;
+                        NewTrack.BufferSize = 0;
+                        NewTrack.BufferPointer = 0;
+                    }
+                    else
+                    {
+                        NewTrack.BufferKind = "bilinearvector3_8bit";
+                        NewTrack.BufferType = 5;
+                    }
+                    NewTrack.TrackType = 4;
+                    if (WorkingTrack[0].Frame == 0)
+                    {
+                        NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
+                        NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
+                        NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
+                        NewTrack.ReferenceData.W = 0;
+                    }
+                    else
+                    {
+                        NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
+                        NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
+                        NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
+                        NewTrack.ReferenceData.W = 0;
+                    }
+                    NewTrack.TrackType = 5;
                     break;
                 default:
                     MessageBox.Show("This Tracktype " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
@@ -2158,8 +2302,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             //Updates the Scene Additive Position.
             var EFAPArray = new float[] { M3a.AdditiveScenePositionX, M3a.AdditiveScenePositionY, M3a.AdditiveScenePositionZ, M3a.AdditiveScenePositionW };
             var byteArray = new byte[16];
-            Buffer.BlockCopy( EFAPArray ,0,byteArray,0,byteArray.Length);
-            Array.Copy(byteArray, 0, M3a.MotionData,32,byteArray.Length);
+            Buffer.BlockCopy(EFAPArray, 0, byteArray, 0, byteArray.Length);
+            Array.Copy(byteArray, 0, M3a.MotionData, 32, byteArray.Length);
 
             return M3a;
 
