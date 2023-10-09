@@ -263,7 +263,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                         bnr.BaseStream.Position = track.BufferPointer;
                         if (track.BufferSize >= bnr.BaseStream.Length)
                         {
-                            MessageBox.Show("There's a bogus buffer size here so there won't be any read here.");
+                            MessageBox.Show("There's a bogus buffer size inside:\n" + lmtentry.EntryName + "\nso there won't be any read here.");
+                        }
+                        else if(track.BufferType == 1|| track.BufferType == 2 || track.BufferType == 3)
+                        {
+                            MessageBox.Show("There's a track inside :\n" + lmtentry.EntryName + "\nthat is not supposed to have a buffersize, so there won't be any read here.");
                         }
                         else
                         {
