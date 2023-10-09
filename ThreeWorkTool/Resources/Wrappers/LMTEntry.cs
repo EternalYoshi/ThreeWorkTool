@@ -125,7 +125,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         //lmtentry.LstM3A[j].KeyFrames.AddRange(Key.ToList());
 
-                        
+
 
                     }
                 }
@@ -509,7 +509,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     IsBlank.Add(tag.IsBlank);
                     if (tag.IsBlank == false)
                     {
-                        
+
                         tag = LMTM3AEntry.UpdateAnimDataFlag(tag);
                         NewUncompressedData.AddRange(tag.MotionData);
                         RealCounter++;
@@ -523,7 +523,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         {
                             NewUncompressedData.AddRange(BlankHalf);
                         }
-                        
+
                     }
 
                 }
@@ -594,8 +594,8 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                             //else
                             //{
-                                EndingOffset = (DataOffsetList[zz + 1] - 352);
-                                bw3.Write(EndingOffset);
+                            EndingOffset = (DataOffsetList[zz + 1] - 352);
+                            bw3.Write(EndingOffset);
                             //}
 
 
@@ -613,7 +613,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         {
                             CountTemp = DataOffsetList.Count - 1;
                         }
-                            for (int yy = 0; yy < CountTemp; yy++)
+                        for (int yy = 0; yy < CountTemp; yy++)
                         {
                             bw3.BaseStream.Position = DataOffsetList[yy];
                             //bw3.BaseStream.Position = IndexRows[yy];

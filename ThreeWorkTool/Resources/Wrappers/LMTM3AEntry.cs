@@ -1031,7 +1031,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 LMTTrackNode NeededTrack = new LMTTrackNode()
                 {
-                    BufferType = 5,
+                    BufferType = 1,
                     TrackType = 4,
                     BoneType = 0,
                     BoneID = 255,
