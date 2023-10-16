@@ -194,6 +194,15 @@ If editing a .lmt file is causing crashes, check the m3a entries for any entries
 The Track Editor will only save changes if the values are valid. TrackType and BoneID are stored as 1 byte each so the values cannot be more than 255. The Reference Data values are floating points, and the rest of the values are read only. If you are going to close the TrackEditor Form, be sure to hit enter to save your last entered value before closing.
 
 Just so you know, loose .m3a files exported via older versions of ThreeWorkTool are not going to be compatible. Either re-export the m3a file with version 0.63d or newer, or go into a hex editor and trim the last 4 bytes of the loose m3a files.
+
+Ultimate Marvel vs Capcom 3 uses jnt_255, or bone 255, for moving the actual character with the animation. If you want to move your character's position to line up with the end of the animation, use bone 255. Make sure it's keyframed sufficiently.
+
+Limb stretching can be done by moving, not rotating, the bones that control the limbs, make sure that the limbs in question have their translation keyed every frame.
+
+jnt_255, jnt_1, and jnt_2 should NOT have rotation keyframes. you risk ending up with problems if they do have them in 95% of cases.
+
+Animations with a lot of tracks will take longer to import and export so if your YML is over 1.5MB you will have to wait longer than usual.
+
 </value>
   </data>
 </root>
