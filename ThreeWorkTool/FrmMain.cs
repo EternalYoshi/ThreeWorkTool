@@ -4548,13 +4548,15 @@ namespace ThreeWorkTool
             rnfitem.ShortcutKeys = Keys.F2;
             conmenu.Items.Add(rnfitem);
 
-            conmenu.Items.Add("Export All", null, ExportAllFolder);
+            var exallitem = new ToolStripMenuItem("Export All", null, ExportAllFolder, Keys.Control | Keys.Shift | Keys.E);
+            conmenu.Items.Add(exallitem);
 
             conmenu.Items.Add(new ToolStripSeparator());
 
             conmenu.Items.Add("Replace All Textures", null, ReplaceAllTextures);
 
-            conmenu.Items.Add("Replace All Files", null, MenuReplaceAllFiles_Click);
+            var rpallitem = new ToolStripMenuItem("Replace All Files", null, MenuReplaceAllFiles_Click, Keys.Control | Keys.Shift | Keys.R);
+            conmenu.Items.Add(rpallitem);
 
             //Creates New Folder.
             var nfitem = new ToolStripMenuItem("New Folder", null, NewFolderNode, Keys.Control | Keys.F);
@@ -4673,7 +4675,8 @@ namespace ThreeWorkTool
             exportitem.ShortcutKeys = Keys.Control | Keys.E;
             conmenu.Items.Add(exportitem);
 
-            conmenu.Items.Add("Export All", null, ExportAllLMT);
+            var exallitem = new ToolStripMenuItem("Export All", null, ExportAllLMT, Keys.Control | Keys.Shift | Keys.E);
+            conmenu.Items.Add(exallitem);
 
             //Replace.
             var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
@@ -4927,12 +4930,12 @@ namespace ThreeWorkTool
 
             conmenu.Items.Add(new ToolStripSeparator());
 
-            //WIP Exporting of Keyframes.
-            var keyexplitem = new ToolStripMenuItem("Extract Keys", null, ExtractKeyFrames_Click, Keys.Control | Keys.R);
+            //Exporting of Keyframes.
+            var keyexplitem = new ToolStripMenuItem("Extract Animation Keyframes", null, ExtractKeyFrames_Click, Keys.Control | Keys.Q);
             conmenu.Items.Add(keyexplitem);
 
-            //WIP IMPORTING of Keyframes.
-            var keyimpitem = new ToolStripMenuItem("Import Keys", null, ImportKeyFrames_Click, Keys.Control | Keys.I);
+            //IMPORTING of Keyframes.
+            var keyimpitem = new ToolStripMenuItem("Import Animation Keyframes", null, ImportKeyFrames_Click, Keys.Control | Keys.W);
             conmenu.Items.Add(keyimpitem);
 
             return conmenu;
@@ -15497,8 +15500,10 @@ namespace ThreeWorkTool
             parent.Name = CFile;
             parent.archivefile = archivearc;
             ContextMenuStrip conmenu = new ContextMenuStrip();
-            conmenu.Items.Add("Export All", null, ExportAllFolder);
-            conmenu.Items.Add("Replace All", null, MenuReplaceAllFiles_Click);
+            var exallitem = new ToolStripMenuItem("Export All", null, ExportAllFolder, Keys.Control | Keys.Shift | Keys.E);
+            conmenu.Items.Add(exallitem);
+            var rpallitem = new ToolStripMenuItem("Replace All Files", null, MenuReplaceAllFiles_Click, Keys.Control | Keys.Shift | Keys.R);
+            conmenu.Items.Add(rpallitem);
             conmenu.Items.Add("New Folder", null, NewFolderNode);
             parent.ContextMenuStrip = conmenu;
             TreeSource.Nodes.Add(parent);
