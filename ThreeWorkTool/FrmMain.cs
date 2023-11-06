@@ -78,14 +78,6 @@ namespace ThreeWorkTool
 
         }
         bool OutOfDate = false;
-        public async void CheckLatestVersion()
-        {
-
-
-
-
-        }
-
         public static bool NastyError = false;
         private bool FirstArcFileOpened = false;
         public string[] ArcFileNameListBackup;
@@ -518,7 +510,7 @@ namespace ThreeWorkTool
                                         ChrBaseActEntry cbaenty = new ChrBaseActEntry();
                                         SoundBankEntry sbkrenty = new SoundBankEntry();
                                         SoundRequestEntry srqrenty = new SoundRequestEntry();
-                                        
+
                                         //New Format should start here!
                                         /*
                                         ***** *****enty = new *****();
@@ -2126,7 +2118,7 @@ namespace ThreeWorkTool
 
 
 #if DEBUG
-                                            File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\__" + lmtenty.TrueName + ".bin", lmtenty.UncompressedData.ToArray());
+                                                File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\__" + lmtenty.TrueName + ".bin", lmtenty.UncompressedData.ToArray());
 
 #endif
                                             }
@@ -4778,6 +4770,43 @@ namespace ThreeWorkTool
             return conmenu;
         }
 
+        //Adds Context Menu for undefined files & everything else.
+        public static ContextMenuStrip SLOContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Add Entry
+            var addgroupnodeitem = new ToolStripMenuItem("Add SLO Group Node", null, AddSLONode_Click, Keys.Control | Keys.N | Keys.Shift);
+            conmenu.Items.Add(addgroupnodeitem);
+
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
+            conmenu.Items.Add(rnitem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp, Keys.Control | Keys.Up);
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
+            conmenu.Items.Add(mditem);
+
+            return conmenu;
+        }
+
         //Adds Context Menu for Materials.
         public static ContextMenuStrip MaterialContextAddder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
@@ -5234,6 +5263,77 @@ namespace ThreeWorkTool
             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
             ContextMenuStrip conmenu = new ContextMenuStrip();
             stqr.MetadataEntryCount = stqr.MetadataEntryCount + 1;
+            frename.Mainfrm.OpenFileModified = true;
+
+        }
+
+        private static void AddSLONode_Click(Object sender, System.EventArgs e)
+        {
+            //Time To add the new node.
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            StageObjLayoutEntry SLO = tag as StageObjLayoutEntry;
+            int NewIndex = SLO.EntryCount;
+            StageObjLayoutGroup slog = new StageObjLayoutGroup();
+
+            //Fills in all the variables.
+            slog.UnknownFlags = 1691938255;
+            slog.PossibleGroupName = "NewGroup_" + SLO.EntryCount;
+
+            byte[] UnknownBuffer = { 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            slog.BufferA = UnknownBuffer;
+
+            slog.VectorA = new Vector3();
+            slog.VectorB = new Vector3();
+            slog.VectorC = new Vector3();
+
+            slog.VectorA.X = 0;
+            slog.VectorA.Y = 0;
+            slog.VectorA.Z = 0;
+            slog.SomeFloat1 = 0;
+
+            slog.VectorB.X = 0;
+            slog.VectorB.Y = 0;
+            slog.VectorB.Z = 0;
+            slog.SomeFloat2 = 0;
+
+            slog.VectorC.X = 1;
+            slog.VectorC.Y = 1;
+            slog.VectorC.Z = 1;
+            slog.SomeFloat3 = 0;
+
+            slog.FileReference1 = "";
+            slog.FileReference2 = "";
+            slog.FileReference3 = "";
+            slog.FileReference4 = "";
+            slog.FileReference5 = "";
+            slog.FileReference6 = "";
+            slog.FileReference7 = "";
+            slog.DataOffset = SLO.InterpolatedFileSize;
+            byte[] FooterBufffer = {
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
+                0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+            };
+
+            slog.BufferFooter = FooterBufffer;
+
+            //New node time.
+            ArcEntryWrapper stq = new ArcEntryWrapper();
+            SLO.Groups.Add(slog);
+            stq.Name = Convert.ToString(NewIndex);
+            stq.Tag = SLO.Groups[NewIndex];
+            stq.Text = Convert.ToString(NewIndex);
+            stq.ImageIndex = 16;
+            stq.SelectedImageIndex = 16;
+            SLO.EntryCount = SLO.EntryCount + 1;
+            SLO.InterpolatedFileSize = SLO.InterpolatedFileSize + 640;
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
+            SLO = StageObjLayoutEntry.RebuildSLOEntry(SLO);
+            frename.Mainfrm.TreeSource.SelectedNode.Tag = SLO;
+
             frename.Mainfrm.OpenFileModified = true;
 
         }
@@ -7279,7 +7379,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = StageObjLayoutEntry.ReplaceSLOEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = SLOContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as StageObjLayoutEntry;
@@ -9525,7 +9625,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperSLO, NewWrapperSLO.FileExt);
 
-                        NewWrapperSLO.ContextMenuStrip = GenericFileContextAdder(NewWrapperSLO, frename.Mainfrm.TreeSource);
+                        NewWrapperSLO.ContextMenuStrip = SLOContextAdder(NewWrapperSLO, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperSLO);
 
@@ -11199,7 +11299,7 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.IconSetter(NewWrapperSLO, NewWrapperSLO.FileExt);
 
-                            NewWrapperSLO.ContextMenuStrip = TXTContextAdder(NewWrapperSLO, frename.Mainfrm.TreeSource);
+                            NewWrapperSLO.ContextMenuStrip = SLOContextAdder(NewWrapperSLO, frename.Mainfrm.TreeSource);
 
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperSLO);
 
@@ -14493,7 +14593,7 @@ namespace ThreeWorkTool
                                             NewWrapper = tno as ArcEntryWrapper;
                                             int indexZ = tno.Index;
                                             NewWrapper.Tag = StageObjLayoutEntry.ReplaceSLOEntry(frename.Mainfrm.TreeSource, NewWrapper, TexToCheck);
-                                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                            NewWrapper.ContextMenuStrip = SLOContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
 
                                             //Takes the path data from the old node and slaps it on the new node.
@@ -15355,14 +15455,6 @@ namespace ThreeWorkTool
             frename.Mainfrm.TreeSource.EndUpdate();
         }
 
-        //TO DO, next big release, not now.
-        private static void ImportYML(Object sender, System.EventArgs e)
-        {
-
-
-
-        }
-
         //Don't get your hopes up. Construction JUST began.
         private static void RenderModel_Click(Object sender, System.EventArgs e)
         {
@@ -15998,7 +16090,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.ImageIndex = 26;
                     TreeSource.SelectedNode.SelectedImageIndex = 26;
 
-                    slochild.ContextMenuStrip = GenericFileContextAdder(slochild, TreeSource);
+                    slochild.ContextMenuStrip = SLOContextAdder(slochild, TreeSource);
 
                     StageObjLayoutEntry sloent = new StageObjLayoutEntry();
                     sloent = slochild.Tag as StageObjLayoutEntry;

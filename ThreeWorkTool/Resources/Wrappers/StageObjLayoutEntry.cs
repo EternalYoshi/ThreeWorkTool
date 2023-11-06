@@ -120,11 +120,142 @@ namespace ThreeWorkTool.Resources.Wrappers
             return slo;
         }
 
-        public static StageObjLayoutEntry RebuildSLOEntry(ArcEntryWrapper node, StageObjLayoutEntry sloentry)
+        public static StageObjLayoutEntry RebuildSLOEntry(StageObjLayoutEntry sloentry)
         {
 
+            List<byte> NewBuffer = new List<byte>();
+            byte[] HeaderThing = {0x53, 0x4C, 0x4F, 0x00, 0x08, 0x01, 0xFE, 0xFF};
+            NewBuffer.AddRange(HeaderThing);
+            NewBuffer.AddRange(BitConverter.GetBytes(sloentry.EntryCount));
+            NewBuffer.AddRange(BitConverter.GetBytes(sloentry.InterpolatedFileSize));
+
+            //Now for the subentries. At offset 0x10.
+            for(int i = 0; i < sloentry.EntryCount; i++)
+            {
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].UnknownFlags));
+                //32-Bit string.
+                //Space for name is 32 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] namebuffer = Encoding.ASCII.GetBytes(sloentry.Groups[i].PossibleGroupName);
+                byte[] writenamedata = new byte[32];
+                Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                for (int j = 0; j < namebuffer.Length; ++j)
+                {
+                    writenamedata[j] = namebuffer[j];
+                }
+
+                NewBuffer.AddRange(writenamedata);
+
+                NewBuffer.AddRange(sloentry.Groups[i].BufferA);
+
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].VectorA.X));
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].VectorA.Y));
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].VectorA.Z));
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].SomeFloat1));
+
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].VectorB.X));
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].VectorB.Y));
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].VectorB.Z));
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].SomeFloat2));
+
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].VectorC.X));
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].VectorC.Y));
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].VectorC.Z));
+                NewBuffer.AddRange(BitConverter.GetBytes(sloentry.Groups[i].SomeFloat3));
+
+                //To The FileReferences.
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] namebuffer1 = Encoding.ASCII.GetBytes(sloentry.Groups[i].FileReference1);
+                byte[] writenamedata1 = new byte[64];
+                Array.Clear(writenamedata1, 0, writenamedata1.Length);
+
+                for (int k = 0; k < namebuffer1.Length; ++k)
+                {
+                    writenamedata1[k] = namebuffer1[k];
+                }
+
+                NewBuffer.AddRange(writenamedata1);
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] namebuffer2 = Encoding.ASCII.GetBytes(sloentry.Groups[i].FileReference2);
+                byte[] writenamedata2 = new byte[64];
+                Array.Clear(writenamedata2, 0, writenamedata2.Length);
+
+                for (int k = 0; k < namebuffer2.Length; ++k)
+                {
+                    writenamedata2[k] = namebuffer2[k];
+                }
+
+                NewBuffer.AddRange(writenamedata2);
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] namebuffer3 = Encoding.ASCII.GetBytes(sloentry.Groups[i].FileReference3);
+                byte[] writenamedata3 = new byte[64];
+                Array.Clear(writenamedata3, 0, writenamedata3.Length);
+
+                for (int k = 0; k < namebuffer3.Length; ++k)
+                {
+                    writenamedata3[k] = namebuffer3[k];
+                }
+
+                NewBuffer.AddRange(writenamedata3);
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] namebuffer4 = Encoding.ASCII.GetBytes(sloentry.Groups[i].FileReference4);
+                byte[] writenamedata4 = new byte[64];
+                Array.Clear(writenamedata4, 0, writenamedata4.Length);
+
+                for (int k = 0; k < namebuffer4.Length; ++k)
+                {
+                    writenamedata4[k] = namebuffer4[k];
+                }
+
+                NewBuffer.AddRange(writenamedata4);
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] namebuffer5 = Encoding.ASCII.GetBytes(sloentry.Groups[i].FileReference5);
+                byte[] writenamedata5 = new byte[64];
+                Array.Clear(writenamedata5, 0, writenamedata5.Length);
+
+                for (int k = 0; k < namebuffer5.Length; ++k)
+                {
+                    writenamedata5[k] = namebuffer5[k];
+                }
+
+                NewBuffer.AddRange(writenamedata5);
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] namebuffer6 = Encoding.ASCII.GetBytes(sloentry.Groups[i].FileReference6);
+                byte[] writenamedata6 = new byte[64];
+                Array.Clear(writenamedata6, 0, writenamedata6.Length);
+
+                for (int k = 0; k < namebuffer6.Length; ++k)
+                {
+                    writenamedata6[k] = namebuffer6[k];
+                }
+
+                NewBuffer.AddRange(writenamedata6);
+
+                //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                byte[] namebuffer7 = Encoding.ASCII.GetBytes(sloentry.Groups[i].FileReference7);
+                byte[] writenamedata7 = new byte[64];
+                Array.Clear(writenamedata7, 0, writenamedata7.Length);
+
+                for (int k = 0; k < namebuffer7.Length; ++k)
+                {
+                    writenamedata7[k] = namebuffer7[k];
+                }
+
+                NewBuffer.AddRange(writenamedata7);
+
+                NewBuffer.AddRange(sloentry.Groups[i].BufferFooter);
 
 
+            }
+
+
+            sloentry.UncompressedData = NewBuffer.ToArray();
+            sloentry.CompressedData = Zlibber.Compressor(sloentry.UncompressedData);
             return sloentry;
 
         }
