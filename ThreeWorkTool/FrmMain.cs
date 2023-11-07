@@ -68,7 +68,7 @@ namespace ThreeWorkTool
                 {
                     this.Text = this.Text + "- UPDATE AVAILABLE ";
                 }
-                this.Text = this.Text + " Build Date: " + CurrentBuildDateTime;
+                //this.Text = this.Text + " Build Date: " + CurrentBuildDateTime;
 
             }
             catch (Exception ex)
