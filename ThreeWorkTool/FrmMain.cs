@@ -12705,39 +12705,46 @@ namespace ThreeWorkTool
             OpenFileDialog RPDialog = new OpenFileDialog();
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
             LMTM3AEntry M3a = tag as LMTM3AEntry;
+            LMTM3AEntry OldM3a = M3a;
 
             RPDialog.Filter = "YAML M3a Keyframe File(*.yml) | *.yml";
-
             if (RPDialog.ShowDialog() == DialogResult.OK)
             {
-
-
-                ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
-                ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
-                OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                var oldtag = OldWrapper.Tag as LMTM3AEntry;
-                string oldname = OldWrapper.Name;
-                NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
-                M3a = LMTM3AEntry.ParseM3AYMLPart1(M3a, RPDialog.FileName, oldtag as LMTM3AEntry);
-                M3a = LMTM3AEntry.ParseM3AYMLPart2(M3a, RPDialog.FileName, NewWrapper, frename.Mainfrm.TreeSource);
-                NewWrapper.Tag = M3a;
-                NewWrapper.FileExt = ".m3a";
-                if (NewWrapper.Tag == null)
+                try
                 {
-                    frename.Mainfrm.InvalidImport = true;
+                    ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                    ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+                    OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                    var oldtag = OldWrapper.Tag as LMTM3AEntry;
+                    string oldname = OldWrapper.Name;
+                    NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                    int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                    M3a = LMTM3AEntry.ParseM3AYMLPart1(M3a, RPDialog.FileName, oldtag as LMTM3AEntry);
+                    M3a = LMTM3AEntry.ParseM3AYMLPart2(M3a, RPDialog.FileName, NewWrapper, frename.Mainfrm.TreeSource);
+                    NewWrapper.Tag = M3a;
+                    NewWrapper.FileExt = ".m3a";
+                    if (NewWrapper.Tag == null)
+                    {
+                        frename.Mainfrm.InvalidImport = true;
+                    }
+                    else
+                    {
+                        NewWrapper.ContextMenuStrip = M3aFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                        frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                        //Takes the path data from the old node and slaps it on the new node.
+                        M3a = NewWrapper.entryfile as LMTM3AEntry;
+                        NewWrapper.entryfile = M3a;
+
+                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                        frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                        frename.Mainfrm.TreeSource.SelectedNode.Text = "AnimationID" + oldname;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    NewWrapper.ContextMenuStrip = M3aFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
-                    frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
-                    //Takes the path data from the old node and slaps it on the new node.
-                    M3a = NewWrapper.entryfile as LMTM3AEntry;
-                    NewWrapper.entryfile = M3a;
 
-                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
-                    frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
-                    frename.Mainfrm.TreeSource.SelectedNode.Text = "AnimationID" + oldname;
+                    MessageBox.Show("This animation file is bogus.\nEither the syntax is incorrect or there is a value that is of an invalid type.","Animation Import Failed!");
+                    return;
                 }
 
 
