@@ -14,6 +14,7 @@ By Eternal Yoshi
 
 Current Changelog:
 V0.7
+
 Animation Importing and Exporting are Online!
 - Can import and export individual animations' Keyframes via cusotmized .yml fomrat.
 - Added Notifications when Animation Track's buffer size is invalid; you won't get keyframe data from these.
