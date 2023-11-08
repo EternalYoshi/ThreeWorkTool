@@ -57,6 +57,9 @@ namespace ThreeWorkTool
                 var releases = client.Repository.Release.GetAll("EternalYoshi", "ThreeWorkTool").Result;
                 var latest = releases[0];
                 var LatestDateTime = latest.CreatedAt.DateTime;
+                LatestDateTime = TimeZoneInfo.ConvertTimeFromUtc(LatestDateTime,
+                TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
+
                 var CurrentBuildDateTime = new FileInfo(Assembly.GetExecutingAssembly().Location).LastWriteTime;
 
                 if (CurrentBuildDateTime > LatestDateTime)
