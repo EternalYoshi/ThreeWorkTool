@@ -13,6 +13,21 @@ Thanks to TGE, Gneiss, and smb123w64gb for assistance and giving me the resource
 By Eternal Yoshi
 
 Current Changelog:
+V0.7
+Animation Importing and Exporting are Online!
+- Can import and export individual animations' Keyframes via cusotmized .yml fomrat.
+- Added Notifications when Animation Track's buffer size is invalid; you won't get keyframe data from these.
+- Included Blender Python plugin (3.0 and up) for importing animation ymls generated from ThreeWorkTool.
+- EndFramesAdditiveScenePosition(Tentative name) can now be edited. 
+- Fixed issue with undocumented texture types not exporting. They'll only export as raw .tex files.
+- Fixed issue that causes mass importing moveset files to have improper hiearchy.
+- Re-labelled ReferenceData floats in the Track Editor.
+- Adjusted error checking in Track Editor so "Bogus Value" error doesn't repeat when trying to close the form.
+- Enforced a minimum size for .gem files to prevent crashing with .gem files with only a small amount of data to them.
+- Updated CFG with real extension names provided by Andoryuuta.
+- Quality of Life Shortcut Changes.
+- Added the ability to add entries to .slo files.
+- Now Chceks the Recent Release Version to notify if user is out of date.
 
 V0.63d
 - Updated LMT and M3a definitions.
