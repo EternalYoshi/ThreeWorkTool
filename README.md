@@ -13,8 +13,14 @@ Thanks to TGE, Gneiss, and smb123w64gb for assistance and giving me the resource
 By Eternal Yoshi
 
 Current Changelog:
-V0.7
+V0.71
 
+- Fixed an issue preventing Scale Keyframes from being exported.
+- Fixed an issue resulting in the plugin's Export failing when the Blender file's scene name isn't "Scene".
+- Suppressed Bogus Track size/pointer errors.
+- Adjusted import filters so a yet to be implemented extension is removed.
+
+V0.7
 Animation Importing and Exporting are Online!
 - Can import and export individual animations' Keyframes via cusotmized .yml fomrat.
 - Added Notifications when Animation Track's buffer size is invalid; you won't get keyframe data from these.
