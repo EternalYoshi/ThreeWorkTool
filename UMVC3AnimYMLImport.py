@@ -2,7 +2,7 @@ bl_info = {
 "name": "UMVC3 Animation YML Importer",
 "description":"For importing UMVC3 animations.",
 "author":"Eternal Yoshi",
-"version":(0,0,2),
+"version":(0,0,4),
 "blender":(3,0,0),
 "location": "File > Import",
 "warning": "Set your Armature to the Bind Pose before applying animations or risk having a bad time.",
@@ -810,10 +810,13 @@ def readM3AanimationData(self,context,filepath):
         counter = 0
         
         #Adjust the animation timeline to fit the animation and set the current frame to zero.
-        bpy.data.scenes["Scene"].frame_start = 0
+        #Gets The Current Scene.
+        RScene = bpy.context.scene
+
+        RScene.frame_start = 0
         context.scene.frame_start = 0
 
-        bpy.data.scenes["Scene"].frame_end = data_loaded.FrameCount
+        RScene.frame_end = data_loaded.FrameCount
         context.scene.frame_end = data_loaded.FrameCount
         bpy.context.scene.frame_set(0)
         
@@ -852,8 +855,8 @@ def readM3AanimationData(self,context,filepath):
             jointEdit = bpy.data.armatures["Armature"].bones[f'jnt_{BID}'].matrix
 
             #If the animation range is lower than the current frame, expand the animation range to accomodate.
-            if int(bpy.data.scenes["Scene"].frame_end < data_loaded.FrameCount):
-                bpy.data.scenes["Scene"].frame_end = data_loaded.FrameCount
+            if int(RScene.frame_end < data_loaded.FrameCount):
+                RScene.frame_end = data_loaded.FrameCount
             
             print(Keyframe['BoneID'])
             if (id != 0):
@@ -903,14 +906,17 @@ def WriteM3AanimationData(context,filepath, read_LoopFrame):
     obj = bpy.context.active_object
     TrueKeys = []
     
+    #Gets The Current Scene.
+    Scene = bpy.context.scene
+
     #Changes the blender mode to Pose Mode.
     bpy.ops.object.mode_set(mode = 'POSE', toggle=False)
 
     try:
 
         #Gets info from the animation timeline to acquire the starting and ending frames of the animation. First one is always zero.
-        FirstFrame = bpy.data.scenes["Scene"].frame_start
-        FrameCount = bpy.data.scenes["Scene"].frame_end
+        FirstFrame = Scene.frame_start
+        FrameCount = Scene.frame_end
         bpy.context.scene.frame_set(0)
 
         print("First frame: ", FirstFrame, "while the last frame is: ", FrameCount)
@@ -1160,7 +1166,7 @@ def WriteM3AanimationData(context,filepath, read_LoopFrame):
                                         #f.write("\nRotation: "+str(rot_basis_quat.y))                                               
                                         #keycount += 1                                        
                                     #Z
-                                    if fcu.array_index == 3:
+                                    if fcu.array_index == 2:
                                         if NameChecker(index, fcu, bone.name):                                                   
                                             print(fcu.data_path)
                                             pt = [pt for pt in fcu.keyframe_points if pt.co[0] == index][0]
@@ -1170,7 +1176,7 @@ def WriteM3AanimationData(context,filepath, read_LoopFrame):
                                             KeyedR = True
 
                                             FramesR.append(index)
-                                            KeysR.append(rot_basis_quat)
+                                            KeysR.append(scale_basis_vec)
                                             KeyTypesR.append("scale")
                                             FrameText = bone.name
                                             FrameText = FrameText.replace(FrameText[:4], '')

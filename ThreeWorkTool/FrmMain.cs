@@ -5908,7 +5908,7 @@ namespace ThreeWorkTool
             if (tag is TextureEntry)
             {
                 Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
-                RPDialog.Filter = ExportFilters.GetFilter(Aentry.FileExt);
+                RPDialog.Filter = ImportFilters.GetFilter(Aentry.FileExt);
                 if (RPDialog.ShowDialog() == DialogResult.OK)
                 {
                     string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
@@ -6095,7 +6095,7 @@ namespace ThreeWorkTool
                 MaterialEntry MatEntEntry = new MaterialEntry();
                 MatEntEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MaterialEntry;
                 //To Do next time; finish yml support.
-                RPDialog.Filter = "MT Material File(*.mrl;*.yml)|*.mrl;*.yml|Material File (*.mrl)|*.mrl|YAML MT Material File(*.yml)| *.yml";
+                RPDialog.Filter = "Material File (*.mrl)|*.mrl";
                 //RPDialog.Filter = ExportFilters.GetFilter(MatEntEntry.FileExt);
 
                 if (RPDialog.ShowDialog() == DialogResult.OK)

@@ -267,6 +267,7 @@
     <Compile Include="Resources\Archives\ArcEntry.cs" />
     <Compile Include="Resources\Archives\ArcFile.cs" />
     <Compile Include="Resources\ExportFileWriter.cs" />
+    <Compile Include="Resources\ImportFilters.cs" />
     <Compile Include="Resources\ExportFilters.cs" />
     <Compile Include="Resources\BSWConverter.cs" />
     <Compile Include="Resources\ShaderEnum.cs" />

@@ -267,7 +267,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         }
                         else if(track.BufferType == 1|| track.BufferType == 2 || track.BufferType == 3)
                         {
-                            MessageBox.Show("There's a track inside :\n" + lmtentry.EntryName + "\nat Track No. " + j + "that is not supposed to have a buffersize,\n so there won't be any buffer data read from this track.");
+                            //MessageBox.Show("There's a track inside :\n" + lmtentry.EntryName + "\nat Track No. " + j + "that is not supposed to have a buffersize,\n so there won't be any buffer data read from this track.");
                         }
                         else
                         {
