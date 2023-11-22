@@ -13,8 +13,6 @@
 
         public static string rMaterial = "MT Material File(*.mrl;*.yml)|*.mrl;*.yml|Material File (*.mrl)|*.mrl|YAML MT Material File(*.yml)| *.yml";
 
-        public static string rMaterialClassic = "Material File (*.mrl)|*.mrl";
-
         public static string rMotionList = "MotionList (*.lmt)|*.lmt";
 
         public static string rM3A = "Raw MT Animation(*.m3a)|*.m3a";

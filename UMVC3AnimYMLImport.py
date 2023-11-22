@@ -2,7 +2,7 @@ bl_info = {
 "name": "UMVC3 Animation YML Importer",
 "description":"For importing UMVC3 animations.",
 "author":"Eternal Yoshi",
-"version":(0,0,4),
+"version":(0,0,5),
 "blender":(3,0,0),
 "location": "File > Import",
 "warning": "Set your Armature to the Bind Pose before applying animations or risk having a bad time.",
@@ -707,7 +707,7 @@ def ApplyTheTrack(Track, obj, joint, jointEdit, AnimName):
     
     for ID, Keyframe in enumerate(Track):
     
-        if(Track[0]['TrackType'] == "localscale"):
+        if(Track[0]['TrackType'] == "localscale" or Track[0]['TrackType'] == "xpto"):
             print("A scale Track.")
             obj = bpy.data.objects["Armature"]
             joint = obj.pose.bones[f'jnt_{Bone}']
@@ -725,7 +725,7 @@ def ApplyTheTrack(Track, obj, joint, jointEdit, AnimName):
                 print("Problem applying scalar keyframe.",sc, "\n", traceback.format_exc())
                 continue          
       
-        if(Track[0]['TrackType'] == "localposition"):
+        if(Track[0]['TrackType'] == "localposition" or Track[0]['TrackType'] == "absoluteposition"):
             print("A Translation Track.")
             obj = bpy.data.objects["Armature"]
             joint = obj.pose.bones[f'jnt_{Bone}']
@@ -744,7 +744,7 @@ def ApplyTheTrack(Track, obj, joint, jointEdit, AnimName):
                 continue              
       
       
-        if(Track[0]['TrackType'] == "localrotation"):
+        if(Track[0]['TrackType'] == "localrotation" or Track[0]['TrackType'] == "absoluterotation"):
             print("A Rotation Track.")
             obj = bpy.data.objects["Armature"]
             joint = obj.pose.bones[f'jnt_{Bone}']
@@ -1080,7 +1080,10 @@ def WriteM3AanimationData(context,filepath, read_LoopFrame):
                                             FrameText = bone.name
                                             FrameText = FrameText.replace(FrameText[:4], '')
                                             KeyToInsert = data(trans_basis_vec.x,trans_basis_vec.y,trans_basis_vec.z,0)
-                                            TrueKeys.append(Keyframes(index,"localposition",int(FrameText),KeyToInsert))
+                                            if(bone.name == "jnt_255"):
+                                                TrueKeys.append(Keyframes(index,"absoluteposition",int(FrameText),KeyToInsert))
+                                            else:
+                                                TrueKeys.append(Keyframes(index,"localposition",int(FrameText),KeyToInsert))
 
 
                                         #gen_track(bone.name,0,bone,trans_basis_vec, index)                                                                                            
@@ -1181,7 +1184,10 @@ def WriteM3AanimationData(context,filepath, read_LoopFrame):
                                             FrameText = bone.name
                                             FrameText = FrameText.replace(FrameText[:4], '')
                                             KeyToInsert = data(scale_basis_vec.x,scale_basis_vec.y,scale_basis_vec.z,1)
-                                            TrueKeys.append(Keyframes(index,"localscale",int(FrameText),KeyToInsert))                                                       
+                                            if(bone.name == "jnt_255"):
+                                                TrueKeys.append(Keyframes(index,"xpto",int(FrameText),KeyToInsert))                                               
+                                            else:                                           
+                                                TrueKeys.append(Keyframes(index,"localscale",int(FrameText),KeyToInsert))                                                       
                                                                                                                                                         
                                     
                                                                                                                                                                             
@@ -1277,7 +1283,10 @@ def WriteM3AanimationData(context,filepath, read_LoopFrame):
                                             FrameText = bone.name
                                             FrameText = FrameText.replace(FrameText[:4], '')
                                             KeyToInsert = data(rot_basis_vec.x,rot_basis_vec.y,rot_basis_vec.z,rot_basis_vec.w)
-                                            TrueKeys.append(Keyframes(index,"localrotation",int(FrameText),KeyToInsert))                                                
+                                            if(bone.name == "jnt_255"):
+                                                TrueKeys.append(Keyframes(index,"absoluterotation",int(FrameText),KeyToInsert))     
+                                            else:
+                                                TrueKeys.append(Keyframes(index,"localrotation",int(FrameText),KeyToInsert))                                          
                                     
                                                                                                                                                                             
                 
