@@ -13,6 +13,10 @@ Thanks to TGE, Gneiss, and smb123w64gb for assistance and giving me the resource
 By Eternal Yoshi
 
 Current Changelog:
+
+v0.72
+-Fixed Missing Absolute Transformation coding in Blender Script. That's it.
+
 V0.71
 
 - Fixed an issue preventing Scale Keyframes from being exported.
