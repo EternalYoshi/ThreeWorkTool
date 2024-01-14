@@ -5799,6 +5799,28 @@ namespace ThreeWorkTool
                     }
                     break;
 
+                case "ThreeWorkTool.Resources.Wrappers.ChrBaseActEntry":
+                    ChrBaseActEntry cbamentry = new ChrBaseActEntry();
+                    if (tag is ChrBaseActEntry)
+                    {
+
+                        cbamentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ChrBaseActEntry;
+                        EXDialog.Filter = ExportFilters.GetFilter(cbamentry.FileExt);
+                    }
+                    EXDialog.FileName = cbamentry.FileName + cbamentry.FileExt;
+
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.ChrBaseActWriter(EXDialog.FileName, cbamentry);
+                    }
+
+                    //Writes to log file.
+                    ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                    {
+                        sw.WriteLine("Exported a ChrBaseActEntry Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
+                    }
+                    break;
+
                 case "ThreeWorkTool.Resources.Wrappers.AnmCmdEntry":
                     AnmCmdEntry anmentry = new AnmCmdEntry();
                     if (tag is AnmCmdEntry)
