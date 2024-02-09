@@ -4673,6 +4673,10 @@ namespace ThreeWorkTool
             var exallitem = new ToolStripMenuItem("Export All", null, ExportAllLMT, Keys.Control | Keys.Shift | Keys.E);
             conmenu.Items.Add(exallitem);
 
+            var exallkeyitem = new ToolStripMenuItem("Extract All Keyframes", null, ExportAllKeyfraames, Keys.Control | Keys.Shift | Keys.Alt | Keys.E);
+            conmenu.Items.Add(exallkeyitem);
+            //ExportAllKeyfraames
+
             //Replace.
             var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
             conmenu.Items.Add(replitem);
@@ -12704,25 +12708,6 @@ namespace ThreeWorkTool
                 }
 
             }
-
-
-
-            /*
-            if (tag is LMTM3AEntry)
-            {
-
-                MAThreeentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as LMTM3AEntry;
-                EXDialog.Filter = "Yaml M3A File (*.yml)|*.yml";
-                EXDialog.FileName = MAThreeentry.FileName;
-            }
-            EXDialog.FileName = MAThreeentry.ShortName;
-
-            if (EXDialog.ShowDialog() == DialogResult.OK)
-            {
-                //Work is done in here.
-                ExportFileWriter.KeyFrameWriter(EXDialog.FileName, MAThreeentry);
-            }
-            */
         }
 
         private static void ImportKeyFrames_Click(Object sender, System.EventArgs e)
@@ -12819,6 +12804,89 @@ namespace ThreeWorkTool
             frename.Mainfrm.OpenFileModified = true;
 
         }
+
+        private static void ExportAllKeyfraames(Object sender, System.EventArgs e)
+        {
+
+            //Uses the Save File Dialog for the Export All Folder command since it's less ugly and remembers where your previous directory is.
+            SaveFileDialog EXAllDialog = new SaveFileDialog();
+            EXAllDialog.Title = "Choose a directory. Make sure it's not too many characters in the file path.";
+            EXAllDialog.FileName = "Export Here";
+            EXAllDialog.Filter = "Directory | directory";
+            if (EXAllDialog.ShowDialog() == DialogResult.OK)
+            {
+                //Gets the directory without any of the text the user put in the Save Dialog.
+                int index = EXAllDialog.FileName.LastIndexOf("\\");
+                EXAllDialog.FileName = EXAllDialog.FileName.Substring(0, (index + 1));
+                string savePath = Path.GetDirectoryName(EXAllDialog.FileName);
+
+#if DEBUG
+                MessageBox.Show("The Directory chosen is: " + EXAllDialog.FileName + "\n and has this many characters: " + EXAllDialog.FileName.Length, "");
+#endif
+                string BaseDirectory = EXAllDialog.FileName;
+
+
+                try
+                {
+
+                    TreeNode TNLMT = frename.Mainfrm.TreeSource.SelectedNode;
+                    string FolderPath = frename.Mainfrm.TreeSource.SelectedNode.FullPath;
+                    int fpindex = FolderPath.LastIndexOf('\\') + 1;
+                    FolderPath = FolderPath.Substring(fpindex);
+                    string ExportPath = "";
+                    string FolderName = frename.Mainfrm.TreeSource.SelectedNode.Text;
+                    int dindex = 0;
+                    //Iterates through all the children and extracts the files tagged in the nodes.
+                    List<TreeNode> Children = new List<TreeNode>();
+                    frename.Mainfrm.AddChildren(Children, frename.Mainfrm.TreeSource.SelectedNode);
+
+                    ExportPath = "";
+                    dindex = 0;
+
+                    foreach (TreeNode kid in Children)
+                    {
+
+
+                        LMTM3AEntry M3AENT = kid.Tag as LMTM3AEntry;
+                        if (kid.FullPath.Contains(frename.Mainfrm.TreeSource.SelectedNode.FullPath))
+                        {
+                            ExportPath = kid.FullPath.Replace(frename.Mainfrm.TreeSource.SelectedNode.FullPath, "");
+                            ExportPath = FolderName + ExportPath;
+                        }
+                        dindex = ExportPath.LastIndexOf('\\') + 1;
+                        ExportPath = ExportPath.Substring(0, dindex);
+                        ExportPath = BaseDirectory + ExportPath + "\\";
+                        System.IO.Directory.CreateDirectory(ExportPath);
+                        ExportPath = ExportPath + M3AENT.MotionID + ".yml";
+                        //ExportFileWriter.MA3EntryWriter(ExportPath, M3AENT);
+                        if(M3AENT.FrameCount > 0)
+                        {
+                            ExportFileWriter.KeyFrameWriter(ExportPath, M3AENT);
+
+                        }
+
+                    }
+
+                }
+                catch (PathTooLongException)
+                {
+                    MessageBox.Show("THe directory chosen is too long to save all the files. \nChoose a different one closer to the root of the specified drive.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //Writes to log file.
+                    string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                    {
+                        sw.WriteLine("Failed to Export All at directory: " + EXAllDialog.FileName + "\nPath was too long.");
+                    }
+                    return;
+                }
+
+            }
+
+
+
+
+
+        }
+
 
         private static void ReplaceAllTextures(Object sender, System.EventArgs e)
         {

@@ -742,8 +742,7 @@ def ApplyTheTrack(Track, obj, joint, jointEdit, AnimName):
             except Exception as sc:
                 print("Problem applying translation keyframe.",sc, "\n", traceback.format_exc())
                 continue              
-      
-      
+            
         if(Track[0]['TrackType'] == "localrotation" or Track[0]['TrackType'] == "absoluterotation"):
             print("A Rotation Track.")
             obj = bpy.data.objects["Armature"]
