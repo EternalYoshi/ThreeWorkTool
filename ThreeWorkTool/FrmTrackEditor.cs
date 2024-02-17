@@ -173,10 +173,10 @@ namespace ThreeWorkTool
                             using (BinaryWriter bw3 = new BinaryWriter(ms3))
                             {
                                 bw3.BaseStream.Position = PointerToUse;
-                                bw3.Write(W);
                                 bw3.Write(X);
                                 bw3.Write(Y);
                                 bw3.Write(Z);
+                                bw3.Write(W);
                                 bw3.BaseStream.Position = (PointerToUse - 24);
                                 bw3.Write(BufferTypeByte);
                                 bw3.Write(TrackIDByte);

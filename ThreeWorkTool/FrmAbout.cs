@@ -32,5 +32,10 @@ namespace ThreeWorkTool
         {
             System.Diagnostics.Process.Start("https://github.com/EternalYoshi/ThreeWorkTool");
         }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

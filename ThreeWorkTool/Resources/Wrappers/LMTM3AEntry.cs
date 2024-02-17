@@ -247,10 +247,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                     track.BufferPointer = bnr.ReadInt32();
                     bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
                     track.ReferenceDataPointer = Convert.ToInt32(bnr.BaseStream.Position);
-                    track.ReferenceData.W = bnr.ReadSingle();
                     track.ReferenceData.X = bnr.ReadSingle();
                     track.ReferenceData.Y = bnr.ReadSingle();
                     track.ReferenceData.Z = bnr.ReadSingle();
+                    track.ReferenceData.W = bnr.ReadSingle();
                     track.ExtremesPointer = bnr.ReadInt32();
                     bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
                     PrevOffset = Convert.ToInt32(bnr.BaseStream.Position);
@@ -495,10 +495,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                         else
                         {
                             KeyFrame Key = new KeyFrame();
-                            Key.data.X = Anim.Tracks[i].ReferenceData.W;
-                            Key.data.Y = Anim.Tracks[i].ReferenceData.X;
-                            Key.data.Z = Anim.Tracks[i].ReferenceData.Y;
-                            Key.data.W = Anim.Tracks[i].ReferenceData.Z;
+                            Key.data.X = Anim.Tracks[i].ReferenceData.X;
+                            Key.data.Y = Anim.Tracks[i].ReferenceData.Y;
+                            Key.data.Z = Anim.Tracks[i].ReferenceData.Z;
+                            Key.data.W = Anim.Tracks[i].ReferenceData.W;
                             Key.BoneID = Anim.Tracks[i].BoneID;
                             Key.Frame = 0;
                             var ETrackType = (ETrackType)Anim.Tracks[i].TrackType;
@@ -675,10 +675,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                         bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
                         track.BufferPointer = bnr.ReadInt32();
                         bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
-                        track.ReferenceData.W = bnr.ReadSingle();
                         track.ReferenceData.X = bnr.ReadSingle();
                         track.ReferenceData.Y = bnr.ReadSingle();
                         track.ReferenceData.Z = bnr.ReadSingle();
+                        track.ReferenceData.W = bnr.ReadSingle();
                         track.ExtremesPointer = bnr.ReadInt32();
                         bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
                         m3aentry.PrevOffset = Convert.ToInt32(bnr.BaseStream.Position);

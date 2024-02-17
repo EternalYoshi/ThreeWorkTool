@@ -48,6 +48,7 @@ namespace ThreeWorkTool
             //Closes the form without making changes.
             DialogResult = DialogResult.Cancel;
             Hide();
+            Mainfrm.Focus();
         }
 
 
