@@ -2,7 +2,7 @@ bl_info = {
 "name": "UMVC3 Animation YML Importer",
 "description":"For importing UMVC3 animations.",
 "author":"Eternal Yoshi",
-"version":(0,0,5),
+"version":(0,0,7),
 "blender":(3,0,0),
 "location": "File > Import",
 "warning": "Set your Armature to the Bind Pose before applying animations or risk having a bad time.",
@@ -29,7 +29,6 @@ except ImportError:
 
 # Import Code.
 from bpy_extras.io_utils import ImportHelper
-
 from bpy_extras.io_utils import ExportHelper
 from mathutils import Quaternion
 
@@ -765,7 +764,7 @@ def ApplyTheTrack(Track, obj, joint, jointEdit, AnimName):
                 print("Problem applying rotational keyframe.",sc, "\n", traceback.format_exc())
                 continue            
 
-def readM3AanimationData(self,context,filepath):
+def readM3AanimationData(self,context,filepath,read_SaveFakeUser):
     global AnimName; AnimName = ""
     GroupCount = 0
     global FrameCount; FrameCount = 0
@@ -775,7 +774,7 @@ def readM3AanimationData(self,context,filepath):
     os.system('cls')
     
     print(self.files); print(filepath)
-    AnimName = os.path.basename(filepath)
+    
     #Stores the object selected.
     obj = bpy.context.active_object
 
@@ -788,109 +787,115 @@ def readM3AanimationData(self,context,filepath):
         bone.rotation_mode = 'QUATERNION'
     bpy.data.objects["Armature"].rotation_mode = 'QUATERNION'
     
-    try:
-        obj.animation_data.action
-    except:
-        obj.animation_data_create()
+    for AnimYAML in self.files:
+        AnimYAMLPath = os.path.join(os.path.dirname(filepath), AnimYAML.name)
+        if os.path.isfile(AnimYAMLPath):
+            AnimName = os.path.basename(AnimYAMLPath)
+            try:
+                obj.animation_data.action
+            except:
+                obj.animation_data_create()
 
-    action = bpy.data.actions.new(AnimName)
-    obj.animation_data.action = action
+            action = bpy.data.actions.new(AnimName)
+            obj.animation_data.action = action
+            if self.read_SaveFakeUser is True:
+                action.use_fake_user = True
 
 
-    try:
-        #Opens the yml and deserializes.
-        data_loaded = yaml.load(open(filepath, "rb"), Loader=get_loader())
-        
-        print(data_loaded.version)
-        print(data_loaded.Name)
-        print(data_loaded.FrameCount)
-        print(data_loaded.LoopFrame)
-        keycount = 0
-        counter = 0
-        
-        #Adjust the animation timeline to fit the animation and set the current frame to zero.
-        #Gets The Current Scene.
-        RScene = bpy.context.scene
+            try:
+                #Opens the yml and deserializes.
+                data_loaded = yaml.load(open(AnimYAMLPath, "rb"), Loader=get_loader())
+                
+                print(data_loaded.version)
+                print(data_loaded.Name)
+                print(data_loaded.FrameCount)
+                print(data_loaded.LoopFrame)
+                keycount = 0
+                counter = 0
+                
+                #Adjust the animation timeline to fit the animation and set the current frame to zero.
+                #Gets The Current Scene.
+                RScene = bpy.context.scene
 
-        RScene.frame_start = 0
-        context.scene.frame_start = 0
+                RScene.frame_start = 0
+                context.scene.frame_start = 0
 
-        RScene.frame_end = data_loaded.FrameCount
-        context.scene.frame_end = data_loaded.FrameCount
-        bpy.context.scene.frame_set(0)
-        
-        pose_bones = bpy.data.objects['Armature'].pose.bones
-        NewJointName = ""
-        for x in range(len(pose_bones)):
-            print(pose_bones[x])
-            
-        
-        #for idx, data_loaded.KeyFrames in enumerate(data_loaded.Keyframes):
-                #if data_loaded.KeyFrames[idx]['BoneID'] == 255:
-                    #continue
-        
-        
-        #Checks if the bone exists on the Armature in the scene and will skip if it doesn't.
-        #if bpy.data.objects["Armature"].data.bones.get(f'jnt_{BID}') is None:
-            #contnniue
-        
-        Track = []
-        #This part applies it to the scene.
-        for id, Keyframe in enumerate(data_loaded.KeyFrames):
-            
-            BID = data_loaded.KeyFrames[0]['BoneID']
-
-            #Checks if the bone exists on the Armature in the scene and will skip if it doesn't.
-            if bpy.data.objects["Armature"].data.bones.get(f'jnt_{BID}') is None:
-                continue
-
-            #Selects the bone and deselects everything else.
-            bpy.context.active_object.select_set(False)
-            for obj in bpy.context.selected_objects:
-                bpy.context.view_layer.objects.active = obj
-
-            obj = bpy.data.objects["Armature"]
-            joint = obj.pose.bones[f'jnt_{BID}']
-            jointEdit = bpy.data.armatures["Armature"].bones[f'jnt_{BID}'].matrix
-
-            #If the animation range is lower than the current frame, expand the animation range to accomodate.
-            if int(RScene.frame_end < data_loaded.FrameCount):
                 RScene.frame_end = data_loaded.FrameCount
+                context.scene.frame_end = data_loaded.FrameCount
+                bpy.context.scene.frame_set(0)
+                
+                pose_bones = bpy.data.objects['Armature'].pose.bones
+                NewJointName = ""
+                for x in range(len(pose_bones)):
+                    print(pose_bones[x])
+                    
+                
+                #for idx, data_loaded.KeyFrames in enumerate(data_loaded.Keyframes):
+                        #if data_loaded.KeyFrames[idx]['BoneID'] == 255:
+                            #continue
+                
+                
+                #Checks if the bone exists on the Armature in the scene and will skip if it doesn't.
+                #if bpy.data.objects["Armature"].data.bones.get(f'jnt_{BID}') is None:
+                    #contnniue
+                
+                Track = []
+                #This part applies it to the scene.
+                for id, Keyframe in enumerate(data_loaded.KeyFrames):
+                    
+                    BID = data_loaded.KeyFrames[0]['BoneID']
+
+                    #Checks if the bone exists on the Armature in the scene and will skip if it doesn't.
+                    if bpy.data.objects["Armature"].data.bones.get(f'jnt_{BID}') is None:
+                        continue
+
+                    #Selects the bone and deselects everything else.
+                    bpy.context.active_object.select_set(False)
+                    for obj in bpy.context.selected_objects:
+                        bpy.context.view_layer.objects.active = obj
+
+                    obj = bpy.data.objects["Armature"]
+                    joint = obj.pose.bones[f'jnt_{BID}']
+                    jointEdit = bpy.data.armatures["Armature"].bones[f'jnt_{BID}'].matrix
+
+                    #If the animation range is lower than the current frame, expand the animation range to accomodate.
+                    if int(RScene.frame_end < data_loaded.FrameCount):
+                        RScene.frame_end = data_loaded.FrameCount
+                    
+                    print(Keyframe['BoneID'])
+                    if (id != 0):
+                        #Thing.
+                        if(Keyframe['BoneID'] != PrevBoneID or Keyframe['TrackType'] != PrevTrackType):
+                            #Apply Stuff here.
+                                                    
+                            #Go To function when Track is used to apply all keyframes to specified bone.
+                            ApplyTheTrack(Track, obj, joint, jointEdit, AnimName)
+                                
+                            #Then we empty the Track.
+                            del Track[:]
+                                
+                            #Then continue as usual.
+                            Track.append(Keyframe)
+                            PrevTrackType = Keyframe['TrackType']
+                            PrevBoneID = Keyframe['BoneID']
+                    
+                        else:      
+                            Track.append(Keyframe)
+                            PrevTrackType = Keyframe['TrackType']
+                            PrevBoneID = Keyframe['BoneID']
             
-            print(Keyframe['BoneID'])
-            if (id != 0):
-                #Thing.
-                if(Keyframe['BoneID'] != PrevBoneID or Keyframe['TrackType'] != PrevTrackType):
-                    #Apply Stuff here.
-                                            
-                    #Go To function when Track is used to apply all keyframes to specified bone.
-                    ApplyTheTrack(Track, obj, joint, jointEdit, AnimName)
-                        
-                    #Then we empty the Track.
-                    del Track[:]
-                        
-                    #Then continue as usual.
-                    Track.append(Keyframe)
-                    PrevTrackType = Keyframe['TrackType']
-                    PrevBoneID = Keyframe['BoneID']
-             
-                else:      
-                    Track.append(Keyframe)
-                    PrevTrackType = Keyframe['TrackType']
-                    PrevBoneID = Keyframe['BoneID']
-    
-            else:
-                Track.append(Keyframe)    
-                PrevTrackType = Keyframe['TrackType']
-                PrevBoneID = Keyframe['BoneID']
-                        
-                        
-                        
-        
-        
-    
-    except Exception as e:
-        print("An error occured.",e, "\n", traceback.format_exc())    
+                    else:
+                        Track.append(Keyframe)    
+                        PrevTrackType = Keyframe['TrackType']
+                        PrevBoneID = Keyframe['BoneID']
+                                
+                                
+                                
+                
+                
+            
+            except Exception as e:
+                print("An error occured.",e, "\n", traceback.format_exc())    
         
 def WriteM3AanimationData(context,filepath, read_LoopFrame):
     global AnimName; AnimName = ""
@@ -1339,13 +1344,18 @@ class YMLM3A_Import_Handler(bpy.types.Operator, ImportHelper):
     """Imports animation data from UMVC3 YML files"""
     bl_idname = ("screen.yml_import")
     bl_label = ("UMVC3 YML Import")
-    bl_options = {'UNDO'}
+    bl_options = {'PRESET','UNDO'}
     
     #Filters out non .yml files.
     filename_ext = ".yml"
     filter_glob: bpy.props.StringProperty(default="*.yml", options={'HIDDEN'})
     files: bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement)
     
+    read_SaveFakeUser: bpy.props.BoolProperty(
+        name = "Import With Fake User",
+        description="Imports Each Animation with a saved fake user. Allows the animations to persist when saving and closing the scene after importing.",
+        default=False,
+    )
     
     def execute(self, context):
         keywords = self.as_keywords(ignore=("filter_glob","files",))
