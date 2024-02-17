@@ -14,6 +14,15 @@ By Eternal Yoshi
 
 Current Changelog:
 
+V0.75
+- Added forgotten export code for BaseAct files.
+- Made sure that certain subforms focus back on main ThreeWorkTool form when closed.
+- Adjusted Track Editor Labels to be more accurate; WXYZ is now displayed as XYZW.
+- Now has "Extract All Animations" option to extract all animations from a lmt into individual .yml files.
+- Blender Plugin updated to V0.7. Can now:
+-Can now has the option to import multiple animations into individual actions.
+- Now has the option to save each imported animation as a fake user.
+
 v0.72
 -Fixed Missing Absolute Transformation coding in Blender Script. That's it.
 
