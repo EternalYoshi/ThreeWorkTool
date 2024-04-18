@@ -280,7 +280,7 @@ namespace ThreeWorkTool
                                 if (UseManifest == true)
                                 {
 
-                                    using (BinaryWriter bwr = new BinaryWriter(File.OpenWrite(SFDialog.FileName)))
+                                    using (BinaryWriter bwr = new BinaryWriter(new FileStream(SFDialog.FileName, System.IO.FileMode.Create, FileAccess.Write)))
                                     {
 
                                         //Header that has the magic, version number and entry count.
@@ -440,7 +440,7 @@ namespace ThreeWorkTool
                                 }
                                 else
                                 {
-                                    using (BinaryWriter bwr = new BinaryWriter(File.OpenWrite(SFDialog.FileName)))
+                                    using (BinaryWriter bwr = new BinaryWriter(new FileStream(SFDialog.FileName, System.IO.FileMode.Create, FileAccess.Write)))
                                     {
                                         //Header that has the magic, version number and entry count.
                                         byte[] ArcHeader = { 0x41, 0x52, 0x43, 0x00 };
