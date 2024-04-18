@@ -959,11 +959,10 @@ def WriteM3AanimationData(context,filepath, read_LoopFrame):
             regex = r'pose\.bones\[\"(.*)\"\]\.(.*)'
             matches = re.match(regex, fcurve.data_path)
             if matches is None: # A fcurve in the action that isn't a bone transform, such as the user keyframing the Armature Object itself.
-                operator.report(type={'WARNING'}, message=f"The fcurve with data path {fcurve.data_path} will not be exported, since it didn't match the pattern of a bone fcurve.")
-                print("If you can read this, know that Armatures themselves are not supposed to be keyframed.\nPlease go sort that out and remove any Armature Keyframes and try again.")
+                print("The fcurve with data path", fcurve.data_path,  "\nis not going to be exported because it's not matching bone fcurve patterns.")
                 continue
             if len(matches.groups()) != 2: # TODO: Is this possible?
-                operator.report(type={'WARNING'}, message=f"The fcurve with data path {fcurve.data_path} will not be exported, its format only partially matched the expected pattern of a bone fcurve.")
+                print("The fcurve with data path", fcurve.data_path,  "\nis not going to be exported because it's not fully matching bone fcurve patterns.")
                 continue
             bone_name = matches.groups()[0]
             transform_subtype = matches.groups()[1]

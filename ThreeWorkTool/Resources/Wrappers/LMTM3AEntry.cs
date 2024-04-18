@@ -1464,14 +1464,14 @@ namespace ThreeWorkTool.Resources.Wrappers
                         NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
                         NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
                         NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
-                        NewTrack.ReferenceData.W = 0;
+                        NewTrack.ReferenceData.W = 1;
                     }
                     else
                     {
                         NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
                         NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
                         NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
-                        NewTrack.ReferenceData.W = 0;
+                        NewTrack.ReferenceData.W = 1;
                     }
 
                     break;
@@ -1494,14 +1494,14 @@ namespace ThreeWorkTool.Resources.Wrappers
                         NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
                         NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
                         NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
-                        NewTrack.ReferenceData.W = 0;
+                        NewTrack.ReferenceData.W = 1;
                     }
                     else
                     {
                         NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
                         NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
                         NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
-                        NewTrack.ReferenceData.W = 0;
+                        NewTrack.ReferenceData.W = 1;
                     }
 
                     break;
@@ -1582,14 +1582,14 @@ namespace ThreeWorkTool.Resources.Wrappers
                         NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
                         NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
                         NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
-                        NewTrack.ReferenceData.W = 0;
+                        NewTrack.ReferenceData.W = 1;
                     }
                     else
                     {
                         NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
                         NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
                         NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
-                        NewTrack.ReferenceData.W = 0;
+                        NewTrack.ReferenceData.W = 1;
                     }
                     NewTrack.TrackType = 2;
                     break;
@@ -1612,17 +1612,31 @@ namespace ThreeWorkTool.Resources.Wrappers
                         NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
                         NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
                         NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
-                        NewTrack.ReferenceData.W = 0;
+                        NewTrack.ReferenceData.W = 1;
                     }
                     else
                     {
                         NewTrack.ReferenceData.X = WorkingTrack[0].data.X;
                         NewTrack.ReferenceData.Y = WorkingTrack[0].data.Y;
                         NewTrack.ReferenceData.Z = WorkingTrack[0].data.Z;
-                        NewTrack.ReferenceData.W = 0;
+                        NewTrack.ReferenceData.W = 1;
                     }
                     NewTrack.TrackType = 5;
                     break;
+
+                //Weird Track I found in some background prop.
+                case "224":
+                    NewTrack.BufferKind = "singlevector3";
+                    NewTrack.BufferType = 80;
+                    NewTrack.BufferSize = 0;
+                    NewTrack.BufferPointer = 0;
+                    NewTrack.TrackType = 224;
+                    NewTrack.ReferenceData.X = 0;
+                    NewTrack.ReferenceData.Y = 0;
+                    NewTrack.ReferenceData.Z = 0;
+                    NewTrack.ReferenceData.W = 1;
+                    break;
+
                 default:
                     MessageBox.Show("This Tracktype " + WorkingTrack[0].TrackType + "\nhasn't been implmented yet!");
                     break;
