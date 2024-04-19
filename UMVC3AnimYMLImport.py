@@ -2,7 +2,7 @@ bl_info = {
 "name": "UMVC3 Animation YML Importer",
 "description":"For importing UMVC3 animations.",
 "author":"Eternal Yoshi",
-"version":(0,0,7),
+"version":(0,0,8),
 "blender":(3,0,0),
 "location": "File > Import",
 "warning": "Set your Armature to the Bind Pose before applying animations or risk having a bad time.",

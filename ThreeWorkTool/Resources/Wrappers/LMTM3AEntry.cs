@@ -1086,9 +1086,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                     BufferPointer = 0,
                     ExtremesPointer = 0
                 };
-                NeededTrack.ReferenceData.X = 0;
-                NeededTrack.ReferenceData.Y = 0;
-                NeededTrack.ReferenceData.Z = 0;
+                NeededTrack.ReferenceData.X = 1;
+                NeededTrack.ReferenceData.Y = 1;
+                NeededTrack.ReferenceData.Z = 1;
                 NeededTrack.ReferenceData.W = 1;
 
                 NewM3a.Tracks.Insert(0, NeededTrack);
