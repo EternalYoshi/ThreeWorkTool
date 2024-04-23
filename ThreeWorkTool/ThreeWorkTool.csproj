@@ -396,7 +396,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Lib\" />
-    <Folder Include="Resources\Geometry\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\Arc.png" />
@@ -427,6 +426,7 @@
     <Content Include="Images\Tex.png" />
     <Content Include="Images\Three.png" />
     <Content Include="Images\Unknown.png" />
+    <Content Include="Resources\Geometry\MiniCube.fx" />
     <Content Include="Resources\Wrappers\ExtraNodes\Kaitai\LICENSE.txt" />
     <Content Include="ThreeWorkIconTest.ico" />
   </ItemGroup>
