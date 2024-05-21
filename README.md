@@ -1,10 +1,8 @@
 # ThreeWorkTool
 
-ThreeWorkTool is a GUI Tool I made to make it easier and less time consuming to extract, rename, and insert files into Ultimate Marvel vs Capcom 3's Archive files.
+ThreeWorkTool is a GUI Tool I made to make it easier and less time consuming to extract, replace, and overall manage files inside Ultimate Marvel vs Capcom 3's Archive files.
 
-It also supports texture previews and DDS texture imports now.
-
-Expect weirdness and glitches. They will be fixed over time.
+It supports DDS texture imports, character animation keyframe import/exports, and more.
 
 This is built targeting .NET Framework 4.7 if that concerns anyone.
 
@@ -13,6 +11,15 @@ Thanks to TGE, Gneiss, and smb123w64gb for assistance and giving me the resource
 By Eternal Yoshi
 
 Current Changelog:
+
+V0.76
+
+- Made adjustment to saving arc files to avoid having redundant data when the new file is smaller.
+- Fixed an issue regarding scale upon re-reimported animations.
+- Added some basic data on Track type 224; not complete yet.
+Blender Plugin updated to V0.8.
+- Rewrote Export error handler for abnormal fcurve data so it works properly, ignores the unusable data, and continues as normal.
+
 
 V0.75
 - Added forgotten export code for BaseAct files.
