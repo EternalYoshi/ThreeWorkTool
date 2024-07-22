@@ -2312,6 +2312,7 @@ namespace ThreeWorkTool
                                 }
                                 else
                                 {
+                                    MessageBox.Show("Save failed. is there a corrupt or malformed file inside this arc?\nCheck all edited files before closing this\nto avoid ending up with a corrupt arc file after closing.\nHere's details:" + ex);
                                     ProperPath = Globals.ToolPath + "Log.txt";
                                     using (StreamWriter sw = File.AppendText(ProperPath))
                                     {
