@@ -2,7 +2,7 @@ bl_info = {
 "name": "UMVC3 Animation YML Importer",
 "description":"For importing UMVC3 animations.",
 "author":"Eternal Yoshi",
-"version":(0,0,8),
+"version":(0,0,9),
 "blender":(3,0,0),
 "location": "File > Import",
 "warning": "Set your Armature to the Bind Pose before applying animations or risk having a bad time.",
@@ -15,14 +15,13 @@ def install_module(module):
     subprocess.check_call(['pip', 'install', module])
     print(f"The module {module} was installed")
 
-import pip
-pip.main(['install', 'pyyaml', '--user'])
+#import pip
+#pip.main(['install', 'pyyaml', '--user'])
 
 try: 
     import yaml
 except ImportError:
-    print("The yaml module appears to be missing so let's attempt to install it.\n")
-    install_module('yaml')
+    print("The yaml module appears to be missing...\n")
     import yaml
 
 
@@ -844,50 +843,54 @@ def readM3AanimationData(self,context,filepath,read_SaveFakeUser):
                 for id, Keyframe in enumerate(data_loaded.KeyFrames):
                     
                     BID = data_loaded.KeyFrames[0]['BoneID']
-
+                    #import pdb; pdb.set_trace()
                     #Checks if the bone exists on the Armature in the scene and will skip if it doesn't.
                     if bpy.data.objects["Armature"].data.bones.get(f'jnt_{BID}') is None:
+                        print("Could not find this on the model: ", f'jnt_{BID}', "With the id value at: ", str(id))
                         continue
-
-                    #Selects the bone and deselects everything else.
-                    bpy.context.active_object.select_set(False)
-                    for obj in bpy.context.selected_objects:
-                        bpy.context.view_layer.objects.active = obj
-
-                    obj = bpy.data.objects["Armature"]
-                    joint = obj.pose.bones[f'jnt_{BID}']
-                    jointEdit = bpy.data.armatures["Armature"].bones[f'jnt_{BID}'].matrix
-
-                    #If the animation range is lower than the current frame, expand the animation range to accomodate.
-                    if int(RScene.frame_end < data_loaded.FrameCount):
-                        RScene.frame_end = data_loaded.FrameCount
-                    
-                    print(Keyframe['BoneID'])
-                    if (id != 0):
-                        #Thing.
-                        if(Keyframe['BoneID'] != PrevBoneID or Keyframe['TrackType'] != PrevTrackType):
-                            #Apply Stuff here.
-                                                    
-                            #Go To function when Track is used to apply all keyframes to specified bone.
-                            ApplyTheTrack(Track, obj, joint, jointEdit, AnimName)
-                                
-                            #Then we empty the Track.
-                            del Track[:]
-                                
-                            #Then continue as usual.
-                            Track.append(Keyframe)
-                            PrevTrackType = Keyframe['TrackType']
-                            PrevBoneID = Keyframe['BoneID']
-                    
-                        else:      
-                            Track.append(Keyframe)
-                            PrevTrackType = Keyframe['TrackType']
-                            PrevBoneID = Keyframe['BoneID']
-            
+                        
                     else:
-                        Track.append(Keyframe)    
-                        PrevTrackType = Keyframe['TrackType']
-                        PrevBoneID = Keyframe['BoneID']
+
+                        #Selects the bone and deselects everything else.
+                        bpy.context.active_object.select_set(False)
+                        for obj in bpy.context.selected_objects:
+                            bpy.context.view_layer.objects.active = obj
+
+                        obj = bpy.data.objects["Armature"]
+                        joint = obj.pose.bones[f'jnt_{BID}']
+                        jointEdit = bpy.data.armatures["Armature"].bones[f'jnt_{BID}'].matrix
+
+                        #If the animation range is lower than the current frame, expand the animation range to accomodate.
+                        if int(RScene.frame_end < data_loaded.FrameCount):
+                            RScene.frame_end = data_loaded.FrameCount
+                        
+                        print(Keyframe['BoneID'])
+                        
+                        if (id != 0):
+                            #Thing.
+                            if(Keyframe['BoneID'] != PrevBoneID or Keyframe['TrackType'] != PrevTrackType):
+                                #Apply Stuff here.
+                                                        
+                                #Go To function when Track is used to apply all keyframes to specified bone.
+                                ApplyTheTrack(Track, obj, joint, jointEdit, AnimName)
+                                    
+                                #Then we empty the Track.
+                                del Track[:]
+                                    
+                                #Then continue as usual.
+                                Track.append(Keyframe)
+                                PrevTrackType = Keyframe['TrackType']
+                                PrevBoneID = Keyframe['BoneID']
+                        
+                            else:      
+                                Track.append(Keyframe)
+                                PrevTrackType = Keyframe['TrackType']
+                                PrevBoneID = Keyframe['BoneID']
+                
+                        else:
+                            Track.append(Keyframe)    
+                            PrevTrackType = Keyframe['TrackType']
+                            PrevBoneID = Keyframe['BoneID']
                                 
                                 
                                 

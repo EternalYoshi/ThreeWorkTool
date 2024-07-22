@@ -10241,6 +10241,8 @@ namespace ThreeWorkTool
             Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
             if (IMPDialog.ShowDialog() == DialogResult.OK)
             {
+                frename.Mainfrm.TreeSource.Hide();
+                frename.Mainfrm.TreeSource.Update();
 
                 string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
 
@@ -10252,7 +10254,6 @@ namespace ThreeWorkTool
                     {
                         #region Texture .tex
                         case ".tex":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperTEX = new ArcEntryWrapper();
                             TextureEntry Tentry = new TextureEntry();
 
@@ -10277,7 +10278,6 @@ namespace ThreeWorkTool
                             string typeTEX = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeTEX = new TreeNode();
                             TreeNode selectednodeTEX = new TreeNode();
@@ -10317,7 +10317,6 @@ namespace ThreeWorkTool
 
                         #region LRP
                         case ".lrp":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperRPL = new ArcEntryWrapper();
                             ResourcePathListEntry RlistEntry = new ResourcePathListEntry();
 
@@ -10349,8 +10348,6 @@ namespace ThreeWorkTool
 
                             string typeRPL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeRPL = new TreeNode();
                             TreeNode selectednodeRPL = new TreeNode();
@@ -10389,7 +10386,6 @@ namespace ThreeWorkTool
 
                         #region ChainList
                         case ".cst":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperChainList = new ArcEntryWrapper();
                             ChainListEntry ChnLstlistEntry = new ChainListEntry();
 
@@ -10421,8 +10417,6 @@ namespace ThreeWorkTool
 
                             string typeCST = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeCST = new TreeNode();
                             TreeNode selectednodeCST = new TreeNode();
@@ -10460,7 +10454,6 @@ namespace ThreeWorkTool
 
                         #region Chain
                         case ".chn":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperCHN = new ArcEntryWrapper();
                             ChainEntry CHNEntry = new ChainEntry();
 
@@ -10485,8 +10478,6 @@ namespace ThreeWorkTool
 
                             string typeCHN = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode CHNrootnode = new TreeNode();
                             TreeNode CHNselectednode = new TreeNode();
@@ -10527,7 +10518,6 @@ namespace ThreeWorkTool
                         #region ChainCollision
 
                         case ".ccl":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperCCL = new ArcEntryWrapper();
                             ChainEntry CCLEntry = new ChainEntry();
 
@@ -10551,8 +10541,6 @@ namespace ThreeWorkTool
 
                             string typeCCL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode CCLrootnode = new TreeNode();
                             TreeNode CCLselectednode = new TreeNode();
@@ -10592,7 +10580,6 @@ namespace ThreeWorkTool
 
                         #region MSD
                         case ".msd":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperMSD = new ArcEntryWrapper();
                             MSDEntry MSDEntry = new MSDEntry();
 
@@ -10618,8 +10605,6 @@ namespace ThreeWorkTool
 
                             string typeMSD = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeMSD = new TreeNode();
                             TreeNode selectednodeMSD = new TreeNode();
@@ -10658,7 +10643,6 @@ namespace ThreeWorkTool
 
                         #region LMT
                         case ".lmt":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperLMT = new ArcEntryWrapper();
                             LMTEntry LMotionEntry = new LMTEntry();
 
@@ -10684,8 +10668,6 @@ namespace ThreeWorkTool
 
                             string typeLMT = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeLMT = new TreeNode();
                             TreeNode selectednodeLMT = new TreeNode();
@@ -10747,7 +10729,6 @@ namespace ThreeWorkTool
                             if (frmtexencode.DialogResult == DialogResult.OK)
                             {
 
-                                frename.Mainfrm.TreeSource.BeginUpdate();
                                 ArcEntryWrapper NewWrapperDDS = new ArcEntryWrapper();
                                 TextureEntry DDSentry = new TextureEntry();
 
@@ -10772,8 +10753,6 @@ namespace ThreeWorkTool
 
                                 string typeDDS = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                 frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                                frename.Mainfrm.TreeSource.EndUpdate();
 
                                 TreeNode rootnodeDDS = new TreeNode();
                                 TreeNode selectednodeDDS = new TreeNode();
@@ -10817,7 +10796,6 @@ namespace ThreeWorkTool
 
                         #region Material
                         case ".mrl":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperMRL = new ArcEntryWrapper();
                             MaterialEntry MRLEntry = new MaterialEntry();
 
@@ -10841,8 +10819,6 @@ namespace ThreeWorkTool
 
                             string typeMRL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode MRLrootnode = new TreeNode();
                             TreeNode MRLselectednode = new TreeNode();
@@ -10888,7 +10864,6 @@ namespace ThreeWorkTool
 
                         #region Model
                         case ".mod":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperMOD = new ArcEntryWrapper();
                             ModelEntry MODEntry = new ModelEntry();
 
@@ -10912,8 +10887,6 @@ namespace ThreeWorkTool
 
                             string typeMOD = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode MODrootnode = new TreeNode();
                             TreeNode MODselectednode = new TreeNode();
@@ -10962,7 +10935,6 @@ namespace ThreeWorkTool
 
                         #region Missions
                         case ".mis":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperMIS = new ArcEntryWrapper();
                             MissionEntry MISEntry = new MissionEntry();
 
@@ -10986,8 +10958,6 @@ namespace ThreeWorkTool
 
                             string typeMIS = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode MISrootnode = new TreeNode();
                             TreeNode MISselectednode = new TreeNode();
@@ -11036,7 +11006,6 @@ namespace ThreeWorkTool
                         #region GEM
 
                         case ".gem":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperGEM = new ArcEntryWrapper();
                             GemEntry GeMEntry = new GemEntry();
 
@@ -11066,8 +11035,6 @@ namespace ThreeWorkTool
 
                             string typeGEM = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeGEM = new TreeNode();
                             TreeNode selectednodeGEM = new TreeNode();
@@ -11107,7 +11074,6 @@ namespace ThreeWorkTool
 
                         #region RIFF
                         case ".xsew":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperRIF = new ArcEntryWrapper();
                             RIFFEntry RIFFEntry = new RIFFEntry();
 
@@ -11131,8 +11097,6 @@ namespace ThreeWorkTool
 
                             string typeRIF = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeRIF = new TreeNode();
                             TreeNode selectednodeRIF = new TreeNode();
@@ -11170,7 +11134,6 @@ namespace ThreeWorkTool
                         #region EFL
 
                         case ".efl":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperEFL = new ArcEntryWrapper();
                             EffectListEntry EFLEntry = new EffectListEntry();
 
@@ -11194,8 +11157,6 @@ namespace ThreeWorkTool
 
                             string typeEFL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeEFL = new TreeNode();
                             TreeNode selectednodeEFL = new TreeNode();
@@ -11242,7 +11203,6 @@ namespace ThreeWorkTool
                         #region ShotList
 
                         case ".lsh":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperLSH = new ArcEntryWrapper();
                             ShotListEntry LSHEntry = new ShotListEntry();
 
@@ -11272,8 +11232,6 @@ namespace ThreeWorkTool
 
                             string typeLSH = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeLSH = new TreeNode();
                             TreeNode selectednodeLSH = new TreeNode();
@@ -11314,7 +11272,6 @@ namespace ThreeWorkTool
                         #region StageObjectLayout
 
                         case ".slo":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperSLO = new ArcEntryWrapper();
                             StageObjLayoutEntry SLOEntry = new StageObjLayoutEntry();
 
@@ -11341,7 +11298,6 @@ namespace ThreeWorkTool
                             string typeSLO = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeSLO = new TreeNode();
                             TreeNode selectednodeSLO = new TreeNode();
@@ -11388,7 +11344,6 @@ namespace ThreeWorkTool
                         #region STQR
 
                         case ".stqr":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperSTQR = new ArcEntryWrapper();
                             STQREntry STQrEntry = new STQREntry();
 
@@ -11414,8 +11369,6 @@ namespace ThreeWorkTool
 
                             string typeSTQR = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeSTQR = new TreeNode();
                             TreeNode selectednodeSTQR = new TreeNode();
@@ -11462,7 +11415,6 @@ namespace ThreeWorkTool
                         #region AtkInfo
                         case ".ati":
                         case ".227A8048":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperAtkInfo = new ArcEntryWrapper();
                             AtkInfoEntry atiEntry = new AtkInfoEntry();
 
@@ -11486,8 +11438,6 @@ namespace ThreeWorkTool
 
                             string typeAtkInfo = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeAtkInfo = new TreeNode();
                             TreeNode selectednodeAtkInfo = new TreeNode();
@@ -11525,7 +11475,6 @@ namespace ThreeWorkTool
                         #region Shot
                         case ".sht":
                         case ".10BE43D4":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperShot = new ArcEntryWrapper();
                             ShotEntry shtEntry = new ShotEntry();
 
@@ -11549,8 +11498,6 @@ namespace ThreeWorkTool
 
                             string typeShot = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeShot = new TreeNode();
                             TreeNode selectednodeShot = new TreeNode();
@@ -11590,7 +11537,6 @@ namespace ThreeWorkTool
                         case ".anm":
                         case ".5A7E5D8A":
 
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperAnmCmd = new ArcEntryWrapper();
                             AnmCmdEntry anmEntry = new AnmCmdEntry();
 
@@ -11614,8 +11560,6 @@ namespace ThreeWorkTool
 
                             string typeAnmCmd = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeAnmCmd = new TreeNode();
                             TreeNode selectednodeAnmCmd = new TreeNode();
@@ -11654,7 +11598,6 @@ namespace ThreeWorkTool
                         #region ChrBaseAct
                         case ".cba":
                         case ".3C6EA504":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperChrBaseAct = new ArcEntryWrapper();
                             ChrBaseActEntry cbaEntry = new ChrBaseActEntry();
 
@@ -11678,8 +11621,6 @@ namespace ThreeWorkTool
 
                             string typeChrBaseAct = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeChrBaseAct = new TreeNode();
                             TreeNode selectednodeChrBaseAct = new TreeNode();
@@ -11718,7 +11659,6 @@ namespace ThreeWorkTool
                         #region SoundBank
                         case ".sbkr":
                         case ".15D782FB":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperSoundBank = new ArcEntryWrapper();
                             SoundBankEntry sbkrEntry = new SoundBankEntry();
 
@@ -11742,8 +11682,6 @@ namespace ThreeWorkTool
 
                             string typeSoundBank = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeSoundBank = new TreeNode();
                             TreeNode selectednodeSoundBank = new TreeNode();
@@ -11782,7 +11720,6 @@ namespace ThreeWorkTool
                         #region SoundRequest
                         case ".srqr":
                         case ".1BCC4966":
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapperSoundRequest = new ArcEntryWrapper();
                             SoundRequestEntry srqrEntry = new SoundRequestEntry();
 
@@ -11806,8 +11743,6 @@ namespace ThreeWorkTool
 
                             string typeSoundRequest = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnodeSoundRequest = new TreeNode();
                             TreeNode selectednodeSoundRequest = new TreeNode();
@@ -11845,7 +11780,6 @@ namespace ThreeWorkTool
 
                         //For everything else.
                         default:
-                            frename.Mainfrm.TreeSource.BeginUpdate();
                             ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
                             ArcEntry NEntry = new ArcEntry();
 
@@ -11868,8 +11802,6 @@ namespace ThreeWorkTool
 
                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                            frename.Mainfrm.TreeSource.EndUpdate();
 
                             TreeNode rootnode = new TreeNode();
                             TreeNode selectednode = new TreeNode();
@@ -11906,7 +11838,8 @@ namespace ThreeWorkTool
                             break;
                     }
                 }
-
+                frename.Mainfrm.TreeSource.Show();
+                frename.Mainfrm.TreeSource.EndUpdate();
                 frename.Mainfrm.Focus();
 
             }
@@ -13238,6 +13171,8 @@ namespace ThreeWorkTool
             int strindex;
             if (RPAllFilesDialog.ShowDialog() == DialogResult.OK)
             {
+                frename.Mainfrm.TreeSource.Hide();
+                frename.Mainfrm.TreeSource.BeginUpdate();
                 //Gets the directory without any of the text the user put in the Save Dialog.
                 int index = RPAllFilesDialog.FileName.LastIndexOf("\\");
                 RPAllFilesDialog.FileName = RPAllFilesDialog.FileName.Substring(0, (index + 1));
@@ -13250,7 +13185,6 @@ namespace ThreeWorkTool
                 List<TreeNode> Nodes = new List<TreeNode>();
                 frename.Mainfrm.AddChildren(Nodes, frename.Mainfrm.TreeSource.SelectedNode);
                 ParentPath = frename.Mainfrm.TreeSource.SelectedNode.FullPath;
-                frename.Mainfrm.TreeSource.BeginUpdate();
 
                 foreach (TreeNode tno in Nodes)
                 {
@@ -13304,7 +13238,6 @@ namespace ThreeWorkTool
                                         if (File.Exists(TexToCheck) || File.Exists(TexToCheckB))
                                         {
                                             frename.Mainfrm.TreeSource.SelectedNode = tno;
-                                            //frename.Mainfrm.TreeSource.BeginUpdate();
 
                                             TextureEntry Tentry = tno.Tag as TextureEntry;
 
@@ -13493,7 +13426,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            //frename.Mainfrm.TreeSource.EndUpdate();
 
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
@@ -13526,7 +13458,6 @@ namespace ThreeWorkTool
                                             type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            //frename.Mainfrm.TreeSource.EndUpdate();
 
                                         }
 
@@ -13540,7 +13471,6 @@ namespace ThreeWorkTool
                                         if (File.Exists(TexToCheck))
                                         {
                                             frename.Mainfrm.TreeSource.SelectedNode = tno;
-                                            //frename.Mainfrm.TreeSource.BeginUpdate();
 
                                             MaterialEntry Tentry = tno.Tag as MaterialEntry;
                                             ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
@@ -13719,7 +13649,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -13803,7 +13732,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -13883,7 +13811,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -13972,7 +13899,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14056,7 +13982,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14136,7 +14061,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14216,7 +14140,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14305,7 +14228,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14390,7 +14312,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14478,7 +14399,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14557,7 +14477,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14652,7 +14571,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14740,7 +14658,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14828,7 +14745,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14907,7 +14823,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -14986,7 +14901,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -15065,7 +14979,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -15144,7 +15057,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -15223,7 +15135,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -15302,7 +15213,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -15398,7 +15308,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -15469,7 +15378,6 @@ namespace ThreeWorkTool
                                             string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
                                             frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
-                                            frename.Mainfrm.TreeSource.EndUpdate();
                                             //Writes to log file.
                                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                             {
@@ -15492,9 +15400,8 @@ namespace ThreeWorkTool
                 }
 
 
-
             }
-
+            frename.Mainfrm.TreeSource.Show();
             frename.Mainfrm.TreeSource.EndUpdate();
 
         }
