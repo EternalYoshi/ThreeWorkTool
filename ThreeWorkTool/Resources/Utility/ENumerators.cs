@@ -33,5 +33,38 @@ namespace ThreeWorkTool.Resources.Utility
 
         };
 
+        public enum KnownExtensions
+        {
+            tex = 0,
+            ean = 1,
+            mrl = 2,
+            mod = 3,
+            chn = 4,
+            ccl = 5,
+            cst = 6,
+            lmt = 7,
+            anm = 8,
+            gem = 9,
+            efl = 10,
+            sdl = 11,
+            rpl = 12,
+            lrp = 13
+            /*
+            ".tex" = 0,
+            ".ean" = 1,            
+            ".mrl" = 2,
+            ".mod" = 3,
+            ".chn" = 4,
+            ".ccl" = 5,
+            ".cst" = 6,
+            ".lmt" = 7,
+            ".anm" = 8,
+            ".gem" = 9,
+            ".efl" = 10,
+            ".sdl" = 11,
+            ".rpl" = 12
+            */
+        };
+
     }
 }

@@ -26,6 +26,8 @@ using Ookii.Dialogs.Wpf;
 using ThreeWorkTool.Resources.Wrappers.AnimNodes;
 using Octokit;
 using System.Reflection;
+using System.Threading.Tasks;
+using static ThreeWorkTool.Resources.Utility.ENumerators;
 
 namespace ThreeWorkTool
 {
@@ -12687,7 +12689,7 @@ namespace ThreeWorkTool
                 catch (Exception ex)
                 {
 
-                    MessageBox.Show("This animation file is bogus.\nEither the syntax is incorrect or there is a value that is of an invalid type.","Animation Import Failed!");
+                    MessageBox.Show("This animation file is bogus.\nEither the syntax is incorrect or there is a value that is of an invalid type.", "Animation Import Failed!");
                     return;
                 }
 
@@ -12793,7 +12795,7 @@ namespace ThreeWorkTool
                         System.IO.Directory.CreateDirectory(ExportPath);
                         ExportPath = ExportPath + M3AENT.MotionID + ".yml";
                         //ExportFileWriter.MA3EntryWriter(ExportPath, M3AENT);
-                        if(M3AENT.FrameCount > 0)
+                        if (M3AENT.FrameCount > 0)
                         {
                             ExportFileWriter.KeyFrameWriter(ExportPath, M3AENT);
 
@@ -19451,6 +19453,130 @@ namespace ThreeWorkTool
                 }
             }
 
+
+        }
+
+        public static int GetIntFromEnumName(string name)
+        {
+            return (int)Enum.Parse(typeof(KnownExtensions), name);
+        }
+
+        private void CorrectFileOrderToolStripMenuItem_ClickAsync(object sender, EventArgs e)
+        {
+
+            OpenFileDialog IMPDialog = new OpenFileDialog();
+            IMPDialog.Multiselect = true;
+            IMPDialog.Title = "Choose the Marvel 3 .arc files you want to fix file order for. It's recommended to backup your arcs before using this.";
+            IMPDialog.Filter = "MT Framework Archive| *.arc";
+
+            if (IMPDialog.ShowDialog() == DialogResult.OK)
+            {
+                /*
+                string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                foreach (string Filename in IMPDialog.FileNames)
+                {
+                }
+                */
+
+                //Task<int> CorrectFO = TimeToCorrectFileOrder(sender, e, IMPDialog.FileNames);
+                //var ArcTask = TimeToCorrectFileOrder(sender, e, IMPDialog.FileNames);
+                //await TimeToCorrectFileOrder(sender, e, IMPDialog.FileNames);
+                //var Result = await ArcTask;
+                //MessageBox.Show(Result.ToString(),"Results Are In!");
+
+                //First we load the arc and get its files.
+                foreach (string Arc in IMPDialog.FileNames)
+                {
+                    List<string> subdirs = new List<String>();
+                    List<string> RPLNameList = new List<string>();
+                    ArcFileIsBigEndian = false;
+                    SPlayer = new SoundPlayer();
+                    ArcFile newArc = ArcFile.LoadArc(TreeSource, Arc, subdirs, ArcFileIsBigEndian, false);
+
+                    NCount = 0;
+                    string Test = "chn";
+                    int res = GetIntFromEnumName(Test);
+                    string Test2 = (Path.GetExtension(Arc)).Substring(1);
+
+
+                    //Sorts the filetypes by extensions.
+                    var Ordered = newArc.FileList.OrderBy(fn => GetIntFromEnumName(((Path.GetExtension(fn)).Substring(1))));
+                    var count = newArc.FileCount;
+                    string FIleToWrite = Arc;
+#if DEBUG
+
+                    //Gets debug name.
+                    int Index = FIleToWrite.LastIndexOf(".");
+                    FIleToWrite = FIleToWrite.Insert(Index, "_TEST");
+
+#endif
+                    try
+                    {
+                        using (BinaryWriter bwr = new BinaryWriter(new FileStream(FIleToWrite, System.IO.FileMode.Create, FileAccess.Write)))
+                        {
+
+                            //Header that has the magic, version number and entry count.
+                            byte[] ArcHeader = { 0x41, 0x52, 0x43, 0x00 };
+                            byte[] ArcVersion = { 0x07, 0x00 };
+                            //int arcentryoffset = 0x04;
+                            bwr.Write(ArcHeader, 0, 4);
+
+                            bwr.Seek(0x04, SeekOrigin.Begin);
+                            bwr.Write(ArcVersion, 0, ArcVersion.Length);
+                            string exportname = "";
+                            string HashType = "";
+                            int ComSize = 0;
+                            int DecSize = 0;
+
+                            //Determines where to start the compressed data storage based on amount of entries.
+                            //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
+                            int DataEntryOffset = (newArc.FileList.Count * 80) + 352;
+
+                            int dataoffset = (newArc.FileList.Count * 80) + 352;
+                            byte[] EntryTotalManifest = BitConverter.GetBytes(Convert.ToInt16(newArc.FileList.Count));
+
+                            bwr.Write(EntryTotalManifest, 0, EntryTotalManifest.Length);
+
+                            //Uses the List to search for specific nodes via the Manifest file.
+                            foreach (string str in newArc.FileList)
+                            {
+                                //Gets the paths of each entry, the filename, and the file extension as search terms.
+                                string[] SearchTerms = str.Split(new string[] { ".", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+
+
+                            }
+
+
+                        }
+                    }
+                    catch (Exception Ex)
+                    {
+
+                    }
+                }
+
+
+            }
+
+        }
+
+        static async Task<int> TimeToCorrectFileOrder(object sender, EventArgs e, string[] filenames)
+        {
+            string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+            try
+            {
+                foreach (string Arc in filenames)
+                {
+                    List<string> subdirs = new List<String>();
+                    ArcFile newArc = ArcFile.LoadArc(frename.Mainfrm.TreeSource, Arc, subdirs, false, false);
+                }
+            }
+            catch (Exception Ex)
+            {
+                return 1;
+            }
+            return 0;
 
         }
 
