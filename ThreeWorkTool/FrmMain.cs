@@ -21247,122 +21247,124 @@ namespace ThreeWorkTool
                 //await TimeToCorrectFileOrder(sender, e, IMPDialog.FileNames);
                 //var Result = await ArcTask;
                 //MessageBox.Show(Result.ToString(),"Results Are In!");
-
-                //First we load the arc and get its files.
-                foreach (string Arc in IMPDialog.FileNames)
+                DialogResult DelResult = MessageBox.Show("This WILL go through all the selected arcs and overwrite them with\ncorrected File Order. This is not something that can be undone so\nmake sure you make backups before proceeeding!", "Caution", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+                if (DelResult == DialogResult.Yes)
                 {
-                    List<string> subdirs = new List<String>();
-                    List<string> RPLNameList = new List<string>();
-                    ArcFileIsBigEndian = false;
-                    SPlayer = new SoundPlayer();
-                    ArcFile newArc = ArcFile.LoadArc(TreeSource, Arc, subdirs, ArcFileIsBigEndian, false);
-
-                    NCount = 0;
-                    string Test = "chn";
-                    int res = GetIntFromEnumName(Test);
-                    string Test2 = (Path.GetExtension(Arc)).Substring(1);
-
-
-                    //Sorts the filetypes by extensions.
-                    List<string> Ordered = (newArc.FileList.OrderBy(fn => GetIntFromEnumName((Path.GetExtension(fn).Substring(1))))).ToList();
-                    var count = newArc.FileCount;
-                    string FIleToWrite = Arc;
-#if DEBUG
-
-                    //Gets debug name.
-                    int Index = FIleToWrite.LastIndexOf(".");
-                    FIleToWrite = FIleToWrite.Insert(Index, "_TEST");
-
-#endif
-                    try
+                    //First we load the arc and get its files.
+                    foreach (string Arc in IMPDialog.FileNames)
                     {
-                        using (BinaryWriter bwr = new BinaryWriter(new FileStream(FIleToWrite, System.IO.FileMode.Create, FileAccess.Write)))
+                        List<string> subdirs = new List<String>();
+                        List<string> RPLNameList = new List<string>();
+                        ArcFileIsBigEndian = false;
+                        SPlayer = new SoundPlayer();
+                        ArcFile newArc = ArcFile.LoadArc(TreeSource, Arc, subdirs, ArcFileIsBigEndian, false);
+
+                        NCount = 0;
+                        string Test = "chn";
+                        int res = GetIntFromEnumName(Test);
+                        string Test2 = (Path.GetExtension(Arc)).Substring(1);
+
+
+                        //Sorts the filetypes by extensions.
+                        List<string> Ordered = (newArc.FileList.OrderBy(fn => GetIntFromEnumName((Path.GetExtension(fn).Substring(1))))).ToList();
+                        var count = newArc.FileCount;
+                        string FIleToWrite = Arc;
+                        //#if DEBUG
+
+                        //                    //Gets debug name.
+                        //                    int Index = FIleToWrite.LastIndexOf(".");
+                        //                    FIleToWrite = FIleToWrite.Insert(Index, "_TEST");
+
+                        //#endif
+                        try
                         {
-
-                            //Header that has the magic, version number and entry count.
-                            byte[] ArcHeader = { 0x41, 0x52, 0x43, 0x00 };
-                            byte[] ArcVersion = { 0x07, 0x00 };
-                            //int arcentryoffset = 0x04;
-                            bwr.Write(ArcHeader, 0, 4);
-
-                            bwr.Seek(0x04, SeekOrigin.Begin);
-                            bwr.Write(ArcVersion, 0, ArcVersion.Length);
-                            string exportname = "";
-                            string HashType = "";
-                            int ComSize = 0;
-                            int DecSize = 0;
-
-                            //Determines where to start the compressed data storage based on amount of entries.
-                            //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
-                            int DataEntryOffset = (newArc.FileList.Count * 80) + 352;
-
-                            int dataoffset = (newArc.FileList.Count * 80) + 352;
-                            byte[] EntryTotalManifest = BitConverter.GetBytes(Convert.ToInt16(newArc.FileList.Count));
-
-                            bwr.Write(EntryTotalManifest, 0, EntryTotalManifest.Length);
-
-                            //Uses the List to Iterate through each file.
-
-                            foreach (string str in Ordered)
+                            using (BinaryWriter bwr = new BinaryWriter(new FileStream(FIleToWrite, System.IO.FileMode.Create, FileAccess.Write)))
                             {
-                                //Gets the paths of each entry, the filename, and the file extension as search terms.
-                                string[] SearchTerms = str.Split(new string[] { ".", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-                                //Iterates through all the files in the Filelist.
-                                foreach (var File in newArc.arcfiles)
+                                //Header that has the magic, version number and entry count.
+                                byte[] ArcHeader = { 0x41, 0x52, 0x43, 0x00 };
+                                byte[] ArcVersion = { 0x07, 0x00 };
+                                //int arcentryoffset = 0x04;
+                                bwr.Write(ArcHeader, 0, 4);
+
+                                bwr.Seek(0x04, SeekOrigin.Begin);
+                                bwr.Write(ArcVersion, 0, ArcVersion.Length);
+                                string exportname = "";
+                                string HashType = "";
+                                int ComSize = 0;
+                                int DecSize = 0;
+
+                                //Determines where to start the compressed data storage based on amount of entries.
+                                //New and more sensible way to calculate the start of the data set to ensure no overwriting no matter the amount of files.
+                                int DataEntryOffset = (newArc.FileList.Count * 80) + 352;
+
+                                int dataoffset = (newArc.FileList.Count * 80) + 352;
+                                byte[] EntryTotalManifest = BitConverter.GetBytes(Convert.ToInt16(newArc.FileList.Count));
+
+                                bwr.Write(EntryTotalManifest, 0, EntryTotalManifest.Length);
+
+                                //Uses the List to Iterate through each file.
+
+                                foreach (string str in Ordered)
                                 {
-                                    //Checks only the filepath.
-                                    DefaultWrapper defwrapper = File as DefaultWrapper;
-                                    if (defwrapper.EntryName == str)
-                                    {
+                                    //Gets the paths of each entry, the filename, and the file extension as search terms.
+                                    string[] SearchTerms = str.Split(new string[] { ".", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-                                        DataEntryOffset = WriteBlockToArchiveTwo(bwr, File, exportname, HashType, ComSize, DecSize, DataEntryOffset);
+                                    //Iterates through all the files in the Filelist.
+                                    foreach (var File in newArc.arcfiles)
+                                    {
+                                        //Checks only the filepath.
+                                        DefaultWrapper defwrapper = File as DefaultWrapper;
+                                        if (defwrapper.EntryName == str)
+                                        {
+
+                                            DataEntryOffset = WriteBlockToArchiveTwo(bwr, File, exportname, HashType, ComSize, DecSize, DataEntryOffset);
+
+                                        }
 
                                     }
 
+
                                 }
 
+                                bwr.BaseStream.Position = 0;
+                                long CPos = bwr.Seek(dataoffset, SeekOrigin.Current);
 
-                            }
-
-                            bwr.BaseStream.Position = 0;
-                            long CPos = bwr.Seek(dataoffset, SeekOrigin.Current);
-
-                            //Uses the List to Iterate through each file... again.
-                            foreach (string str in Ordered)
-                            {
-                                //Gets the paths of each entry, the filename, and the file extension as search terms.
-                                string[] SearchTerms = str.Split(new string[] { ".", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
-                                //Iterates through all the files in the Filelist.
-                                foreach (var File in newArc.arcfiles)
+                                //Uses the List to Iterate through each file... again.
+                                foreach (string str in Ordered)
                                 {
-                                    //Checks only the filepath.
-                                    DefaultWrapper defwrapper = File as DefaultWrapper;
-                                    if (defwrapper.EntryName == str)
-                                    {
+                                    //Gets the paths of each entry, the filename, and the file extension as search terms.
+                                    string[] SearchTerms = str.Split(new string[] { ".", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-                                        WriteCompressedDataToArchiveTwo(bwr, File, exportname, HashType, ComSize, DecSize, DataEntryOffset);
+                                    //Iterates through all the files in the Filelist.
+                                    foreach (var File in newArc.arcfiles)
+                                    {
+                                        //Checks only the filepath.
+                                        DefaultWrapper defwrapper = File as DefaultWrapper;
+                                        if (defwrapper.EntryName == str)
+                                        {
+
+                                            WriteCompressedDataToArchiveTwo(bwr, File, exportname, HashType, ComSize, DecSize, DataEntryOffset);
+
+                                        }
 
                                     }
 
+
                                 }
-
-
+                                bwr.Close();
                             }
-                            bwr.Close();
+
+
                         }
 
-
+                        catch (Exception Ex)
+                        {
+                            MessageBox.Show("An Error has occured. Here's details:\n" + Ex, "Unfortunate");
+                        }
                     }
-
-                    catch (Exception Ex)
-                    {
-
-                    }
+                    MessageBox.Show("Done!", "Operation Complete!");
                 }
-
-
             }
 
         }
