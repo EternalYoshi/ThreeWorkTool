@@ -22,6 +22,7 @@ namespace ThreeWorkTool.Resources.Archives
         public string FileExt;
         public string TrueName;
         public string TempFolder;
+        public string BaseEntryName;
         public int AOffset;
         public int CSize;
         public int DSize;

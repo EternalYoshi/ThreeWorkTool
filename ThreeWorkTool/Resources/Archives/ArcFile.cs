@@ -17,6 +17,7 @@ namespace ThreeWorkTool.Resources.Archives
         public List<ArcEntry> arctableBACKUP;
         public List<object> arcfiles;
         public List<String> FileList;
+        public List<String> ArcFileNames;
         public List<String> TypeHashes;
         public int FLOffset;
         public static StringBuilder SBname;
@@ -38,9 +39,9 @@ namespace ThreeWorkTool.Resources.Archives
 
         public static string[] RecogExtensions = { ".TEX", ".MOD", ".MRL", ".CHN", ".CCL", ".CST", ".LMT", ".GEM", ".XSEW", ".LSH" };
 
-        public static ArcFile LoadArc(TreeView tree, string filename, List<string> foldernames, bool IsBigEndian, bool Verifier = false,Type filetype = null, int arcsize = -1)
+        public static ArcFile LoadArc(TreeView tree, string filename, List<string> foldernames, bool IsBigEndian, bool Verifier = false, Type filetype = null, int arcsize = -1)
         {
-            
+
             ArcFile arcfile = new ArcFile();
             byte[] Bytes = File.ReadAllBytes(filename);
 
@@ -101,6 +102,7 @@ namespace ThreeWorkTool.Resources.Archives
                 arcfile.arctable = new List<ArcEntry>();
                 arcfile.arcfiles = new List<object>();
                 arcfile.FileList = new List<string>();
+                arcfile.ArcFileNames = new List<string>();
                 arcfile.TypeHashes = new List<string>();
 
                 br.BaseStream.Position = 4;
@@ -152,6 +154,7 @@ namespace ThreeWorkTool.Resources.Archives
                 for (int i = 0; i < arcfile.FileCount; i++)
                 {
                     j = 8 + (80 * i);
+                    int dotin = 0;
                     switch (arcfile.TypeHashes[i])
                     {
                         //Texture Files.
@@ -159,6 +162,9 @@ namespace ThreeWorkTool.Resources.Archives
                             TextureEntry newtexen = TextureEntry.FillTexEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(newtexen);
                             arcfile.FileList.Add(newtexen.EntryName);
+                            dotin = newtexen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(newtexen.EntryName.Substring(0, (dotin)));
+                            newtexen.BaseEntryName = newtexen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -168,6 +174,9 @@ namespace ThreeWorkTool.Resources.Archives
                             ResourcePathListEntry newplen = ResourcePathListEntry.FillRPLEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(newplen);
                             arcfile.FileList.Add(newplen.EntryName);
+                            dotin = newplen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(newplen.EntryName.Substring(0, (dotin)));
+                            newplen.BaseEntryName = newplen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -178,26 +187,35 @@ namespace ThreeWorkTool.Resources.Archives
                             MaterialEntry Maten = MaterialEntry.FillMatEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(Maten);
                             arcfile.FileList.Add(Maten.EntryName);
+                            dotin = Maten.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(Maten.EntryName.Substring(0, (dotin)));
+                            Maten.BaseEntryName = Maten.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             arcfile.MaterialCount++;
                             break;
-                            
+
 
                         //LMT Files.
                         case "76820D81":
                             LMTEntry LMTen = LMTEntry.FillLMTEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(LMTen);
                             arcfile.FileList.Add(LMTen.EntryName);
+                            dotin = LMTen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(LMTen.EntryName.Substring(0, (dotin)));
+                            LMTen.BaseEntryName = LMTen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
-                        
+
                         //MSD Files.
                         case "5B55F5B1":
                             MSDEntry newmsden = MSDEntry.FillMSDEntry(filename, foldernames, tree, br, Bytes, j, IDCounter);
                             arcfile.arcfiles.Add(newmsden);
                             arcfile.FileList.Add(newmsden.EntryName);
+                            dotin = newmsden.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(newmsden.EntryName.Substring(0, (dotin)));
+                            newmsden.BaseEntryName = newmsden.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -207,6 +225,9 @@ namespace ThreeWorkTool.Resources.Archives
                             ChainListEntry CSTen = ChainListEntry.FillCSTEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(CSTen);
                             arcfile.FileList.Add(CSTen.EntryName);
+                            dotin = CSTen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(CSTen.EntryName.Substring(0, (dotin)));
+                            CSTen.BaseEntryName = CSTen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -216,6 +237,9 @@ namespace ThreeWorkTool.Resources.Archives
                             ChainEntry CHNen = ChainEntry.FillChainEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(CHNen);
                             arcfile.FileList.Add(CHNen.EntryName);
+                            dotin = CHNen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(CHNen.EntryName.Substring(0, (dotin)));
+                            CHNen.BaseEntryName = CHNen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -225,6 +249,9 @@ namespace ThreeWorkTool.Resources.Archives
                             ChainCollisionEntry CCLen = ChainCollisionEntry.FillChainCollEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(CCLen);
                             arcfile.FileList.Add(CCLen.EntryName);
+                            dotin = CCLen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(CCLen.EntryName.Substring(0, (dotin)));
+                            CCLen.BaseEntryName = CCLen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -234,41 +261,57 @@ namespace ThreeWorkTool.Resources.Archives
                             ModelEntry MODen = ModelEntry.FillModelEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(MODen);
                             arcfile.FileList.Add(MODen.EntryName);
+                            dotin = MODen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(MODen.EntryName.Substring(0, (dotin)));
+                            MODen.BaseEntryName = MODen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
 
+                        //MIS Files.
                         case "361EA2A5":
                             MissionEntry MISen = MissionEntry.FillMissionEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(MISen);
                             arcfile.FileList.Add(MISen.EntryName);
+                            dotin = MISen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(MISen.EntryName.Substring(0, (dotin)));
+                            MISen.BaseEntryName = MISen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
 
                         //Gem Files.
                         case "448BBDD4":
-                           GemEntry GEMen = GemEntry.FillGEMEntry(filename, foldernames, tree, br, j, IDCounter);
-                           arcfile.arcfiles.Add(GEMen);
-                           arcfile.FileList.Add(GEMen.EntryName);
-                           foldernames.Clear();
-                           IDCounter++;
-                           break;
+                            GemEntry GEMen = GemEntry.FillGEMEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(GEMen);
+                            arcfile.FileList.Add(GEMen.EntryName);
+                            dotin = GEMen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(GEMen.EntryName.Substring(0, (dotin)));
+                            GEMen.BaseEntryName = GEMen.EntryName.Substring(0, (dotin));
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
 
                         //EFL Files.
                         case "6D5AE854":
-                           EffectListEntry EFLen = EffectListEntry.FillEFLEntry(filename, foldernames, tree, br, j, IDCounter);
-                           arcfile.arcfiles.Add(EFLen);
-                           arcfile.FileList.Add(EFLen.EntryName);
-                           foldernames.Clear();
-                           IDCounter++;
-                           break;
+                            EffectListEntry EFLen = EffectListEntry.FillEFLEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(EFLen);
+                            arcfile.FileList.Add(EFLen.EntryName);
+                            dotin = EFLen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(EFLen.EntryName.Substring(0, (dotin)));
+                            EFLen.BaseEntryName = EFLen.EntryName.Substring(0, (dotin));
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
 
                         //RIF Files.
                         case "724DF879":
                             RIFFEntry RIFen = RIFFEntry.FillRIFFEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(RIFen);
                             arcfile.FileList.Add(RIFen.EntryName);
+                            dotin = RIFen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(RIFen.EntryName.Substring(0, (dotin)));
+                            RIFen.BaseEntryName = RIFen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -278,25 +321,34 @@ namespace ThreeWorkTool.Resources.Archives
                             ShotListEntry LSHen = ShotListEntry.FillShotListEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(LSHen);
                             arcfile.FileList.Add(LSHen.EntryName);
+                            dotin = LSHen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(LSHen.EntryName.Substring(0, (dotin)));
+                            LSHen.BaseEntryName = LSHen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
 
                         //Stage Object Layout Files.
                         case "2C7171FA":
-                           StageObjLayoutEntry SLOen = StageObjLayoutEntry.FillSLOEntry(filename, foldernames, tree, br, j, IDCounter);
-                           arcfile.arcfiles.Add(SLOen);
-                           arcfile.FileList.Add(SLOen.EntryName);
-                           foldernames.Clear();
-                           IDCounter++;
-                           break;
-                            
+                            StageObjLayoutEntry SLOen = StageObjLayoutEntry.FillSLOEntry(filename, foldernames, tree, br, j, IDCounter);
+                            arcfile.arcfiles.Add(SLOen);
+                            arcfile.FileList.Add(SLOen.EntryName);
+                            dotin = SLOen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(SLOen.EntryName.Substring(0, (dotin)));
+                            SLOen.BaseEntryName = SLOen.EntryName.Substring(0, (dotin));
+                            foldernames.Clear();
+                            IDCounter++;
+                            break;
+
                         //STQR files.
                         case "167DBBFF":
                             STQREntry stqren = STQREntry.FillSTQREntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(stqren);
                             arcfile.FileList.Add(stqren.EntryName);
+                            dotin = stqren.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(stqren.EntryName.Substring(0, (dotin)));
                             foldernames.Clear();
+                            stqren.BaseEntryName = stqren.EntryName.Substring(0, (dotin));
                             IDCounter++;
                             break;
 
@@ -305,6 +357,9 @@ namespace ThreeWorkTool.Resources.Archives
                             AtkInfoEntry AtkInfoen = AtkInfoEntry.FillAtkInfoEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(AtkInfoen);
                             arcfile.FileList.Add(AtkInfoen.EntryName);
+                            dotin = AtkInfoen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(AtkInfoen.EntryName.Substring(0, (dotin)));
+                            AtkInfoen.BaseEntryName = AtkInfoen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -314,6 +369,9 @@ namespace ThreeWorkTool.Resources.Archives
                             ShotEntry Shoten = ShotEntry.FillShotEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(Shoten);
                             arcfile.FileList.Add(Shoten.EntryName);
+                            dotin = Shoten.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(Shoten.EntryName.Substring(0, (dotin)));
+                            Shoten.BaseEntryName = Shoten.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -323,15 +381,21 @@ namespace ThreeWorkTool.Resources.Archives
                             AnmCmdEntry AnmCmden = AnmCmdEntry.FillAnmCmdEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(AnmCmden);
                             arcfile.FileList.Add(AnmCmden.EntryName);
+                            dotin = AnmCmden.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(AnmCmden.EntryName.Substring(0, (dotin)));
+                            AnmCmden.BaseEntryName = AnmCmden.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
-                        
+
                         //CBA files.
                         case "3C6EA504":
                             ChrBaseActEntry ChrBaseActen = ChrBaseActEntry.FillChrBaseActEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(ChrBaseActen);
                             arcfile.FileList.Add(ChrBaseActen.EntryName);
+                            dotin = ChrBaseActen.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(ChrBaseActen.EntryName.Substring(0, (dotin)));
+                            ChrBaseActen.BaseEntryName = ChrBaseActen.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -341,6 +405,9 @@ namespace ThreeWorkTool.Resources.Archives
                             SoundBankEntry SoundBanken = SoundBankEntry.FillSoundBankEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(SoundBanken);
                             arcfile.FileList.Add(SoundBanken.EntryName);
+                            dotin = SoundBanken.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(SoundBanken.EntryName.Substring(0, (dotin)));
+                            SoundBanken.BaseEntryName = SoundBanken.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -350,6 +417,9 @@ namespace ThreeWorkTool.Resources.Archives
                             SoundRequestEntry SoundRequesten = SoundRequestEntry.FillSoundRequestEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(SoundRequesten);
                             arcfile.FileList.Add(SoundRequesten.EntryName);
+                            dotin = SoundRequesten.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(SoundRequesten.EntryName.Substring(0, (dotin)));
+                            SoundRequesten.BaseEntryName = SoundRequesten.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
@@ -370,13 +440,16 @@ namespace ThreeWorkTool.Resources.Archives
                             ArcEntry newentry = ArcEntry.FillArcEntry(filename, foldernames, tree, br, j, IDCounter);
                             arcfile.arcfiles.Add(newentry);
                             arcfile.FileList.Add(newentry.EntryName);
+                            dotin = newentry.EntryName.LastIndexOf(".");
+                            arcfile.ArcFileNames.Add(newentry.EntryName.Substring(0, (dotin)));
+                            newentry.BaseEntryName = newentry.EntryName.Substring(0, (dotin));
                             foldernames.Clear();
                             IDCounter++;
                             break;
                     }
                 }
 
-                arcfile._FileAmount = Convert.ToUInt16(IDCounter);                
+                arcfile._FileAmount = Convert.ToUInt16(IDCounter);
 
                 br.Close();
             }
