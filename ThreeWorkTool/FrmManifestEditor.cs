@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using ThreeWorkTool.Resources.Wrappers;
 using ThreeWorkTool.Resources.Wrappers.AnimNodes;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using ThreeWorkTool.Resources.Wrappers.ModelNodes;
+using static ThreeWorkTool.Resources.Utility.ENumerators;
 
 namespace ThreeWorkTool
 {
@@ -66,6 +68,11 @@ namespace ThreeWorkTool
 
         }
 
+        public static int GetIntFromEnumName(string name)
+        {
+            return (int)Enum.Parse(typeof(KnownExtensions), name);
+        }
+
         public void RefreshManifest(List<string> ManifestText, FrmMainThree frmMain)
         {
 
@@ -113,6 +120,14 @@ namespace ThreeWorkTool
                 txtManifest.Text = txtManifest.Text + Temstr + "\n";
             }
 
+            //Corrects File Order.
+            List<string> Ordered = (Mainfrm.Manifest.OrderBy(fn => GetIntFromEnumName((Path.GetExtension(fn).Substring(1))))).ToList();
+            txtManifest.Text = "";
+            foreach (string str in Ordered)
+            {
+                Temstr = str.Substring(str.IndexOf("\\") + 1);
+                txtManifest.Text = txtManifest.Text + Temstr + "\n";
+            }
         }
 
         private void btnRefreshList_Click(object sender, EventArgs e)
