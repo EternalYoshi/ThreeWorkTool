@@ -28,43 +28,94 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmLoading));
             this.lblPlsWait = new System.Windows.Forms.Label();
             this.prgLoading = new System.Windows.Forms.ProgressBar();
             this.lblCurrentFile = new System.Windows.Forms.Label();
             this.lblFileCount = new System.Windows.Forms.Label();
+            this.lblCurFile = new System.Windows.Forms.Label();
+            this.lblCurIndex = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // lblPlsWait
             // 
-            resources.ApplyResources(this.lblPlsWait, "lblPlsWait");
+            this.lblPlsWait.AutoSize = true;
+            this.lblPlsWait.Location = new System.Drawing.Point(13, 13);
             this.lblPlsWait.Name = "lblPlsWait";
+            this.lblPlsWait.Size = new System.Drawing.Size(80, 13);
+            this.lblPlsWait.TabIndex = 0;
+            this.lblPlsWait.Text = "One Moment....";
             // 
             // prgLoading
             // 
-            resources.ApplyResources(this.prgLoading, "prgLoading");
+            this.prgLoading.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.prgLoading.Location = new System.Drawing.Point(12, 101);
             this.prgLoading.Name = "prgLoading";
+            this.prgLoading.Size = new System.Drawing.Size(303, 23);
             this.prgLoading.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.prgLoading.TabIndex = 1;
             // 
             // lblCurrentFile
             // 
-            resources.ApplyResources(this.lblCurrentFile, "lblCurrentFile");
+            this.lblCurrentFile.AutoSize = true;
+            this.lblCurrentFile.Location = new System.Drawing.Point(13, 36);
             this.lblCurrentFile.Name = "lblCurrentFile";
+            this.lblCurrentFile.Size = new System.Drawing.Size(77, 13);
+            this.lblCurrentFile.TabIndex = 2;
+            this.lblCurrentFile.Text = "Now Serving...";
+            this.lblCurrentFile.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblFileCount
             // 
-            resources.ApplyResources(this.lblFileCount, "lblFileCount");
+            this.lblFileCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.lblFileCount.AutoSize = true;
+            this.lblFileCount.Location = new System.Drawing.Point(136, 75);
             this.lblFileCount.Name = "lblFileCount";
+            this.lblFileCount.Size = new System.Drawing.Size(33, 13);
+            this.lblFileCount.TabIndex = 3;
+            this.lblFileCount.Text = "/XXX";
+            // 
+            // lblCurFile
+            // 
+            this.lblCurFile.AutoSize = true;
+            this.lblCurFile.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.lblCurFile.Location = new System.Drawing.Point(96, 36);
+            this.lblCurFile.Name = "lblCurFile";
+            this.lblCurFile.Size = new System.Drawing.Size(61, 13);
+            this.lblCurFile.TabIndex = 4;
+            this.lblCurFile.Text = "A lot of files";
+            this.lblCurFile.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lblCurIndex
+            // 
+            this.lblCurIndex.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.lblCurIndex.AutoSize = true;
+            this.lblCurIndex.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.lblCurIndex.Location = new System.Drawing.Point(108, 75);
+            this.lblCurIndex.Name = "lblCurIndex";
+            this.lblCurIndex.Size = new System.Drawing.Size(28, 13);
+            this.lblCurIndex.TabIndex = 5;
+            this.lblCurIndex.Text = "XXX";
             // 
             // FrmLoading
             // 
-            resources.ApplyResources(this, "$this");
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(327, 136);
+            this.Controls.Add(this.lblCurIndex);
+            this.Controls.Add(this.lblCurFile);
             this.Controls.Add(this.lblFileCount);
             this.Controls.Add(this.lblCurrentFile);
             this.Controls.Add(this.prgLoading);
             this.Controls.Add(this.lblPlsWait);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "FrmLoading";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
+            this.Text = "Processing";
+            this.TopMost = true;
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -76,5 +127,7 @@
         private System.Windows.Forms.ProgressBar prgLoading;
         private System.Windows.Forms.Label lblCurrentFile;
         private System.Windows.Forms.Label lblFileCount;
+        private System.Windows.Forms.Label lblCurFile;
+        private System.Windows.Forms.Label lblCurIndex;
     }
 }

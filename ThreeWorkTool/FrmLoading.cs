@@ -12,6 +12,7 @@ namespace ThreeWorkTool
 {
     public partial class FrmLoading : Form
     {
+        public FrmMainThree Mainfrm { get; set; }
 
         //public Action Worker { get; set; }
 
@@ -19,5 +20,27 @@ namespace ThreeWorkTool
         {
             InitializeComponent();
         }
+
+        public void ActivateForm(int FileCount)
+        {
+            lblFileCount.Text = "/" + Convert.ToString(FileCount);
+
+            this.ShowDialog();
+
+        }
+
+        public void TextUpdate(int CurrentIndex, string CurrentFile)
+        {
+
+            lblCurFile.Text = CurrentFile;
+            lblCurIndex.Text = CurrentIndex.ToString();
+            //return 0;
+        }
+
+        public void Finish()
+        {
+            Hide();
+        }
+
     }
 }
