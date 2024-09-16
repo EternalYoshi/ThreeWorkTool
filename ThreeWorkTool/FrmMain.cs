@@ -14589,7 +14589,6 @@ namespace ThreeWorkTool
 
         }
 
-
         private static void ReplaceAllTextures(Object sender, System.EventArgs e)
         {
 
@@ -21237,22 +21236,33 @@ namespace ThreeWorkTool
 
             if (IMPDialog.ShowDialog() == DialogResult.OK)
             {
-                DialogResult DelResult = MessageBox.Show("This WILL go through all the selected arcs and overwrite them with\ncorrected File Order. This is not something that can be undone so\nmake sure you make backups before proceeeding!", "Caution", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+                DialogResult DelResult = MessageBox.Show("This WILL go through all the selected arcs and overwrite them with corrected File Order. This is not something that can be undone so make sure you make backups before proceeeding!", "Caution", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
                 if (DelResult == DialogResult.Yes)
                 {
                     //Shows the loading form.
                     LoadingScreen(sender, e, IMPDialog.FileNames.Count());
                     int LoadIndex = 0;
                     string CurFile = "";
+                    string PrevFile = ""; 
+                    string ReadingFile = "";
+                    //Setups up progress reports.
+                    var progress = new Progress<string>();
+                    progress.ProgressChanged += (_, value) =>
+                    {
+                        frmLoadBox.TextUpdate(1, value);
+                    };
+
 
                     //This function handles all the long work of dealing with the arcs in another thread.
-                    Task<int> DoTheWork = Task.Run(() => TimeToCorrectFileOrder(sender, e, IMPDialog, LoadIndex, CurFile));
-
+                    Task<int> DoTheWork = Task.Run(() => TimeToCorrectFileOrder(sender, e, IMPDialog, LoadIndex, CurFile, PrevFile, progress));
+                    //Ensures the Loading Form Closes after the work is done.
+                    int result = await DoTheWork;
+                    LoadFinished(sender, e);
                 }
             }
         }
 
-        public async Task<int> TimeToCorrectFileOrder(object sender, EventArgs e, OpenFileDialog IMPDialog, int LoadIndex, string CurFile)
+        public async Task<int> TimeToCorrectFileOrder(object sender, EventArgs e, OpenFileDialog IMPDialog, int LoadIndex, string CurFile, string PrevFile, IProgress<string> progress)
         {
             LoadIndex = 0;
             foreach (string Arc in IMPDialog.FileNames)
@@ -21263,12 +21273,21 @@ namespace ThreeWorkTool
                 SPlayer = new SoundPlayer();
                 ArcFile newArc = ArcFile.LoadArc(TreeSource, Arc, subdirs, ArcFileIsBigEndian, false);
 
+                //Tells form what arc the proccess is up to.
+                CurFile = Arc;
+                progress.Report(Arc);
+
+                //if (CurFile != PrevFile)
+                //{
+                    //progress.Report(Arc);
+                    //PrevFile = Arc;
+                //}
+
                 NCount = 0;
                 string Test = "chn";
                 int res = GetIntFromEnumName(Test);
                 string Test2 = (Path.GetExtension(Arc)).Substring(1);
-
-
+               
                 //Sorts the filetypes by extensions.
                 List<string> Ordered = (newArc.FileList.OrderBy(fn => GetIntFromEnumName((Path.GetExtension(fn).Substring(1))))).ToList();
                 var count = newArc.FileCount;
@@ -21364,29 +21383,28 @@ namespace ThreeWorkTool
                 catch (Exception Ex)
                 {
                     MessageBox.Show("An Error has occured. Here's details:\n" + Ex, "Unfortunate");
-                    LoadFinished(sender, e);
+                    //LoadFinished(sender, e);
                     return 1;
-                }
+                }                
             }
             MessageBox.Show("Done!", "Operation Complete!");
 
-            LoadFinished(sender, e);
+            //LoadFinished(sender, e);
             return 0;
 
         }
 
-        private Task<int> LoadingScreen(object sender, EventArgs e, int FileTotal)
+        private void LoadingScreen(object sender, EventArgs e, int FileTotal)
         {
 
             FrmLoading LoadB = new FrmLoading();
             frmLoadBox = LoadB;
-            frmLoadBox.Show();
+            frmLoadBox.ActivateForm(FileTotal);
 
-
-            return Task.FromResult(0);
+            //return Task.FromResult(0);
         }
 
-        private Task<int> LoadFinished(object sender, EventArgs e)
+        private void LoadFinished(object sender, EventArgs e)
         {
 
             var allForms = System.Windows.Forms.Application.OpenForms.Cast<Form>().ToList();
@@ -21400,7 +21418,7 @@ namespace ThreeWorkTool
                     }
                 }
             }
-            return Task.FromResult(0);
+            //return Task.FromResult(0);
         }
 
         //async void UpdateLabels()

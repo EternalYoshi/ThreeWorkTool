@@ -49,9 +49,9 @@
             // 
             this.prgLoading.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.prgLoading.Location = new System.Drawing.Point(12, 101);
+            this.prgLoading.Location = new System.Drawing.Point(12, 116);
             this.prgLoading.Name = "prgLoading";
-            this.prgLoading.Size = new System.Drawing.Size(303, 23);
+            this.prgLoading.Size = new System.Drawing.Size(370, 23);
             this.prgLoading.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.prgLoading.TabIndex = 1;
             // 
@@ -69,21 +69,23 @@
             // 
             this.lblFileCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
             this.lblFileCount.AutoSize = true;
-            this.lblFileCount.Location = new System.Drawing.Point(136, 75);
+            this.lblFileCount.Location = new System.Drawing.Point(180, 100);
             this.lblFileCount.Name = "lblFileCount";
             this.lblFileCount.Size = new System.Drawing.Size(33, 13);
             this.lblFileCount.TabIndex = 3;
             this.lblFileCount.Text = "/XXX";
+            this.lblFileCount.Visible = false;
             // 
             // lblCurFile
             // 
             this.lblCurFile.AutoSize = true;
             this.lblCurFile.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.lblCurFile.Location = new System.Drawing.Point(96, 36);
+            this.lblCurFile.Location = new System.Drawing.Point(13, 59);
+            this.lblCurFile.MaximumSize = new System.Drawing.Size(370, 0);
             this.lblCurFile.Name = "lblCurFile";
-            this.lblCurFile.Size = new System.Drawing.Size(61, 13);
+            this.lblCurFile.Size = new System.Drawing.Size(22, 13);
             this.lblCurFile.TabIndex = 4;
-            this.lblCurFile.Text = "A lot of files";
+            this.lblCurFile.Text = ".....";
             this.lblCurFile.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblCurIndex
@@ -91,17 +93,18 @@
             this.lblCurIndex.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
             this.lblCurIndex.AutoSize = true;
             this.lblCurIndex.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.lblCurIndex.Location = new System.Drawing.Point(108, 75);
+            this.lblCurIndex.Location = new System.Drawing.Point(150, 100);
             this.lblCurIndex.Name = "lblCurIndex";
             this.lblCurIndex.Size = new System.Drawing.Size(28, 13);
             this.lblCurIndex.TabIndex = 5;
             this.lblCurIndex.Text = "XXX";
+            this.lblCurIndex.Visible = false;
             // 
             // FrmLoading
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(327, 136);
+            this.ClientSize = new System.Drawing.Size(394, 151);
             this.Controls.Add(this.lblCurIndex);
             this.Controls.Add(this.lblCurFile);
             this.Controls.Add(this.lblFileCount);

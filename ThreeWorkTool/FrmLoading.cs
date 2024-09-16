@@ -24,8 +24,8 @@ namespace ThreeWorkTool
         public void ActivateForm(int FileCount)
         {
             lblFileCount.Text = "/" + Convert.ToString(FileCount);
-
-            this.ShowDialog();
+            lblCurIndex.Text = "0"; 
+            this.Show();
 
         }
 
