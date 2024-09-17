@@ -49,7 +49,7 @@ namespace ThreeWorkTool.Resources.Utility
             cba = 11,
             csp = 12,
             ccm = 13,
-            csh = 14,
+            chs = 14,
             cpi = 15,
             cpu = 16,
             sht = 17,
@@ -63,6 +63,7 @@ namespace ThreeWorkTool.Resources.Utility
             xsew = 25,
             sbkr = 26,
             srqr = 27,
+            stqr = 28
         };
 
     }

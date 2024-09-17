@@ -41,9 +41,9 @@
             this.lblPlsWait.AutoSize = true;
             this.lblPlsWait.Location = new System.Drawing.Point(13, 13);
             this.lblPlsWait.Name = "lblPlsWait";
-            this.lblPlsWait.Size = new System.Drawing.Size(80, 13);
+            this.lblPlsWait.Size = new System.Drawing.Size(112, 13);
             this.lblPlsWait.TabIndex = 0;
-            this.lblPlsWait.Text = "One Moment....";
+            this.lblPlsWait.Text = "Correcting File Order...";
             // 
             // prgLoading
             // 
