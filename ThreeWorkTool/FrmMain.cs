@@ -10660,9 +10660,9 @@ namespace ThreeWorkTool
                     case ".ccl":
                         frename.Mainfrm.TreeSource.BeginUpdate();
                         ArcEntryWrapper NewWrapperCCL = new ArcEntryWrapper();
-                        ChainEntry CCLEntry = new ChainEntry();
+                        ChainCollisionEntry CCLEntry = new ChainCollisionEntry();
 
-                        CCLEntry = ChainEntry.InsertChainEntry(frename.Mainfrm.TreeSource, NewWrapperCCL, IMPDialog.FileName);
+                        CCLEntry = ChainCollisionEntry.InsertChainCollEntry(frename.Mainfrm.TreeSource, NewWrapperCCL, IMPDialog.FileName);
                         NewWrapperCCL.Tag = CCLEntry;
                         NewWrapperCCL.Text = CCLEntry.TrueName;
                         NewWrapperCCL.Name = CCLEntry.TrueName;
@@ -12318,9 +12318,9 @@ namespace ThreeWorkTool
 
                         case ".ccl":
                             ArcEntryWrapper NewWrapperCCL = new ArcEntryWrapper();
-                            ChainEntry CCLEntry = new ChainEntry();
+                            ChainCollisionEntry CCLEntry = new ChainCollisionEntry();
 
-                            CCLEntry = ChainEntry.InsertChainEntry(frename.Mainfrm.TreeSource, NewWrapperCCL, Filename);
+                            CCLEntry = ChainCollisionEntry.InsertChainCollEntry(frename.Mainfrm.TreeSource, NewWrapperCCL, Filename);
                             NewWrapperCCL.Tag = CCLEntry;
                             NewWrapperCCL.Text = CCLEntry.TrueName;
                             NewWrapperCCL.Name = CCLEntry.TrueName;
