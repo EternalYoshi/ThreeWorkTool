@@ -5921,6 +5921,21 @@ namespace ThreeWorkTool
                 {
                     picBoxA.Visible = false;
                     FlushAndClean();
+                    var appDataPath = System.Windows.Forms.Application.UserAppDataPath;
+                    //var myAppDataPath = Path.Combine(appDataPath, "ThreeWorkTool");
+                    var mruFilePath = Path.Combine(appDataPath, "MRU.txt");
+                    if (File.Exists(mruFilePath))
+                        _MostRecentlyUsedList.AddRange(File.ReadAllLines(mruFilePath));
+
+                    foreach (var path in _MostRecentlyUsedList)
+                    {
+
+                        var item = new ToolStripMenuItem(path);
+                        item.Tag = path;
+                        item.Click += OpenRecentFile;
+                        MenuRecentFiles.DropDownItems.Add(item);
+
+                    }
                 }
                 if (dlrs == DialogResult.Cancel)
                 {
@@ -5930,6 +5945,21 @@ namespace ThreeWorkTool
             else
             {
                 FlushAndClean();
+                var appDataPath = System.Windows.Forms.Application.UserAppDataPath;
+                //var myAppDataPath = Path.Combine(appDataPath, "ThreeWorkTool");
+                var mruFilePath = Path.Combine(appDataPath, "MRU.txt");
+                if (File.Exists(mruFilePath))
+                    _MostRecentlyUsedList.AddRange(File.ReadAllLines(mruFilePath));
+
+                foreach (var path in _MostRecentlyUsedList)
+                {
+
+                    var item = new ToolStripMenuItem(path);
+                    item.Tag = path;
+                    item.Click += OpenRecentFile;
+                    MenuRecentFiles.DropDownItems.Add(item);
+
+                }
             }
 
         }
