@@ -435,6 +435,7 @@
     <Content Include="Images\Tex.png" />
     <Content Include="Images\Three.png" />
     <Content Include="Images\Unknown.png" />
+    <None Include="Resources\BuildDate.txt" />
     <Content Include="Resources\Geometry\MiniCube.fx" />
     <Content Include="Resources\Wrappers\ExtraNodes\Kaitai\LICENSE.txt" />
     <Content Include="ThreeWorkIconTest.ico" />
@@ -452,4 +453,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>echo %25date%25 %25time%25 &gt; "$(ProjectDir)\Resources\BuildDate.txt"</PreBuildEvent>
+  </PropertyGroup>
 </Project>

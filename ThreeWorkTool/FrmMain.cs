@@ -29,6 +29,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using static ThreeWorkTool.Resources.Utility.ENumerators;
 using System.Threading;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace ThreeWorkTool
 {
@@ -43,6 +45,7 @@ namespace ThreeWorkTool
         public WaveFileReader WFReader;
 
         private List<string> _MostRecentlyUsedList = new List<string>();
+
         public FrmMainThree()
         {
             ThreeSourceTree TreeSource = new ThreeSourceTree();
@@ -62,8 +65,13 @@ namespace ThreeWorkTool
                 var LatestDateTime = latest.CreatedAt.DateTime;
                 LatestDateTime = TimeZoneInfo.ConvertTimeFromUtc(LatestDateTime,
                 TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
+                DateTime CurrentBuildDateTime = new DateTime();
+                var str = String.Format("Version: {0} built on {1}", Assembly.GetEntryAssembly().GetName().Version, Properties.Resources.BuildDate);
+                //Match match = Regex.Match(str, @"\d{2}\/\d{2}\/\d{4}");
+                Match match = Regex.Match(str, @"\d{2}\/\d{2}\/\d{4}");
 
-                var CurrentBuildDateTime = new FileInfo(Assembly.GetExecutingAssembly().Location).LastWriteTime;
+                var str2 = match.Value;
+                CurrentBuildDateTime = DateTime.ParseExact(str2, "MM/dd/yyyy", CultureInfo.CurrentCulture);
 
                 if (CurrentBuildDateTime > LatestDateTime)
                 {

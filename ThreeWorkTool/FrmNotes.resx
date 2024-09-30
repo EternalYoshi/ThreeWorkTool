@@ -184,25 +184,25 @@ You are free to add and subtract, but make sure that anything you add exists. Ot
 
 - .cst, aka Chain List Files have 4 numerical values at the end of each .chn reference. Make sure to follow the syntax or the changes you make in the textbox will NOT be saved.
 
-The Most Recently Used list is now limited to 12 items and will flush oldest items on the list upon closing the program. If there's more than that it could mean that the program didn't close properly.
+- The Most Recently Used list is now limited to 12 items and will flush oldest items on the list upon closing the program. If there's more than that it could mean that the program didn't close properly.
 
-You can choose whether or not an .M3a file will reuse another entries' Track Pointer and everything that goes with it. This can cause problems when rebuilding so while it may raise the file side it's best to disable it on any entries that have this set to true.
+- You can choose whether or not an .M3a file will reuse another entries' Track Pointer and everything that goes with it. This can cause problems when rebuilding so while it may raise the file side it's best to disable it on any entries that have this set to true.
 be sure to right click the LMT node and select Rebuild LMT after you do the above so the LMT can be rebuilt with its own track data.
 
-If editing a .lmt file is causing crashes, check the m3a entries for any entries that reuse track data, denoted by the IsResuingTrackData variable being true, and set them all to false, then select the LMT and select Rebuild LMT. It will increase file size a bit but will stop crashes on the offending actions.
+- If editing a .lmt file is causing crashes, check the m3a entries for any entries that reuse track data, denoted by the IsResuingTrackData variable being true, and set them all to false, then select the LMT and select Rebuild LMT. It will increase file size a bit but will stop crashes on the offending actions.
 
-The Track Editor will only save changes if the values are valid. TrackType and BoneID are stored as 1 byte each so the values cannot be more than 255. The Reference Data values are floating points, and the rest of the values are read only. If you are going to close the TrackEditor Form, be sure to hit enter to save your last entered value before closing.
+- The Track Editor will only save changes if the values are valid. TrackType and BoneID are stored as 1 byte each so the values cannot be more than 255. The Reference Data values are floating points, and the rest of the values are read only. If you are going to close the TrackEditor Form, be sure to hit enter to save your last entered value before closing.
 
-Just so you know, loose .m3a files exported via older versions of ThreeWorkTool are not going to be compatible. Either re-export the m3a file with version 0.63d or newer, or go into a hex editor and trim the last 4 bytes of the loose m3a files.
+- Just so you know, loose .m3a files exported via older versions of ThreeWorkTool are not going to be compatible. Either re-export the m3a file with version 0.63d or newer, or go into a hex editor and trim the last 4 bytes of the loose m3a files.
 
-Ultimate Marvel vs Capcom 3 uses jnt_255, or bone 255, for moving the actual character with the animation. If you want to move your character's position to line up with the end of the animation, use bone 255. Make sure it's keyframed sufficiently.
+- Ultimate Marvel vs Capcom 3 uses jnt_255, or bone 255, for moving the actual character with the animation. If you want to move your character's position to line up with the end of the animation, use bone 255. Make sure it's keyframed sufficiently.
 
-Limb stretching can be done by moving, not rotating, the bones that control the limbs, make sure that the limbs in question have their translation keyed every frame.
+- Limb stretching can be done by moving, not rotating, the bones that control the limbs, make sure that the limbs in question have their translation keyed every frame.
 
-jnt_255, jnt_1, and jnt_2 should NOT have rotation keyframes. you risk ending up with problems if they do have them in 95% of cases.
+- jnt_255, jnt_1, and jnt_2 should NOT have rotation keyframes. you risk ending up with problems if they do have them in 95% of cases.
 
-Animations with a lot of tracks will take longer to import and export so if your YML is over 1.5MB you will have to wait longer than usual.
+- Animations with a lot of tracks will take longer to import and export so if your YML is over 1.5MB you will have to wait longer than usual.
 
-</value>
+- The Correct File Order command can be used on multiple files BEFORE opening an arc file. The Manifest Editor's Refresh File List has also been udpated to correct file order. Keep in mind that certain shot files may still need manual adjustments if one is dependent on another to load.</value>
   </data>
 </root>
