@@ -54,16 +54,18 @@ namespace ThreeWorkTool.Resources.Utility
             cpu = 16,
             sht = 17,
             lmcm = 18,
-            gem = 19,
-            lsh = 20,
-            efl = 21,
-            sdl = 22,
-            rpl = 23,
-            lrp = 24,
-            xsew = 25,
-            sbkr = 26,
-            srqr = 27,
-            stqr = 28
+            fsm = 19,
+            slo = 20,
+            gem = 21,
+            lsh = 22,
+            efl = 23,
+            sdl = 24,
+            rpl = 25,
+            lrp = 26,
+            xsew = 27,
+            sbkr = 28,
+            srqr = 29,
+            stqr = 30
         };
 
     }
