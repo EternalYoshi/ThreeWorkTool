@@ -12,6 +12,17 @@ By Eternal Yoshi
 
 Current Changelog:
 
+V0.8
+
+- Now has Correct File Order feature. File -> Correct File Order will let you choose multiple arc files and will arrange them based on a file order of extensions that will allow them to load properly outside of Versus/Training Mode.
+- The Manifest Editor's Resfresh File List button has been upgraded to arrange files by proper file order.
+- Fixed an issue that caused Chain Collision files to be imported as Chain Files.
+- Fixed an issue that caused the Most Recent Files list to not be present after closing a file.
+- Created Loading Form for new feature.
+- Added Message Box and notification for save failures.
+- Revised method used for checking current Build Dates.
+- The Treeview on the left hides itself while executing the Import Many Things and Replace All Commands.
+
 V0.76
 
 - Made adjustment to saving arc files to avoid having redundant data when the new file is smaller.
