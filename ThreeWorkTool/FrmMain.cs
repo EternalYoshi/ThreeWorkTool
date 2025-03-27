@@ -31,6 +31,7 @@ using static ThreeWorkTool.Resources.Utility.ENumerators;
 using System.Threading;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using static ThreeWorkTool.Resources.Wrappers.ShotListEntry;
 
 namespace ThreeWorkTool
 {
@@ -6632,6 +6633,13 @@ namespace ThreeWorkTool
 
             conmenu.Items.Add(new ToolStripSeparator());
 
+            //Add New Material Animation Node.
+            var newmatitem = new ToolStripMenuItem("Add New Material Animation Node", null, MenuAddMatAnim_Click, Keys.Control | Keys.A);
+            conmenu.Items.Add(newmatitem);
+            //This is where New Material Animation will go.
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
             conmenu.Items.Add(exportitem);
@@ -6782,6 +6790,28 @@ namespace ThreeWorkTool
             conmenu.Items.Add(keyimpitem);
 
             return conmenu;
+        }
+
+        public static ContextMenuStrip MiscNodeContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            return conmenu;
+
         }
 
         private static void MenuExportAsYML_Click(Object sender, System.EventArgs e)
@@ -7728,6 +7758,235 @@ namespace ThreeWorkTool
 
                 default:
                     break;
+            }
+
+        }
+
+        private static void MenuExportMiscFile_Click(Object sender, System.EventArgs e)
+        {
+            SaveFileDialog EXDialog = new SaveFileDialog();
+            var Node = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            var ParentTag = frename.Mainfrm.TreeSource.SelectedNode.Parent.Tag;
+
+            if (ParentTag as string == "Folder" && frename.Mainfrm.TreeSource.SelectedNode.Parent.Text == "Animations")
+            {
+                var GrandParentNode = frename.Mainfrm.TreeSource.SelectedNode.Parent.Parent;
+                var GrandTag = GrandParentNode.Tag;
+                var TXAnim = Node as MaterialAnimEntry;
+                if (TXAnim != null)
+                {
+                    EXDialog.FileName = frename.Mainfrm.TreeSource.SelectedNode.Text;
+                    if (EXDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ExportFileWriter.MiscFileWriter(EXDialog.FileName, TXAnim.RawData);
+                    }
+                }
+
+            }
+
+
+
+        }
+
+        private static void MenuReplaceMiscFile_Click(Object sender, System.EventArgs e)
+        {
+            OpenFileDialog RPDialog = new OpenFileDialog();
+            var Node = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            var ParentTag = frename.Mainfrm.TreeSource.SelectedNode.Parent.Tag;
+
+            if (ParentTag as string == "Folder" && frename.Mainfrm.TreeSource.SelectedNode.Parent.Text == "Animations")
+            {
+                MaterialAnimEntry TXAnim = Node as MaterialAnimEntry;
+
+                if (TXAnim != null)
+                {
+                    if (RPDialog.ShowDialog() == DialogResult.OK)
+                    {
+
+                        string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+
+                        frename.Mainfrm.TreeSource.BeginUpdate();
+
+
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
+
+                        /*
+                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            string oldname = OldWrapper.Name;
+                            ArcEntry Oldaent = new ArcEntry();
+                            ArcEntry Newaent = new ArcEntry();
+                            Oldaent = OldWrapper.entryfile as ArcEntry;
+                            //string[] pathsDDS = OldaentDDS.EntryDirs;
+                            string temp = OldWrapper.FullPath;
+                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                            string[] paths = temp.Split('\\');
+
+                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                            NewWrapper.Tag = ArcEntry.ReplaceArcEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                            //Takes the path data from the old node and slaps it on the new node.
+                            Newaent = NewWrapper.entryfile as ArcEntry;
+                            Newaent.EntryDirs = paths;
+                            NewWrapper.entryfile = Newaent;
+
+                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                            //Pathing.
+                            foreach (string Folder in paths)
+                            {
+                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                {
+                                    TreeNode folder = new TreeNode();
+                                    folder.Name = Folder;
+                                    folder.Tag = Folder;
+                                    folder.Text = Folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                }
+                                else
+                                {
+                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                }
+                            }
+
+
+
+                            //Removes the node and inserts the new one.
+                            //TreeNode node = 
+                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
+                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
+
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
+                         
+                         
+                         */
+
+                    }
+
+                }
+
+
+            }
+
+
+        }
+
+        private static void MenuItemImportMiscFile_Click(Object sender, System.EventArgs e)
+        {
+            var Node = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            OpenFileDialog IMPDialog = new OpenFileDialog();
+            if (Node as string == "Folder" && frename.Mainfrm.TreeSource.SelectedNode.Parent.Text == "Animations")
+            {
+                if (IMPDialog.ShowDialog() == DialogResult.OK)
+                {
+                    ArcEntryWrapper TexAnimation = new ArcEntryWrapper();
+                    var ParentMat = frename.Mainfrm.TreeSource.SelectedNode.Parent.Tag;
+                    MaterialEntry MatP = ParentMat as MaterialEntry;
+
+                    if (MatP != null)
+                    {
+                        //First Creates the MaterialAnimEntry.
+                        MaterialAnimEntry MatAnimEnt = new MaterialAnimEntry();
+                        List<byte> MaData = new List<byte>();
+                        MaData.AddRange(File.ReadAllBytes(IMPDialog.FileName));
+                        MatAnimEnt.RawData = MaData.ToArray();
+                        MatAnimEnt.AnimSize = MatAnimEnt.RawData.Length;
+                        MatAnimEnt.IsNew = true;
+                        MatAnimEnt.MaterialIndex = -1;
+                        MatAnimEnt.AnimOffset = -1;
+
+                        //Inserts the above created class.
+                        TexAnimation.Name = "Anim_" + Convert.ToString(MatP.MatAnims.Count);
+                        TexAnimation.Tag = MatAnimEnt;
+                        TexAnimation.Text = "Anim_" + Convert.ToString(MatP.MatAnims.Count);
+                        TexAnimation.ImageIndex = 16;
+                        TexAnimation.SelectedImageIndex = 16;
+                        ContextMenuStrip conmenu = new ContextMenuStrip();
+
+                        //Export.
+                        var exportitem = new ToolStripMenuItem("Export", null, MenuExportMiscFile_Click, Keys.Control | Keys.E);
+                        conmenu.Items.Add(exportitem);
+
+                        //Replace.
+                        var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceMiscFile_Click, Keys.Control | Keys.R);
+                        conmenu.Items.Add(replitem);
+
+                        conmenu.Items.Add(new ToolStripSeparator());
+
+                        //Delete.
+                        var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteMiscFile_Click, Keys.Delete);
+                        conmenu.Items.Add(delitem);
+
+                        TexAnimation.ContextMenuStrip = conmenu;
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(TexAnimation);
+
+                        //Update the Parent Mat.
+                        var CurrentFolder = frename.Mainfrm.TreeSource.SelectedNode;
+                        MatP.MatAnims.Add(MatAnimEnt);
+                        frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+                        frename.Mainfrm.TreeSource.SelectedNode.Tag = MatP;
+
+                        //Selects the new node and wraps up.
+                        frename.Mainfrm.TreeSource.SelectedNode = TexAnimation;
+                        frename.Mainfrm.OpenFileModified = true;
+
+
+
+                    }
+                }
+            }
+
+        }
+
+        private static void MenuItemDeleteMiscFile_Click(Object sender, System.EventArgs e)
+        {
+
+            DialogResult DelResult = MessageBox.Show("Are you sure you want to do this? This cannot be undone!", "Caution", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+            if (DelResult == DialogResult.Yes)
+            {
+                //Writes to log file.
+                string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                {
+                    sw.WriteLine("Deleted a file: " + frename.Mainfrm.TreeSource.SelectedNode + "\nCurrent File List:\n");
+                    sw.WriteLine("===============================================================================================================");
+                    frename.Mainfrm.TreeSource.SelectedNode.Remove();
+                    frename.Mainfrm.OpenFileModified = true;
+                    int entrycount = 0;
+                    frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+
+                    TreeNode rootnode = new TreeNode();
+                    rootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                    TreeNode selectednode = new TreeNode();
+                    selectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                    frename.Mainfrm.TreeSource.SelectedNode = rootnode;
+
+                    int filecount = 0;
+
+                    ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                    if (rootarc != null)
+                    {
+                        filecount = rootarc.FileCount;
+                        filecount--;
+                        rootarc.FileCount--;
+                        rootarc.FileAmount--;
+                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
+                    }
+
+                    sw.WriteLine("Current file Count: " + filecount);
+                    sw.WriteLine("===============================================================================================================");
+
+                    frename.Mainfrm.TreeSource.SelectedNode = selectednode;
+                    frename.Mainfrm.pGrdMain.SelectedObject = null;
+                }
             }
 
         }
@@ -17391,6 +17650,63 @@ namespace ThreeWorkTool
             frsn.ShowIt();
         }
 
+        private static void MenuAddMatAnim_Click(Object sender, System.EventArgs e)
+        {
+            //First we get the Material.
+            var MaterialFile = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            MaterialEntry Matte = MaterialFile as MaterialEntry;
+            int Count = Matte.MatAnims.Count;
+
+            //Next we get the Material node.
+            var Material = frename.Mainfrm.TreeSource.SelectedNode;
+
+            TreeNodeCollection TNoCollection = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
+
+            foreach (TreeNode node in TNoCollection)
+            {
+                if (node.Tag as string != null)
+                {
+                    if (node.Text as string == "Animations")
+                    {
+                        frename.Mainfrm.TreeSource.SelectedNode = node;
+                        break;
+                    }
+                }
+            }
+
+            MaterialAnimEntry BlankAnim = new MaterialAnimEntry();
+            BlankAnim.IsNew = true;
+
+            ArcEntryWrapper txanm = new ArcEntryWrapper();
+            txanm.Name = "Anim_" + Convert.ToString(Count);
+            txanm.Tag = BlankAnim;
+            txanm.Text = "Anim_" + Convert.ToString(Count);
+            txanm.ImageIndex = 16;
+            txanm.SelectedImageIndex = 16;
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            txanm.ContextMenuStrip = conmenu;
+
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(txanm);
+            frename.Mainfrm.TreeSource.SelectedNode = Material;
+            frename.Mainfrm.OpenFileModified = true;
+
+        }
+
         private void TreeFill(string D, int E, ArcFile archivearc)
         {
             TreeSource.Nodes.Clear();
@@ -18693,6 +19009,55 @@ namespace ThreeWorkTool
 
             }
 
+            //And Now Material Animations.
+
+            TreeSource.SelectedNode = MEntry;
+
+            //Makes the Materials Subfolder.
+
+            TreeNode foldera = new TreeNode();
+            foldera.Name = "Animations";
+            foldera.Tag = "Folder";
+            foldera.Text = "Animations";
+
+            TreeSource.SelectedNode.Nodes.Add(foldera);
+            TreeSource.SelectedNode = foldera;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
+
+            for (int i = 0; i < material.MatAnims.Count; i++)
+            {
+                ArcEntryWrapper TexAnimation = new ArcEntryWrapper();
+
+                TexAnimation.Name = "Anim_" + Convert.ToString(i);
+                TexAnimation.Tag = material.MatAnims[i];
+                TexAnimation.Text = "Anim_" + Convert.ToString(i);
+                TexAnimation.ImageIndex = 16;
+                TexAnimation.SelectedImageIndex = 16;
+                ContextMenuStrip conmenu = new ContextMenuStrip();
+
+
+                //Export.
+                var exportitem = new ToolStripMenuItem("Export", null, MenuExportMiscFile_Click, Keys.Control | Keys.E);
+                conmenu.Items.Add(exportitem);
+
+                //Replace.
+                var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceMiscFile_Click, Keys.Control | Keys.R);
+                conmenu.Items.Add(replitem);
+
+                conmenu.Items.Add(new ToolStripSeparator());
+
+                //Delete.
+                var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteMiscFile_Click, Keys.Delete);
+                conmenu.Items.Add(delitem);
+
+
+                TexAnimation.ContextMenuStrip = conmenu;
+                TreeSource.SelectedNode.Nodes.Add(TexAnimation);
+
+            }
+
+            TreeSource.SelectedNode = MEntry;
         }
 
         public void LMTChildrenCreation(TreeNode MEntry, LMTEntry lmtentry)
@@ -20450,6 +20815,20 @@ namespace ThreeWorkTool
                     break;
                 #endregion
 
+                #region Material Anim Entry
+                case "ThreeWorkTool.Resources.Wrappers.MaterialAnimEntry":
+                    MaterialAnimEntry MatANMSubEntry = new MaterialAnimEntry();
+                    MatANMSubEntry = TreeSource.SelectedNode.Tag as MaterialAnimEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    MenuEdit.Enabled = false;
+                    break;
+                #endregion
+
                 #region RPL
                 case "ThreeWorkTool.Resources.Wrappers.ResourcePathListEntry":
                     isFinishRPLRead = false;
@@ -21281,7 +21660,7 @@ namespace ThreeWorkTool
                     LoadingScreen(sender, e, IMPDialog.FileNames.Count());
                     int LoadIndex = 0;
                     string CurFile = "";
-                    string PrevFile = ""; 
+                    string PrevFile = "";
                     string ReadingFile = "";
                     //Setups up progress reports.
                     var progress = new Progress<string>();
@@ -21317,19 +21696,23 @@ namespace ThreeWorkTool
 
                 //if (CurFile != PrevFile)
                 //{
-                    //progress.Report(Arc);
-                    //PrevFile = Arc;
+                //progress.Report(Arc);
+                //PrevFile = Arc;
                 //}
 
                 NCount = 0;
                 string Test = "chn";
                 int res = GetIntFromEnumName(Test);
                 string Test2 = (Path.GetExtension(Arc)).Substring(1);
-               
+
                 //Sorts the filetypes by extensions.
                 List<string> Ordered = (newArc.FileList.OrderBy(fn => GetIntFromEnumName((Path.GetExtension(fn).Substring(1))))).ToList();
                 var count = newArc.FileCount;
                 string FIleToWrite = Arc;
+
+                List<string> EtcStuff = new List<string>();
+                EtcStuff.Where(x => x.Contains("model\\cmn\\")).ToList();
+
                 //#if DEBUG
 
                 //                    //Gets debug name.
@@ -21423,7 +21806,7 @@ namespace ThreeWorkTool
                     MessageBox.Show("An Error has occured. Here's details:\n" + Ex, "Unfortunate");
                     //LoadFinished(sender, e);
                     return 1;
-                }                
+                }
             }
             MessageBox.Show("Done!", "Operation Complete!");
 

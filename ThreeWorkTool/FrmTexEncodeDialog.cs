@@ -132,12 +132,15 @@ namespace ThreeWorkTool
 
                         fted.DXType = TempStr;
 
+                        //Checks Suffix and will switch to appropriate map if true.
+                        string Suffix = openedfile.Substring((openedfile.LastIndexOf("_") + 1), 2);
+
                         switch (TempStr)
                         {
                             //DXT1
                             case "44585431":
-                                fted.cmBoxTextureType.SelectedIndex = 0;
-                                fted.TXTextureType = "13";
+
+
 
                                 byte[] DHTemp =    { 0x44, 0x44, 0x53, 0x20, 0x7c, 0x00, 0x00, 0x00, 0x07, 0x10, 0x08, 0x00, 0x00, 0x01, 0x00, 0x00,
                                                      0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
@@ -168,12 +171,25 @@ namespace ThreeWorkTool
 
                                 fted.FirstMip = PrevTemp.ToArray();
                                 fted.IsDXT1 = true;
+
+                                if (Suffix == "MM")
+                                {
+                                    fted.cmBoxTextureType.SelectedIndex = 2;
+                                    fted.TXTextureType = "19";
+                                }
+                                else
+                                {
+                                    fted.cmBoxTextureType.SelectedIndex = 0;
+                                    fted.TXTextureType = "13";
+                                }
+
                                 break;
 
                             //DXT5
                             case "44585435":
-                                fted.cmBoxTextureType.SelectedIndex = 1;
-                                fted.TXTextureType = "17";
+
+
+
 
                                 byte[] DHTemp17 =    { 0x44, 0x44, 0x53, 0x20, 0x7c, 0x00, 0x00, 0x00, 0x07, 0x10, 0x08, 0x00, 0x00, 0x01, 0x00, 0x00,
                                                      0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
@@ -204,6 +220,18 @@ namespace ThreeWorkTool
 
                                 fted.FirstMip = PrevTemp17.ToArray();
                                 fted.IsDXT1 = false;
+
+                                if (Suffix == "NM")
+                                {
+                                    fted.cmBoxTextureType.SelectedIndex = 3;
+                                    fted.TXTextureType = "1F";
+                                }
+                                else
+                                {
+                                    fted.cmBoxTextureType.SelectedIndex = 1;
+                                    fted.TXTextureType = "17";
+                                }
+
                                 break;
 
                             //Etc.

@@ -34,6 +34,9 @@
             this.SplContTex = new System.Windows.Forms.SplitContainer();
             this.PicBoxTex = new System.Windows.Forms.PictureBox();
             this.grpBoxTexConv3 = new System.Windows.Forms.GroupBox();
+            this.lblMoreOptions = new System.Windows.Forms.Label();
+            this.btnRedAlphaSwap = new System.Windows.Forms.Button();
+            this.btnInvertGreen = new System.Windows.Forms.Button();
             this.grpBoxTexConv2 = new System.Windows.Forms.GroupBox();
             this.lblTexTypeSelect = new System.Windows.Forms.Label();
             this.cmBoxTextureType = new System.Windows.Forms.ComboBox();
@@ -48,9 +51,6 @@
             this.lblMipsDesc = new System.Windows.Forms.Label();
             this.lblXDesc = new System.Windows.Forms.Label();
             this.lblYDesc = new System.Windows.Forms.Label();
-            this.btnInvertGreen = new System.Windows.Forms.Button();
-            this.btnRedAlphaSwap = new System.Windows.Forms.Button();
-            this.lblMoreOptions = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.SplContTex)).BeginInit();
             this.SplContTex.Panel1.SuspendLayout();
             this.SplContTex.Panel2.SuspendLayout();
@@ -128,6 +128,35 @@
             this.grpBoxTexConv3.TabIndex = 6;
             this.grpBoxTexConv3.TabStop = false;
             // 
+            // lblMoreOptions
+            // 
+            this.lblMoreOptions.AutoSize = true;
+            this.lblMoreOptions.Location = new System.Drawing.Point(3, 16);
+            this.lblMoreOptions.Name = "lblMoreOptions";
+            this.lblMoreOptions.Size = new System.Drawing.Size(74, 13);
+            this.lblMoreOptions.TabIndex = 3;
+            this.lblMoreOptions.Text = "Quick Options";
+            // 
+            // btnRedAlphaSwap
+            // 
+            this.btnRedAlphaSwap.Location = new System.Drawing.Point(0, 124);
+            this.btnRedAlphaSwap.Name = "btnRedAlphaSwap";
+            this.btnRedAlphaSwap.Size = new System.Drawing.Size(122, 23);
+            this.btnRedAlphaSwap.TabIndex = 1;
+            this.btnRedAlphaSwap.Text = "Red/Alpha Swap";
+            this.btnRedAlphaSwap.UseVisualStyleBackColor = true;
+            this.btnRedAlphaSwap.Click += new System.EventHandler(this.btnRedAlphaSwap_Click);
+            // 
+            // btnInvertGreen
+            // 
+            this.btnInvertGreen.Location = new System.Drawing.Point(0, 47);
+            this.btnInvertGreen.Name = "btnInvertGreen";
+            this.btnInvertGreen.Size = new System.Drawing.Size(122, 23);
+            this.btnInvertGreen.TabIndex = 0;
+            this.btnInvertGreen.Text = "Invert Green Channel";
+            this.btnInvertGreen.UseVisualStyleBackColor = true;
+            this.btnInvertGreen.Click += new System.EventHandler(this.btnInvertGreen_Click);
+            // 
             // grpBoxTexConv2
             // 
             this.grpBoxTexConv2.Location = new System.Drawing.Point(13, 179);
@@ -156,7 +185,8 @@
             "BC4_UNORM/Metalic/Specular Map",
             "BC5/Normal Map",
             "????/Toon Shader Picture",
-            "LAB Color/Problematic Portrait Picture"});
+            "LAB Color/Problematic Portrait Picture",
+            "Cube Map???"});
             this.cmBoxTextureType.Location = new System.Drawing.Point(13, 151);
             this.cmBoxTextureType.Name = "cmBoxTextureType";
             this.cmBoxTextureType.Size = new System.Drawing.Size(196, 21);
@@ -268,53 +298,6 @@
             this.lblYDesc.Size = new System.Drawing.Size(43, 13);
             this.lblYDesc.TabIndex = 0;
             this.lblYDesc.Text = "Length:";
-            // 
-            // btnInvertGreen
-            // 
-            this.btnInvertGreen.Location = new System.Drawing.Point(0, 47);
-            this.btnInvertGreen.Name = "btnInvertGreen";
-            this.btnInvertGreen.Size = new System.Drawing.Size(122, 23);
-            this.btnInvertGreen.TabIndex = 0;
-            this.btnInvertGreen.Text = "Invert Green Channel";
-            this.btnInvertGreen.UseVisualStyleBackColor = true;
-            this.btnInvertGreen.Click += new System.EventHandler(this.btnInvertGreen_Click);
-            this.btnInvertGreen.Visible = false;
-            this.btnInvertGreen.Enabled = false;
-#if DEBUG
-            this.btnInvertGreen.Visible = true;
-            this.btnInvertGreen.Enabled = true;
-#endif
-            // 
-            // btnRedAlphaSwap
-            // 
-            this.btnRedAlphaSwap.Location = new System.Drawing.Point(0, 124);
-            this.btnRedAlphaSwap.Name = "btnRedAlphaSwap";
-            this.btnRedAlphaSwap.Size = new System.Drawing.Size(122, 23);
-            this.btnRedAlphaSwap.TabIndex = 1;
-            this.btnRedAlphaSwap.Text = "Red/Alpha Swap";
-            this.btnRedAlphaSwap.UseVisualStyleBackColor = true;
-            this.btnRedAlphaSwap.Click += new System.EventHandler(this.btnRedAlphaSwap_Click);
-            this.btnRedAlphaSwap.Visible = false;
-            this.btnRedAlphaSwap.Enabled = false;
-#if DEBUG
-            this.btnRedAlphaSwap.Visible = true;
-            this.btnRedAlphaSwap.Enabled = true;
-#endif
-            // 
-            // lblMoreOptions
-            // 
-            this.lblMoreOptions.AutoSize = true;
-            this.lblMoreOptions.Location = new System.Drawing.Point(3, 16);
-            this.lblMoreOptions.Name = "lblMoreOptions";
-            this.lblMoreOptions.Size = new System.Drawing.Size(74, 13);
-            this.lblMoreOptions.TabIndex = 3;
-            this.lblMoreOptions.Text = "Quick Options";
-            this.lblMoreOptions.Visible = false;
-            this.lblMoreOptions.Enabled = false;
-#if DEBUG
-            this.lblMoreOptions.Visible = true;
-            this.lblMoreOptions.Enabled = true;
-#endif
             // 
             // FrmTexEncodeDialog
             // 
