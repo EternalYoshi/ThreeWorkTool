@@ -35,27 +35,27 @@
 
         public static string KeyFrameTest = "(*.txt)|.txt";
 
-        public static string rShotList = "Shot List (*.lsh)|*.lsh|Shot List(*.141D851F)|*.141D851F";
+        public static string rShotList = "Shot List(*.lsh;*.141D851F)|*.lsh;*.141D851F|Shot List (*.lsh)|*.lsh|Shot List(*.141D851F)|*.141D851F";
 
-        public static string rAnmCmd = "Action Script (*.anm)|*.anm|Action Script (*.5A7E5D8A)|*.5A7E5D8A";
+        public static string rAnmCmd = "Action Script(*.anm;*.5A7E5D8A)|*.anm;*.5A7E5D8A|Action Script (*.anm)|*.anm|Action Script (*.5A7E5D8A)|*.5A7E5D8A";
 
-        public static string rAtkInfo = "Moveset File (*.ati)|*.ati|Moveset File (*.227A8048)|*.227A8048";
+        public static string rAtkInfo = "Moveset File(*.ati;*.227A8048)|*.ati;*.227A8048|Moveset File (*.ati)|*.ati|Moveset File (*.227A8048)|*.227A8048";
 
-        public static string rChrBaseact = "Moveset File (*.cba)|*.cba|Moveset File (*.3C6EA504)|*.3C6EA504";
+        public static string rChrBaseact = "Moveset File(*.cba;*.3C6EA504)|*.cba;*.3C6EA504|Moveset File (*.cba)|*.cba|Moveset File (*.3C6EA504)|*.3C6EA504";
 
-        public static string rChrColList = "Moveset File (*.cli)|*.cli|Moveset File (*.5B486CCE)|*.5B486CCE";
+        public static string rChrColList = "Moveset File(*.cli;*.5B486CCE)|*.cli;*.5B486CCE|Moveset File (*.cli)|*.cli|Moveset File (*.5B486CCE)|*.5B486CCE";
 
-        public static string rChrCpu = "Moveset File (*.cpu)|*.cpu|Moveset File (*.05500206)|*.05500206";
+        public static string rChrCpu = "Moveset File(*.cpu;*.05500206)|*.cpu;*.05500206|Moveset File (*.cpu)|*.cpu|Moveset File (*.05500206)|*.05500206";
 
-        public static string rChrProfile = "Moveset File (*.cpi)|*.cpi|Moveset File (*.1DF3E03E)|*.1DF3E03E";
+        public static string rChrProfile = "Moveset File(*.cpi;*.1DF3E03E)|*.cpi;*.1DF3E03E|Moveset File (*.cpi)|*.cpi|Moveset File (*.1DF3E03E)|*.1DF3E03E";
 
-        public static string rChrStatus = "Moveset File (*.chs)|*.chs|Moveset File (*.3C41466B)|*.3C41466B";
+        public static string rChrStatus = "Moveset File(*.chs;*.3C41466B)|*.chs;*.3C41466B|Moveset File (*.chs)|*.chs|Moveset File (*.3C41466B)|*.3C41466B";
 
-        public static string rChrCombo = "Moveset File (*.ccm)|*.ccm|Moveset File (*.28DD8317)|*.28DD8317";
+        public static string rChrCombo = "Moveset File(*.ccm;*.28DD8317)|*.ccm;*.28DD8317|Moveset File (*.ccm)|*.ccm|Moveset File (*.28DD8317)|*.28DD8317";
 
-        public static string rChrSpatk = "Moveset File (*.csp)|*.csp|Moveset File (*.52A8DBF6)|*.52A8DBF6";
+        public static string rChrSpatk = "Moveset File(*.csp;*.52A8DBF6)|*.csp;*.52A8DBF6|Moveset File (*.csp)|*.csp|Moveset File (*.52A8DBF6)|*.52A8DBF6";
 
-        public static string rShot = "Projectile Shot File(*.sht)|*.sht|Projectile Shot File (*.10BE43D4)|*.10BE43D4";
+        public static string rShot = "Moveset File(*.sht;*.10BE43D4)|*.sht;*.10BE43D4|Projectile Shot File(*.sht)|*.sht|Projectile Shot File (*.10BE43D4)|*.10BE43D4";
 
         public static string rStgObjLayout = "Stage Object Layout (*.slo)|*.slo";
 
