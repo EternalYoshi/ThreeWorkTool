@@ -321,6 +321,7 @@
     <Compile Include="Resources\Wrappers\GemEntry.cs" />
     <Compile Include="Resources\Wrappers\LMTEntry.cs" />
     <Compile Include="Resources\Wrappers\LMTM3AEntry.cs" />
+    <Compile Include="Resources\Wrappers\MaterialAnimEntry.cs" />
     <Compile Include="Resources\Wrappers\MaterialEntry.cs" />
     <Compile Include="Resources\Wrappers\MaterialMaterialEntry.cs" />
     <Compile Include="Resources\Wrappers\MaterialTextureReference.cs" />

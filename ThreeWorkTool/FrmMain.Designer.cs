@@ -148,7 +148,7 @@
             this.MenuSave.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.MenuSave.Size = new System.Drawing.Size(186, 22);
             this.MenuSave.Text = "Save";
-            this.MenuSave.Click += new System.EventHandler(this.MenuSaveAs_Click);
+            this.MenuSave.Click += new System.EventHandler(this.MenuSave_Click);
             // 
             // MenuSaveAs
             // 
@@ -564,7 +564,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
-            this.Text = "ThreeWork Tool V0.8";
+            this.Text = "ThreeWork Tool V0.85X";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
             this.Load += new System.EventHandler(this.FrmMainThree_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMainThree_KeyDown);
