@@ -6421,8 +6421,17 @@ namespace ThreeWorkTool
             //Move Down.
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
             conmenu.Items.Add(mditem);
-            return conmenu;
 
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var muolitem = new ToolStripMenuItem("Move Up One Level", null, MoveNodeUpOneLevel, Keys.Control | Keys.Shift | Keys.Up);
+            conmenu.Items.Add(muolitem);
+
+            var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
+            conmenu.Items.Add(mdolitem);
+            //MoveNodeDownOneLevel
+
+            return conmenu;
         }
 
         //Adds Context Menu Strip for MSD Files.
@@ -6459,6 +6468,14 @@ namespace ThreeWorkTool
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown);
             mditem.ShortcutKeys = Keys.Control | Keys.Down;
             conmenu.Items.Add(mditem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var muolitem = new ToolStripMenuItem("Move Up", null, MoveNodeUpOneLevel, Keys.Control | Keys.Shift | Keys.Up);
+            conmenu.Items.Add(muolitem);
+
+            var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
+            conmenu.Items.Add(mdolitem);
 
             return conmenu;
         }
@@ -6507,6 +6524,14 @@ namespace ThreeWorkTool
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
             conmenu.Items.Add(mditem);
 
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var muolitem = new ToolStripMenuItem("Move Up", null, MoveNodeUpOneLevel, Keys.Control | Keys.Shift | Keys.Up);
+            conmenu.Items.Add(muolitem);
+
+            var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
+            conmenu.Items.Add(mdolitem);
+
             return conmenu;
         }
 
@@ -6548,6 +6573,14 @@ namespace ThreeWorkTool
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
             conmenu.Items.Add(mditem);
 
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var muolitem = new ToolStripMenuItem("Move Up", null, MoveNodeUpOneLevel, Keys.Control | Keys.Shift | Keys.Up);
+            conmenu.Items.Add(muolitem);
+
+            var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
+            conmenu.Items.Add(mdolitem);
+
             return conmenu;
 
         }
@@ -6581,6 +6614,14 @@ namespace ThreeWorkTool
             //Move Down.
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
             conmenu.Items.Add(mditem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var muolitem = new ToolStripMenuItem("Move Up", null, MoveNodeUpOneLevel, Keys.Control | Keys.Shift | Keys.Up);
+            conmenu.Items.Add(muolitem);
+
+            var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
+            conmenu.Items.Add(mdolitem);
 
             return conmenu;
         }
@@ -6618,6 +6659,14 @@ namespace ThreeWorkTool
             //Move Down.
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
             conmenu.Items.Add(mditem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var muolitem = new ToolStripMenuItem("Move Up", null, MoveNodeUpOneLevel, Keys.Control | Keys.Shift | Keys.Up);
+            conmenu.Items.Add(muolitem);
+
+            var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
+            conmenu.Items.Add(mdolitem);
 
             return conmenu;
         }
@@ -6664,6 +6713,14 @@ namespace ThreeWorkTool
             //Move Down.
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
             conmenu.Items.Add(mditem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var muolitem = new ToolStripMenuItem("Move Up", null, MoveNodeUpOneLevel, Keys.Control | Keys.Shift | Keys.Up);
+            conmenu.Items.Add(muolitem);
+
+            var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
+            conmenu.Items.Add(mdolitem);
 
             return conmenu;
         }
@@ -6716,6 +6773,14 @@ namespace ThreeWorkTool
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
             conmenu.Items.Add(mditem);
 
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var muolitem = new ToolStripMenuItem("Move Up", null, MoveNodeUpOneLevel, Keys.Control | Keys.Shift | Keys.Up);
+            conmenu.Items.Add(muolitem);
+
+            var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
+            conmenu.Items.Add(mdolitem);
+
             return conmenu;
         }
 
@@ -6748,6 +6813,14 @@ namespace ThreeWorkTool
             //Move Down.
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
             conmenu.Items.Add(mditem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var muolitem = new ToolStripMenuItem("Move Up", null, MoveNodeUpOneLevel, Keys.Control | Keys.Shift | Keys.Up);
+            conmenu.Items.Add(muolitem);
+
+            var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
+            conmenu.Items.Add(mdolitem);
 
 #if DEBUG
             conmenu.Items.Add(new ToolStripSeparator());
@@ -17623,6 +17696,81 @@ namespace ThreeWorkTool
 
             frename.Mainfrm.TreeSource.SelectedNode = node;
             frename.Mainfrm.OpenFileModified = true;
+        }
+
+        //Moves Node Up a level, meaning outside of the folder its in. To be Continued..
+        private static void MoveNodeUpOneLevel(Object sender, System.EventArgs e)
+        {
+            //Based on old MoveNodeUp Method by Dynami Le Savard... to my knowledge.
+
+            TreeNode parent = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+            TreeView view = frename.Mainfrm.TreeSource.SelectedNode.TreeView;
+            TreeNode node = frename.Mainfrm.TreeSource.SelectedNode;
+            //if (parent.Parent != null || node.TreeView.Nodes.Contains(node) || parent != null)
+            if (parent.Parent != null && parent != null)
+            {
+                TreeNode Grandparent = frename.Mainfrm.TreeSource.SelectedNode.Parent.Parent;
+
+
+                if (Grandparent != null && parent != null)
+                {
+                    int index = parent.Nodes.IndexOf(node);
+
+                    parent.Nodes.RemoveAt(index);
+                    Grandparent.Nodes.Insert(0, node);
+
+                }
+
+                frename.Mainfrm.TreeSource.SelectedNode = node;
+                frename.Mainfrm.OpenFileModified = true;
+            }
+            //else if (parent.Tag is ArcEntry)
+            //{
+
+            //}
+            else
+            {
+                MessageBox.Show("You cannot move this node further up level wise.", "So uhh");
+            }
+        }
+
+        private static void MoveNodeDownOneLevel(Object sender, System.EventArgs e)
+        {
+            TreeNode node = frename.Mainfrm.TreeSource.SelectedNode;
+            TreeNode nextnode = frename.Mainfrm.TreeSource.SelectedNode.NextNode;
+            TreeNode parent = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+            TreeView view = frename.Mainfrm.TreeSource.SelectedNode.TreeView;
+
+            if (nextnode.Tag is string && nextnode.Tag as string == "Folder")
+            {
+
+                if (nextnode != null && parent != null)
+                {
+                    int index = parent.Nodes.IndexOf(node);
+
+                    parent.Nodes.RemoveAt(index);
+                    nextnode.Nodes.Insert(index - 1, node);
+
+                }
+                else if (node.TreeView.Nodes.Contains(node)) //root node
+                {
+                    int index = view.Nodes.IndexOf(node);
+
+                    view.Nodes.RemoveAt(index);
+                    nextnode.Nodes.Insert(index - 1, node);
+
+                }
+
+                frename.Mainfrm.TreeSource.SelectedNode = node;
+                frename.Mainfrm.OpenFileModified = true;
+            }
+            else
+            {
+                MessageBox.Show("You need to place this node above the folder you want to insert it into, and said folder must be on the same level of hiearchy.");
+            }
+
+
+
         }
 
         private static void NewFolderNode(Object sender, System.EventArgs e)
