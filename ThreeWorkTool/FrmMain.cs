@@ -146,7 +146,8 @@ namespace ThreeWorkTool
         private MemoryStream MSound;
         private WaveOutEvent WaveOut;
         private IWaveProvider Wave;
-        public float CurrentVersion = 0.63f;
+        public float CurrentVersion = 0.866f;
+        public bool CreateBackup = false;
 
         public struct Keydata
         {
@@ -254,6 +255,23 @@ namespace ThreeWorkTool
             {
                 if (SFDialog.ShowDialog() == DialogResult.OK)
                 {
+
+                    //First make a copy of the Arc if user requested it.
+                    if (CreateBackup)
+                    {
+                        //First make a copy of the Arc if user requested it.
+                        if (CreateBackup)
+                        {
+                            if (File.Exists(OFDialog.FileName))
+                            {
+                                int DotIndex = OFDialog.FileName.LastIndexOf(".");
+                                string BackupName = OFDialog.FileName;
+                                BackupName = BackupName.Insert(DotIndex, "_BACKUP");
+                                File.Copy(OFDialog.FileName, BackupName);
+                            }
+                        }
+                    }
+
                     //Writes to log file.
                     string ProperPath = "";
                     ProperPath = Globals.ToolPath + "Log.txt";
@@ -22014,6 +22032,18 @@ namespace ThreeWorkTool
             if (SFDialog.FileName != "")
             {
 
+                //First make a copy of the Arc if user requested it.
+                if (CreateBackup)
+                {
+                    if (File.Exists(OFDialog.FileName))
+                    {
+                        int DotIndex = OFDialog.FileName.LastIndexOf(".");
+                        string BackupName = OFDialog.FileName;
+                        BackupName = BackupName.Insert(DotIndex, "_BACKUP");
+                        File.Copy(OFDialog.FileName, BackupName);
+                    }
+                }
+
                 //Writes to log file.
                 string ProperPath = "";
                 ProperPath = Globals.ToolPath + "Log.txt";
@@ -24125,6 +24155,20 @@ namespace ThreeWorkTool
                 MessageBox.Show("Save What? You don't have a file open.");
             }
 
+        }
+
+        private void createBackupWhenSavingArcToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MenuCreateArcBackup.Checked == false)
+            {
+                MenuCreateArcBackup.Checked = true;
+                CreateBackup = true;
+            }
+            else
+            {
+                MenuCreateArcBackup.Checked = false;
+                CreateBackup = false;
+            }
         }
 
         //async void UpdateLabels()

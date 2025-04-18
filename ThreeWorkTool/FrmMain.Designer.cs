@@ -50,6 +50,7 @@
             this.MenuSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuUseManifest = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuExportAllTexAsDDS = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuCreateArcBackup = new System.Windows.Forms.ToolStripMenuItem();
             this.manifestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.findAndReplaceInAllFileNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -234,7 +235,8 @@
             // 
             this.MenuSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuUseManifest,
-            this.MenuExportAllTexAsDDS});
+            this.MenuExportAllTexAsDDS,
+            this.MenuCreateArcBackup});
             this.MenuSettings.Name = "MenuSettings";
             this.MenuSettings.Size = new System.Drawing.Size(255, 22);
             this.MenuSettings.Text = "Settings";
@@ -253,6 +255,13 @@
             this.MenuExportAllTexAsDDS.Size = new System.Drawing.Size(279, 22);
             this.MenuExportAllTexAsDDS.Text = "Export All: Export .tex Files as .DDS files";
             this.MenuExportAllTexAsDDS.Click += new System.EventHandler(this.exportAllExporttexFilesAsDDSFilesToolStripMenuItem_Click);
+            // 
+            // MenuCreateArcBackup
+            // 
+            this.MenuCreateArcBackup.Name = "MenuCreateArcBackup";
+            this.MenuCreateArcBackup.Size = new System.Drawing.Size(279, 22);
+            this.MenuCreateArcBackup.Text = "Create Backup When Saving Arc";
+            this.MenuCreateArcBackup.Click += new System.EventHandler(this.createBackupWhenSavingArcToolStripMenuItem_Click);
             // 
             // manifestToolStripMenuItem
             // 
@@ -564,7 +573,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
-            this.Text = "ThreeWork Tool V0.8X";
+            this.Text = "ThreeWork Tool V0.86X";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
             this.Load += new System.EventHandler(this.FrmMainThree_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMainThree_KeyDown);
@@ -634,6 +643,7 @@
         private System.Windows.Forms.Label lblCurrentTime;
         private System.Windows.Forms.Timer MusicTimer;
         private System.Windows.Forms.ToolStripMenuItem newThingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem MenuCreateArcBackup;
     }
 }
 
