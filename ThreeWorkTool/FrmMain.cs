@@ -148,6 +148,7 @@ namespace ThreeWorkTool
         private IWaveProvider Wave;
         public float CurrentVersion = 0.866f;
         public bool CreateBackup = false;
+        public bool LegacyTextureInport = false;
 
         public struct Keydata
         {
@@ -267,7 +268,7 @@ namespace ThreeWorkTool
                                 int DotIndex = OFDialog.FileName.LastIndexOf(".");
                                 string BackupName = OFDialog.FileName;
                                 BackupName = BackupName.Insert(DotIndex, "_BACKUP");
-                                File.Copy(OFDialog.FileName, BackupName);
+                                File.Copy(OFDialog.FileName, BackupName, true);
                             }
                         }
                     }
@@ -22040,7 +22041,7 @@ namespace ThreeWorkTool
                         int DotIndex = OFDialog.FileName.LastIndexOf(".");
                         string BackupName = OFDialog.FileName;
                         BackupName = BackupName.Insert(DotIndex, "_BACKUP");
-                        File.Copy(OFDialog.FileName, BackupName);
+                        File.Copy(OFDialog.FileName, BackupName, true);
                     }
                 }
 
