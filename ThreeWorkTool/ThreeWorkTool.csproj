@@ -202,6 +202,12 @@
     <Compile Include="FrmAbout.Designer.cs">
       <DependentUpon>FrmAbout.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmFontSlider.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmFontSlider.Designer.cs">
+      <DependentUpon>FrmFontSlider.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmLoading.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -344,6 +350,9 @@
     <Compile Include="Resources\Zlibber.cs" />
     <EmbeddedResource Include="FrmAbout.resx">
       <DependentUpon>FrmAbout.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmFontSlider.resx">
+      <DependentUpon>FrmFontSlider.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmLoading.resx">
       <DependentUpon>FrmLoading.cs</DependentUpon>

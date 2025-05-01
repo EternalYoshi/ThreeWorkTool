@@ -51,6 +51,12 @@
             this.MenuUseManifest = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuExportAllTexAsDDS = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuCreateArcBackup = new System.Windows.Forms.ToolStripMenuItem();
+            this.textSizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuLargeText = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuNormalText = new System.Windows.Forms.ToolStripMenuItem();
+            this.nodeSpacingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuNodeSizeCustom = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuNodeSizeNormal = new System.Windows.Forms.ToolStripMenuItem();
             this.manifestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.findAndReplaceInAllFileNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -236,7 +242,9 @@
             this.MenuSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuUseManifest,
             this.MenuExportAllTexAsDDS,
-            this.MenuCreateArcBackup});
+            this.MenuCreateArcBackup,
+            this.textSizeToolStripMenuItem,
+            this.nodeSpacingToolStripMenuItem});
             this.MenuSettings.Name = "MenuSettings";
             this.MenuSettings.Size = new System.Drawing.Size(255, 22);
             this.MenuSettings.Text = "Settings";
@@ -262,6 +270,52 @@
             this.MenuCreateArcBackup.Size = new System.Drawing.Size(279, 22);
             this.MenuCreateArcBackup.Text = "Create Backup When Saving Arc";
             this.MenuCreateArcBackup.Click += new System.EventHandler(this.createBackupWhenSavingArcToolStripMenuItem_Click);
+            // 
+            // textSizeToolStripMenuItem
+            // 
+            this.textSizeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MenuLargeText,
+            this.MenuNormalText});
+            this.textSizeToolStripMenuItem.Name = "textSizeToolStripMenuItem";
+            this.textSizeToolStripMenuItem.Size = new System.Drawing.Size(279, 22);
+            this.textSizeToolStripMenuItem.Text = "Text Size";
+            // 
+            // MenuLargeText
+            // 
+            this.MenuLargeText.Name = "MenuLargeText";
+            this.MenuLargeText.Size = new System.Drawing.Size(180, 22);
+            this.MenuLargeText.Text = "Custom";
+            this.MenuLargeText.Click += new System.EventHandler(this.MenuLargeText_Click);
+            // 
+            // MenuNormalText
+            // 
+            this.MenuNormalText.Name = "MenuNormalText";
+            this.MenuNormalText.Size = new System.Drawing.Size(180, 22);
+            this.MenuNormalText.Text = "Normal";
+            this.MenuNormalText.Click += new System.EventHandler(this.MenuNormalText_Click);
+            // 
+            // nodeSpacingToolStripMenuItem
+            // 
+            this.nodeSpacingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuNodeSizeCustom,
+            this.menuNodeSizeNormal});
+            this.nodeSpacingToolStripMenuItem.Name = "nodeSpacingToolStripMenuItem";
+            this.nodeSpacingToolStripMenuItem.Size = new System.Drawing.Size(279, 22);
+            this.nodeSpacingToolStripMenuItem.Text = "Node Spacing";
+            // 
+            // menuNodeSizeCustom
+            // 
+            this.menuNodeSizeCustom.Name = "menuNodeSizeCustom";
+            this.menuNodeSizeCustom.Size = new System.Drawing.Size(116, 22);
+            this.menuNodeSizeCustom.Text = "Custom";
+            this.menuNodeSizeCustom.Click += new System.EventHandler(this.menuNodeSizeCustom_Click);
+            // 
+            // menuNodeSizeNormal
+            // 
+            this.menuNodeSizeNormal.Name = "menuNodeSizeNormal";
+            this.menuNodeSizeNormal.Size = new System.Drawing.Size(116, 22);
+            this.menuNodeSizeNormal.Text = "Default";
+            this.menuNodeSizeNormal.Click += new System.EventHandler(this.menuNodeSizeNormal_Click);
             // 
             // manifestToolStripMenuItem
             // 
@@ -644,6 +698,12 @@
         private System.Windows.Forms.Timer MusicTimer;
         private System.Windows.Forms.ToolStripMenuItem newThingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem MenuCreateArcBackup;
+        private System.Windows.Forms.ToolStripMenuItem textSizeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem MenuLargeText;
+        private System.Windows.Forms.ToolStripMenuItem MenuNormalText;
+        private System.Windows.Forms.ToolStripMenuItem nodeSpacingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem menuNodeSizeCustom;
+        private System.Windows.Forms.ToolStripMenuItem menuNodeSizeNormal;
     }
 }
 

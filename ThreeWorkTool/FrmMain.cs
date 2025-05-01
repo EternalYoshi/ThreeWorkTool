@@ -149,6 +149,7 @@ namespace ThreeWorkTool
         public float CurrentVersion = 0.866f;
         public bool CreateBackup = false;
         public bool LegacyTextureInport = false;
+        public int Fontsize = 10;
 
         public struct Keydata
         {
@@ -24171,6 +24172,33 @@ namespace ThreeWorkTool
                 CreateBackup = false;
             }
         }
+
+        private void MenuNormalText_Click(object sender, EventArgs e)
+        {
+            frename.Mainfrm.TreeSource.Font = new Font("Microsoft Sans Serif", 10);
+        }
+
+        private void MenuLargeText_Click(object sender, EventArgs e)
+        {
+            //frename.Mainfrm.TreeSource.Font = new Font("Microsoft Sans Serif", 14);
+            using (FrmFontSlider fontSlider = new FrmFontSlider())
+            {
+                fontSlider.Mainfrm = this;
+                fontSlider.ShowDialog();
+            }
+        }
+
+        private void menuNodeSizeCustom_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void menuNodeSizeNormal_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
 
         //async void UpdateLabels()
 
