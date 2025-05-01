@@ -30,5 +30,29 @@ namespace ThreeWorkTool
             Hide();
             return;
         }
+
+        private void trackBarNodeSpacing_Scroll(object sender, EventArgs e)
+        {
+            //Mainfrm.TreeSource.ClientSize = new Size(
+            //trackBarNodeSpacing.Value,
+            //trackBarNodeSpacing.Value);
+
+            Mainfrm.TreeSource.ItemHeight = trackBarNodeSpacing.Value;
+            Mainfrm.TreeSource.ExpandAll();
+        }
+
+        public void ShowIt()
+        {
+            //Loads current values into sliders.
+            trackBarNodeSpacing.Value = Mainfrm.TreeSource.ItemHeight;
+            trackBar1.Value = Convert.ToInt32(Mainfrm.TreeSource.Font.Size);
+
+            this.ShowDialog();
+        }
+
+        private void FrmFontSlider_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

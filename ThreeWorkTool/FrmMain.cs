@@ -135,6 +135,7 @@ namespace ThreeWorkTool
         public static ModelViewer RenderView;
         public static FrmLoading frmLoadBox;
         public static FrmTrackEditor TrackEditor;
+        public static FrmFontSlider frmfontSlide;
         public string RPLBackup;
         public bool isFinishRPLRead;
         public bool HasSaved;
@@ -6135,6 +6136,10 @@ namespace ThreeWorkTool
 
             _MostRecentlyUsedList.Insert(0, FilePath);
             FirstArcFileOpened = true;
+
+            FrmFontSlider frmFSlide = new FrmFontSlider();
+            frmFSlide.Mainfrm = this;
+            frmfontSlide = frmFSlide;
 
             //After this list is populated the Manifest Editor opens and loads the text.
             FrmManifestEditor Maneditor = new FrmManifestEditor();
@@ -20229,6 +20234,10 @@ namespace ThreeWorkTool
                 ExportAsDDS = false;
                 InvalidImport = false;
 
+                FrmFontSlider frmFSlide = new FrmFontSlider();
+                frmFSlide.Mainfrm = this;
+                frmfontSlide = frmFSlide;
+
                 HasSaved = false;
 
                 _MostRecentlyUsedList.Insert(0, FilePath);
@@ -24176,6 +24185,7 @@ namespace ThreeWorkTool
         private void MenuNormalText_Click(object sender, EventArgs e)
         {
             frename.Mainfrm.TreeSource.Font = new Font("Microsoft Sans Serif", 10);
+            frename.Mainfrm.TreeSource.ItemHeight = 24;
         }
 
         private void MenuLargeText_Click(object sender, EventArgs e)
@@ -24183,9 +24193,21 @@ namespace ThreeWorkTool
             //frename.Mainfrm.TreeSource.Font = new Font("Microsoft Sans Serif", 14);
             using (FrmFontSlider fontSlider = new FrmFontSlider())
             {
-                fontSlider.Mainfrm = this;
-                fontSlider.ShowDialog();
+                frmfontSlide = fontSlider;
+                frmfontSlide.Mainfrm = frename.Mainfrm;                
+                frmfontSlide.ShowIt();
             }
+
+            //    frename.Mainfrm.frmfontSlide.Mainfrm = this;
+            //frename.Mainfrm.frmfontSlide.ShowDialog();
+
+            /*
+            FrmReplace frp = new FrmReplace();
+            frp = freplace;
+            frp.AllFiles = false;
+            frp.Mainfrm = frename.Mainfrm;
+            frp.ShowItItem();
+             */
         }
 
         private void menuNodeSizeCustom_Click(object sender, EventArgs e)
