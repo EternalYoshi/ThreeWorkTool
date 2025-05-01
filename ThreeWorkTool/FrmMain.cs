@@ -24194,7 +24194,7 @@ namespace ThreeWorkTool
             using (FrmFontSlider fontSlider = new FrmFontSlider())
             {
                 frmfontSlide = fontSlider;
-                frmfontSlide.Mainfrm = frename.Mainfrm;                
+                frmfontSlide.Mainfrm = this;                
                 frmfontSlide.ShowIt();
             }
 
