@@ -21322,7 +21322,8 @@ namespace ThreeWorkTool
             this.ExportAsDDS = Settings.Default.ExAll_SaveAsDDS;
             this.TreeSource.Font = new Font("Microsoft Sans Serif", Settings.Default.UI_TextSize);
             this.TreeSource.ItemHeight = Settings.Default.UI_NodeSpacing;
-
+            this.CreateBackup = Settings.Default.SaveBackup;
+            this.MenuCreateArcBackup.Checked = Settings.Default.SaveBackup;
 
             //Checks arguments.
             string[] PassThrough = Environment.GetCommandLineArgs();
@@ -24185,11 +24186,15 @@ namespace ThreeWorkTool
             {
                 MenuCreateArcBackup.Checked = true;
                 CreateBackup = true;
+                Settings.Default.SaveBackup = true;
+                Settings.Default.Save();
             }
             else
             {
                 MenuCreateArcBackup.Checked = false;
                 CreateBackup = false;
+                Settings.Default.SaveBackup = false;
+                Settings.Default.Save();
             }
         }
 
@@ -24208,7 +24213,7 @@ namespace ThreeWorkTool
             using (FrmFontSlider fontSlider = new FrmFontSlider())
             {
                 frmfontSlide = fontSlider;
-                frmfontSlide.Mainfrm = this;                
+                frmfontSlide.Mainfrm = this;
                 frmfontSlide.ShowIt();
             }
 
@@ -24236,8 +24241,18 @@ namespace ThreeWorkTool
 
         public void UpdateUISettings(int FontSize, int NodeSpacing)
         {
-            Settings.Default.UI_TextSize = Convert.ToInt32(frename.Mainfrm.TreeSource.Font.Size);
-            Settings.Default.UI_NodeSpacing = frename.Mainfrm.TreeSource.ItemHeight;
+            if (frename != null)
+            {
+                Settings.Default.UI_TextSize = Convert.ToInt32(frename.Mainfrm.TreeSource.Font.Size);
+
+                Settings.Default.UI_NodeSpacing = frename.Mainfrm.TreeSource.ItemHeight;
+            }
+            else
+            {
+                Settings.Default.UI_TextSize = Convert.ToInt32(this.TreeSource.Font.Size);
+
+                Settings.Default.UI_NodeSpacing = this.TreeSource.ItemHeight;
+            }
             Settings.Default.Save();
         }
 

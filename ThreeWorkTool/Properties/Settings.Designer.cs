@@ -58,5 +58,17 @@ namespace ThreeWorkTool.Properties {
                 this["UI_TextSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SaveBackup {
+            get {
+                return ((bool)(this["SaveBackup"]));
+            }
+            set {
+                this["SaveBackup"] = value;
+            }
+        }
     }
 }
