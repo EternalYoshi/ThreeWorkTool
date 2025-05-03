@@ -32,6 +32,7 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using static ThreeWorkTool.Resources.Wrappers.ShotListEntry;
+using ThreeWorkTool.Properties;
 
 namespace ThreeWorkTool
 {
@@ -19200,17 +19201,17 @@ namespace ThreeWorkTool
 
             TreeSource.SelectedNode = MEntry;
 
-            //Makes the Materials Subfolder.
+            //Makes the Animations Subfolder.
 
-            TreeNode foldera = new TreeNode();
-            foldera.Name = "Animations";
-            foldera.Tag = "Folder";
-            foldera.Text = "Animations";
+            //TreeNode foldera = new TreeNode();
+            //foldera.Name = "Animations";
+            //foldera.Tag = "Folder";
+            //foldera.Text = "Animations";
 
-            TreeSource.SelectedNode.Nodes.Add(foldera);
-            TreeSource.SelectedNode = foldera;
-            TreeSource.SelectedNode.ImageIndex = 2;
-            TreeSource.SelectedNode.SelectedImageIndex = 2;
+            //TreeSource.SelectedNode.Nodes.Add(foldera);
+            //TreeSource.SelectedNode = foldera;
+            //TreeSource.SelectedNode.ImageIndex = 2;
+            //TreeSource.SelectedNode.SelectedImageIndex = 2;
 
             //for (int i = 0; i < material.MatAnims.Count; i++)
             //{
@@ -21317,6 +21318,12 @@ namespace ThreeWorkTool
 
             }
 
+            this.MenuExportAllTexAsDDS.Checked = Settings.Default.ExAll_SaveAsDDS;
+            this.ExportAsDDS = Settings.Default.ExAll_SaveAsDDS;
+            this.TreeSource.Font = new Font("Microsoft Sans Serif", Settings.Default.UI_TextSize);
+            this.TreeSource.ItemHeight = Settings.Default.UI_NodeSpacing;
+
+
             //Checks arguments.
             string[] PassThrough = Environment.GetCommandLineArgs();
             string EXEPath = PassThrough[0];
@@ -21698,11 +21705,15 @@ namespace ThreeWorkTool
             {
                 MenuExportAllTexAsDDS.Checked = true;
                 ExportAsDDS = true;
+                Settings.Default.ExAll_SaveAsDDS = true;
+                Settings.Default.Save();
             }
             else
             {
                 MenuExportAllTexAsDDS.Checked = false;
                 ExportAsDDS = false;
+                Settings.Default.ExAll_SaveAsDDS = false;
+                Settings.Default.Save();
             }
 
         }
@@ -24186,6 +24197,9 @@ namespace ThreeWorkTool
         {
             frename.Mainfrm.TreeSource.Font = new Font("Microsoft Sans Serif", 10);
             frename.Mainfrm.TreeSource.ItemHeight = 24;
+            Settings.Default.UI_TextSize = 10;
+            Settings.Default.UI_NodeSpacing = 24;
+            Settings.Default.Save();
         }
 
         private void MenuLargeText_Click(object sender, EventArgs e)
@@ -24220,7 +24234,12 @@ namespace ThreeWorkTool
 
         }
 
-
+        public void UpdateUISettings(int FontSize, int NodeSpacing)
+        {
+            Settings.Default.UI_TextSize = Convert.ToInt32(frename.Mainfrm.TreeSource.Font.Size);
+            Settings.Default.UI_NodeSpacing = frename.Mainfrm.TreeSource.ItemHeight;
+            Settings.Default.Save();
+        }
 
         //async void UpdateLabels()
 

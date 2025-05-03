@@ -279,14 +279,14 @@
             // MenuLargeText
             // 
             this.MenuLargeText.Name = "MenuLargeText";
-            this.MenuLargeText.Size = new System.Drawing.Size(180, 22);
+            this.MenuLargeText.Size = new System.Drawing.Size(116, 22);
             this.MenuLargeText.Text = "Custom";
             this.MenuLargeText.Click += new System.EventHandler(this.MenuLargeText_Click);
             // 
             // MenuNormalText
             // 
             this.MenuNormalText.Name = "MenuNormalText";
-            this.MenuNormalText.Size = new System.Drawing.Size(180, 22);
+            this.MenuNormalText.Size = new System.Drawing.Size(116, 22);
             this.MenuNormalText.Text = "Default";
             this.MenuNormalText.Click += new System.EventHandler(this.MenuNormalText_Click);
             // 
@@ -600,7 +600,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(384, 256);
             this.Name = "FrmMainThree";
-            this.Text = "ThreeWork Tool V0.86X";
+            this.Text = "ThreeWork Tool V0.85";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMainThree_FormClosing);
             this.Load += new System.EventHandler(this.FrmMainThree_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMainThree_KeyDown);

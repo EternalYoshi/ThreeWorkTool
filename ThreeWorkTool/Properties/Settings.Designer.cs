@@ -22,5 +22,41 @@ namespace ThreeWorkTool.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ExAll_SaveAsDDS {
+            get {
+                return ((bool)(this["ExAll_SaveAsDDS"]));
+            }
+            set {
+                this["ExAll_SaveAsDDS"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("24")]
+        public int UI_NodeSpacing {
+            get {
+                return ((int)(this["UI_NodeSpacing"]));
+            }
+            set {
+                this["UI_NodeSpacing"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int UI_TextSize {
+            get {
+                return ((int)(this["UI_TextSize"]));
+            }
+            set {
+                this["UI_TextSize"] = value;
+            }
+        }
     }
 }

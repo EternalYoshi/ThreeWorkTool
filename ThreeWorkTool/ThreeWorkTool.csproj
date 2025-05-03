@@ -348,6 +348,7 @@
     <Compile Include="Resources\Wrappers\TextureEntry.cs" />
     <Compile Include="Resources\Wrappers\RIFFEntry.cs" />
     <Compile Include="Resources\Zlibber.cs" />
+    <Compile Include="Settings.cs" />
     <EmbeddedResource Include="FrmAbout.resx">
       <DependentUpon>FrmAbout.cs</DependentUpon>
     </EmbeddedResource>

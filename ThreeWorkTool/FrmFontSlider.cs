@@ -54,5 +54,11 @@ namespace ThreeWorkTool
         {
 
         }
+
+        private void FrmFontSlider_FormClosing(object sender, FormClosingEventArgs e)
+        {
+           Mainfrm.UpdateUISettings(trackBar1.Value, trackBarNodeSpacing.Value);
+
+        }
     }
 }

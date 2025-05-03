@@ -106,6 +106,7 @@
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.Name = "FrmFontSlider";
             this.Text = "Font Size & Node Spacing Settings";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmFontSlider_FormClosing);
             this.Load += new System.EventHandler(this.FrmFontSlider_Load);
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarNodeSpacing)).EndInit();
