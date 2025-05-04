@@ -12,6 +12,18 @@ By Eternal Yoshi
 
 Current Changelog:
 
+V0.85
+
+- Texture imports now default to Specular/Normal maps if the respective suffix is present.
+If _MM is present in the filename's end, DXT1 imported textures default as Specular/Metallic maps in the encoder.
+if _NM is present in the filename's end, DXT5 imported textures default as Normal maps in the encoder.
+- Adjusted Filetype Filters for specific types to allow for faster export/import of specific file types.
+- Separated Save and Save As so Save works as a "Quick Save The Arc" function.
+- File and Folder Nodes can now be moved up and down directory levels, allowing you to move files in and out of folders.
+- Can now choose to create a backup of the Arc right before you saving.
+- Can now choose the font size and the node spacing of the items in the Treeview on the left.
+- Can now save certain Settings as.... settings that persist between sessions.
+
 V0.8
 
 - Now has Correct File Order feature. File -> Correct File Order will let you choose multiple arc files and will arrange them based on a file order of extensions that will allow them to load properly outside of Versus/Training Mode.
