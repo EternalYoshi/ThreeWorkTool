@@ -535,7 +535,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             return Anim;
         }
 
-        public LMTM3AEntry FillBlankM3A(LMTM3AEntry Anim, int datalength, int ID, int RowTotal, int SecondOffset, BinaryReader bnr, int SecondaryCount, LMTEntry lmtentry)
+        public LMTM3AEntry FillBlankM3A(LMTM3AEntry Anim, int datalength, int ID, int RowTotal, int SecondOffset, int SecondaryCount)
         {
             LMTM3AEntry M3a = new LMTM3AEntry();
             M3a._FileType = ".m3a";

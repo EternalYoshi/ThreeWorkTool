@@ -6895,6 +6895,12 @@ namespace ThreeWorkTool
             var keyimpitem = new ToolStripMenuItem("Import Animation Keyframes", null, ImportKeyFrames_Click, Keys.Control | Keys.W);
             conmenu.Items.Add(keyimpitem);
 
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Emptying Animation.
+            var emptyanimitem = new ToolStripMenuItem("Empty Out Animation", null, MenuEmptyAnim_Click, Keys.Control | Keys.Shift | Keys.X);
+            conmenu.Items.Add(emptyanimitem);
+
             return conmenu;
         }
 
@@ -17633,6 +17639,35 @@ namespace ThreeWorkTool
 
             frename.Mainfrm.TreeSource.SelectedNode = RebuiltLMTWrapper;
             frename.Mainfrm.TreeSource.EndUpdate();
+        }
+
+        public static void MenuEmptyAnim_Click(Object sender, System.EventArgs e)
+        {
+
+            DialogResult DelResult = MessageBox.Show("Are you sure you want to empty out this animation?This cannot be undone!\nMake Sure To Rebuild LMT after clicking yes!", "Caution", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+            if (DelResult == DialogResult.Yes)
+            {
+                var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+                
+                if (tag is LMTM3AEntry)
+                {
+                    LMTM3AEntry PrevM3a = tag as LMTM3AEntry;
+                    frename.Mainfrm.TreeSource.BeginUpdate();
+                    LMTM3AEntry M3a = new LMTM3AEntry();
+                    M3a = M3a.FillBlankM3A(M3a,0, PrevM3a.AnimationID,0,0,0);
+                    frename.Mainfrm.TreeSource.SelectedNode.Tag = M3a;
+
+                    //Gotta Update the LMT as well.
+                    LMTEntry NewaentN = new LMTEntry();
+                    TreeNode Parent = frename.Mainfrm.TreeSource.SelectedNode.Parent;
+                    Parent.Tag = NewaentN;
+
+
+                    frename.Mainfrm.OpenFileModified = true;
+                    frename.Mainfrm.TreeSource.EndUpdate();
+                }
+
+            }
         }
 
         //Don't get your hopes up. Construction JUST began.

@@ -86,7 +86,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         else
                         {
                             LMTM3AEntry aEntry = new LMTM3AEntry();
-                            aEntry = aEntry.FillBlankM3A(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                            aEntry = aEntry.FillBlankM3A(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, SecondaryCount);
                             lmtentry.LstM3A.Add(aEntry);
 
                         }
@@ -252,7 +252,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                                 else
                                 {
                                     LMTM3AEntry aEntry = new LMTM3AEntry();
-                                    aEntry = aEntry.FillBlankM3A(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                                    aEntry = aEntry.FillBlankM3A(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, SecondaryCount);
                                     lmtentry.LstM3A.Add(aEntry);
 
                                 }
@@ -395,7 +395,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                         else
                         {
                             LMTM3AEntry aEntry = new LMTM3AEntry();
-                            aEntry = aEntry.FillBlankM3A(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, bnr, SecondaryCount, lmtentry);
+                            aEntry = aEntry.FillBlankM3A(aEntry, lmtentry.Length, i, lmtentry.RowCount, lmtentry.SecondOffsetList, SecondaryCount);
                             lmtentry.LstM3A.Add(aEntry);
 
                         }
