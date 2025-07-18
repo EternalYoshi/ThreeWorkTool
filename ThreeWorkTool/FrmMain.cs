@@ -11186,7 +11186,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperLMT, NewWrapperLMT.FileExt);
 
-                        NewWrapperLMT.ContextMenuStrip = GenericFileContextAdder(NewWrapperLMT, frename.Mainfrm.TreeSource);
+                        NewWrapperLMT.ContextMenuStrip = LMTContextAdder(NewWrapperLMT, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperLMT);
 
@@ -12838,7 +12838,7 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.IconSetter(NewWrapperLMT, NewWrapperLMT.FileExt);
 
-                            NewWrapperLMT.ContextMenuStrip = GenericFileContextAdder(NewWrapperLMT, frename.Mainfrm.TreeSource);
+                            NewWrapperLMT.ContextMenuStrip = LMTContextAdder(NewWrapperLMT, frename.Mainfrm.TreeSource);
 
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperLMT);
 
