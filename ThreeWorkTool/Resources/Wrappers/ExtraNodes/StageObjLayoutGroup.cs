@@ -96,7 +96,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             }
         }
 
-        [Category("Vector1"), ReadOnlyAttribute(false)]
+        [Category("Vector1(Translation)"), ReadOnlyAttribute(false)]
         public float Vector1X
         {
 
@@ -110,7 +110,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             }
         }
 
-        [Category("Vector1"), ReadOnlyAttribute(false)]
+        [Category("Vector1(Translation)"), ReadOnlyAttribute(false)]
         public float Vector1Y
         {
 
@@ -124,7 +124,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             }
         }
 
-        [Category("Vector1"), ReadOnlyAttribute(false)]
+        [Category("Vector1(Translation)"), ReadOnlyAttribute(false)]
         public float Vector1Z
         {
 
@@ -138,7 +138,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             }
         }
 
-        [Category("Vector2"), ReadOnlyAttribute(false)]
+        [Category("Vector2(Rotation)"), ReadOnlyAttribute(false)]
         public float Vector2X
         {
 
@@ -152,7 +152,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             }
         }
 
-        [Category("Vector2"), ReadOnlyAttribute(false)]
+        [Category("Vector2(Rotation)"), ReadOnlyAttribute(false)]
         public float Vector2Y
         {
 
@@ -166,7 +166,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             }
         }
 
-        [Category("Vector2"), ReadOnlyAttribute(false)]
+        [Category("Vector2(Rotation)"), ReadOnlyAttribute(false)]
         public float Vector2Z
         {
 
@@ -180,7 +180,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             }
         }
 
-        [Category("Vector3"), ReadOnlyAttribute(false)]
+        [Category("Vector3(Scale)"), ReadOnlyAttribute(false)]
         public float Vector3X
         {
 
@@ -194,7 +194,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             }
         }
 
-        [Category("Vector3"), ReadOnlyAttribute(false)]
+        [Category("Vector3(Scale)"), ReadOnlyAttribute(false)]
         public float Vector3Y
         {
 
@@ -208,7 +208,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             }
         }
 
-        [Category("Vector3"), ReadOnlyAttribute(false)]
+        [Category("Vector3(Scale)"), ReadOnlyAttribute(false)]
         public float Vector3Z
         {
 
