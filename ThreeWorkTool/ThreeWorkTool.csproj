@@ -336,7 +336,7 @@
     <Compile Include="Resources\Wrappers\ModelNodes\ModelBoneEntry.cs" />
     <Compile Include="Resources\Wrappers\ModelNodes\ModelGroupEntry.cs" />
     <Compile Include="Resources\Wrappers\ModelNodes\ModelPrimitiveEntry.cs" />
-    <Compile Include="Resources\Wrappers\ModelNodes\ModelPrimitiveJointLinkEntry.cs" />
+    <Compile Include="Resources\Wrappers\ModelNodes\ModelEnvelopeEntry.cs" />
     <Compile Include="Resources\Wrappers\MSDEntry.cs" />
     <Compile Include="Resources\Wrappers\ResourcePathListEntry.cs" />
     <Compile Include="Resources\Wrappers\ShotEntry.cs" />

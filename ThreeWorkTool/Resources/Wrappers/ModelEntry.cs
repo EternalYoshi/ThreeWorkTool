@@ -54,7 +54,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public List<ModelBoneEntry> Bones;
         public List<ModelGroupEntry> Groups;
         public List<ModelPrimitiveEntry> Primitives;
-        public List<ModelPrimitiveJointLinkEntry> Envelopes;
+        public List<ModelEnvelopeEntry> Envelopes;
         public byte[] VertexBuffer;
         public byte[] IndexBuffer;
         public byte[] ExtraDataBuffer;
@@ -302,76 +302,79 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
 
             int OffsetSaverA = Convert.ToInt32(bnr.BaseStream.Position);
-            modentry.Envelopes = new List<ModelPrimitiveJointLinkEntry>();
+            modentry.Envelopes = new List<ModelEnvelopeEntry>();
 
             //Primitive Joint Links.
             for (int v = 0; v < modentry.PrimitiveJointLinkCount; v++)
             {
-                ModelPrimitiveJointLinkEntry plj = new ModelPrimitiveJointLinkEntry();
+                ModelEnvelopeEntry plj = new ModelEnvelopeEntry();
 
                 plj.JointIndex = bnr.ReadInt32();
-                plj.Unknwon04 = bnr.ReadInt32();
-                plj.Unknown08 = bnr.ReadInt32();
-                plj.Unknwon0C = bnr.ReadInt32();
+                plj.Unk04 = bnr.ReadInt32();
+                plj.Unk08 = bnr.ReadInt32();
+                plj.Unk0C = bnr.ReadInt32();
 
-                plj.BoundingSphere = new Vector4();
+                plj.BoundingSphere = new Vector3();
                 plj.BoundingSphere.X = bnr.ReadSingle();
                 plj.BoundingSphere.Y = bnr.ReadSingle();
                 plj.BoundingSphere.Z = bnr.ReadSingle();
-                plj.BoundingSphere.W = bnr.ReadSingle();
+                plj.BoundingSphereRadius = bnr.ReadSingle();
 
-                plj.PLJMin = new Vector4();
-                plj.PLJMin.X = bnr.ReadSingle();
-                plj.PLJMin.Y = bnr.ReadSingle();
-                plj.PLJMin.Z = bnr.ReadSingle();
-                plj.PLJMin.W = bnr.ReadSingle();
+                plj.BoundingBoxMin = new Vector4();
+                plj.BoundingBoxMin.X = bnr.ReadSingle();
+                plj.BoundingBoxMin.Y = bnr.ReadSingle();
+                plj.BoundingBoxMin.Z = bnr.ReadSingle();
+                plj.BoundingBoxMin.W = bnr.ReadSingle();
 
-                plj.PLJMax = new Vector4();
-                plj.PLJMax.X = bnr.ReadSingle();
-                plj.PLJMax.Y = bnr.ReadSingle();
-                plj.PLJMax.Z = bnr.ReadSingle();
-                plj.PLJMax.W = bnr.ReadSingle();
+                plj.BoundingBoxMax = new Vector4();
+                plj.BoundingBoxMax.X = bnr.ReadSingle();
+                plj.BoundingBoxMax.Y = bnr.ReadSingle();
+                plj.BoundingBoxMax.Z = bnr.ReadSingle();
+                plj.BoundingBoxMax.W = bnr.ReadSingle();
 
-                plj.LocalMtx = new ModelPrimitiveJointLinkEntry.MTMatrix();
-                plj.LocalMtx.Rows = new List<Vector4>();
+                plj.EnvPivot = new ModelEnvelopeEntry.Pivot();
+                plj.EnvPivot.Row1 = new Vector4();
+                plj.EnvPivot.Row2 = new Vector4();
+                plj.EnvPivot.Row3 = new Vector4();
+                plj.EnvPivot.Row4 = new Vector4();
 
-                Vector4 VexM1 = new Vector4();
-                VexM1.X = bnr.ReadSingle();
-                VexM1.Y = bnr.ReadSingle();
-                VexM1.Z = bnr.ReadSingle();
-                VexM1.W = bnr.ReadSingle();
+                //Vector4 VexM1 = new Vector4();
+                plj.EnvPivot.Row1.X = bnr.ReadSingle();
+                plj.EnvPivot.Row1.Y = bnr.ReadSingle();
+                plj.EnvPivot.Row1.Z = bnr.ReadSingle();
+                plj.EnvPivot.Row1.W = bnr.ReadSingle();
 
-                plj.LocalMtx.Rows.Add(VexM1);
+                //plj.LocalMtx.Rows.Add(VexM1);
 
-                Vector4 VexM2 = new Vector4();
-                VexM2.X = bnr.ReadSingle();
-                VexM2.Y = bnr.ReadSingle();
-                VexM2.Z = bnr.ReadSingle();
-                VexM2.W = bnr.ReadSingle();
+                //Vector4 VexM2 = new Vector4();
+                plj.EnvPivot.Row2.X = bnr.ReadSingle();
+                plj.EnvPivot.Row2.Y = bnr.ReadSingle();
+                plj.EnvPivot.Row2.Z = bnr.ReadSingle();
+                plj.EnvPivot.Row2.W = bnr.ReadSingle();
 
-                plj.LocalMtx.Rows.Add(VexM2);
+                //plj.LocalMtx.Rows.Add(VexM2);
 
-                Vector4 VexM3 = new Vector4();
-                VexM3.X = bnr.ReadSingle();
-                VexM3.Y = bnr.ReadSingle();
-                VexM3.Z = bnr.ReadSingle();
-                VexM3.W = bnr.ReadSingle();
+                //Vector4 VexM3 = new Vector4();
+                plj.EnvPivot.Row3.X = bnr.ReadSingle();
+                plj.EnvPivot.Row3.Y = bnr.ReadSingle();
+                plj.EnvPivot.Row3.Z = bnr.ReadSingle();
+                plj.EnvPivot.Row3.W = bnr.ReadSingle();
 
-                plj.LocalMtx.Rows.Add(VexM3);
+                //plj.LocalMtx.Rows.Add(VexM3);
 
-                Vector4 VexM4 = new Vector4();
-                VexM4.X = bnr.ReadSingle();
-                VexM4.Y = bnr.ReadSingle();
-                VexM4.Z = bnr.ReadSingle();
-                VexM4.W = bnr.ReadSingle();
+                //Vector4 VexM4 = new Vector4();
+                plj.EnvPivot.Row4.X = bnr.ReadSingle();
+                plj.EnvPivot.Row4.Y = bnr.ReadSingle();
+                plj.EnvPivot.Row4.Z = bnr.ReadSingle();
+                plj.EnvPivot.Row4.W = bnr.ReadSingle();
 
-                plj.LocalMtx.Rows.Add(VexM4);
+                //plj.LocalMtx.Rows.Add(VexM4);
 
-                plj.UnknownVec80 = new Vector4();
-                plj.UnknownVec80.X = bnr.ReadSingle();
-                plj.UnknownVec80.Y = bnr.ReadSingle();
-                plj.UnknownVec80.Z = bnr.ReadSingle();
-                plj.UnknownVec80.W = bnr.ReadSingle();
+                plj.Vec80 = new Vector4();
+                plj.Vec80.X = bnr.ReadSingle();
+                plj.Vec80.Y = bnr.ReadSingle();
+                plj.Vec80.Z = bnr.ReadSingle();
+                plj.Vec80.W = bnr.ReadSingle();
 
                 modentry.Envelopes.Add(plj);
 

@@ -44,7 +44,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 
         public List<short> IndexBuffer { get; set; }
 
-        public List<ModelPrimitiveJointLinkEntry> PJLs;
+        public List<ModelEnvelopeEntry> PJLs;
 
         public struct VertexShaderInputLayout
         {
