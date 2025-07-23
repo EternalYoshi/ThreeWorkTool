@@ -383,6 +383,12 @@ namespace ThreeWorkTool.Resources.Wrappers
                 newSTQRData.AddRange(BitConverter.GetBytes(stqrentry.EntryList[w].LoopEnd));
 
                 //For the typehash.
+                if (stqrentry.EntryList[w].EntryTypeHash == null || stqrentry.EntryList[w].EntryTypeHash == "")
+                {
+                    MessageBox.Show("The typehash entry for Event # ;" + w + " in the STQR " + stqrentry.TrueName + "\nis blank and will cause saving to fail. Please fill it in.\nUse the Hashcode value from the other events if you must fill in something.","Caution", MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                    throw new Exception("\nInvalid/Empty Hashcode value in STQR Event.\n");
+                }
+                else { }
                 byte[] SQTRTempDX = ByteUtilitarian.StringToByteArray(stqrentry.EntryList[w].EntryTypeHash);
                 Array.Reverse(SQTRTempDX);
                 if (SQTRTempDX.Length < 4)

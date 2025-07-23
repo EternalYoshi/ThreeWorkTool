@@ -24294,12 +24294,12 @@ namespace ThreeWorkTool
              */
         }
 
-        private void menuNodeSizeCustom_Click(object sender, EventArgs e)
+        private void MenuNodeSizeCustom_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void menuNodeSizeNormal_Click(object sender, EventArgs e)
+        private void MenuNodeSizeNormal_Click(object sender, EventArgs e)
         {
 
         }
