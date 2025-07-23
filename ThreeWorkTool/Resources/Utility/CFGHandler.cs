@@ -123,7 +123,7 @@ namespace ThreeWorkTool.Resources.Utility
             {
                 //Gets the Corrected path for the cfg.
                 string ProperPath = "";
-                ProperPath = Globals.ToolPath +"mvc3shadertypes.cfg";
+                ProperPath = Globals.ToolPath + "mvc3shadertypes.cfg";
                 line = File.ReadLines(ProperPath).Skip(Index).Take(1).First();
             }
             catch (Exception xx)
@@ -179,6 +179,96 @@ namespace ThreeWorkTool.Resources.Utility
 
 
             return str;
+        }
+
+        public static string ShaderNameToHash(string str, string ShaderName)
+        {
+            //Looks through the mvc3shaders.cfg file to find the extension associated with the typehash.
+            try
+            {
+                //Gets the Corrected path for the cfg.
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "mvc3shadertypes.cfg";
+                using (var sr = new StreamReader(ProperPath))
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        var keyword = Console.ReadLine() ?? ShaderName;
+                        var line = sr.ReadLine();
+                        if (String.IsNullOrEmpty(line)) continue;
+                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        {
+                            str = line;
+                            str = str.Split(' ')[2];
+                            break;
+                        }
+                    }
+                }
+
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("I cannot find mvc3shadertypes.cfg so I cannot finish parsing this file.", "Oh Boy");
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt";
+                using (StreamWriter sw = File.AppendText(ProperPath))
+                {
+                    sw.WriteLine("Cannot find mvc3shadertypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.");
+                    Process.GetCurrentProcess().Kill();
+                }
+                return null;
+            }
+
+
+
+            return str;
+        }
+
+        public static int GetShaderNameIndex(int index, string ShaderName)
+        {
+            int counter = 0;
+            //Looks through the archive_filetypes.cfg file to find the extension associated with the typehash.
+            try
+            {
+                //Gets the Corrected path for the cfg.
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "mvc3shadertypes.cfg";
+                using (var sr = new StreamReader(ProperPath))
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        var keyword = Console.ReadLine() ?? ShaderName;
+                        var line = sr.ReadLine();
+                        if (String.IsNullOrEmpty(line)) continue;
+                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        {
+                            index = counter;
+                            break;
+                        }
+                        else
+                        {
+                            counter++;
+                        }
+                    }
+                }
+
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("I cannot find mvc3shadertypes.cfg so I cannot finish parsing this file.", "Oh Boy");
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt";
+                using (StreamWriter sw = File.AppendText(ProperPath))
+                {
+                    sw.WriteLine("Cannot find mvc3shadertypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.");
+                    Process.GetCurrentProcess().Kill();
+                }
+                return -1;
+            }
+
+
+            return counter;
+
         }
 
         //Looks through the cfg file to find the Typehash and returns it.
@@ -283,7 +373,7 @@ namespace ThreeWorkTool.Resources.Utility
 
         public static string NameToMaterialHash(string str, string Typehash)
         {
-            
+
             //Looks through the archive_filetypes.cfg file to find the extension associated with the typehash.
             try
             {
@@ -330,6 +420,37 @@ namespace ThreeWorkTool.Resources.Utility
         public static bool ContainsInValidFilenameCharacters(string str)
         {
             return str.Any(Path.GetInvalidFileNameChars().Contains);
+        }
+
+        //To get full list of thing from a cfg file.
+        public static List<string> GetShaderMatList(List<string> sList)
+        {
+
+            //List<string> ShList = new List<string>();
+            string str = "";
+            try
+            {
+                //Gets the Corrected path for the cfg.
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "mvc3shadertypes.cfg";
+
+                foreach (string line in File.ReadLines(ProperPath))
+                {
+                    str = line;
+                    str = str.Split(' ')[0];
+                    sList.Add(str);
+                }
+            }
+            catch (Exception xx)
+            {
+                MessageBox.Show("mvc3shadertypes.cfg is missing or cannot not be read. Can't continue parsing shaders.\n" + xx, "Uh-Oh");
+                return null;
+            }
+
+
+
+            return sList;
+
         }
 
     }

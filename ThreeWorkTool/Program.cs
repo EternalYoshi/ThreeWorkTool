@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace ThreeWorkTool
 {
-    static class Program
+    public static class Program
     {
         /// <summary>
         /// The main entry point for the application.
@@ -33,7 +33,9 @@ namespace ThreeWorkTool
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             //Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-            Application.Run(new FrmMainThree());
+
+            FrmMainThree ThreeForm = new FrmMainThree();
+            Application.Run(ThreeForm);
             //}
         }
 

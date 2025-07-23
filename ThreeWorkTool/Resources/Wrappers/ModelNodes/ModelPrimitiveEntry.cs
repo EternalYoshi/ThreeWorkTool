@@ -8,31 +8,32 @@ using System.Text;
 using System.Threading.Tasks;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
-
+using ThreeWorkTool.Resources.Utility;
+using System.Windows;
 
 namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 {
     public class ModelPrimitiveEntry : DefaultWrapper
     {
-        public int ID, Flags, VerticeCount, VertexFlags, RenderMode, VertexStartIndex, VertexBufferOffset, IndexBufferOffset,
+        public int ID, VerticeCount, VertexFlags, VertexStartIndex, VertexBufferOffset, IndexBufferOffset,
             IndexCount, IndexStartIndex, BoneMapStartIndex, PrimitiveJointLinkCount, MinVertexindex, MaxVertexIndex, Unknown2C,
              p, VertexStride, reIndexBufferOffset;
+
+        public short Flags;
+
+        public ushort RenderMode;
 
         public int PrimOffset { get; set; }
 
         public long PrimitiveJointLinkPtr;
 
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public struct Indices
-        {
+        [Category("Indices")]
+        public ushort GroupID { get; set; }
+        [Category("Indices")]
+        public ushort MaterialIndex { get; set; }
+        [Category("Indices")]
+        public byte LODIndex { get; set; }
 
-            public int GroupID { get; set; }
-            public int MaterialIndex { get; set; }
-            public int LODIndex { get; set; }
-
-        }
-
-        public Indices Indice;
 
         public struct MTShader
         {
@@ -86,7 +87,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
         }
 
         [Category("Primitive"), ReadOnlyAttribute(true)]
-        public int PrimFlag
+        public short PrimFlag
         {
 
             get
@@ -99,8 +100,8 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
             }
         }
 
-        [Category("Primitive"), ReadOnlyAttribute(true)]
-        public int RenderFlag
+        [Category("Primitive"), ReadOnlyAttribute(false)]
+        public ushort RenderFlag
         {
 
             get
@@ -127,8 +128,11 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
             }
         }
 
-        [Category("Primitive"), ReadOnlyAttribute(true)]
-        public string MTSHaderType
+        [Category("Primitive"), ReadOnlyAttribute(false)]
+        [DisplayName("MT Shader Type")]
+        [DefaultValue("")]
+        [TypeConverter(typeof(FormatStringConverter))]
+        public string MTShaderType
         {
 
             get
@@ -141,13 +145,34 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
             }
         }
 
-        
-        [Category("Primitive"), ReadOnlyAttribute(true)]
-        public Indices IndiceList
+        //Gets the ShaderList from the main form.
+        public class FormatStringConverter : StringConverter
         {
-            get { return Indice; }
+            public override Boolean GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+            public override Boolean GetStandardValuesExclusive(ITypeDescriptorContext context) { return true; }
+            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                List<String> list = new List<String>();
+                list = GetShaderMatList(list);
+                return new StandardValuesCollection(list);
+            }
+
+            private List<string> GetShaderMatList(List<string> sList)
+            {
+
+                FrmMainThree frmthree = System.Windows.Forms.Application.OpenForms.OfType<FrmMainThree>().FirstOrDefault();
+                sList = frmthree.ShaderList;
+
+                return sList;
+            }
         }
-        
+
+        //[Category("Primitive"), ReadOnlyAttribute(true)]
+        //public Indices IndiceList
+        //{
+        //    get { return Indice; }
+        //}
+
         [Category("Primitive"), ReadOnlyAttribute(true)]
         public int PrimitiveJointLinkTotal
         {
@@ -217,7 +242,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
                 PrimitiveJointLinkPtr = value;
             }
         }
-                
+
 
         #endregion
 

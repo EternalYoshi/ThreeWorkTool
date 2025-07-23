@@ -152,6 +152,7 @@ namespace ThreeWorkTool
         public bool CreateBackup = false;
         public bool LegacyTextureInport = false;
         public int Fontsize = 10;
+        public List<string> ShaderList;
 
         public struct Keydata
         {
@@ -6855,11 +6856,17 @@ namespace ThreeWorkTool
             var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
             conmenu.Items.Add(mdolitem);
 
-#if DEBUG
             conmenu.Items.Add(new ToolStripSeparator());
 
+            //Coming Sooner.
+            var mrebuildmdl = new ToolStripMenuItem("Rebuild Model(WIP)", null, MenuRebuildModel_Click, Keys.Control | Keys.Shift | Keys.R);
+            conmenu.Items.Add(mrebuildmdl);
+
+#if DEBUG
+
+
             //Coming Soon.
-            var mrenderitem = new ToolStripMenuItem("Preview Model(WIP)", null, RenderModel_Click, Keys.Delete);
+            var mrenderitem = new ToolStripMenuItem("Preview Model(WIP)", null, RenderModel_Click, Keys.Control | Keys.P);
             conmenu.Items.Add(mrenderitem);
 #endif
 
@@ -17670,6 +17677,25 @@ namespace ThreeWorkTool
             }
         }
 
+        public static void MenuRebuildModel_Click(Object sender, System.EventArgs e)
+        {
+
+            //Edits the Model file with the updated params. Hoo boy.
+            frename.Mainfrm.TreeSource.BeginUpdate();
+
+            ModelEntry NewaentMDL = new ModelEntry();
+            ArcEntryWrapper OriginalWrapper = new ArcEntryWrapper();
+            OriginalWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+            NewaentMDL = OriginalWrapper.Tag as ModelEntry;
+
+            NewaentMDL = ModelEntry.RebuldModelEntry(frename.Mainfrm.TreeSource, OriginalWrapper);
+
+            frename.Mainfrm.TreeSource.SelectedNode = OriginalWrapper;
+
+            frename.Mainfrm.TreeSource.EndUpdate();
+
+        }
+
         //Don't get your hopes up. Construction JUST began.
         private static void RenderModel_Click(Object sender, System.EventArgs e)
         {
@@ -20283,6 +20309,10 @@ namespace ThreeWorkTool
                 FrmManifestEditor Maneditor = new FrmManifestEditor();
                 frmManiEditor = Maneditor;
                 Manifest = newArc.FileList;
+
+                //Loads List of Shaders from the cfg file.
+                ShaderList = new List<string>();
+                ShaderList = CFGHandler.GetShaderMatList(ShaderList);
 
                 //Writes to log file.
                 string ProperPath = "";

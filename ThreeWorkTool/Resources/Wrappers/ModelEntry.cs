@@ -54,7 +54,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public List<ModelBoneEntry> Bones;
         public List<ModelGroupEntry> Groups;
         public List<ModelPrimitiveEntry> Primitives;
-        public List<ModelPrimitiveJointLinkEntry> PLJs;
+        public List<ModelPrimitiveJointLinkEntry> Envelopes;
         public byte[] VertexBuffer;
         public byte[] IndexBuffer;
         public byte[] ExtraDataBuffer;
@@ -249,10 +249,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                 PrimIndTemp = bnr.ReadUInt32();
 
                 //For the Indice.
-                Prim.Indice = new ModelPrimitiveEntry.Indices();
-                Prim.Indice.GroupID = Convert.ToInt32(PrimIndTemp & 0xFFF);
-                Prim.Indice.LODIndex = Convert.ToInt32((PrimIndTemp >> (8 * 3)) & 0xFF);
-                Prim.Indice.MaterialIndex = Convert.ToInt32((PrimIndTemp & 0xFFF000) >> 12);
+                Prim.GroupID = Convert.ToUInt16(PrimIndTemp & 0xFFF);
+                Prim.LODIndex = Convert.ToByte((PrimIndTemp >> (8 * 3)) & 0xFF);
+                Prim.MaterialIndex = Convert.ToUInt16((PrimIndTemp & 0xFFF000) >> 12);
 
                 Prim.VertexFlags = bnr.ReadInt16();
                 Prim.VertexStride = bnr.ReadByte();
@@ -303,7 +302,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             }
 
             int OffsetSaverA = Convert.ToInt32(bnr.BaseStream.Position);
-            modentry.PLJs = new List<ModelPrimitiveJointLinkEntry>();
+            modentry.Envelopes = new List<ModelPrimitiveJointLinkEntry>();
 
             //Primitive Joint Links.
             for (int v = 0; v < modentry.PrimitiveJointLinkCount; v++)
@@ -374,7 +373,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 plj.UnknownVec80.Z = bnr.ReadSingle();
                 plj.UnknownVec80.W = bnr.ReadSingle();
 
-                modentry.PLJs.Add(plj);
+                modentry.Envelopes.Add(plj);
 
 
             }
@@ -391,6 +390,112 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             return modentry;
 
+        }
+
+        public static ModelEntry RebuldModelEntry(TreeView tree, ArcEntryWrapper node, Type filetype = null)
+        {
+
+            ModelEntry mdl = new ModelEntry();
+            int ChildCount = 0;
+
+            //Start by getting the model file from the currently selected node.
+            mdl = tree.SelectedNode.Tag as ModelEntry;
+            byte[] RawMdl = mdl.UncompressedData;
+
+            //Fetches and Iterates through all the children and extracts the files tagged in the nodes.
+            List<TreeNode> Children = new List<TreeNode>();
+            List<TreeNode> PrimFolder = tree.SelectedNode.Nodes.Cast<TreeNode>().Where(r => r.Text == "Primitives").ToList();
+            foreach (TreeNode thisNode in PrimFolder[0].Nodes)
+            {
+                Children.Add(thisNode);
+                ChildCount++;
+            }
+
+            try
+            {
+                using (MemoryStream MDLstream = new MemoryStream(RawMdl))
+                {
+                    using (BinaryReader brMDL = new BinaryReader(MDLstream))
+                    {
+                        using (BinaryWriter bwMDL = new BinaryWriter(MDLstream))
+                        {
+                            //Gets the needed data to update the model file.
+                            foreach (TreeNode Child in Children)
+                            {
+                                ModelPrimitiveEntry prim = Child.Tag as ModelPrimitiveEntry;
+                                bwMDL.BaseStream.Position = prim.PrimOffset;
+                                bwMDL.Write(prim.Flags);
+
+                                bwMDL.BaseStream.Position = (bwMDL.BaseStream.Position + 0x2);
+
+                                //For the Index Structs.
+                                string NewIndexRawBin = Convert.ToString(prim.LODIndex, 2).PadLeft(8, '0');
+
+                                NewIndexRawBin = NewIndexRawBin + Convert.ToString(prim.MaterialIndex, 2).PadLeft(12, '0'); //prim.Indice.MaterialIndex.ToString("X3");
+                                NewIndexRawBin = NewIndexRawBin + Convert.ToString(prim.GroupID, 2).PadLeft(12, '0'); ;// prim.Indice.GroupID.ToString("X3");
+
+                                int FinalIndexValue = Convert.ToInt32(NewIndexRawBin, 2);
+                                bwMDL.Write(FinalIndexValue);
+
+                                bwMDL.BaseStream.Position = (bwMDL.BaseStream.Position + 0x3);
+                                //Render Mode.
+                                bwMDL.Write(prim.RenderMode);
+
+                                // Now for the Shader.
+                                bwMDL.BaseStream.Position = (prim.PrimOffset + 0x14);
+
+                                #region Shader & Index
+
+                                uint ShaderTempExport = 0;
+                                int NewShadVAl = CFGHandler.GetShaderNameIndex(prim.Shaders.Index, prim.Shaders.ShaderObjectHash);// prim.Shaders.Index;
+                                prim.Shaders.Index = NewShadVAl;
+                                string Tempstr = "";
+                                string NewShadRaw = CFGHandler.ShaderNameToHash(Tempstr, prim.Shaders.ShaderObjectHash);
+
+                                string binarystringhash = String.Join(String.Empty, NewShadRaw.Select
+                                    (c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0')));
+
+                                string binarystringIndHex = NewShadVAl.ToString("X3");
+
+                                string binarystringInd = String.Join(String.Empty, binarystringIndHex.Select
+                                    (c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0')));
+
+                                string binarystringcombined = binarystringhash + binarystringInd;
+                                #endregion
+
+                                int FinalShaderValue = Convert.ToInt32(binarystringcombined, 2);
+
+                                bwMDL.Write(FinalShaderValue);
+
+                                
+
+
+
+                            }
+
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            //Updates the raw data arrays and the rest of the ModelEntry as needed.
+
+            mdl.Primitives = new List<ModelPrimitiveEntry>();
+            foreach (TreeNode Child in Children)
+            {
+                ModelPrimitiveEntry primi = Child.Tag as ModelPrimitiveEntry;
+                mdl.Primitives.Add(primi);
+            }
+
+            mdl.UncompressedData = RawMdl;
+            mdl.CompressedData = Zlibber.Compressor(mdl.UncompressedData);
+
+            return mdl;
         }
 
         #region Model Entry Properties
