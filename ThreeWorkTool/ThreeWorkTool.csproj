@@ -307,6 +307,7 @@
     <Compile Include="Resources\Wrappers\ChrBaseActEntry.cs" />
     <Compile Include="Resources\Wrappers\DefaultWrapper.cs" />
     <Compile Include="Resources\Wrappers\EffectListEntry.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\MaterialCmd.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\EffectFieldTextureRefernce.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\EffectNode.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\Kaitai\KaitaiStream.cs" />

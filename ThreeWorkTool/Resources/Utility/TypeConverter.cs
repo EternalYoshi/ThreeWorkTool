@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using static ThreeWorkTool.Resources.Wrappers.MaterialMaterialEntry;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
+using YamlDotNet.Serialization;
 
 namespace ThreeWorkTool.Resources.Utility
 {
@@ -51,6 +52,23 @@ namespace ThreeWorkTool.Resources.Utility
             return base.ConvertTo(context, culture, value, destType);
         }
 
+    }
+
+
+
+    //Generic Deserialization Function.
+    public static class SerializeAndDeserialize
+    {
+        public static string Serialize<T>(T obj)
+        {
+            var serializer = new SerializerBuilder().Build();
+            return serializer.Serialize(obj);
+        }
+        public static MTMaterial Deserialize<MTMaterial>(string yaml)
+        {
+            var deserializer = new DeserializerBuilder().Build();
+            return deserializer.Deserialize<MTMaterial>(yaml);
+        }
     }
 
 }

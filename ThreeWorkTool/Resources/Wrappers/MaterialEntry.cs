@@ -18,6 +18,7 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using static ThreeWorkTool.Resources.Wrappers.MaterialMaterialEntry;
+using System.Collections;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -43,6 +44,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public List<MaterialMaterialEntry> Materials;
         public string YMLText;
         public MTMaterial YMLMat { get; set; }
+        public List<MaterialAnimEntry> MatAnims;
 
         public static MaterialEntry FillMatEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -142,8 +144,6 @@ namespace ThreeWorkTool.Resources.Wrappers
         public static MaterialEntry BuildMatEntry(BinaryReader MBR, MaterialEntry MATEntry)
         {
 
-            //Experimental.
-
             //Header variables.
             MATEntry.Magic = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MATEntry.Magic);
             MATEntry.SomethingCount = MBR.ReadInt32();
@@ -168,7 +168,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             MATEntry.Materials = new List<MaterialMaterialEntry>();
             byte[] ShadeTemp = new byte[4];
             int PrevOffset = Convert.ToInt32(MBR.BaseStream.Position);
-
+            MATEntry.MatAnims = new List<MaterialAnimEntry>();
             //Materials.
             for (int i = 0; i < MATEntry.MaterialCount; i++)
             {
@@ -179,10 +179,25 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 MATEntry.Materials.Add(MMEntry);
                 PrevOffset = PrevOffset + 72;
+
+                //Experimental. Gets the animation data.
+                if (MMEntry.AnimDataSize > 0)
+                {
+                    MBR.BaseStream.Position = MMEntry.AnimDataOffset;
+                    MaterialAnimEntry Manim = new MaterialAnimEntry();
+                    Manim.RawData = MBR.ReadBytes(MMEntry.AnimDataSize);
+                    Manim.MaterialIndex = i;
+                    Manim.AnimSize = Manim.RawData.Count();
+                    Manim.AnimOffset = MMEntry.AnimDataOffset;
+                    Manim.IsNew = false;
+                    MATEntry.MatAnims.Add(Manim);
+                }
+               
                 MBR.BaseStream.Position = PrevOffset;
 
             }
 
+            
             MATEntry = BuildYML(MATEntry, MATEntry.YMLText);
 
             return MATEntry;
@@ -258,33 +273,85 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             MaterialEntry matentry = new MaterialEntry();
             MaterialEntry oldentry = new MaterialEntry();
+            MTMaterial newmatA = new MTMaterial();
             string strtemp = "";
+            MTMaterial MatList = new MTMaterial();
+            List<byte> NewUncompressedData = new List<byte>();
 
             //Time to check the yml file.
-            var deserializer = new YamlDotNet.Serialization.DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
-            strtemp = File.ReadAllText(filename);
-            var p = deserializer.Deserialize<MTMaterial>(strtemp);
-
-            //var myConfig = deserializer.Deserialize<Configuration>(File.ReadAllText(filename));
-
-            
-            using (StreamReader sr = new StreamReader(filename))
+            using (var input = File.OpenText(filename))
             {
-                strtemp = sr.ReadLine();
+                string ymlfile = File.ReadAllText(filename);
+                //var yamlYMLMRLGraph = SerializeAndDeserialize.Deserialize(File.ReadAllLines(filename));
+                MatList = SerializeAndDeserialize.Deserialize<MTMaterial>(ymlfile);
+                //var deserializer = new DeserializerBuilder().WithTagMapping("", typeof(ThreeWorkTool.Resources.Wrappers.LMTM3AEntry)).Build();
+                //newmatA = deserializer.Deserialize<MTMaterial>(input);
+            }
 
-                //Checks the yml version.
-                if (strtemp == "version: 1")
+            //Now to build the material file from what we got.
+            if (MatList != null)
+            {
+                matentry.YMLMat = MatList;
+                
+                //First we're getting the material & texture count so we can build the header.
+                List<string> MaterialNames = new List<string>();
+                List<string> TextureNames = new List<string>();
+
+                foreach (var Mitem in MatList.materials)
                 {
+                    MaterialNames.AddRange(Mitem.Keys.ToList());
+                    foreach(var Command in Mitem.First().Value.cmds)
+                    {
+                        string[] TempArr = ((IEnumerable)Command).Cast<object>().Select(x => x.ToString()).ToArray();
+                        switch (TempArr[0])
+                        {
+                            case "flag":
+                                break;
+
+                            case "cbuffer":
+                                break;
+
+                            case "samplerstate":
+                                break;
+
+                            case "texture":
+                                TextureNames.Add(TempArr[2]);
+                                break;
+
+                            default:
+                                break;
+
+                        }
+
+
+                    }
+
 
                 }
-                else
-                {
-                    MessageBox.Show("The selected yml file is not a supported material library version. Apologies.");
-                    return null;
-                }
+
+                List<string> DistinctTextureNames = TextureNames.Distinct().ToList();
+
+                //Now to rebuild from scratch.
+                
+                //The Header, Part 1.
+                byte[] HeaderPart1 = { 0x4D, 0x52, 0x4C, 0x00, 0x22, 0x00, 0x00, 0x00 };
+                byte[] PlaceHolderHeaderPartA = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                byte[] HeaderHash = { 0x0A, 0x94, 0x88, 0xE5 };
+                byte[] Field14 = { 0x00, 0x00, 0x00, 0x00 };
+                int InterpTextureOffset = 40;
+                int InterpMaterialOffset = InterpTextureOffset + (DistinctTextureNames.Count* 88);
+                byte[] PlaceHolderHeaderPartB = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+                NewUncompressedData.AddRange(HeaderPart1);
+                NewUncompressedData.AddRange(PlaceHolderHeaderPartA);
+                NewUncompressedData.AddRange(HeaderHash);
+                NewUncompressedData.AddRange(Field14);
+                NewUncompressedData.AddRange(PlaceHolderHeaderPartB);
+
+
 
             }
-            
+
             /*
             tree.BeginUpdate();
             
@@ -717,7 +784,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
 //            /*
 //            tree.BeginUpdate();
-            
+
 //            ReplaceEntry(tree, node, filename, matentry, oldentry);
 
 //            //Type Specific Work Here.

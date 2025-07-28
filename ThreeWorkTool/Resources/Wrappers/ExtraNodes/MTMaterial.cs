@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 
 namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
 {
@@ -10,8 +11,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
     {
         public string version { get; set; }
 
-        //public List<Material> Materials { get; set; }
-        public IDictionary<string,Material> Materials{ get; set; }
+        public List<Dictionary<string, Material>> materials { get; set; }
 
         public struct Material
         {
@@ -19,20 +19,23 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             public string type { get; set; }
             public string blendState { get; set; }
             public string depthStencilState { get; set; }
-            public string resterizerState { get; set; }
+            public string rasterizerState { get; set; }
             public string cmdListFlags { get; set; }
             public string matFlags { get; set; }
-            public List<MatCommands> cmds { get; set; }
-        }
-
-        public struct MatCommands
-        {
-            //readonly List<string> TYPES = {"flag", "cbuffer", "samplerstate", "texture"};
-            public string type { get; set; }
-            public string name { get; set; }
-            public object data { get; set; }
+            public List<object> cmds { get; set; }
 
         }
+
+        //public IDictionary<string,string> MatCommands { get; set; }
+
+        //public struct MatCommands
+        //{
+        //    //readonly List<string> TYPES = {"flag", "cbuffer", "samplerstate", "texture"};
+        //    public string type { get; set; }
+        //    public string name { get; set; }
+        //    public object data { get; set; }
+
+        //}
 
     }
 }

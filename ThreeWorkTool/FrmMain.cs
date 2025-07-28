@@ -148,7 +148,7 @@ namespace ThreeWorkTool
         private MemoryStream MSound;
         private WaveOutEvent WaveOut;
         private IWaveProvider Wave;
-        public float CurrentVersion = 0.866f;
+        public float CurrentVersion = 0.9f;
         public bool CreateBackup = false;
         public bool LegacyTextureInport = false;
         public int Fontsize = 10;
@@ -6716,10 +6716,10 @@ namespace ThreeWorkTool
 
             conmenu.Items.Add(new ToolStripSeparator());
 
-            ////Add New Material Animation Node.
-            //var newmatitem = new ToolStripMenuItem("Add New Material Animation Node", null, MenuAddMatAnim_Click, Keys.Control | Keys.A);
-            //conmenu.Items.Add(newmatitem);
-            ////This is where New Material Animation will go.
+            //Add New Material Animation Node.
+            var newmatitem = new ToolStripMenuItem("Add New Material Animation Node", null, MenuAddMatAnim_Click, Keys.Control | Keys.A);
+            conmenu.Items.Add(newmatitem);
+            //This is where New Material Animation will go.
 
             conmenu.Items.Add(new ToolStripSeparator());
 
@@ -8307,115 +8307,118 @@ namespace ThreeWorkTool
             {
                 MaterialEntry MatEntEntry = new MaterialEntry();
                 MatEntEntry = frename.Mainfrm.TreeSource.SelectedNode.Tag as MaterialEntry;
-                //To Do next time; finish yml support.
-                RPDialog.Filter = "Material File (*.mrl)|*.mrl";
+                RPDialog.Filter = "MT Material File(*.mrl;*.yml)|*.mrl;*.yml|Material File (*.mrl)|*.mrl|YAML MT Material File(*.yml)| *.yml";
                 //RPDialog.Filter = ExportFilters.GetFilter(MatEntEntry.FileExt);
 
                 if (RPDialog.ShowDialog() == DialogResult.OK)
                 {
-                    string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
 
-                    frename.Mainfrm.TreeSource.BeginUpdate();
 
-                    switch (helper)
                     {
-                        case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
-                            ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
-                            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+                        string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
 
-                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                            string oldname = OldWrapper.Name;
-                            MaterialEntry Oldaent = new MaterialEntry();
-                            MaterialEntry Newaent = new MaterialEntry();
-                            Oldaent = OldWrapper.entryfile as MaterialEntry;
-                            //string[] pathsDDS = OldaentDDS.EntryDirs;
-                            string temp = OldWrapper.FullPath;
-                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
-                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+                        frename.Mainfrm.TreeSource.BeginUpdate();
 
-                            string[] paths = temp.Split('\\');
-                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
-                            string CheckExt = Path.GetExtension(RPDialog.FileName);
-                            if (CheckExt == ".mrl")
-                            {
-                                NewWrapper.Tag = MaterialEntry.ReplaceMat(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+                        switch (helper)
+                        {
+                            case "ThreeWorkTool.Resources.Wrappers.ArcEntryWrapper":
+                                ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                                ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
 
-                                //Material specific work here.
-                                MaterialEntry TempMat = new MaterialEntry();
-                                TempMat = NewWrapper.Tag as MaterialEntry;
-                                using (MemoryStream MatStream = new MemoryStream(TempMat.UncompressedData))
+                                OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                string oldname = OldWrapper.Name;
+                                MaterialEntry Oldaent = new MaterialEntry();
+                                MaterialEntry Newaent = new MaterialEntry();
+                                Oldaent = OldWrapper.entryfile as MaterialEntry;
+                                //string[] pathsDDS = OldaentDDS.EntryDirs;
+                                string temp = OldWrapper.FullPath;
+                                temp = temp.Substring(temp.IndexOf(("\\")) + 1);
+                                temp = temp.Substring(0, temp.LastIndexOf(("\\")));
+
+                                string[] paths = temp.Split('\\');
+                                NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                                int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
+                                string CheckExt = Path.GetExtension(RPDialog.FileName);
+                                if (CheckExt == ".mrl")
                                 {
-                                    using (BinaryReader MBR = new BinaryReader(MatStream))
+                                    NewWrapper.Tag = MaterialEntry.ReplaceMat(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+
+                                    //Material specific work here.
+                                    MaterialEntry TempMat = new MaterialEntry();
+                                    TempMat = NewWrapper.Tag as MaterialEntry;
+                                    using (MemoryStream MatStream = new MemoryStream(TempMat.UncompressedData))
                                     {
-                                        BuildMatEntry(MBR, NewWrapper.Tag as MaterialEntry);
+                                        using (BinaryReader MBR = new BinaryReader(MatStream))
+                                        {
+                                            BuildMatEntry(MBR, NewWrapper.Tag as MaterialEntry);
+                                        }
                                     }
                                 }
-                            }
-                            else if (CheckExt == ".yml")
-                            {
-                                NewWrapper.Tag = MaterialEntry.ReplaceYMLToMRL(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-
-                            }
-
-                            NewWrapper.ContextMenuStrip = MaterialContextAddder(NewWrapper, frename.Mainfrm.TreeSource);
-                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
-                            //Takes the path data from the old node and slaps it on the new node.
-                            Newaent = NewWrapper.entryfile as MaterialEntry;
-                            Newaent.EntryDirs = paths;
-                            NewWrapper.entryfile = Newaent;
-
-                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-
-                            //Pathing.
-                            foreach (string Folder in paths)
-                            {
-                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                else if (CheckExt == ".yml")
                                 {
-                                    TreeNode folder = new TreeNode();
-                                    folder.Name = Folder;
-                                    folder.Tag = Folder;
-                                    folder.Text = Folder;
-                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
-                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
-                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
-                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                    NewWrapper.Tag = MaterialEntry.ReplaceYMLToMRL(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
+
                                 }
-                                else
+
+                                NewWrapper.ContextMenuStrip = MaterialContextAddder(NewWrapper, frename.Mainfrm.TreeSource);
+                                frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+                                //Takes the path data from the old node and slaps it on the new node.
+                                Newaent = NewWrapper.entryfile as MaterialEntry;
+                                Newaent.EntryDirs = paths;
+                                NewWrapper.entryfile = Newaent;
+
+                                frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+
+                                //Pathing.
+                                foreach (string Folder in paths)
                                 {
-                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                    if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                                    {
+                                        TreeNode folder = new TreeNode();
+                                        folder.Name = Folder;
+                                        folder.Tag = Folder;
+                                        folder.Text = Folder;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                        frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                        frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                        frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                    }
+                                    else
+                                    {
+                                        frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                                    }
                                 }
-                            }
 
 
-                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                                frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
-                            //Removes the old child nodes.
-                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
-
-
-
-                            //Creates the Material Children of the new node.
-                            frename.Mainfrm.MaterialChildrenCreation(NewWrapper, NewWrapper.Tag as MaterialEntry);
-                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
-                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
-                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
+                                //Removes the old child nodes.
+                                frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
 
 
-                            break;
 
-                        default:
-                            break;
+                                //Creates the Material Children of the new node.
+                                frename.Mainfrm.MaterialChildrenCreation(NewWrapper, NewWrapper.Tag as MaterialEntry);
+                                frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                                frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
+                                frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
+
+
+                                break;
+
+                            default:
+                                break;
+                        }
+
+
+                        frename.Mainfrm.OpenFileModified = true;
+                        frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                        string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                        frename.Mainfrm.TreeSource.EndUpdate();
                     }
-
-
-                    frename.Mainfrm.OpenFileModified = true;
-                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
-
-                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
-                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                    frename.Mainfrm.TreeSource.EndUpdate();
 
                 }
 
@@ -17655,13 +17658,13 @@ namespace ThreeWorkTool
             if (DelResult == DialogResult.Yes)
             {
                 var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-                
+
                 if (tag is LMTM3AEntry)
                 {
                     LMTM3AEntry PrevM3a = tag as LMTM3AEntry;
                     frename.Mainfrm.TreeSource.BeginUpdate();
                     LMTM3AEntry M3a = new LMTM3AEntry();
-                    M3a = M3a.FillBlankM3A(M3a,0, PrevM3a.AnimationID,0,0,0);
+                    M3a = M3a.FillBlankM3A(M3a, 0, PrevM3a.AnimationID, 0, 0, 0);
                     frename.Mainfrm.TreeSource.SelectedNode.Tag = M3a;
 
                     //Gotta Update the LMT as well.
@@ -17899,62 +17902,78 @@ namespace ThreeWorkTool
             frsn.ShowIt();
         }
 
-        //private static void MenuAddMatAnim_Click(Object sender, System.EventArgs e)
-        //{
-        //    //First we get the Material.
-        //    var MaterialFile = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-        //    MaterialEntry Matte = MaterialFile as MaterialEntry;
-        //    int Count = Matte.MatAnims.Count;
+        private static void MenuAddMatAnim_Click(Object sender, System.EventArgs e)
+        {
+            //First we get the Material.
+            var MaterialFile = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            MaterialEntry Matte = MaterialFile as MaterialEntry;
+            int Count = Matte.MatAnims.Count;
 
-        //    //Next we get the Material node.
-        //    var Material = frename.Mainfrm.TreeSource.SelectedNode;
+            TreeNode MainMatNode = frename.Mainfrm.TreeSource.SelectedNode;
 
-        //    TreeNodeCollection TNoCollection = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
+            //Next we get the Material node.
+            var Material = frename.Mainfrm.TreeSource.SelectedNode;
 
-        //    foreach (TreeNode node in TNoCollection)
-        //    {
-        //        if (node.Tag as string != null)
-        //        {
-        //            if (node.Text as string == "Animations")
-        //            {
-        //                frename.Mainfrm.TreeSource.SelectedNode = node;
-        //                break;
-        //            }
-        //        }
-        //    }
+            TreeNodeCollection TNoCollection = frename.Mainfrm.TreeSource.SelectedNode.Nodes;            
+            //First we check for a folder called Animations.
+            foreach (TreeNode node in TNoCollection)
+            {
+                if (node.Tag as string != null)
+                {
+                    if (node.Text as string == "Animations")
+                    {
+                        frename.Mainfrm.TreeSource.SelectedNode = node;
+                        break;
+                    }
+                }
+            }
+            //For when we cannot find such a folder.
+            if(frename.Mainfrm.TreeSource.SelectedNode == MainMatNode)
+            {
+                TreeNode foldera = new TreeNode();
+                foldera.Name = "Animations";
+                foldera.Tag = "Folder";
+                foldera.Text = "Animations";
 
-        //    MaterialAnimEntry BlankAnim = new MaterialAnimEntry();
-        //    BlankAnim.IsNew = true;
+                frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(foldera);
+                frename.Mainfrm.TreeSource.SelectedNode = foldera;
+                frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                frename.Mainfrm.TreeSource.SelectedNode = foldera;
+            }
 
-        //    ArcEntryWrapper txanm = new ArcEntryWrapper();
-        //    txanm.Name = "Anim_" + Convert.ToString(Count);
-        //    txanm.Tag = BlankAnim;
-        //    txanm.Text = "Anim_" + Convert.ToString(Count);
-        //    txanm.ImageIndex = 16;
-        //    txanm.SelectedImageIndex = 16;
-        //    ContextMenuStrip conmenu = new ContextMenuStrip();
+            MaterialAnimEntry BlankAnim = new MaterialAnimEntry();
+            BlankAnim.IsNew = true;
 
-        //    //Export.
-        //    var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
-        //    conmenu.Items.Add(exportitem);
+            ArcEntryWrapper txanm = new ArcEntryWrapper();
+            txanm.Name = "Anim_" + Convert.ToString(Count);
+            txanm.Tag = BlankAnim;
+            txanm.Text = "Anim_" + Convert.ToString(Count);
+            txanm.ImageIndex = 16;
+            txanm.SelectedImageIndex = 16;
+            ContextMenuStrip conmenu = new ContextMenuStrip();
 
-        //    //Replace.
-        //    var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
-        //    conmenu.Items.Add(replitem);
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportMiscFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
 
-        //    conmenu.Items.Add(new ToolStripSeparator());
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceMiscFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
 
-        //    //Delete.
-        //    var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
-        //    conmenu.Items.Add(delitem);
+            conmenu.Items.Add(new ToolStripSeparator());
 
-        //    txanm.ContextMenuStrip = conmenu;
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
 
-        //    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(txanm);
-        //    frename.Mainfrm.TreeSource.SelectedNode = Material;
-        //    frename.Mainfrm.OpenFileModified = true;
+            txanm.ContextMenuStrip = conmenu;
 
-        //}
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(txanm);
+            frename.Mainfrm.TreeSource.SelectedNode = Material;
+            frename.Mainfrm.OpenFileModified = true;
+
+        }
 
         private void TreeFill(string D, int E, ArcFile archivearc)
         {
@@ -19264,47 +19283,47 @@ namespace ThreeWorkTool
 
             //Makes the Animations Subfolder.
 
-            //TreeNode foldera = new TreeNode();
-            //foldera.Name = "Animations";
-            //foldera.Tag = "Folder";
-            //foldera.Text = "Animations";
+            TreeNode foldera = new TreeNode();
+            foldera.Name = "Animations";
+            foldera.Tag = "Folder";
+            foldera.Text = "Animations";
 
-            //TreeSource.SelectedNode.Nodes.Add(foldera);
-            //TreeSource.SelectedNode = foldera;
-            //TreeSource.SelectedNode.ImageIndex = 2;
-            //TreeSource.SelectedNode.SelectedImageIndex = 2;
+            TreeSource.SelectedNode.Nodes.Add(foldera);
+            TreeSource.SelectedNode = foldera;
+            TreeSource.SelectedNode.ImageIndex = 2;
+            TreeSource.SelectedNode.SelectedImageIndex = 2;
 
-            //for (int i = 0; i < material.MatAnims.Count; i++)
-            //{
-            //    ArcEntryWrapper TexAnimation = new ArcEntryWrapper();
+            for (int i = 0; i < material.MatAnims.Count; i++)
+            {
+                ArcEntryWrapper TexAnimation = new ArcEntryWrapper();
 
-            //    TexAnimation.Name = "Anim_" + Convert.ToString(i);
-            //    TexAnimation.Tag = material.MatAnims[i];
-            //    TexAnimation.Text = "Anim_" + Convert.ToString(i);
-            //    TexAnimation.ImageIndex = 16;
-            //    TexAnimation.SelectedImageIndex = 16;
-            //    ContextMenuStrip conmenu = new ContextMenuStrip();
-
-
-            //    //Export.
-            //    var exportitem = new ToolStripMenuItem("Export", null, MenuExportMiscFile_Click, Keys.Control | Keys.E);
-            //    conmenu.Items.Add(exportitem);
-
-            //    //Replace.
-            //    var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceMiscFile_Click, Keys.Control | Keys.R);
-            //    conmenu.Items.Add(replitem);
-
-            //    conmenu.Items.Add(new ToolStripSeparator());
-
-            //    //Delete.
-            //    var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteMiscFile_Click, Keys.Delete);
-            //    conmenu.Items.Add(delitem);
+                TexAnimation.Name = "Anim_" + Convert.ToString(i);
+                TexAnimation.Tag = material.MatAnims[i];
+                TexAnimation.Text = "Anim_" + Convert.ToString(i);
+                TexAnimation.ImageIndex = 16;
+                TexAnimation.SelectedImageIndex = 16;
+                ContextMenuStrip conmenu = new ContextMenuStrip();
 
 
-            //    TexAnimation.ContextMenuStrip = conmenu;
-            //    TreeSource.SelectedNode.Nodes.Add(TexAnimation);
+                //Export.
+                var exportitem = new ToolStripMenuItem("Export", null, MenuExportMiscFile_Click, Keys.Control | Keys.E);
+                conmenu.Items.Add(exportitem);
 
-            //}
+                //Replace.
+                var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceMiscFile_Click, Keys.Control | Keys.R);
+                conmenu.Items.Add(replitem);
+
+                conmenu.Items.Add(new ToolStripSeparator());
+
+                //Delete.
+                var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteMiscFile_Click, Keys.Delete);
+                conmenu.Items.Add(delitem);
+
+
+                TexAnimation.ContextMenuStrip = conmenu;
+                TreeSource.SelectedNode.Nodes.Add(TexAnimation);
+
+            }
 
             TreeSource.SelectedNode = MEntry;
         }

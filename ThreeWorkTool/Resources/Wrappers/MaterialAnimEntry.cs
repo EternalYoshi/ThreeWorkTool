@@ -26,7 +26,8 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int AnimSize;
         public int AnimOffset;
         public byte[] RawData;
-        public int MaterialIndex;
+        [Category("Material Animation Data"), ReadOnlyAttribute(false)]
+        public int MaterialIndex { get; set; }
         public bool IsNew;
 
 
@@ -41,20 +42,6 @@ namespace ThreeWorkTool.Resources.Wrappers
             set
             {
                 AnimSize = value;
-            }
-        }
-
-        [Category("Material Animation Data"), ReadOnlyAttribute(false)]
-        public int MatIndex
-        {
-
-            get
-            {
-                return MaterialIndex;
-            }
-            set
-            {
-                MaterialIndex = value;
             }
         }
 
