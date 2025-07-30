@@ -6716,13 +6716,6 @@ namespace ThreeWorkTool
 
             conmenu.Items.Add(new ToolStripSeparator());
 
-            //Add New Material Animation Node.
-            var newmatitem = new ToolStripMenuItem("Add New Material Animation Node", null, MenuAddMatAnim_Click, Keys.Control | Keys.A);
-            conmenu.Items.Add(newmatitem);
-            //This is where New Material Animation will go.
-
-            conmenu.Items.Add(new ToolStripSeparator());
-
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
             conmenu.Items.Add(exportitem);
@@ -6747,6 +6740,12 @@ namespace ThreeWorkTool
             //Move Down.
             var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
             conmenu.Items.Add(mditem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Add New Material Animation Node.
+            var newmatitem = new ToolStripMenuItem("Add New Material Animation Node", null, MenuAddMatAnim_Click, Keys.Control | Keys.A);
+            conmenu.Items.Add(newmatitem);
 
             conmenu.Items.Add(new ToolStripSeparator());
 
@@ -7926,68 +7925,10 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.TreeSource.BeginUpdate();
 
-
+                        TXAnim.RawData = File.ReadAllBytes(RPDialog.FileName);
+                        TXAnim.AnimSize = TXAnim.RawData.Count();
 
                         frename.Mainfrm.TreeSource.EndUpdate();
-
-                        /*
-                            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                            string oldname = OldWrapper.Name;
-                            ArcEntry Oldaent = new ArcEntry();
-                            ArcEntry Newaent = new ArcEntry();
-                            Oldaent = OldWrapper.entryfile as ArcEntry;
-                            //string[] pathsDDS = OldaentDDS.EntryDirs;
-                            string temp = OldWrapper.FullPath;
-                            temp = temp.Substring(temp.IndexOf(("\\")) + 1);
-                            temp = temp.Substring(0, temp.LastIndexOf(("\\")));
-
-                            string[] paths = temp.Split('\\');
-
-                            NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
-                            int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
-                            NewWrapper.Tag = ArcEntry.ReplaceArcEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
-                            frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
-                            //Takes the path data from the old node and slaps it on the new node.
-                            Newaent = NewWrapper.entryfile as ArcEntry;
-                            Newaent.EntryDirs = paths;
-                            NewWrapper.entryfile = Newaent;
-
-                            frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-
-                            //Pathing.
-                            foreach (string Folder in paths)
-                            {
-                                if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
-                                {
-                                    TreeNode folder = new TreeNode();
-                                    folder.Name = Folder;
-                                    folder.Tag = Folder;
-                                    folder.Text = Folder;
-                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
-                                    frename.Mainfrm.TreeSource.SelectedNode = folder;
-                                    frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
-                                    frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
-                                }
-                                else
-                                {
-                                    frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
-                                }
-                            }
-
-
-
-                            //Removes the node and inserts the new one.
-                            //TreeNode node = 
-                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
-                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
-
-                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
-                            frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
-                            frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
-                         
-                         
-                         */
 
                     }
 
@@ -17649,6 +17590,11 @@ namespace ThreeWorkTool
 
             frename.Mainfrm.TreeSource.SelectedNode = RebuiltLMTWrapper;
             frename.Mainfrm.TreeSource.EndUpdate();
+        }
+
+        public static void MenuRebuildMaterial_Click(Object sender, System.EventArgs e)
+        {
+            //Rebuilds the material. Hoo boy.
         }
 
         public static void MenuEmptyAnim_Click(Object sender, System.EventArgs e)

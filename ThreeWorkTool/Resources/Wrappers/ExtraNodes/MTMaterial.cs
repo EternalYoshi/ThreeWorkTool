@@ -23,7 +23,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
             public string cmdListFlags { get; set; }
             public string matFlags { get; set; }
             public List<object> cmds { get; set; }
-
+            public string animData { get; set; }
         }
 
         //public IDictionary<string,string> MatCommands { get; set; }

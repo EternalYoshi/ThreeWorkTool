@@ -192,12 +192,12 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Manim.IsNew = false;
                     MATEntry.MatAnims.Add(Manim);
                 }
-               
+
                 MBR.BaseStream.Position = PrevOffset;
 
             }
 
-            
+
             MATEntry = BuildYML(MATEntry, MATEntry.YMLText);
 
             return MATEntry;
@@ -209,8 +209,10 @@ namespace ThreeWorkTool.Resources.Wrappers
         {
 
             YML = "";
-            YML = YML + "version: 1\n";
+            //YML = YML + "version: 1\n";
+            YML = YML + "version: 2\n";
             YML = YML + "materials:\n";
+            var encoding = Encoding.ASCII;
 
             //Materials.
             for (int y = 0; y < MATEntry.Materials.Count; y++)
@@ -260,6 +262,22 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 }
 
+                //Material Animations.
+                if (MATEntry.MatAnims != null || MATEntry.MatAnims.Count > 0)
+                {
+                    if (MATEntry.Materials[y].AnimDataSize > 0)
+                    {
+                        for (int v = 0; v < MATEntry.MatAnims.Count; v++)
+                        {
+                            if (MATEntry.MatAnims[v].MaterialIndex == y)
+                            {                                
+                                string MatDat = Convert.ToBase64String(MATEntry.MatAnims[v].RawData);                                
+                                YML = YML + "        animData: " + MatDat + "\n";
+                            }
+                        }
+                    }
+                }
+
             }
 
             MATEntry.YMLText = YML;
@@ -277,6 +295,13 @@ namespace ThreeWorkTool.Resources.Wrappers
             string strtemp = "";
             MTMaterial MatList = new MTMaterial();
             List<byte> NewUncompressedData = new List<byte>();
+            int ITextureSize = 0;
+            int IMaterialSize = 0;
+            int IAnimDataSize = 0;
+            int ProjectedFinalMatSize = 0;
+            List<int> AnimIndexCounter = new List<int>();
+            List<string> AnimDataStr = new List<string>();
+            List<byte> AnimDataRaw = new List<byte>();
 
             //Time to check the yml file.
             using (var input = File.OpenText(filename))
@@ -292,15 +317,17 @@ namespace ThreeWorkTool.Resources.Wrappers
             if (MatList != null)
             {
                 matentry.YMLMat = MatList;
-                
+
                 //First we're getting the material & texture count so we can build the header.
                 List<string> MaterialNames = new List<string>();
                 List<string> TextureNames = new List<string>();
+                //List<byte[]> RawAnimData = new List<byte[]>();
 
+                int counter = 0;
                 foreach (var Mitem in MatList.materials)
                 {
                     MaterialNames.AddRange(Mitem.Keys.ToList());
-                    foreach(var Command in Mitem.First().Value.cmds)
+                    foreach (var Command in Mitem.First().Value.cmds)
                     {
                         string[] TempArr = ((IEnumerable)Command).Cast<object>().Select(x => x.ToString()).ToArray();
                         switch (TempArr[0])
@@ -326,27 +353,86 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     }
 
-
+                    //Checks for animation data.
+                    if(Mitem.First().Value.animData != null)
+                    {
+                        AnimDataStr.Add(Mitem.First().Value.animData);
+                        AnimIndexCounter.Add(counter);
+                    }                    
+                    counter++;
                 }
 
                 List<string> DistinctTextureNames = TextureNames.Distinct().ToList();
 
                 //Now to rebuild from scratch.
-                
+
                 //The Header, Part 1.
                 byte[] HeaderPart1 = { 0x4D, 0x52, 0x4C, 0x00, 0x22, 0x00, 0x00, 0x00 };
                 byte[] PlaceHolderHeaderPartA = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
                 byte[] HeaderHash = { 0x0A, 0x94, 0x88, 0xE5 };
                 byte[] Field14 = { 0x00, 0x00, 0x00, 0x00 };
                 int InterpTextureOffset = 40;
-                int InterpMaterialOffset = InterpTextureOffset + (DistinctTextureNames.Count* 88);
+                int InterpMaterialOffset = InterpTextureOffset + (DistinctTextureNames.Count * 88);
                 byte[] PlaceHolderHeaderPartB = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
+                byte[] DefaultTextureHash = { 0xEB, 0x5D, 0x1F, 0x24 };
+                byte[] TextureFiller = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };            
                 NewUncompressedData.AddRange(HeaderPart1);
                 NewUncompressedData.AddRange(PlaceHolderHeaderPartA);
                 NewUncompressedData.AddRange(HeaderHash);
                 NewUncompressedData.AddRange(Field14);
                 NewUncompressedData.AddRange(PlaceHolderHeaderPartB);
+
+                //Gets Estimated size of texture section.
+                ITextureSize = DistinctTextureNames.Count() * 88;
+
+                //Gets estimated size of material section.
+                IMaterialSize = MaterialNames.Count * 72;
+
+                //Gets estimated size of anim section, if applicable.
+                foreach (string anim in AnimDataStr)
+                {
+                    AnimDataRaw.AddRange(Convert.FromBase64String(anim));
+                }
+
+                IAnimDataSize = AnimDataRaw.Count;
+
+                //Texture Names part.
+                foreach(string texname in DistinctTextureNames)
+                {
+                    //First the hash.
+                    NewUncompressedData.AddRange(DefaultTextureHash);
+                    NewUncompressedData.AddRange(TextureFiller);
+
+                    //Now the actual name.
+                    int NumberChars = texname.Length;
+                    byte[] namebuffer = Encoding.ASCII.GetBytes(texname);
+                    int nblength = namebuffer.Length;
+
+                    //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
+                    byte[] writenamedata = new byte[64];
+                    Array.Clear(writenamedata, 0, writenamedata.Length);
+
+
+                    for (int i = 0; i < namebuffer.Length; ++i)
+                    {
+                        writenamedata[i] = namebuffer[i];
+                    }
+
+                    NewUncompressedData.AddRange(writenamedata);
+
+                }
+
+                //Materials Part.
+                for (int i = 0; i < newmatA.materials.Count; ++i)
+                {
+                    
+
+
+                }
+
+
+
+                //Anims Part.
 
 
 
