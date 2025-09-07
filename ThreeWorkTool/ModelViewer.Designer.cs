@@ -35,6 +35,8 @@
             this.floorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundColorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pnl3DView = new System.Windows.Forms.Panel();
+            this.lblCameraCoords = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -96,19 +98,50 @@
             this.backgroundColorToolStripMenuItem.Text = "Background Color";
             this.backgroundColorToolStripMenuItem.Click += new System.EventHandler(this.backgroundColorToolStripMenuItem_Click);
             // 
+            // pnl3DView
+            // 
+            this.pnl3DView.BackColor = System.Drawing.Color.Azure;
+            this.pnl3DView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnl3DView.Location = new System.Drawing.Point(0, 24);
+            this.pnl3DView.Name = "pnl3DView";
+            this.pnl3DView.Size = new System.Drawing.Size(1008, 537);
+            this.pnl3DView.TabIndex = 1;
+            this.pnl3DView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pnl3DView_MouseDown);
+            this.pnl3DView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pnl3DView_MouseMove);
+            this.pnl3DView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pnl3DView_MouseUp);
+            this.pnl3DView.Resize += new System.EventHandler(this.pnl3DView_Resize);
+            // 
+            // lblCameraCoords
+            // 
+            this.lblCameraCoords.AutoSize = true;
+            this.lblCameraCoords.Dock = System.Windows.Forms.DockStyle.Right;
+            this.lblCameraCoords.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCameraCoords.ForeColor = System.Drawing.Color.Maroon;
+            this.lblCameraCoords.Location = new System.Drawing.Point(877, 24);
+            this.lblCameraCoords.Name = "lblCameraCoords";
+            this.lblCameraCoords.Size = new System.Drawing.Size(131, 20);
+            this.lblCameraCoords.TabIndex = 0;
+            this.lblCameraCoords.Text = "lblCameraCoords";
+            // 
             // ModelViewer
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
-            this.BackColor = System.Drawing.Color.LightCyan;
+            this.BackColor = System.Drawing.Color.LightGray;
             this.ClientSize = new System.Drawing.Size(1008, 561);
+            this.Controls.Add(this.lblCameraCoords);
+            this.Controls.Add(this.pnl3DView);
             this.Controls.Add(this.menuStrip1);
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.MinimizeBox = false;
             this.Name = "ModelViewer";
             this.Text = "ModelViewer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ModelViewer_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ModelViewer_FormClosed);
+            this.Load += new System.EventHandler(this.ModelViewer_Load);
             this.SizeChanged += new System.EventHandler(this.ModelViewer_SizeChanged);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ModelViewer_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ModelViewer_KeyUp);
             this.Resize += new System.EventHandler(this.ModelViewer_Resize);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -126,5 +159,7 @@
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem backgroundColorToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem floorToolStripMenuItem;
+        private System.Windows.Forms.Panel pnl3DView;
+        private System.Windows.Forms.Label lblCameraCoords;
     }
 }

@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using ThreeWorkTool.Resources.Utility;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
+using System.Text.RegularExpressions;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -39,6 +40,13 @@ namespace ThreeWorkTool.Resources.Wrappers
         public int Buffer12;
         public int Buffer13;
         public List<EffectNode> Effects;
+        public List<EFLPathEntry> EFLPaths;
+        public string UTF8Buffer;
+
+        Regex CHRregex = new Regex(@"\bchr[a-zA-Z0-9_/\\.\-]*\b");
+        Regex EFTregex = new Regex(@"\beft[a-zA-Z0-9_/\\.\-]*\b");
+        byte[] BChr = { 0x63, 0x68, 0x72, 0x5C };
+        byte[] BEft = { 0x65, 0x66, 0x74, 0x5C };
 
         public static EffectListEntry FillEFLEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -108,6 +116,52 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 MessageBox.Show("The efl at index: " + ID + " inside the file\n" + eflentry.TrueName + " threw out an error.\nAs long as you do not modify the named file you should be able to save changes made to other files inside this arc and the file will not be modified.", "Uh-Oh");
             }
+
+            //Now for the Paths.
+
+            #region ArcherMethod
+            //eflentry.UTF8Buffer = System.Text.Encoding.UTF8.GetString(eflentry.UncompressedData);
+
+            //MatchCollection FoundChrPaths = eflentry.CHRregex.Matches(eflentry.UTF8Buffer);
+            //MatchCollection FoundEFtPaths = eflentry.EFTregex.Matches(eflentry.UTF8Buffer);
+            //eflentry.EFLPaths = new List<EFLPathEntry>();
+
+            //for (int n = 0; n < FoundChrPaths.Count; n++)
+            //{
+            //    EFLPathEntry eFLP = new EFLPathEntry();
+            //    eFLP.FullTexName = FoundChrPaths[n].Value;
+            //    eFLP.Offset = (int)(Math.Round(FoundChrPaths[n].Index / 16.0) * 16);
+            //    eflentry.EFLPaths.Add(eFLP);
+            //}
+
+            //for (int n = 0; n < FoundEFtPaths.Count; n++)
+            //{
+            //    EFLPathEntry eFLP = new EFLPathEntry();
+            //    eFLP.FullTexName = FoundEFtPaths[n].Value;
+            //    eFLP.Offset = (int)(Math.Round(FoundEFtPaths[n].Index / 16.0) * 16);
+            //    eflentry.EFLPaths.Add(eFLP);
+            //}
+            #endregion
+
+            eflentry.EFLPaths = new List<EFLPathEntry>();
+            List<int> RawPathOffsets = ByteUtilitarian.GetAllCharPatterns(eflentry.UncompressedData, eflentry.BChr);
+            RawPathOffsets.AddRange(ByteUtilitarian.GetAllCharPatterns(eflentry.UncompressedData, eflentry.BEft));
+
+            using (MemoryStream EflStream = new MemoryStream(eflentry.UncompressedData))
+            {
+                using (BinaryReader EBR = new BinaryReader(EflStream))
+                {
+                    for (int n = 0; n < RawPathOffsets.Count; n++)
+                    {
+                        EFLPathEntry eFLP = new EFLPathEntry();
+                        eFLP.Offset = RawPathOffsets[n];
+                        EBR.BaseStream.Position = eFLP.Offset;
+                        eFLP.FullTexName = Encoding.ASCII.GetString(EBR.ReadBytes(64)).Trim('\0');
+                        eflentry.EFLPaths.Add(eFLP);
+                    }
+                }
+            }
+
 
 
             return eflentry;

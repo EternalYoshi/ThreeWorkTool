@@ -19,6 +19,7 @@ using YamlDotNet.Serialization.NamingConventions;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using static ThreeWorkTool.Resources.Wrappers.MaterialMaterialEntry;
 using System.Collections;
+using Force.Crc32;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -375,7 +376,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                 int InterpMaterialOffset = InterpTextureOffset + (DistinctTextureNames.Count * 88);
                 byte[] PlaceHolderHeaderPartB = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
                 byte[] DefaultTextureHash = { 0xEB, 0x5D, 0x1F, 0x24 };
-                byte[] TextureFiller = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };            
+                byte[] TextureFiller = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                
+
                 NewUncompressedData.AddRange(HeaderPart1);
                 NewUncompressedData.AddRange(PlaceHolderHeaderPartA);
                 NewUncompressedData.AddRange(HeaderHash);
@@ -422,10 +425,31 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 }
 
+                byte[] HashBytes = new byte[4];
                 //Materials Part.
-                for (int i = 0; i < newmatA.materials.Count; ++i)
+                for (int i = 0; i < MatList.materials.Count; ++i)
                 {
-                    
+
+                    //Checks for unique/undocumented Material Types.
+                    if (MatList.materials[i].First().Value.type.Contains("0x"))
+                    {
+                        //Gotta convert this to hex and remove the 0x.
+                        HashBytes = ByteUtilitarian.StringToByteArray(MatList.materials[i].First().Value.type.Substring(2));
+                        int Convvalue = Convert.ToInt32(MatList.materials[i].First().Value.type,16);
+                    }
+                    else
+                    {
+                        //Gotta figure out how the hash is computed.
+
+                        var crc32 = new System.IO.Hashing.Crc32();
+
+                        //uint crc = (uint)Crc32Algorithm.Compute(System.Text.Encoding.ASCII.GetBytes(MatList.materials[i].First().Value.type));
+                        //byte[] hbytes = BitConverter.GetBytes(crc);
+                        //Array.Reverse(hbytes);
+
+                        //var crc = Ionic.Zlib.CRC32
+
+                    }
 
 
                 }

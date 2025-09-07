@@ -135,6 +135,9 @@
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
+    <Reference Include="System.IO.Hashing, Version=9.0.0.7, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Hashing.9.0.7\lib\net462\System.IO.Hashing.dll</HintPath>
+    </Reference>
     <Reference Include="System.Linq, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Linq.4.1.0\lib\net463\System.Linq.dll</HintPath>
       <Private>True</Private>
@@ -145,8 +148,8 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -279,6 +282,8 @@
     <Compile Include="Resources\Archives\ArcEntry.cs" />
     <Compile Include="Resources\Archives\ArcFile.cs" />
     <Compile Include="Resources\ExportFileWriter.cs" />
+    <Compile Include="Resources\Geometry\CameraTake1.cs" />
+    <Compile Include="Resources\Geometry\Checkerboard.cs" />
     <Compile Include="Resources\ImportFilters.cs" />
     <Compile Include="Resources\ExportFilters.cs" />
     <Compile Include="Resources\BSWConverter.cs" />
@@ -307,6 +312,7 @@
     <Compile Include="Resources\Wrappers\ChrBaseActEntry.cs" />
     <Compile Include="Resources\Wrappers\DefaultWrapper.cs" />
     <Compile Include="Resources\Wrappers\EffectListEntry.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\EFLPathEntry.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\MaterialCmd.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\EffectFieldTextureRefernce.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\EffectNode.cs" />
@@ -401,6 +407,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -449,6 +456,7 @@
     <Content Include="Images\Unknown.png" />
     <None Include="Resources\BuildDate.txt" />
     <Content Include="Resources\Geometry\MiniCube.fx" />
+    <Content Include="ShaderBase.hlsl" />
     <Content Include="Resources\Wrappers\ExtraNodes\Kaitai\LICENSE.txt" />
     <Content Include="ThreeWorkIconTest.ico" />
   </ItemGroup>

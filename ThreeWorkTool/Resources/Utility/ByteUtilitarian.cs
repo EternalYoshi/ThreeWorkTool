@@ -648,7 +648,89 @@ namespace ThreeWorkTool.Resources.Utility
             }
         }
 
+        public class HashComputation
+        {
+            public static uint ComputeHash(string input)
+            {
+                // Computes CRC32/JAMCRC hash
+                uint crc = (uint)Crc32Algorithm.Compute(System.Text.Encoding.ASCII.GetBytes(input));
+                return ~crc;
+            }
+        }
 
+        public static class Crc32Algorithm
+        {
+            private static readonly uint[] Table;
+
+            static Crc32Algorithm()
+            {
+                const uint polynomial = 0xedb88320;
+                Table = new uint[256];
+                for (uint i = 0; i < 256; i++)
+                {
+                    uint crc = i;
+                    for (uint j = 8; j > 0; j--)
+                    {
+                        if ((crc & 1) == 1)
+                        {
+                            crc = (crc >> 1) ^ polynomial;
+                        }
+                        else
+                        {
+                            crc >>= 1;
+                        }
+                    }
+                    Table[i] = crc;
+                }
+            }
+
+            public static uint Compute(byte[] bytes)
+            {
+                uint crc = 0xffffffff;
+                foreach (byte b in bytes)
+                {
+                    byte tableIndex = (byte)((crc & 0xff) ^ b);
+                    crc = (crc >> 8) ^ Table[tableIndex];
+                }
+                return crc ^ 0xffffffff;
+            }
+        }
+
+        //Gets all offsets of instances of term represented by specified byte array. 
+        public static List<int> GetAllCharPatterns(byte[] buffer,byte[] CharSequence)
+        {
+            List<int> Offsets = new List<int>();
+
+            for (int i = 0; i <= buffer.Length - CharSequence.Length; i++)
+            {
+                bool match = true;
+                for (int j = 0; j < CharSequence.Length; j++)
+                {
+                    if (buffer[i + j] != CharSequence[j])
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match)
+                {
+                    Offsets.Add(i);
+                }
+            }
+
+
+            return Offsets;
+
+        }
+
+        //static uint ComputeCrc32(string input)
+        //{
+        //    byte[] bytes = Encoding.ASCII.GetBytes(input);
+        //    CRC32 crc32 = new CRC32();
+        //    //byte[] hash = crc32.ComputeHash(bytes);
+        //    //return BitConverter.ToUInt32(hash, 0);
+        //}
 
     }
 }

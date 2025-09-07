@@ -33,6 +33,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using static ThreeWorkTool.Resources.Wrappers.ShotListEntry;
 using ThreeWorkTool.Properties;
+using static ThreeWorkTool.Resources.Wrappers.EffectListEntry;
 
 namespace ThreeWorkTool
 {
@@ -374,7 +375,8 @@ namespace ThreeWorkTool
                                                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                         || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
-                                                        || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null)
+                                                        || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null
+                                                        || awrapper.Tag as EFLPathEntry == null)
                                                         {
                                                             {
                                                                 //Removes the archive name from the FullPath for a proper search.
@@ -427,7 +429,8 @@ namespace ThreeWorkTool
                                                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                         || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
-                                                        || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null)
+                                                        || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null
+                                                        || awrapper.Tag as EFLPathEntry == null)
                                                         {
                                                             //Removes the archive name from the FullPath for a proper search.
                                                             string FullPathSearch = awrapper.FullPath;
@@ -503,7 +506,7 @@ namespace ThreeWorkTool
                                                 treno.Tag as string == "Model Primitive Group" || treno.Tag as string == "Events" || treno.Tag as string == "Entries" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
                                                 || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce
                                                 || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelEnvelopeEntry || treno.Tag is StageObjLayoutGroup || treno.Tag is STQRNode
-                                                || treno.Tag is STQREventData || treno.Tag is LMTTrackNode)
+                                                || treno.Tag is STQREventData || treno.Tag is LMTTrackNode || treno.Tag is MaterialAnimEntry || treno.Tag is EFLPathEntry)
                                             {
 
                                             }
@@ -6910,6 +6913,47 @@ namespace ThreeWorkTool
             return conmenu;
         }
 
+        //Adds Context Menu for EFLs.
+        public static ContextMenuStrip EFLContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
+            conmenu.Items.Add(rnitem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp, Keys.Control | Keys.Up);
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
+            conmenu.Items.Add(mditem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var muolitem = new ToolStripMenuItem("Move Up One Level", null, MoveNodeUpOneLevel, Keys.Control | Keys.Shift | Keys.Up);
+            conmenu.Items.Add(muolitem);
+
+            var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
+            conmenu.Items.Add(mdolitem);
+
+            return conmenu;
+        }
+
         public static ContextMenuStrip MiscNodeContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
@@ -9274,7 +9318,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = EffectListEntry.ReplaceEFL(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = TXTContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as EffectListEntry;
@@ -9308,11 +9352,12 @@ namespace ThreeWorkTool
                             //Removes the old child nodes.
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
                             //Builds the new child nodes.
+                            frename.Mainfrm.TreeSource.Hide();
                             frename.Mainfrm.EFLChildrenCreation(NewWrapper, NewWrapper.Tag as EffectListEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
                             frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
                             frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
-
+                            frename.Mainfrm.TreeSource.Show();
                             break;
 
                         default:
@@ -11580,7 +11625,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperEFL, NewWrapperEFL.FileExt);
 
-                        NewWrapperEFL.ContextMenuStrip = GenericFileContextAdder(NewWrapperEFL, frename.Mainfrm.TreeSource);
+                        NewWrapperEFL.ContextMenuStrip = TXTContextAdder(NewWrapperEFL, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperEFL);
 
@@ -11623,14 +11668,14 @@ namespace ThreeWorkTool
                         }
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL;
-
+                        frename.Mainfrm.TreeSource.Hide();
                         //Removes the old child nodes.
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
 
                         //Creates the Material Children of the new node.
                         frename.Mainfrm.EFLChildrenCreation(selectednodeEFL, selectednodeEFL.Tag as EffectListEntry);
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL;
-
+                        frename.Mainfrm.TreeSource.Show();
                         break;
                     #endregion
 
@@ -13278,7 +13323,7 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.IconSetter(NewWrapperEFL, NewWrapperEFL.FileExt);
 
-                            NewWrapperEFL.ContextMenuStrip = GenericFileContextAdder(NewWrapperEFL, frename.Mainfrm.TreeSource);
+                            NewWrapperEFL.ContextMenuStrip = TXTContextAdder(NewWrapperEFL, frename.Mainfrm.TreeSource);
 
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperEFL);
 
@@ -13319,14 +13364,14 @@ namespace ThreeWorkTool
                             }
 
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL;
-
+                            frename.Mainfrm.TreeSource.Hide();
                             //Removes the old child nodes.
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
 
                             //Creates the Material Children of the new node.
                             frename.Mainfrm.EFLChildrenCreation(selectednodeEFL, selectednodeEFL.Tag as EffectListEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL.Parent;
-
+                            frename.Mainfrm.TreeSource.Show();
                             break;
 
                         #endregion
@@ -14990,7 +15035,7 @@ namespace ThreeWorkTool
                             && awrapper.Tag as MaterialMaterialEntry == null && awrapper.Tag as ModelGroupEntry == null && awrapper.Tag as Mission == null
                             && awrapper.Tag as EffectNode == null && awrapper.Tag as EffectFieldTextureRefernce == null && awrapper.Tag as ModelPrimitiveEntry == null
                             && awrapper.Tag as ModelEnvelopeEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null
-                            && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null)
+                            && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null && awrapper.Tag as EFLPathEntry == null)
                             {
                                 {
                                     ArcEntry Aentry = tno.Tag as ArcEntry;
@@ -15329,7 +15374,7 @@ namespace ThreeWorkTool
                             && awrapper.Tag as MaterialMaterialEntry == null && awrapper.Tag as ModelGroupEntry == null && awrapper.Tag as Mission == null
                             && awrapper.Tag as EffectNode == null && awrapper.Tag as EffectFieldTextureRefernce == null && awrapper.Tag as ModelPrimitiveEntry == null
                             && awrapper.Tag as ModelEnvelopeEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null
-                            && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null)
+                            && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null && awrapper.Tag as EFLPathEntry == null)
                             {
                                 {
                                     CurrentFilePath = tno.FullPath;
@@ -16482,7 +16527,7 @@ namespace ThreeWorkTool
                                             NewWrapper = tno as ArcEntryWrapper;
                                             int indexZ = tno.Index;
                                             NewWrapper.Tag = EffectListEntry.ReplaceEFL(frename.Mainfrm.TreeSource, NewWrapper, TexToCheck);
-                                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                            NewWrapper.ContextMenuStrip = TXTContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
 
                                             //Takes the path data from the old node and slaps it on the new node.
@@ -17654,7 +17699,8 @@ namespace ThreeWorkTool
                 RenderView.Mainfrm = frename.Mainfrm;
                 RenderView.FormClosed += ModelViewerClosed;
             }
-            RenderView.ShowMV(frename.Mainfrm.TreeSource.SelectedNode);
+            RenderView.ShowDialog();
+            //RenderView.ShowMV(frename.Mainfrm.TreeSource.SelectedNode);
 
 
         }
@@ -17860,7 +17906,7 @@ namespace ThreeWorkTool
             //Next we get the Material node.
             var Material = frename.Mainfrm.TreeSource.SelectedNode;
 
-            TreeNodeCollection TNoCollection = frename.Mainfrm.TreeSource.SelectedNode.Nodes;            
+            TreeNodeCollection TNoCollection = frename.Mainfrm.TreeSource.SelectedNode.Nodes;
             //First we check for a folder called Animations.
             foreach (TreeNode node in TNoCollection)
             {
@@ -17874,7 +17920,7 @@ namespace ThreeWorkTool
                 }
             }
             //For when we cannot find such a folder.
-            if(frename.Mainfrm.TreeSource.SelectedNode == MainMatNode)
+            if (frename.Mainfrm.TreeSource.SelectedNode == MainMatNode)
             {
                 TreeNode foldera = new TreeNode();
                 foldera.Name = "Animations";
@@ -18609,7 +18655,7 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 8;
 
 
-                    eflchild.ContextMenuStrip = GenericFileContextAdder(eflchild, TreeSource);
+                    eflchild.ContextMenuStrip = TXTContextAdder(eflchild, TreeSource);
 
                     EffectListEntry eflent = new EffectListEntry();
                     eflent = eflchild.Tag as EffectListEntry;
@@ -19450,43 +19496,38 @@ namespace ThreeWorkTool
 
         public void EFLChildrenCreation(TreeNode MEntry, EffectListEntry efl)
         {
-            /*
+            //frename.Mainfrm.TreeSource.Hide();
+            //frename.Mainfrm.TreeSource.BeginUpdate();
             TreeSource.SelectedNode = MEntry;
-
-            //Fills in Effects..?
-            for (int i = 0; i < efl.Effects.Count; i++)
+            for (int i = 0; i < efl.EFLPaths.Count; i++)
             {
+
+                EFLPathEntry epath = new EFLPathEntry();
+
+
                 ArcEntryWrapper efnn = new ArcEntryWrapper();
-                efnn.Name = Convert.ToString(i);
-                efnn.Tag = efl.Effects[i];
-                efnn.Text = Convert.ToString(i);
+                efnn.Name = efl.EFLPaths[i].FullTexName;
+                efnn.Tag = efl.EFLPaths[i];
+                efnn.Text = efl.EFLPaths[i].FullTexName;
                 efnn.ImageIndex = 16;
                 efnn.SelectedImageIndex = 16;
                 TreeSource.SelectedNode.Nodes.Add(efnn);
                 TreeSource.SelectedNode = efnn;
+                ContextMenuStrip conmenu = new ContextMenuStrip();
+                var Mrefnitem = new ToolStripMenuItem("Change Reference via Rename", null, MenuItemRenameFile_Click, Keys.F2);
+                conmenu.Items.Add(Mrefnitem);
+                efnn.ContextMenuStrip = conmenu;
 
-                //Fills in Effect Texture Name Refernces..?
 
-                foreach (EffectFieldTextureRefernce refernce in efl.Effects[i].FXTXNameRefs)
-                {
 
-                    ArcEntryWrapper TextureName = new ArcEntryWrapper();
-                    TextureName.Name = refernce.TextureName;
-                    TextureName.Tag = refernce;
-                    TextureName.Text = refernce.TextureName;
-                    TreeSource.SelectedNode.Nodes.Add(TextureName);
-                    ContextMenuStrip conmenu = new ContextMenuStrip();
 
-                    var Mrefnitem = new ToolStripMenuItem("Change Texture Reference via Rename", null, MenuItemRenameFile_Click, Keys.F2);
-                    conmenu.Items.Add(Mrefnitem);
-                    TextureName.ContextMenuStrip = conmenu;
-
-                }
 
                 TreeSource.SelectedNode = efnn.Parent;
 
             }
-            */
+            //frename.Mainfrm.TreeSource.Show();
+            //frename.Mainfrm.TreeSource.EndUpdate();
+
         }
 
         public void SLOChildrenCreation(TreeNode MEntry, StageObjLayoutEntry slo)
@@ -21237,6 +21278,21 @@ namespace ThreeWorkTool
 
                 #endregion
 
+                #region EFLPath
+                case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.EFLPathEntry":
+                    EFLPathEntry EFLPEntryP = new EFLPathEntry();
+                    EFLPEntryP = TreeSource.SelectedNode.Tag as EFLPathEntry;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                #endregion
+
                 default:
                     pGrdMain.SelectedObject = null;
                     picBoxA.Visible = false;
@@ -22194,7 +22250,7 @@ namespace ThreeWorkTool
                                                     || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                     || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                     || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
-                                                    || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null)
+                                                    || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null || awrapper.Tag as EFLPathEntry == null)
                                                     {
                                                         {
                                                             //Removes the archive name from the FullPath for a proper search.
@@ -22247,7 +22303,7 @@ namespace ThreeWorkTool
                                                     || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                     || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                     || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
-                                                    || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null)
+                                                    || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null || awrapper.Tag as EFLPathEntry == null)
                                                     {
                                                         //Removes the archive name from the FullPath for a proper search.
                                                         string FullPathSearch = awrapper.FullPath;
@@ -22323,7 +22379,7 @@ namespace ThreeWorkTool
                                             treno.Tag as string == "Model Primitive Group" || treno.Tag as string == "Events" || treno.Tag as string == "Entries" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
                                             || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce
                                             || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelEnvelopeEntry || treno.Tag is StageObjLayoutGroup || treno.Tag is STQRNode
-                                            || treno.Tag is STQREventData || treno.Tag is LMTTrackNode)
+                                            || treno.Tag is STQREventData || treno.Tag is LMTTrackNode || treno.Tag is MaterialAnimEntry || treno.Tag is EFLPathEntry)
                                         {
 
                                         }

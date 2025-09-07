@@ -6,6 +6,7 @@ using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
 using ThreeWorkTool.Resources.Wrappers;
+using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using static ThreeWorkTool.Resources.Wrappers.MaterialEntry;
 
 namespace ThreeWorkTool
@@ -173,12 +174,12 @@ namespace ThreeWorkTool
 
                 if (mentry != null)
                 {
-                    for(int w = 0; w < folder.Nodes.Count; w++)
+                    for (int w = 0; w < folder.Nodes.Count; w++)
                     {
                         //Now for the actual file update.                    
                         List<byte> NameToInject = new List<byte>();
                         NameToInject.AddRange(Encoding.ASCII.GetBytes(folder.Nodes[w].Text));
-                        OffsetToUse = mentry.MaterialsOffset + (128 *(w));
+                        OffsetToUse = mentry.MaterialsOffset + (128 * (w));
                         byte[] NewName = new byte[128];
 
                         Array.Copy(NameToInject.ToArray(), 0, NewName, 0, NameToInject.ToArray().Length);
@@ -198,7 +199,32 @@ namespace ThreeWorkTool
                 }
 
             }
+            else if (treeview.SelectedNode.Tag != null && treeview.SelectedNode.Tag is EFLPathEntry)
+            {
+                //Goes about accessing and updating the data inside the material in a roundabout way.
+                EFLPathEntry texref = treeview.SelectedNode.Tag as EFLPathEntry;
+                EffectListEntry mentry = new EffectListEntry();
+                TreeNode parent = treeview.SelectedNode.Parent;
+                TreeNode child = treeview.SelectedNode;
+                treeview.SelectedNode = parent;
+                mentry = parent.Tag as EffectListEntry;
+                if (mentry != null)
+                {
+                    //Now for the actual file update.                    
+                    List<byte> NameToInject = new List<byte>();
+                    NameToInject.AddRange(Encoding.ASCII.GetBytes(txtRename.Text));
+                    int OffsetToUse;
+                    OffsetToUse = texref.Offset;
+                    byte[] NewName = new byte[64];
+                    Array.Copy(NameToInject.ToArray(), 0, NewName, 0, NameToInject.ToArray().Length);
+                    Array.Copy(NewName, 0, mentry.UncompressedData, OffsetToUse, NewName.Length);
+                    mentry.CompressedData = Zlibber.Compressor(mentry.UncompressedData);
+                    treeview.SelectedNode.Tag = mentry;
+                }
+                treeview.SelectedNode = child;
 
+
+            }
             Mainfrm.OpenFileModified = true;
             treeview.EndUpdate();
 

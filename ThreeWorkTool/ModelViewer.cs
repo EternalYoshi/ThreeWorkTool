@@ -17,369 +17,250 @@ using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.Direct3D11.Device;
 using ThreeWorkTool.Resources.Wrappers;
 using SharpDX.D3DCompiler;
+using SharpDX.Mathematics;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.IO;
+using ThreeWorkTool.Resources.Geometry;
+using SharpDX.Direct2D1;
+using SharpDX.DirectWrite;
+using SharpDX.Mathematics.Interop;
 
 namespace ThreeWorkTool
 {
-    public partial class ModelViewer : RenderForm
+
+    public partial class ModelViewer : Form
     {
         public FrmMainThree Mainfrm { get; set; }
         private SharpDX.Color BGColor { get; set; }
         private static ThreeSourceTree treeview;
         private static TreeNode node_;
-        // DirectX interfaces for rendering.
-        SharpDX.Direct3D11.Device device = null;
-        SwapChain swapChain = null;
-        Texture2D backBuffer = null;
-        Texture2D depthStencil = null;
-        RenderTargetView renderView = null;
-        DepthStencilView DStencilView = null;
-        DepthStencilState DStencilState = null;
+        private Buffer vertBuffer;
+        private int vertCount;
+        private CameraTake1 Camera = new CameraTake1();
+        private HashSet<Keys> KeysDown = new HashSet<Keys>();
+        private System.Drawing.Point lastMousePos;
+        private bool rotating = false;
+        private bool panning = false;
+        //private System.Windows.Forms.Panel panelRender;
+        Color4 RealBGColor = new Color4(0.825f, 0.95f, 0.95f, 1.0f);
+        SharpDX.Direct3D11.Device device;
+        SwapChain swapChain;
+        SharpDX.Direct3D11.DeviceContext context;
+        RenderTargetView renderTargetView;
+        DepthStencilView depthStencilView = null;
+        DepthStencilState depthStencilState = null;
         RasterizerState rasterState = null;
-        public ModelEntry model;
-        string modeldata;
-        Matrix projectionMatrix;
-        Matrix worldGround;
 
         public ModelViewer()
         {
             InitializeComponent();
+            this.Load += ModelViewer_Load;
+            this.FormClosing += ModelViewer_FormClosing;
+
+            //        treeview = Mainfrm.TreeSource;
+            //        node_ = treeview.SelectedNode;
+            //        Device device;
+            //        SwapChain swapChain;
+            //        this.Text = "SharpDX D3D11 Model Viewer - Under Construction - " + node_.Text;
+            //        BGColor = SharpDX.Color.LightCyan;
+
         }
 
-        //Camera stuff.
-        //Camera camera = null;
-        
-        public void ShowMV(TreeNode node)
+        private void ModelViewer_Load(object sender, EventArgs e)
         {
+            //Initializes D3D Layer.
+            InitialzeD3DDevice();
+
+
+
             treeview = Mainfrm.TreeSource;
             node_ = treeview.SelectedNode;
-            Device device;
-            SwapChain swapChain;
             this.Text = "SharpDX D3D11 Model Viewer - Under Construction - " + node_.Text;
             BGColor = SharpDX.Color.LightCyan;
 
-            #region Take1
+            this.KeyPreview = true;
+            this.KeyDown += (s, ex) => KeysDown.Add(ex.KeyCode);
 
-            // First the SwapChain description.
-            var desc = new SwapChainDescription()
+            this.KeyUp += (s, ex) => KeysDown.Remove(ex.KeyCode);
+
+            ////20x20 Checkboard.
+            TheCheckerboardFloor(2000, 2000, 1.0f);
+
+            Application.Idle += RenderLoop;
+
+        }
+
+        private void ModelViewer_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //this.Hide();
+            Application.Idle -= RenderLoop;
+
+            renderTargetView?.Dispose();
+            swapChain?.Dispose();
+            device?.Dispose();
+            context?.Dispose();
+        }
+
+        private void InitialzeD3DDevice()
+        {
+            //Time to setup the Swapchain Description Structure.
+            var swapChainDesc = new SwapChainDescription()
             {
                 BufferCount = 1,
-                ModeDescription =
-                    new ModeDescription(this.ClientSize.Width, this.ClientSize.Height,
-                                        new Rational(60, 1), Format.R8G8B8A8_UNorm),
-                IsWindowed = true,
-                OutputHandle = this.Handle,
+                ModeDescription = new ModeDescription(
+                    this.pnl3DView.Width, this.pnl3DView.Height,
+                    new Rational(60, 1), Format.R8G8B8A8_UNorm),
+                Usage = Usage.RenderTargetOutput,
+                OutputHandle = this.pnl3DView.Handle,
                 SampleDescription = new SampleDescription(1, 0),
+                IsWindowed = true,
                 SwapEffect = SwapEffect.Discard,
-                Usage = Usage.RenderTargetOutput
+                Flags = SwapChainFlags.None
             };
 
-            // Setup the projection matrix.
-            this.projectionMatrix = Matrix.PerspectiveFovRH(MathUtil.DegreesToRadians(95.0f), (float)this.ClientSize.Width / (float)this.ClientSize.Height, 1.0f, 400000.0f);
-            this.worldGround = Matrix.Identity;
+            Device.CreateWithSwapChain(
+                SharpDX.Direct3D.DriverType.Hardware,
+                DeviceCreationFlags.BgraSupport,
+                swapChainDesc,
+                out device,
+                out swapChain);
 
-            // Create our output texture for rendering.
-            this.backBuffer = Texture2D.FromSwapChain<Texture2D>(this.swapChain, 0);
-            this.renderView = new RenderTargetView(this.device, this.backBuffer);
+            context = device.ImmediateContext;
 
-
-
-            #endregion
-
-
-
-            #region MiniCube
-            /*
-            // SwapChain description
-            var desc = new SwapChainDescription()
+            using (var backBuffer = swapChain.GetBackBuffer<Texture2D>(0))
             {
-                BufferCount = 1,
-                ModeDescription =
-                    new ModeDescription(this.ClientSize.Width, this.ClientSize.Height,
-                                        new Rational(60, 1), Format.R8G8B8A8_UNorm),
-                IsWindowed = true,
-                OutputHandle = this.Handle,
-                SampleDescription = new SampleDescription(1, 0),
-                SwapEffect = SwapEffect.Discard,
-                Usage = Usage.RenderTargetOutput
-            };
-
-            // Create Device and SwapChain
-            Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, desc, out device, out swapChain);
-            var context = device.ImmediateContext;
-
-            // Ignore all windows events
-            var factory = swapChain.GetParent<Factory>();
-            factory.MakeWindowAssociation(this.Handle, WindowAssociationFlags.IgnoreAll);
-
-            // Compile Vertex and Pixel shaders
-            var vertexShaderByteCode = ShaderBytecode.CompileFromFile(System.Windows.Forms.Application.StartupPath + "\\Resources\\Geometry\\MiniCube.fx", "VS", "vs_4_0");
-            var vertexShader = new VertexShader(device, vertexShaderByteCode);
-
-            var pixelShaderByteCode = ShaderBytecode.CompileFromFile(System.Windows.Forms.Application.StartupPath + "\\Resources\\Geometry\\MiniCube.fx", "PS", "ps_4_0");
-            var pixelShader = new PixelShader(device, pixelShaderByteCode);
-
-            var signature = ShaderSignature.GetInputSignature(vertexShaderByteCode);
-            // Layout from VertexShader input signature
-            var layout = new InputLayout(device, signature, new[]
-                    {
-                        new InputElement("POSITION", 0, Format.R32G32B32A32_Float, 0, 0),
-                        new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 16, 0)
-                    });
+                renderTargetView = new RenderTargetView(device, backBuffer);
+            }
 
 
-            // Instantiate Vertex buiffer from vertex data
-            var vertices = Buffer.Create(device, BindFlags.VertexBuffer, new[]
-                                  {
-                                      new Vector4(-1.0f, -1.0f, -1.0f, 1.0f), new Vector4(1.0f, 0.0f, 0.0f, 1.0f), // Front
-                                      new Vector4(-1.0f,  1.0f, -1.0f, 1.0f), new Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-                                      new Vector4( 1.0f,  1.0f, -1.0f, 1.0f), new Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-                                      new Vector4(-1.0f, -1.0f, -1.0f, 1.0f), new Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-                                      new Vector4( 1.0f,  1.0f, -1.0f, 1.0f), new Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-                                      new Vector4( 1.0f, -1.0f, -1.0f, 1.0f), new Vector4(1.0f, 0.0f, 0.0f, 1.0f),
 
-                                      new Vector4(-1.0f, -1.0f,  1.0f, 1.0f), new Vector4(0.0f, 1.0f, 0.0f, 1.0f), // BACK
-                                      new Vector4( 1.0f,  1.0f,  1.0f, 1.0f), new Vector4(0.0f, 1.0f, 0.0f, 1.0f),
-                                      new Vector4(-1.0f,  1.0f,  1.0f, 1.0f), new Vector4(0.0f, 1.0f, 0.0f, 1.0f),
-                                      new Vector4(-1.0f, -1.0f,  1.0f, 1.0f), new Vector4(0.0f, 1.0f, 0.0f, 1.0f),
-                                      new Vector4( 1.0f, -1.0f,  1.0f, 1.0f), new Vector4(0.0f, 1.0f, 0.0f, 1.0f),
-                                      new Vector4( 1.0f,  1.0f,  1.0f, 1.0f), new Vector4(0.0f, 1.0f, 0.0f, 1.0f),
+        }
 
-                                      new Vector4(-1.0f, 1.0f, -1.0f,  1.0f), new Vector4(0.0f, 0.0f, 1.0f, 1.0f), // Top
-                                      new Vector4(-1.0f, 1.0f,  1.0f,  1.0f), new Vector4(0.0f, 0.0f, 1.0f, 1.0f),
-                                      new Vector4( 1.0f, 1.0f,  1.0f,  1.0f), new Vector4(0.0f, 0.0f, 1.0f, 1.0f),
-                                      new Vector4(-1.0f, 1.0f, -1.0f,  1.0f), new Vector4(0.0f, 0.0f, 1.0f, 1.0f),
-                                      new Vector4( 1.0f, 1.0f,  1.0f,  1.0f), new Vector4(0.0f, 0.0f, 1.0f, 1.0f),
-                                      new Vector4( 1.0f, 1.0f, -1.0f,  1.0f), new Vector4(0.0f, 0.0f, 1.0f, 1.0f),
+        private bool AppStillIdle
+        {
+            get
+            {
+                NativeMethods.PeekMessage(out var msg, IntPtr.Zero, 0, 0, 0);
+                return msg.message == 0;
+            }
+        }
 
-                                      new Vector4(-1.0f,-1.0f, -1.0f,  1.0f), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), // Bottom
-                                      new Vector4( 1.0f,-1.0f,  1.0f,  1.0f), new Vector4(1.0f, 1.0f, 0.0f, 1.0f),
-                                      new Vector4(-1.0f,-1.0f,  1.0f,  1.0f), new Vector4(1.0f, 1.0f, 0.0f, 1.0f),
-                                      new Vector4(-1.0f,-1.0f, -1.0f,  1.0f), new Vector4(1.0f, 1.0f, 0.0f, 1.0f),
-                                      new Vector4( 1.0f,-1.0f, -1.0f,  1.0f), new Vector4(1.0f, 1.0f, 0.0f, 1.0f),
-                                      new Vector4( 1.0f,-1.0f,  1.0f,  1.0f), new Vector4(1.0f, 1.0f, 0.0f, 1.0f),
+        //void InitializeTextOverlay()
+        //{
+        //    dwFactory = new SharpDX.DirectWrite.Factory();
+        //    d2dFactory = new SharpDX.Direct2D1.Factory();
 
-                                      new Vector4(-1.0f, -1.0f, -1.0f, 1.0f), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), // Left
-                                      new Vector4(-1.0f, -1.0f,  1.0f, 1.0f), new Vector4(1.0f, 0.0f, 1.0f, 1.0f),
-                                      new Vector4(-1.0f,  1.0f,  1.0f, 1.0f), new Vector4(1.0f, 0.0f, 1.0f, 1.0f),
-                                      new Vector4(-1.0f, -1.0f, -1.0f, 1.0f), new Vector4(1.0f, 0.0f, 1.0f, 1.0f),
-                                      new Vector4(-1.0f,  1.0f,  1.0f, 1.0f), new Vector4(1.0f, 0.0f, 1.0f, 1.0f),
-                                      new Vector4(-1.0f,  1.0f, -1.0f, 1.0f), new Vector4(1.0f, 0.0f, 1.0f, 1.0f),
+        //    // Get the back buffer surface
+        //    using (var dxgiBackBuffer = swapChain.GetBackBuffer<Surface>(0))
+        //    {
+        //        var renderTargetProperties = new RenderTargetProperties(
+        //            new PixelFormat(Format.Unknown, AlphaMode.Premultiplied));
 
-                                      new Vector4( 1.0f, -1.0f, -1.0f, 1.0f), new Vector4(0.0f, 1.0f, 1.0f, 1.0f), // Right
-                                      new Vector4( 1.0f,  1.0f,  1.0f, 1.0f), new Vector4(0.0f, 1.0f, 1.0f, 1.0f),
-                                      new Vector4( 1.0f, -1.0f,  1.0f, 1.0f), new Vector4(0.0f, 1.0f, 1.0f, 1.0f),
-                                      new Vector4( 1.0f, -1.0f, -1.0f, 1.0f), new Vector4(0.0f, 1.0f, 1.0f, 1.0f),
-                                      new Vector4( 1.0f,  1.0f, -1.0f, 1.0f), new Vector4(0.0f, 1.0f, 1.0f, 1.0f),
-                                      new Vector4( 1.0f,  1.0f,  1.0f, 1.0f), new Vector4(0.0f, 1.0f, 1.0f, 1.0f),
-                            });
+        //        d2dRenderTarget = new WindowRenderTarget(d2dFactory,
+        //            new HwndRenderTargetProperties()
+        //            {
+        //                Hwnd = panelRender.Handle,
+        //                PixelSize = new Size2(panelRender.Width, panelRender.Height),
+        //                PresentOptions = PresentOptions.Immediately
+        //            },
+        //            renderTargetProperties);
+        //    }
 
-            // Create Constant Buffer
-            var contantBuffer = new Buffer(device, Utilities.SizeOf<Matrix>(), ResourceUsage.Default, BindFlags.ConstantBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
+        //    textBrush = new SolidColorBrush(d2dRenderTarget, new RawColor4(1f, 1f, 1f, 1f)); // White
+        //    textFormat = new TextFormat(dwFactory, "Segoe UI", FontWeight.Normal, FontStyle.Normal, 16);
+        //}
 
-            // Prepare All the stages
-            context.InputAssembler.InputLayout = layout;
+        private void RenderLoop(object sender, EventArgs e)
+        {
+            while (AppStillIdle)
+            {
+                Render();
+            }
+        }
+
+        private void Render()
+        {
+            context.OutputMerger.SetRenderTargets(renderTargetView);
+            context.ClearRenderTargetView(renderTargetView, RealBGColor);
+
+            //Controls.
+            float deltaTime = 1f / 60f; // estimate or use Stopwatch
+
+            Vector3 movement = Vector3.Zero;
+            if (KeysDown.Contains(Keys.W)) movement.Z += 1;
+            if (KeysDown.Contains(Keys.S)) movement.Z -= 1;
+            if (KeysDown.Contains(Keys.A)) movement.X -= 1;
+            if (KeysDown.Contains(Keys.D)) movement.X += 1;
+            if (KeysDown.Contains(Keys.E)) movement.Y += 1;
+            if (KeysDown.Contains(Keys.Q)) movement.Y -= 1;
+
+            if (movement != Vector3.Zero)
+                Camera.Move(movement, deltaTime);
+
+            Vector3 camPos = Camera.Position;
+            lblCameraCoords.Text = $"Camera:\n X={camPos.X:F2}, Y={camPos.Y:F2}, Z={camPos.Z:F2}"+ "\n" + $"Yaw: {Camera.Yaw * 180 / Math.PI:F1}°\n" + $"Pitch: {Camera.Pitch * 180 / Math.PI:F1}°";
+
+            // This is where Model Drawing Code should go.
             context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-            context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(vertices, Utilities.SizeOf<Vector4>() * 2, 0));
-            context.VertexShader.SetConstantBuffer(0, contantBuffer);
+            context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(vertBuffer, Utilities.SizeOf<Vertex>(), 0));
+
+            // This is where Shaders and constant buffers should be set.
+            //From mohammed sameeh and Vimal CK.
+            string workingDirectory = Environment.CurrentDirectory;
+            string CurrentPath = Directory.GetParent(workingDirectory).Parent.FullName;
+
+            CurrentPath = CurrentPath + "\\ShaderBase.hlsl";
+
+            var vsBytecode = ShaderBytecode.CompileFromFile(CurrentPath, "VS", "vs_4_0");
+            var psBytecode = ShaderBytecode.CompileFromFile(CurrentPath, "PS", "ps_4_0");
+
+            var vertexShader = new VertexShader(device, vsBytecode);
+            var pixelShader = new PixelShader(device, psBytecode);
+
+            var layout = new InputLayout(device, ShaderSignature.GetInputSignature(vsBytecode), new[]
+            {
+                new SharpDX.Direct3D11.InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0),
+                new SharpDX.Direct3D11.InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0),
+            });
+
+            context.InputAssembler.InputLayout = layout;
             context.VertexShader.Set(vertexShader);
             context.PixelShader.Set(pixelShader);
 
-            // Prepare matrices
-            var view = Matrix.LookAtLH(new Vector3(0, 0, -5), new Vector3(0, 0, 0), Vector3.UnitY);
-            Matrix proj = Matrix.Identity;
+            var matrixBuffer = new Buffer(device, Utilities.SizeOf<MatrixBuffer>(),
+                ResourceUsage.Default, BindFlags.ConstantBuffer,
+                CpuAccessFlags.None, ResourceOptionFlags.None, 0);
 
-            // Use clock
-            var clock = new Stopwatch();
-            clock.Start();
 
-            // Declare texture for rendering
-            bool userResized = true;
-            Texture2D backBuffer = null;
-            RenderTargetView renderView = null;
-            Texture2D depthBuffer = null;
-            DepthStencilView depthView = null;
+            float aspectRatio = (float)pnl3DView.Width / (float)pnl3DView.Height;
 
-            // Setup handler on resize form
-            this.UserResized += (sender, args) => userResized = true;
-
-            // Setup full screen mode change F5 (Full) F4 (Window)
-            this.KeyUp += (sender, args) =>
+            // Set once (or update per frame)
+            MatrixBuffer matrices = new MatrixBuffer
             {
-                if (args.KeyCode == Keys.F5)
-                    swapChain.SetFullscreenState(true, null);
-                else if (args.KeyCode == Keys.F4)
-                    swapChain.SetFullscreenState(false, null);
-                else if (args.KeyCode == Keys.Escape)
-                    this.Close();
+                World = Matrix.Identity,
+                View = Camera.View,
+                Projection = Matrix.PerspectiveFovLH((float)Math.PI / 4f, aspectRatio, 0.1f, 100f)
             };
 
-            // Main loop
-            RenderLoop.Run(this, () =>
-            {
-                // If Form resized
-                if (userResized)
-                {
-                    // Dispose all previous allocated resources
-                    Utilities.Dispose(ref backBuffer);
-                    Utilities.Dispose(ref renderView);
-                    Utilities.Dispose(ref depthBuffer);
-                    Utilities.Dispose(ref depthView);
+            // Transpose (HLSL expects column-major by default)
+            matrices.World.Transpose();
+            matrices.View.Transpose();
+            matrices.Projection.Transpose();
 
-                    // Resize the backbuffer
-                    swapChain.ResizeBuffers(desc.BufferCount, this.ClientSize.Width, this.ClientSize.Height, Format.Unknown, SwapChainFlags.None);
+            context.UpdateSubresource(ref matrices, matrixBuffer);
+            context.VertexShader.SetConstantBuffer(0, matrixBuffer);
 
-                    // Get the backbuffer from the swapchain
-                    backBuffer = Texture2D.FromSwapChain<Texture2D>(swapChain, 0);
+            context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+            context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(vertBuffer, Utilities.SizeOf<Vertex>(), 0));
+            context.VertexShader.Set(vertexShader);
+            context.PixelShader.Set(pixelShader);
+            context.InputAssembler.InputLayout = layout;
+            context.VertexShader.SetConstantBuffer(0, matrixBuffer);
 
-                    // Renderview on the backbuffer
-                    renderView = new RenderTargetView(device, backBuffer);
+            context.Draw(vertCount, 0);
 
-                    // Create the depth buffer
-                    depthBuffer = new Texture2D(device, new Texture2DDescription()
-                    {
-                        Format = Format.D32_Float_S8X24_UInt,
-                        ArraySize = 1,
-                        MipLevels = 1,
-                        Width = this.ClientSize.Width,
-                        Height = this.ClientSize.Height,
-                        SampleDescription = new SampleDescription(1, 0),
-                        Usage = ResourceUsage.Default,
-                        BindFlags = BindFlags.DepthStencil,
-                        CpuAccessFlags = CpuAccessFlags.None,
-                        OptionFlags = ResourceOptionFlags.None
-                    });
-
-                    // Create the depth buffer view
-                    depthView = new DepthStencilView(device, depthBuffer);
-
-                    // Setup targets and viewport for rendering
-                    context.Rasterizer.SetViewport(new Viewport(0, 0, this.ClientSize.Width, this.ClientSize.Height, 0.0f, 1.0f));
-                    context.OutputMerger.SetTargets(depthView, renderView);
-
-                    // Setup new projection matrix with correct aspect ratio
-                    proj = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, this.ClientSize.Width / (float)this.ClientSize.Height, 0.1f, 100.0f);
-
-                    // We are done resizing
-                    userResized = false;
-                }
-
-                var time = clock.ElapsedMilliseconds / 1000.0f;
-
-                var viewProj = Matrix.Multiply(view, proj);
-
-                // Clear views
-                context.ClearDepthStencilView(depthView, DepthStencilClearFlags.Depth, 1.0f, 0);
-                context.ClearRenderTargetView(renderView, SharpDX.Color.Black);
-
-                // Update WorldViewProj Matrix
-                var worldViewProj = Matrix.RotationX(time) * Matrix.RotationY(time * 2) * Matrix.RotationZ(time * .7f) * viewProj;
-                worldViewProj.Transpose();
-                context.UpdateSubresource(ref worldViewProj, contantBuffer);
-
-                // Draw the cube
-                context.Draw(36, 0);
-
-                // Present!
-                swapChain.Present(0, PresentFlags.None);
-            });
-
-            // Release all resources
-            signature.Dispose();
-            vertexShaderByteCode.Dispose();
-            vertexShader.Dispose();
-            pixelShaderByteCode.Dispose();
-            pixelShader.Dispose();
-            vertices.Dispose();
-            layout.Dispose();
-            contantBuffer.Dispose();
-            depthBuffer.Dispose();
-            depthView.Dispose();
-            renderView.Dispose();
-            backBuffer.Dispose();
-            context.ClearState();
-            context.Flush();
-            device.Dispose();
-            context.Dispose();
-            swapChain.Dispose();
-            factory.Dispose();
-
-            */
-
-            #endregion
-
-            #region PreviousCode
-            /*
-            this.Text = "SharpDX D3D11 Model Viewer - Under Construction - " + node_.Text;
-            BGColor = SharpDX.Color.LightCyan;
-            // Creates the device and swapchain. From the packtub site tutorial.
-            Device.CreateWithSwapChain(
-                SharpDX.Direct3D.DriverType.Hardware,
-                DeviceCreationFlags.None,
-                new[] {
-            SharpDX.Direct3D.FeatureLevel.Level_11_1,
-            SharpDX.Direct3D.FeatureLevel.Level_11_0,
-            SharpDX.Direct3D.FeatureLevel.Level_10_1,
-            SharpDX.Direct3D.FeatureLevel.Level_10_0,
-                },
-                new SwapChainDescription()
-                {
-                    ModeDescription =
-                        new ModeDescription(
-                            this.ClientSize.Width,
-                            this.ClientSize.Height,
-                            new Rational(60, 1),
-                            Format.R8G8B8A8_UNorm
-                        ),
-                    SampleDescription = new SampleDescription(1, 0),
-                    Usage = SharpDX.DXGI.Usage.BackBuffer | Usage.RenderTargetOutput,
-                    BufferCount = 1,
-                    Flags = SwapChainFlags.None,
-                    IsWindowed = true,
-                    OutputHandle = this.Handle,
-                    SwapEffect = SwapEffect.Discard,
-                },
-                out device, out swapChain
-            );
-
-            var backBuffer = Texture2D.FromSwapChain<Texture2D>(swapChain, 0);
-            var renderTargetView = new RenderTargetView(device, backBuffer);
-
-
-            
-            //device.DebugName = "The Device";
-            //swapChain.DebugName = "The SwapChain";
-            //backBuffer.DebugName = "The Backbuffer";
-            //renderTargetView.DebugName = "The RenderTargetView";
-            
-
-
-
-
-            // Create and run the render loop
-            RenderLoop.Run(this, () =>
-            {
-                // Clear the render target with light blue
-                device.ImmediateContext.ClearRenderTargetView(
-                  renderTargetView,
-                  BGColor);
-                // Execute rendering commands here...
-
-                // Present the frame
-                swapChain.Present(0, PresentFlags.None);
-            });
-            
-            // Release the device and any other resources created
-            renderTargetView.Dispose();
-            backBuffer.Dispose();
-            device.Dispose();
-            swapChain.Dispose();
-            */
-
-            #endregion
-
-
-
+            swapChain.Present(1, PresentFlags.None);
         }
 
         private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -392,26 +273,21 @@ namespace ThreeWorkTool
 
         }
 
+        //Changes the background color.
         private void backgroundColorToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             ColorDialog colorDlg = new ColorDialog();
             if (colorDlg.ShowDialog() == DialogResult.OK)
             {
-                //BGColor = 
-
+                RealBGColor = new Color4((colorDlg.Color.R / 255f), (colorDlg.Color.G / 255f), (colorDlg.Color.B / 255f), 1.0f);
             }
 
 
         }
 
-        private void ModelViewer_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            //this.Hide();
-        }
-
         private void ModelViewer_FormClosed(object sender, FormClosedEventArgs e)
         {
-            FrmMainThree.ModelViewerClosed(sender,e);
+            FrmMainThree.ModelViewerClosed(sender, e);
         }
 
         private void ModelViewer_Resize(object sender, EventArgs e)
@@ -424,5 +300,136 @@ namespace ThreeWorkTool
 
         }
 
+        private void TheCheckerboardFloor(int XTiles, int ZTiles, float TileSize)
+        {
+            List<Vertex> vertices = new List<Vertex>();
+
+            for (int x = 0; x < XTiles; x++)
+            {
+                for (int z = 0; z < ZTiles; z++)
+                {
+                    // Calculate quad origin
+                    float originX = x * TileSize;
+                    float originZ = z * TileSize;
+
+                    // Alternate color (like a chessboard)
+                    bool isBlack = (x + z) % 2 == 0;
+                    Color4 tileColor = isBlack ? Color4.Black : Color4.White;
+
+                    // Each quad = 2 triangles = 6 vertices (triangle list)
+                    Vector3 v0 = new Vector3(originX, 0, originZ);
+                    Vector3 v1 = new Vector3(originX + TileSize, 0, originZ);
+                    Vector3 v2 = new Vector3(originX, 0, originZ + TileSize);
+                    Vector3 v3 = new Vector3(originX + TileSize, 0, originZ + TileSize);
+
+                    // Triangle 1
+                    vertices.Add(new Vertex(v0, tileColor));
+                    vertices.Add(new Vertex(v2, tileColor));
+                    vertices.Add(new Vertex(v1, tileColor));
+
+                    // Triangle 2
+                    vertices.Add(new Vertex(v1, tileColor));
+                    vertices.Add(new Vertex(v2, tileColor));
+                    vertices.Add(new Vertex(v3, tileColor));
+                }
+            }
+
+            vertCount = vertices.Count;
+
+            // Create vertex buffer
+            vertBuffer?.Dispose();
+            vertBuffer = Buffer.Create(device, BindFlags.VertexBuffer, vertices.ToArray());
+        }
+
+        private void pnl3DView_Resize(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pnl3DView_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+                rotating = true;
+            if (e.Button == MouseButtons.Right)
+                panning = true;
+
+            lastMousePos = e.Location;
+        }
+
+        private void pnl3DView_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+                rotating = false;
+            if (e.Button == MouseButtons.Right)
+                panning = false;
+        }
+
+        private void pnl3DView_MouseMove(object sender, MouseEventArgs e)
+        {
+            int dx = e.X - lastMousePos.X;
+            int dy = e.Y - lastMousePos.Y;
+
+            if (rotating)
+                Camera.Rotate(dx, -dy);
+            else if (panning)
+                Camera.Pan(dx, -dy);
+
+            lastMousePos = e.Location;
+        }
+
+        private void pnl3DView_MouseWheel(object sender, MouseEventArgs e)
+        {
+            Camera.Zoom(e.Delta / 120f); // 120 is one scroll tick?
+        }
+
+        private void ModelViewer_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void ModelViewer_KeyUp(object sender, KeyEventArgs e)
+        {
+
+        }
     }
+
+    internal static class NativeMethods
+    {
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        public struct Message
+        {
+            public IntPtr hWnd;
+            public uint message;
+            public IntPtr wParam;
+            public IntPtr lParam;
+            public uint time;
+            public System.Drawing.Point p;
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern bool PeekMessage(out Message lpMsg, IntPtr hWnd,
+            uint wMsgFilterMin, uint wMsgFilterMax, uint wRemoveMsg);
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Vertex
+    {
+        public Vector3 Position;
+        public Color4 Color;
+
+        public Vertex(Vector3 position, Color4 color)
+        {
+            Position = position;
+            Color = color;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct MatrixBuffer
+    {
+        public Matrix World;
+        public Matrix View;
+        public Matrix Projection;
+    }
+
 }

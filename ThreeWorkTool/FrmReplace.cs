@@ -333,7 +333,7 @@ namespace ThreeWorkTool
                         }
                     }
 
-                    if(tno.Tag as string != null && tno.Tag as string == "Folder")
+                    if (tno.Tag as string != null && tno.Tag as string == "Folder")
                     {
 
                         //Replaces the Term in the folder.
@@ -452,6 +452,53 @@ namespace ThreeWorkTool
 
 
                 }
+
+                else if (Mainfrm.TreeSource.SelectedNode.Tag is EffectListEntry)
+                {
+                    TreeNodeCollection TNoCollection = Mainfrm.TreeSource.SelectedNode.Nodes;
+                    Mainfrm.TreeSource.BeginUpdate();
+                    Mainfrm.TreeSource.Hide();
+                    EffectListEntry EffectList = Mainfrm.TreeSource.SelectedNode.Tag as EffectListEntry;
+
+                    foreach (TreeNode node in TNoCollection)
+                    {
+                        string Namer = node.Name as string;
+                        node.Text = node.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                        Namer = Namer.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                        node.Name = Namer;
+                    }
+
+
+                    //Time to update the EFL with all the terms, regardless of modified state.
+                    EFLPathEntry eflpref = new EFLPathEntry();
+                    string TermToInject = "";
+                    int PathOff = 0;
+
+                    for (int i = 0; i < TNoCollection.Count; i++)
+                    {
+                        eflpref = TNoCollection[i].Tag as EFLPathEntry;
+                        TermToInject = TNoCollection[i].Text;
+                        PathOff = eflpref.Offset;
+
+                        //Now for the actual file update.                    
+                        List<byte> NameToInject = new List<byte>();
+                        NameToInject.AddRange(Encoding.ASCII.GetBytes(TermToInject));
+                        byte[] NewName = new byte[64];
+                        Array.Copy(NameToInject.ToArray(), 0, NewName, 0, NameToInject.ToArray().Length);
+                        Array.Copy(NewName, 0, EffectList.UncompressedData, PathOff, NewName.Length);
+
+                    }
+
+                    EffectList.CompressedData = Zlibber.Compressor(EffectList.UncompressedData);
+                    Mainfrm.TreeSource.SelectedNode.Tag = EffectList;
+
+                    Mainfrm.OpenFileModified = true;
+                    Mainfrm.TreeSource.EndUpdate();
+                    Mainfrm.TreeSource.Show();
+                }
+
+
+
             }
 
         }
