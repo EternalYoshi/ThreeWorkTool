@@ -80,7 +80,9 @@ namespace ThreeWorkTool
                     {
                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
-                        || awrapper.Tag as EffectNode == null || awrapper.Tag as STQREventData == null || awrapper.Tag as STQRNode == null || awrapper.Tag as LMTTrackNode == null)
+                        || awrapper.Tag as EffectNode == null || awrapper.Tag as STQREventData == null || awrapper.Tag as STQRNode == null || awrapper.Tag as LMTTrackNode == null
+                        || awrapper.Tag as ModelBoneEntry == null || awrapper.Tag as ModelPrimitiveEntry == null || awrapper.Tag as ModelGroupEntry == null 
+                        || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as MaterialAnimEntry == null || awrapper.Tag as EFLPathEntry == null)
                         {
                             {
                                 if (awrapper.Tag as string != null)

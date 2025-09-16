@@ -6386,6 +6386,12 @@ namespace ThreeWorkTool
 
             conmenu.Items.Add(new ToolStripSeparator());
 
+            //ImportFolderAndContents
+            var impfoldertwoitem = new ToolStripMenuItem("Import Folder and Contents", null, ImportFolderAndContents, Keys.Control | Keys.Shift | Keys.F);
+            conmenu.Items.Add(impfoldertwoitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
             conmenu.Items.Add("Replace All Textures", null, ReplaceAllTextures);
 
             var rpallitem = new ToolStripMenuItem("Replace All Files", null, MenuReplaceAllFiles_Click, Keys.Control | Keys.Shift | Keys.R);
@@ -17687,6 +17693,1447 @@ namespace ThreeWorkTool
             frename.Mainfrm.TreeSource.SelectedNode = OriginalWrapper;
 
             frename.Mainfrm.TreeSource.EndUpdate();
+
+        }
+
+        public static void ImportFolderAndContents(Object sender, System.EventArgs e)
+        {
+
+            //Uses the Save File Dialog for the Import Folder & Contents command since it's less ugly and remembers where your previous directory is.
+            SaveFileDialog RPAllFilesDialog = new SaveFileDialog();
+
+            RPAllFilesDialog.Title = "Choose a directory. all contents and subdirectories will be imported.";
+            RPAllFilesDialog.FileName = "Replace From Here";
+            RPAllFilesDialog.Filter = "Directory | directory";
+
+            string ProperPath = "";
+            string ParentPath = "";
+            string CurrentFilePath = "";
+            int strindex;
+
+            TreeNode OriginalNode = new TreeNode();
+
+            if (RPAllFilesDialog.ShowDialog() == DialogResult.OK)
+            {
+                frename.Mainfrm.TreeSource.Hide();
+                frename.Mainfrm.TreeSource.BeginUpdate();
+                //Gets the directory without any of the text the user put in the Save Dialog.
+                int index = RPAllFilesDialog.FileName.LastIndexOf("\\");
+                RPAllFilesDialog.FileName = RPAllFilesDialog.FileName.Substring(0, (index + 1));
+                string savePath = Path.GetDirectoryName(RPAllFilesDialog.FileName);
+
+#if DEBUG
+                MessageBox.Show("The Directory chosen is: " + RPAllFilesDialog.FileName + "\n and has this many characters: " + RPAllFilesDialog.FileName.Length, "");
+#endif
+
+                //First we need to get all files in the directory. Thanks to 
+                string[] FilesToImport = Directory.GetFiles(RPAllFilesDialog.FileName, "*.*", SearchOption.AllDirectories);
+
+                ParentPath = frename.Mainfrm.TreeSource.SelectedNode.FullPath;
+
+                foreach(string FilePath in FilesToImport)
+                {
+                    OriginalNode = frename.Mainfrm.TreeSource.SelectedNode;
+                    ProperPath = FilePath.Remove(0, RPAllFilesDialog.FileName.Length);
+
+                    ArcEntryWrapper awrapper = OriginalNode as ArcEntryWrapper;
+
+                    string[] paths = ProperPath.Split('\\');
+
+                    //Pathing.
+                    foreach (string Folder in paths)
+                    {
+                        //Checks if we are at the file or not. Otherwise check for existence of Folder Path and navigates down further if needed.
+                        if (Folder.Contains("."))
+                        {
+
+
+
+                            string otherhelper = Path.GetExtension(Folder);
+
+                            switch (otherhelper)
+                            {
+                                #region Texture .tex
+                                case ".tex":
+                                    ArcEntryWrapper NewWrapperTEX = new ArcEntryWrapper();
+                                    TextureEntry Tentry = new TextureEntry();
+
+                                    Tentry = TextureEntry.InsertTextureEntry(frename.Mainfrm.TreeSource, NewWrapperTEX, FilePath);
+                                    NewWrapperTEX.Tag = Tentry;
+                                    NewWrapperTEX.Text = Tentry.TrueName;
+                                    NewWrapperTEX.Name = Tentry.TrueName;
+                                    NewWrapperTEX.FileExt = Tentry.FileExt;
+                                    NewWrapperTEX.entryData = Tentry;
+                                    NewWrapperTEX.entryfile = Tentry;
+                                    Tentry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + Tentry.TrueName + "." + Tentry.FileExt;
+                                    frename.Mainfrm.IconSetter(NewWrapperTEX, NewWrapperTEX.FileExt);
+
+                                    NewWrapperTEX.ContextMenuStrip = TextureContextAdder(NewWrapperTEX, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperTEX);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperTEX;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeTEX = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+
+                                    TreeNode rootnodeTEX = new TreeNode();
+                                    TreeNode selectednodeTEX = new TreeNode();
+                                    selectednodeTEX = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeTEX = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeTEX;
+
+                                    int filecountTEX = 0;
+
+                                    ArcFile rootarcTEX = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcTEX != null)
+                                    {
+                                        filecountTEX = rootarcTEX.FileCount;
+                                        filecountTEX++;
+                                        rootarcTEX.FileCount++;
+                                        rootarcTEX.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcTEX;
+                                    }
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeTEX.Parent;
+
+                                    break;
+                                #endregion
+
+                                #region LRP
+                                case ".lrp":
+                                    ArcEntryWrapper NewWrapperRPL = new ArcEntryWrapper();
+                                    ResourcePathListEntry RlistEntry = new ResourcePathListEntry();
+
+
+                                    //RlistEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, FilePath);
+                                    RlistEntry = ResourcePathListEntry.InsertRPL(frename.Mainfrm.TreeSource, NewWrapperRPL, FilePath);
+                                    NewWrapperRPL.Tag = RlistEntry;
+                                    NewWrapperRPL.Text = RlistEntry.TrueName;
+                                    NewWrapperRPL.Name = RlistEntry.TrueName;
+                                    NewWrapperRPL.FileExt = RlistEntry.FileExt;
+                                    NewWrapperRPL.entryData = RlistEntry;
+                                    NewWrapperRPL.entryfile = RlistEntry;
+                                    RlistEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + RlistEntry.TrueName + "." + RlistEntry.FileExt;
+                                    frename.Mainfrm.IconSetter(NewWrapperRPL, NewWrapperRPL.FileExt);
+
+                                    NewWrapperRPL.ContextMenuStrip = TXTContextAdder(NewWrapperRPL, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperRPL);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperRPL;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    frename.Mainfrm.isFinishRPLRead = false;
+
+                                    //Reloads the replaced file data in the text box.
+                                    frename.Mainfrm.txtRPList = ResourcePathListEntry.LoadRPLInTextBox(frename.Mainfrm.txtRPList, RlistEntry);
+                                    frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                                    string typeRPL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeRPL = new TreeNode();
+                                    TreeNode selectednodeRPL = new TreeNode();
+                                    selectednodeRPL = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeRPL = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeRPL;
+
+                                    int filecountRPL = 0;
+
+                                    ArcFile rootarcRPL = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcRPL != null)
+                                    {
+                                        filecountRPL = rootarcRPL.FileCount;
+                                        filecountRPL++;
+                                        rootarcRPL.FileCount++;
+                                        rootarcRPL.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcRPL;
+                                    }
+
+                                    frename.Mainfrm.isFinishRPLRead = true;
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeRPL.Parent;
+                                    break;
+                                #endregion
+
+                                #region ChainList
+                                case ".cst":
+                                    ArcEntryWrapper NewWrapperChainList = new ArcEntryWrapper();
+                                    ChainListEntry ChnLstlistEntry = new ChainListEntry();
+
+
+                                    //ChnLstlistEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, FilePath);
+                                    ChnLstlistEntry = ChainListEntry.InsertChainListEntry(frename.Mainfrm.TreeSource, NewWrapperChainList, FilePath);
+                                    NewWrapperChainList.Tag = ChnLstlistEntry;
+                                    NewWrapperChainList.Text = ChnLstlistEntry.TrueName;
+                                    NewWrapperChainList.Name = ChnLstlistEntry.TrueName;
+                                    NewWrapperChainList.FileExt = ChnLstlistEntry.FileExt;
+                                    NewWrapperChainList.entryData = ChnLstlistEntry;
+                                    NewWrapperChainList.entryfile = ChnLstlistEntry;
+                                    ChnLstlistEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + ChnLstlistEntry.TrueName + "." + ChnLstlistEntry.FileExt;
+
+
+                                    frename.Mainfrm.IconSetter(NewWrapperChainList, NewWrapperChainList.FileExt);
+
+                                    NewWrapperChainList.ContextMenuStrip = TXTContextAdder(NewWrapperChainList, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperChainList);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperChainList;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+                                    frename.Mainfrm.isFinishRPLRead = false;
+
+                                    //Reloads the replaced file data in the text box.
+                                    frename.Mainfrm.txtRPList = ChainListEntry.LoadCSTInTextBox(frename.Mainfrm.txtRPList, ChnLstlistEntry);
+                                    frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                                    string typeCST = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeCST = new TreeNode();
+                                    TreeNode selectednodeCST = new TreeNode();
+                                    selectednodeCST = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeCST = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeCST;
+
+                                    int filecountCST = 0;
+
+                                    ArcFile rootarcCST = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcCST != null)
+                                    {
+                                        filecountCST = rootarcCST.FileCount;
+                                        filecountCST++;
+                                        rootarcCST.FileCount++;
+                                        rootarcCST.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcCST;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeCST.Parent;
+                                    break;
+                                #endregion
+
+                                #region Chain
+                                case ".chn":
+                                    ArcEntryWrapper NewWrapperCHN = new ArcEntryWrapper();
+                                    ChainEntry CHNEntry = new ChainEntry();
+
+                                    CHNEntry = ChainEntry.InsertChainEntry(frename.Mainfrm.TreeSource, NewWrapperCHN, FilePath);
+                                    NewWrapperCHN.Tag = CHNEntry;
+                                    NewWrapperCHN.Text = CHNEntry.TrueName;
+                                    NewWrapperCHN.Name = CHNEntry.TrueName;
+                                    NewWrapperCHN.FileExt = CHNEntry.FileExt;
+                                    NewWrapperCHN.entryData = CHNEntry;
+                                    NewWrapperCHN.entryfile = CHNEntry;
+                                    CHNEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + CHNEntry.TrueName + "." + CHNEntry.FileExt;
+
+
+                                    frename.Mainfrm.IconSetter(NewWrapperCHN, NewWrapperCHN.FileExt);
+
+                                    NewWrapperCHN.ContextMenuStrip = GenericFileContextAdder(NewWrapperCHN, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperCHN);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperCHN;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeCHN = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode CHNrootnode = new TreeNode();
+                                    TreeNode CHNselectednode = new TreeNode();
+                                    CHNselectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                                    CHNrootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = CHNrootnode;
+
+                                    int chnfilecount = 0;
+
+                                    ArcFile CHNrootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (CHNrootarc != null)
+                                    {
+                                        chnfilecount = CHNrootarc.FileCount;
+                                        chnfilecount++;
+                                        CHNrootarc.FileCount++;
+                                        CHNrootarc.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = CHNrootarc;
+                                    }
+
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = CHNselectednode.Parent;
+                                    break;
+
+                                #endregion
+
+                                #region ChainCollision
+
+                                case ".ccl":
+                                    ArcEntryWrapper NewWrapperCCL = new ArcEntryWrapper();
+                                    ChainCollisionEntry CCLEntry = new ChainCollisionEntry();
+
+                                    CCLEntry = ChainCollisionEntry.InsertChainCollEntry(frename.Mainfrm.TreeSource, NewWrapperCCL, FilePath);
+                                    NewWrapperCCL.Tag = CCLEntry;
+                                    NewWrapperCCL.Text = CCLEntry.TrueName;
+                                    NewWrapperCCL.Name = CCLEntry.TrueName;
+                                    NewWrapperCCL.FileExt = CCLEntry.FileExt;
+                                    NewWrapperCCL.entryData = CCLEntry;
+                                    NewWrapperCCL.entryfile = CCLEntry;
+                                    CCLEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + CCLEntry.TrueName + "." + CCLEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperCCL, NewWrapperCCL.FileExt);
+
+                                    NewWrapperCCL.ContextMenuStrip = GenericFileContextAdder(NewWrapperCCL, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperCCL);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperCCL;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeCCL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode CCLrootnode = new TreeNode();
+                                    TreeNode CCLselectednode = new TreeNode();
+                                    CCLselectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                                    CCLrootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = CCLrootnode;
+
+                                    int CCLfilecount = 0;
+
+                                    ArcFile CCLrootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (CCLrootarc != null)
+                                    {
+                                        CCLfilecount = CCLrootarc.FileCount;
+                                        CCLfilecount++;
+                                        CCLrootarc.FileCount++;
+                                        CCLrootarc.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = CCLrootarc;
+                                    }
+
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = CCLselectednode.Parent;
+                                    break;
+
+                                #endregion
+
+                                #region MSD
+                                case ".msd":
+                                    ArcEntryWrapper NewWrapperMSD = new ArcEntryWrapper();
+                                    MSDEntry MSDEntry = new MSDEntry();
+
+
+                                    //RlistEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, FilePath);
+                                    MSDEntry = MSDEntry.InsertMSD(frename.Mainfrm.TreeSource, NewWrapperMSD, FilePath);
+                                    NewWrapperMSD.Tag = MSDEntry;
+                                    NewWrapperMSD.Text = MSDEntry.TrueName;
+                                    NewWrapperMSD.Name = MSDEntry.TrueName;
+                                    NewWrapperMSD.FileExt = MSDEntry.FileExt;
+                                    NewWrapperMSD.entryData = MSDEntry;
+                                    NewWrapperMSD.entryfile = MSDEntry;
+                                    MSDEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + MSDEntry.TrueName + "." + MSDEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperMSD, NewWrapperMSD.FileExt);
+
+                                    NewWrapperMSD.ContextMenuStrip = MSDContextAdder(NewWrapperMSD, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperMSD);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperMSD;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeMSD = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeMSD = new TreeNode();
+                                    TreeNode selectednodeMSD = new TreeNode();
+                                    selectednodeMSD = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeMSD = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeMSD;
+
+                                    int filecountMSD = 0;
+
+                                    ArcFile rootarcMSD = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcMSD != null)
+                                    {
+                                        filecountMSD = rootarcMSD.FileCount;
+                                        filecountMSD++;
+                                        rootarcMSD.FileCount++;
+                                        rootarcMSD.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcMSD;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeMSD.Parent;
+                                    break;
+                                #endregion
+
+                                #region LMT
+                                case ".lmt":
+                                    ArcEntryWrapper NewWrapperLMT = new ArcEntryWrapper();
+                                    LMTEntry LMotionEntry = new LMTEntry();
+
+
+                                    //LMotionEntry = ArcEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapper, FilePath);
+                                    LMotionEntry = LMTEntry.InsertLMTEntry(frename.Mainfrm.TreeSource, NewWrapperLMT, FilePath);
+                                    NewWrapperLMT.Tag = LMotionEntry;
+                                    NewWrapperLMT.Text = LMotionEntry.TrueName;
+                                    NewWrapperLMT.Name = LMotionEntry.TrueName;
+                                    NewWrapperLMT.FileExt = LMotionEntry.FileExt;
+                                    NewWrapperLMT.entryData = LMotionEntry;
+                                    NewWrapperLMT.entryfile = LMotionEntry;
+                                    LMotionEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + LMotionEntry.TrueName + "." + LMotionEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperLMT, NewWrapperLMT.FileExt);
+
+                                    NewWrapperLMT.ContextMenuStrip = LMTContextAdder(NewWrapperLMT, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperLMT);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperLMT;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeLMT = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeLMT = new TreeNode();
+                                    TreeNode selectednodeLMT = new TreeNode();
+                                    selectednodeLMT = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeLMT = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeLMT;
+
+                                    int filecountLMT = 0;
+
+                                    ArcFile rootarcLMT = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcLMT != null)
+                                    {
+                                        filecountLMT = rootarcLMT.FileCount;
+                                        filecountLMT++;
+                                        rootarcLMT.FileCount++;
+                                        rootarcLMT.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcLMT;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeLMT;
+
+                                    //Removes the old child nodes.
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                                    //Creates the Material Children of the new node.
+                                    frename.Mainfrm.LMTChildrenCreation(selectednodeLMT, selectednodeLMT.Tag as LMTEntry);
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeLMT;
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeLMT.Parent;
+                                    break;
+                                #endregion
+
+                                #region DDS
+                                case ".dds":
+                                case ".DDS":
+
+                                    //Creates and Spawns the Texture Encoder Dialog.
+                                    FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(Folder, null);
+
+                                    if (frmtexencode == null) return;
+
+                                    frmtexencode.IsReplacing = false;
+
+                                    frmtexencode.ShowDialog();
+
+                                    if (frmtexencode.DialogResult == DialogResult.OK)
+                                    {
+
+                                        ArcEntryWrapper NewWrapperDDS = new ArcEntryWrapper();
+                                        TextureEntry DDSentry = new TextureEntry();
+
+
+                                        DDSentry = TextureEntry.InsertTextureFromDDS(frename.Mainfrm.TreeSource, NewWrapperDDS, FilePath, frmtexencode, frmtexencode.TexData);
+                                        NewWrapperDDS.Tag = DDSentry;
+                                        NewWrapperDDS.Text = DDSentry.TrueName;
+                                        NewWrapperDDS.Name = DDSentry.TrueName;
+                                        NewWrapperDDS.FileExt = DDSentry.FileExt;
+                                        NewWrapperDDS.entryData = DDSentry;
+                                        NewWrapperDDS.entryfile = DDSentry;
+                                        DDSentry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + DDSentry.TrueName + "." + DDSentry.FileExt;
+
+                                        frename.Mainfrm.IconSetter(NewWrapperDDS, NewWrapperDDS.FileExt);
+
+                                        NewWrapperDDS.ContextMenuStrip = TextureContextAdder(NewWrapperDDS, frename.Mainfrm.TreeSource);
+
+                                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperDDS);
+
+                                        frename.Mainfrm.TreeSource.SelectedNode = NewWrapperDDS;
+
+                                        frename.Mainfrm.OpenFileModified = true;
+
+                                        string typeDDS = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                        frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                        TreeNode rootnodeDDS = new TreeNode();
+                                        TreeNode selectednodeDDS = new TreeNode();
+                                        selectednodeDDS = frename.Mainfrm.TreeSource.SelectedNode;
+                                        rootnodeDDS = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                        frename.Mainfrm.TreeSource.SelectedNode = rootnodeDDS;
+
+                                        int filecountDDS = 0;
+
+                                        ArcFile rootarcDDS = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                        if (rootarcDDS != null)
+                                        {
+                                            filecountDDS = rootarcDDS.FileCount;
+                                            filecountDDS++;
+                                            rootarcDDS.FileCount++;
+                                            rootarcDDS.FileAmount++;
+                                            frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcDDS;
+                                        }
+
+
+                                        frename.Mainfrm.TreeSource.SelectedNode = selectednodeDDS.Parent;
+
+
+
+                                    }
+
+                                    break;
+                                #endregion
+
+                                #region Material
+                                case ".mrl":
+                                    ArcEntryWrapper NewWrapperMRL = new ArcEntryWrapper();
+                                    MaterialEntry MRLEntry = new MaterialEntry();
+
+                                    MRLEntry = MaterialEntry.InsertEntry(frename.Mainfrm.TreeSource, NewWrapperMRL, FilePath);
+                                    NewWrapperMRL.Tag = MRLEntry;
+                                    NewWrapperMRL.Text = MRLEntry.TrueName;
+                                    NewWrapperMRL.Name = MRLEntry.TrueName;
+                                    NewWrapperMRL.FileExt = MRLEntry.FileExt;
+                                    NewWrapperMRL.entryData = MRLEntry;
+                                    NewWrapperMRL.entryfile = MRLEntry;
+                                    MRLEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + MRLEntry.TrueName + "." + MRLEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperMRL, NewWrapperMRL.FileExt);
+
+                                    NewWrapperMRL.ContextMenuStrip = MaterialContextAddder(NewWrapperMRL, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperMRL);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperMRL;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeMRL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode MRLrootnode = new TreeNode();
+                                    TreeNode MRLselectednode = new TreeNode();
+                                    MRLselectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                                    MRLrootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = MRLrootnode;
+
+                                    int MRLfilecount = 0;
+
+                                    ArcFile MRLrootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (MRLrootarc != null)
+                                    {
+                                        MRLfilecount = MRLrootarc.FileCount;
+                                        MRLfilecount++;
+                                        MRLrootarc.FileCount++;
+                                        MRLrootarc.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = MRLrootarc;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = MRLselectednode.Parent;
+
+
+                                    //Creates the Material Children of the new node.
+                                    frename.Mainfrm.MaterialChildrenCreation(MRLselectednode, MRLselectednode.Tag as MaterialEntry);
+                                    frename.Mainfrm.TreeSource.SelectedNode = MRLselectednode.Parent;
+
+                                    break;
+
+                                #endregion
+
+                                #region Model
+                                case ".mod":
+                                    ArcEntryWrapper NewWrapperMOD = new ArcEntryWrapper();
+                                    ModelEntry MODEntry = new ModelEntry();
+
+                                    MODEntry = ModelEntry.InsertModelEntry(frename.Mainfrm.TreeSource, NewWrapperMOD, FilePath);
+                                    NewWrapperMOD.Tag = MODEntry;
+                                    NewWrapperMOD.Text = MODEntry.TrueName;
+                                    NewWrapperMOD.Name = MODEntry.TrueName;
+                                    NewWrapperMOD.FileExt = MODEntry.FileExt;
+                                    NewWrapperMOD.entryData = MODEntry;
+                                    NewWrapperMOD.entryfile = MODEntry;
+                                    MODEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + MODEntry.TrueName + "." + MODEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperMOD, NewWrapperMOD.FileExt);
+
+                                    NewWrapperMOD.ContextMenuStrip = ModelFileContextAdder(NewWrapperMOD, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperMOD);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperMOD;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeMOD = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode MODrootnode = new TreeNode();
+                                    TreeNode MODselectednode = new TreeNode();
+                                    MODselectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                                    MODrootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = MODrootnode;
+
+                                    int MODfilecount = 0;
+
+                                    ArcFile MODrootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (MODrootarc != null)
+                                    {
+                                        MODfilecount = MODrootarc.FileCount;
+                                        MODfilecount++;
+                                        MODrootarc.FileCount++;
+                                        MODrootarc.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = MODrootarc;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = MODselectednode;
+
+
+                                    //Removes the old child nodes.
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                                    //Creates the Material Children of the new node.
+                                    frename.Mainfrm.ModelChildrenCreation(MODselectednode, MODselectednode.Tag as ModelEntry);
+                                    frename.Mainfrm.TreeSource.SelectedNode = MODselectednode.Parent;
+
+                                    break;
+
+                                #endregion
+
+                                #region Missions
+                                case ".mis":
+                                    ArcEntryWrapper NewWrapperMIS = new ArcEntryWrapper();
+                                    MissionEntry MISEntry = new MissionEntry();
+
+                                    MISEntry = MissionEntry.InsertMissionEntry(frename.Mainfrm.TreeSource, NewWrapperMIS, FilePath);
+                                    NewWrapperMIS.Tag = MISEntry;
+                                    NewWrapperMIS.Text = MISEntry.TrueName;
+                                    NewWrapperMIS.Name = MISEntry.TrueName;
+                                    NewWrapperMIS.FileExt = MISEntry.FileExt;
+                                    NewWrapperMIS.entryData = MISEntry;
+                                    NewWrapperMIS.entryfile = MISEntry;
+                                    MISEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + MISEntry.TrueName + "." + MISEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperMIS, NewWrapperMIS.FileExt);
+
+                                    NewWrapperMIS.ContextMenuStrip = GenericFileContextAdder(NewWrapperMIS, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperMIS);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperMIS;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeMIS = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode MISrootnode = new TreeNode();
+                                    TreeNode MISselectednode = new TreeNode();
+                                    MISselectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                                    MISrootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = MISrootnode;
+
+                                    int MISfilecount = 0;
+
+                                    ArcFile MISrootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (MISrootarc != null)
+                                    {
+                                        MISfilecount = MISrootarc.FileCount;
+                                        MISfilecount++;
+                                        MISrootarc.FileCount++;
+                                        MISrootarc.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = MISrootarc;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = MISselectednode;
+
+                                    //Removes the old child nodes.
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                                    //Creates the Material Children of the new node.
+                                    frename.Mainfrm.MissionChildrenCreation(MISselectednode, MISselectednode.Tag as MissionEntry);
+                                    frename.Mainfrm.TreeSource.SelectedNode = MISselectednode.Parent;
+
+                                    break;
+
+                                #endregion
+
+                                #region GEM
+
+                                case ".gem":
+                                    ArcEntryWrapper NewWrapperGEM = new ArcEntryWrapper();
+                                    GemEntry GeMEntry = new GemEntry();
+
+                                    GeMEntry = GemEntry.InsertGEM(frename.Mainfrm.TreeSource, NewWrapperGEM, FilePath);
+                                    NewWrapperGEM.Tag = GeMEntry;
+                                    NewWrapperGEM.Text = GeMEntry.TrueName;
+                                    NewWrapperGEM.Name = GeMEntry.TrueName;
+                                    NewWrapperGEM.FileExt = GeMEntry.FileExt;
+                                    NewWrapperGEM.entryData = GeMEntry;
+                                    NewWrapperGEM.entryfile = GeMEntry;
+                                    GeMEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + GeMEntry.TrueName + "." + GeMEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperGEM, NewWrapperGEM.FileExt);
+
+                                    NewWrapperGEM.ContextMenuStrip = TXTContextAdder(NewWrapperGEM, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperGEM);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperGEM;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    frename.Mainfrm.isFinishRPLRead = false;
+
+                                    //Reloads the replaced file data in the text box.
+                                    frename.Mainfrm.txtRPList = GemEntry.LoadGEMInTextBox(frename.Mainfrm.txtRPList, GeMEntry);
+                                    frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                                    string typeGEM = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeGEM = new TreeNode();
+                                    TreeNode selectednodeGEM = new TreeNode();
+                                    selectednodeGEM = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeGEM = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeGEM;
+
+                                    int filecountGEM = 0;
+
+                                    ArcFile rootarcGEM = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcGEM != null)
+                                    {
+                                        filecountGEM = rootarcGEM.FileCount;
+                                        filecountGEM++;
+                                        rootarcGEM.FileCount++;
+                                        rootarcGEM.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcGEM;
+                                    }
+
+
+                                    frename.Mainfrm.isFinishRPLRead = true;
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeGEM.Parent;
+                                    break;
+
+                                #endregion
+
+                                #region RIFF
+                                case ".xsew":
+                                    ArcEntryWrapper NewWrapperRIF = new ArcEntryWrapper();
+                                    RIFFEntry RIFFEntry = new RIFFEntry();
+
+                                    RIFFEntry = RIFFEntry.InsertRIFFEntry(frename.Mainfrm.TreeSource, NewWrapperRIF, FilePath);
+                                    NewWrapperRIF.Tag = RIFFEntry;
+                                    NewWrapperRIF.Text = RIFFEntry.TrueName;
+                                    NewWrapperRIF.Name = RIFFEntry.TrueName;
+                                    NewWrapperRIF.FileExt = RIFFEntry.FileExt;
+                                    NewWrapperRIF.entryData = RIFFEntry;
+                                    NewWrapperRIF.entryfile = RIFFEntry;
+                                    RIFFEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + RIFFEntry.TrueName + "." + RIFFEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperRIF, NewWrapperRIF.FileExt);
+
+                                    NewWrapperRIF.ContextMenuStrip = GenericFileContextAdder(NewWrapperRIF, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperRIF);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperRIF;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeRIF = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeRIF = new TreeNode();
+                                    TreeNode selectednodeRIF = new TreeNode();
+                                    selectednodeRIF = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeRIF = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeRIF;
+
+                                    int filecountRIF = 0;
+
+                                    ArcFile rootarcRIF = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcRIF != null)
+                                    {
+                                        filecountRIF = rootarcRIF.FileCount;
+                                        filecountRIF++;
+                                        rootarcRIF.FileCount++;
+                                        rootarcRIF.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcRIF;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeRIF.Parent;
+                                    break;
+                                #endregion
+
+                                #region EFL
+
+                                case ".efl":
+                                    ArcEntryWrapper NewWrapperEFL = new ArcEntryWrapper();
+                                    EffectListEntry EFLEntry = new EffectListEntry();
+
+                                    EFLEntry = EffectListEntry.InsertEFL(frename.Mainfrm.TreeSource, NewWrapperEFL, FilePath);
+                                    NewWrapperEFL.Tag = EFLEntry;
+                                    NewWrapperEFL.Text = EFLEntry.TrueName;
+                                    NewWrapperEFL.Name = EFLEntry.TrueName;
+                                    NewWrapperEFL.FileExt = EFLEntry.FileExt;
+                                    NewWrapperEFL.entryData = EFLEntry;
+                                    NewWrapperEFL.entryfile = EFLEntry;
+                                    EFLEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + EFLEntry.TrueName + "." + EFLEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperEFL, NewWrapperEFL.FileExt);
+
+                                    NewWrapperEFL.ContextMenuStrip = TXTContextAdder(NewWrapperEFL, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperEFL);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperEFL;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeEFL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeEFL = new TreeNode();
+                                    TreeNode selectednodeEFL = new TreeNode();
+                                    selectednodeEFL = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeEFL = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeEFL;
+
+                                    int filecountEFL = 0;
+
+                                    ArcFile rootarcEFL = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcEFL != null)
+                                    {
+                                        filecountEFL = rootarcEFL.FileCount;
+                                        filecountEFL++;
+                                        rootarcEFL.FileCount++;
+                                        rootarcEFL.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcEFL;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL;
+                                    frename.Mainfrm.TreeSource.Hide();
+                                    //Removes the old child nodes.
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                                    //Creates the Material Children of the new node.
+                                    frename.Mainfrm.EFLChildrenCreation(selectednodeEFL, selectednodeEFL.Tag as EffectListEntry);
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL.Parent;
+                                    frename.Mainfrm.TreeSource.Show();
+                                    break;
+
+                                #endregion
+
+                                #region ShotList
+
+                                case ".lsh":
+                                    ArcEntryWrapper NewWrapperLSH = new ArcEntryWrapper();
+                                    ShotListEntry LSHEntry = new ShotListEntry();
+
+                                    LSHEntry = ShotListEntry.InsertShotListEntry(frename.Mainfrm.TreeSource, NewWrapperLSH, FilePath);
+                                    NewWrapperLSH.Tag = LSHEntry;
+                                    NewWrapperLSH.Text = LSHEntry.TrueName;
+                                    NewWrapperLSH.Name = LSHEntry.TrueName;
+                                    NewWrapperLSH.FileExt = LSHEntry.FileExt;
+                                    NewWrapperLSH.entryData = LSHEntry;
+                                    NewWrapperLSH.entryfile = LSHEntry;
+                                    LSHEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + LSHEntry.TrueName + "." + LSHEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperLSH, NewWrapperLSH.FileExt);
+
+                                    NewWrapperLSH.ContextMenuStrip = TXTContextAdder(NewWrapperLSH, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperLSH);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperLSH;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    frename.Mainfrm.isFinishRPLRead = false;
+
+                                    //Reloads the replaced file data in the text box.
+                                    frename.Mainfrm.txtRPList = ShotListEntry.LoadLSHInTextBox(frename.Mainfrm.txtRPList, LSHEntry);
+                                    frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+                                    string typeLSH = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeLSH = new TreeNode();
+                                    TreeNode selectednodeLSH = new TreeNode();
+                                    selectednodeLSH = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeLSH = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeLSH;
+
+                                    int filecountLSH = 0;
+
+                                    ArcFile rootarcLSH = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcLSH != null)
+                                    {
+                                        filecountLSH = rootarcLSH.FileCount;
+                                        filecountLSH++;
+                                        rootarcLSH.FileCount++;
+                                        rootarcLSH.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcLSH;
+                                    }
+
+                                    frename.Mainfrm.isFinishRPLRead = true;
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeLSH.Parent;
+                                    break;
+
+                                #endregion
+
+                                #region StageObjectLayout
+
+                                case ".slo":
+                                    ArcEntryWrapper NewWrapperSLO = new ArcEntryWrapper();
+                                    StageObjLayoutEntry SLOEntry = new StageObjLayoutEntry();
+
+                                    SLOEntry = StageObjLayoutEntry.InsertSLOEntry(frename.Mainfrm.TreeSource, NewWrapperSLO, FilePath);
+                                    NewWrapperSLO.Tag = SLOEntry;
+                                    NewWrapperSLO.Text = SLOEntry.TrueName;
+                                    NewWrapperSLO.Name = SLOEntry.TrueName;
+                                    NewWrapperSLO.FileExt = SLOEntry.FileExt;
+                                    NewWrapperSLO.entryData = SLOEntry;
+                                    NewWrapperSLO.entryfile = SLOEntry;
+                                    SLOEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + SLOEntry.TrueName + "." + SLOEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperSLO, NewWrapperSLO.FileExt);
+
+                                    NewWrapperSLO.ContextMenuStrip = SLOContextAdder(NewWrapperSLO, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperSLO);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperSLO;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    frename.Mainfrm.isFinishRPLRead = false;
+
+                                    string typeSLO = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+
+                                    TreeNode rootnodeSLO = new TreeNode();
+                                    TreeNode selectednodeSLO = new TreeNode();
+                                    selectednodeSLO = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeSLO = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeSLO;
+
+                                    int filecountSLO = 0;
+
+                                    ArcFile rootarcSLO = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcSLO != null)
+                                    {
+                                        filecountSLO = rootarcSLO.FileCount;
+                                        filecountSLO++;
+                                        rootarcSLO.FileCount++;
+                                        rootarcSLO.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSLO;
+                                    }
+
+                                    frename.Mainfrm.isFinishRPLRead = true;
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeSLO.Parent;
+
+                                    //Creates the Material Children of the new node.
+                                    frename.Mainfrm.SLOChildrenCreation(selectednodeSLO, selectednodeSLO.Tag as StageObjLayoutEntry);
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeSLO.Parent;
+
+
+                                    break;
+
+                                #endregion
+
+                                #region STQR
+
+                                case ".stqr":
+                                    ArcEntryWrapper NewWrapperSTQR = new ArcEntryWrapper();
+                                    STQREntry STQrEntry = new STQREntry();
+
+                                    STQrEntry = STQREntry.InsertSTQREntry(frename.Mainfrm.TreeSource, NewWrapperSTQR, FilePath);
+                                    NewWrapperSTQR.Tag = STQrEntry;
+                                    NewWrapperSTQR.Text = STQrEntry.TrueName;
+                                    NewWrapperSTQR.Name = STQrEntry.TrueName;
+                                    NewWrapperSTQR.FileExt = STQrEntry.FileExt;
+                                    NewWrapperSTQR.entryData = STQrEntry;
+                                    NewWrapperSTQR.entryfile = STQrEntry;
+                                    STQrEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + STQrEntry.TrueName + "." + STQrEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperSTQR, NewWrapperSTQR.FileExt);
+
+                                    NewWrapperSTQR.ContextMenuStrip = TXTContextAdder(NewWrapperSTQR, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperSTQR);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperSTQR;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    frename.Mainfrm.isFinishRPLRead = false;
+
+                                    string typeSTQR = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeSTQR = new TreeNode();
+                                    TreeNode selectednodeSTQR = new TreeNode();
+                                    selectednodeSTQR = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeSTQR = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeSTQR;
+
+                                    int filecountSTQR = 0;
+
+                                    ArcFile rootarcSTQR = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcSTQR != null)
+                                    {
+                                        filecountSTQR = rootarcSTQR.FileCount;
+                                        filecountSTQR++;
+                                        rootarcSTQR.FileCount++;
+                                        rootarcSTQR.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSTQR;
+                                    }
+
+                                    frename.Mainfrm.isFinishRPLRead = true;
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeSTQR.Parent;
+
+                                    //Creates the STQR Children of the new node.
+                                    frename.Mainfrm.STQRChildrenCreation(selectednodeSTQR, selectednodeSTQR.Tag as STQREntry);
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeSTQR.Parent;
+
+
+                                    break;
+
+                                #endregion
+
+                                #region AtkInfo
+                                case ".ati":
+                                case ".227A8048":
+                                    ArcEntryWrapper NewWrapperAtkInfo = new ArcEntryWrapper();
+                                    AtkInfoEntry atiEntry = new AtkInfoEntry();
+
+                                    atiEntry = AtkInfoEntry.InsertAtkInfoEntry(frename.Mainfrm.TreeSource, NewWrapperAtkInfo, FilePath);
+                                    NewWrapperAtkInfo.Tag = atiEntry;
+                                    NewWrapperAtkInfo.Text = atiEntry.TrueName;
+                                    NewWrapperAtkInfo.Name = atiEntry.TrueName;
+                                    NewWrapperAtkInfo.FileExt = atiEntry.FileExt;
+                                    NewWrapperAtkInfo.entryData = atiEntry;
+                                    NewWrapperAtkInfo.entryfile = atiEntry;
+                                    atiEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + atiEntry.TrueName + "." + atiEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperAtkInfo, NewWrapperAtkInfo.FileExt);
+
+                                    NewWrapperAtkInfo.ContextMenuStrip = GenericFileContextAdder(NewWrapperAtkInfo, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperAtkInfo);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperAtkInfo;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeAtkInfo = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeAtkInfo = new TreeNode();
+                                    TreeNode selectednodeAtkInfo = new TreeNode();
+                                    selectednodeAtkInfo = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeAtkInfo = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeAtkInfo;
+
+                                    int filecountAtkInfo = 0;
+
+                                    ArcFile rootarcAtkInfo = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcAtkInfo != null)
+                                    {
+                                        filecountAtkInfo = rootarcAtkInfo.FileCount;
+                                        filecountAtkInfo++;
+                                        rootarcAtkInfo.FileCount++;
+                                        rootarcAtkInfo.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcAtkInfo;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeAtkInfo.Parent;
+                                    break;
+                                #endregion
+
+                                #region Shot
+                                case ".sht":
+                                case ".10BE43D4":
+                                    ArcEntryWrapper NewWrapperShot = new ArcEntryWrapper();
+                                    ShotEntry shtEntry = new ShotEntry();
+
+                                    shtEntry = ShotEntry.InsertShotEntry(frename.Mainfrm.TreeSource, NewWrapperShot, FilePath);
+                                    NewWrapperShot.Tag = shtEntry;
+                                    NewWrapperShot.Text = shtEntry.TrueName;
+                                    NewWrapperShot.Name = shtEntry.TrueName;
+                                    NewWrapperShot.FileExt = shtEntry.FileExt;
+                                    NewWrapperShot.entryData = shtEntry;
+                                    NewWrapperShot.entryfile = shtEntry;
+                                    shtEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + shtEntry.TrueName + "." + shtEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperShot, NewWrapperShot.FileExt);
+
+                                    NewWrapperShot.ContextMenuStrip = GenericFileContextAdder(NewWrapperShot, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperShot);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperShot;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeShot = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeShot = new TreeNode();
+                                    TreeNode selectednodeShot = new TreeNode();
+                                    selectednodeShot = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeShot = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeShot;
+
+                                    int filecountShot = 0;
+
+                                    ArcFile rootarcShot = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcShot != null)
+                                    {
+                                        filecountShot = rootarcShot.FileCount;
+                                        filecountShot++;
+                                        rootarcShot.FileCount++;
+                                        rootarcShot.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcShot;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeShot.Parent;
+
+                                    break;
+                                #endregion
+
+                                #region AnmCmd
+                                case ".anm":
+                                case ".5A7E5D8A":
+
+                                    ArcEntryWrapper NewWrapperAnmCmd = new ArcEntryWrapper();
+                                    AnmCmdEntry anmEntry = new AnmCmdEntry();
+
+                                    anmEntry = AnmCmdEntry.InsertAnmCmdEntry(frename.Mainfrm.TreeSource, NewWrapperAnmCmd, FilePath);
+                                    NewWrapperAnmCmd.Tag = anmEntry;
+                                    NewWrapperAnmCmd.Text = anmEntry.TrueName;
+                                    NewWrapperAnmCmd.Name = anmEntry.TrueName;
+                                    NewWrapperAnmCmd.FileExt = anmEntry.FileExt;
+                                    NewWrapperAnmCmd.entryData = anmEntry;
+                                    NewWrapperAnmCmd.entryfile = anmEntry;
+                                    anmEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + anmEntry.TrueName + "." + anmEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperAnmCmd, NewWrapperAnmCmd.FileExt);
+
+                                    NewWrapperAnmCmd.ContextMenuStrip = GenericFileContextAdder(NewWrapperAnmCmd, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperAnmCmd);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperAnmCmd;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeAnmCmd = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeAnmCmd = new TreeNode();
+                                    TreeNode selectednodeAnmCmd = new TreeNode();
+                                    selectednodeAnmCmd = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeAnmCmd = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeAnmCmd;
+
+                                    int filecountAnmCmd = 0;
+
+                                    ArcFile rootarcAnmCmd = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcAnmCmd != null)
+                                    {
+                                        filecountAnmCmd = rootarcAnmCmd.FileCount;
+                                        filecountAnmCmd++;
+                                        rootarcAnmCmd.FileCount++;
+                                        rootarcAnmCmd.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcAnmCmd;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeAnmCmd.Parent;
+
+                                    break;
+                                #endregion
+
+                                #region ChrBaseAct
+                                case ".cba":
+                                case ".3C6EA504":
+                                    ArcEntryWrapper NewWrapperChrBaseAct = new ArcEntryWrapper();
+                                    ChrBaseActEntry cbaEntry = new ChrBaseActEntry();
+
+                                    cbaEntry = ChrBaseActEntry.InsertChrBaseActEntry(frename.Mainfrm.TreeSource, NewWrapperChrBaseAct, FilePath);
+                                    NewWrapperChrBaseAct.Tag = cbaEntry;
+                                    NewWrapperChrBaseAct.Text = cbaEntry.TrueName;
+                                    NewWrapperChrBaseAct.Name = cbaEntry.TrueName;
+                                    NewWrapperChrBaseAct.FileExt = cbaEntry.FileExt;
+                                    NewWrapperChrBaseAct.entryData = cbaEntry;
+                                    NewWrapperChrBaseAct.entryfile = cbaEntry;
+                                    cbaEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + cbaEntry.TrueName + "." + cbaEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperChrBaseAct, NewWrapperChrBaseAct.FileExt);
+
+                                    NewWrapperChrBaseAct.ContextMenuStrip = GenericFileContextAdder(NewWrapperChrBaseAct, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperChrBaseAct);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperChrBaseAct;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeChrBaseAct = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeChrBaseAct = new TreeNode();
+                                    TreeNode selectednodeChrBaseAct = new TreeNode();
+                                    selectednodeChrBaseAct = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeChrBaseAct = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeChrBaseAct;
+
+                                    int filecountChrBaseAct = 0;
+
+                                    ArcFile rootarcChrBaseAct = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcChrBaseAct != null)
+                                    {
+                                        filecountChrBaseAct = rootarcChrBaseAct.FileCount;
+                                        filecountChrBaseAct++;
+                                        rootarcChrBaseAct.FileCount++;
+                                        rootarcChrBaseAct.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcChrBaseAct;
+                                    }
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeChrBaseAct.Parent;
+
+                                    break;
+                                #endregion
+
+                                #region SoundBank
+                                case ".sbkr":
+                                case ".15D782FB":
+                                    ArcEntryWrapper NewWrapperSoundBank = new ArcEntryWrapper();
+                                    SoundBankEntry sbkrEntry = new SoundBankEntry();
+
+                                    sbkrEntry = SoundBankEntry.InsertSoundBankEntry(frename.Mainfrm.TreeSource, NewWrapperSoundBank, FilePath);
+                                    NewWrapperSoundBank.Tag = sbkrEntry;
+                                    NewWrapperSoundBank.Text = sbkrEntry.TrueName;
+                                    NewWrapperSoundBank.Name = sbkrEntry.TrueName;
+                                    NewWrapperSoundBank.FileExt = sbkrEntry.FileExt;
+                                    NewWrapperSoundBank.entryData = sbkrEntry;
+                                    NewWrapperSoundBank.entryfile = sbkrEntry;
+                                    sbkrEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + sbkrEntry.TrueName + "." + sbkrEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperSoundBank, NewWrapperSoundBank.FileExt);
+
+                                    NewWrapperSoundBank.ContextMenuStrip = GenericFileContextAdder(NewWrapperSoundBank, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperSoundBank);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperSoundBank;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeSoundBank = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeSoundBank = new TreeNode();
+                                    TreeNode selectednodeSoundBank = new TreeNode();
+                                    selectednodeSoundBank = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeSoundBank = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeSoundBank;
+
+                                    int filecountSoundBank = 0;
+
+                                    ArcFile rootarcSoundBank = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcSoundBank != null)
+                                    {
+                                        filecountSoundBank = rootarcSoundBank.FileCount;
+                                        filecountSoundBank++;
+                                        rootarcSoundBank.FileCount++;
+                                        rootarcSoundBank.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSoundBank;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeSoundBank.Parent;
+
+                                    break;
+                                #endregion
+
+                                #region SoundRequest
+                                case ".srqr":
+                                case ".1BCC4966":
+                                    ArcEntryWrapper NewWrapperSoundRequest = new ArcEntryWrapper();
+                                    SoundRequestEntry srqrEntry = new SoundRequestEntry();
+
+                                    srqrEntry = SoundRequestEntry.InsertSoundRequestEntry(frename.Mainfrm.TreeSource, NewWrapperSoundRequest, FilePath);
+                                    NewWrapperSoundRequest.Tag = srqrEntry;
+                                    NewWrapperSoundRequest.Text = srqrEntry.TrueName;
+                                    NewWrapperSoundRequest.Name = srqrEntry.TrueName;
+                                    NewWrapperSoundRequest.FileExt = srqrEntry.FileExt;
+                                    NewWrapperSoundRequest.entryData = srqrEntry;
+                                    NewWrapperSoundRequest.entryfile = srqrEntry;
+                                    srqrEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + srqrEntry.TrueName + "." + srqrEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapperSoundRequest, NewWrapperSoundRequest.FileExt);
+
+                                    NewWrapperSoundRequest.ContextMenuStrip = GenericFileContextAdder(NewWrapperSoundRequest, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperSoundRequest);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapperSoundRequest;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string typeSoundRequest = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnodeSoundRequest = new TreeNode();
+                                    TreeNode selectednodeSoundRequest = new TreeNode();
+                                    selectednodeSoundRequest = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnodeSoundRequest = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnodeSoundRequest;
+
+                                    int filecountSoundRequest = 0;
+
+                                    ArcFile rootarcSoundRequest = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarcSoundRequest != null)
+                                    {
+                                        filecountSoundRequest = rootarcSoundRequest.FileCount;
+                                        filecountSoundRequest++;
+                                        rootarcSoundRequest.FileCount++;
+                                        rootarcSoundRequest.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSoundRequest;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednodeSoundRequest.Parent;
+
+                                    break;
+                                #endregion
+
+                                //For everything else.
+                                default:
+                                    ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                                    ArcEntry NEntry = new ArcEntry();
+
+                                    NEntry = ArcEntry.InsertArcEntry(frename.Mainfrm.TreeSource, NewWrapper, FilePath);
+                                    NewWrapper.Tag = NEntry;
+                                    NewWrapper.Text = NEntry.TrueName;
+                                    NewWrapper.Name = NEntry.TrueName;
+                                    NewWrapper.FileExt = NEntry.FileExt;
+                                    NewWrapper.entryData = NEntry;
+                                    NEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + NEntry.TrueName + "." + NEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+
+                                    NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapper);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnode = new TreeNode();
+                                    TreeNode selectednode = new TreeNode();
+                                    selectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnode;
+
+                                    int filecount = 0;
+
+                                    ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarc != null)
+                                    {
+                                        filecount = rootarc.FileCount;
+                                        filecount++;
+                                        rootarc.FileCount++;
+                                        rootarc.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednode.Parent;
+                                    break;
+                            }
+
+
+
+                            frename.Mainfrm.TreeSource.SelectedNode = OriginalNode;
+                        }
+                        else
+                        {
+
+                            if (!frename.Mainfrm.TreeSource.SelectedNode.Nodes.ContainsKey(Folder))
+                            {
+                                TreeNode folder = new TreeNode();
+                                folder.Name = Folder;
+                                folder.Tag = "Folder";
+                                folder.Text = Folder;
+                                folder.ContextMenuStrip = FolderContextAdder(folder, frename.Mainfrm.TreeSource);
+                                frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(folder);
+                                frename.Mainfrm.TreeSource.SelectedNode = folder;
+                                frename.Mainfrm.TreeSource.SelectedNode.ImageIndex = 2;
+                                frename.Mainfrm.TreeSource.SelectedNode.SelectedImageIndex = 2;
+                                frename.Mainfrm.TreeSource.SelectedNode = folder;
+                            }
+                            else
+                            {
+                                frename.Mainfrm.TreeSource.SelectedNode = frename.Mainfrm.GetNodeByName(frename.Mainfrm.TreeSource.SelectedNode.Nodes, Folder);
+                            }
+                        }                        
+
+                    }
+
+
+
+                }
+
+
+                frename.Mainfrm.TreeSource.Show();
+                frename.Mainfrm.TreeSource.EndUpdate();
+
+            }
 
         }
 
