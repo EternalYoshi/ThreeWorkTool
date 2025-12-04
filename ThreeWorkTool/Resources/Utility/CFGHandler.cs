@@ -453,5 +453,64 @@ namespace ThreeWorkTool.Resources.Utility
 
         }
 
+       public static void LogTemplateForExport(string Filename, string ShownSavePath)
+        {
+
+            string ProperPath = "";
+            ProperPath = Globals.ToolPath + "Log.txt";
+
+            using (StreamWriter sw = File.AppendText(ProperPath))
+            {
+                sw.WriteLine("Exported a file: " + Filename + " at " + ShownSavePath + "\n");
+            }
+
+        }
+
+        public static void LogTemplateForExport(string Filename, string ShownSavePath, int FileCount)
+        {
+
+            string ProperPath = "";
+            ProperPath = Globals.ToolPath + "Log.txt";
+            using (StreamWriter sw = File.AppendText(ProperPath))
+            {
+                sw.WriteLine("Inserted a file: " + Filename + "\nCurrent File List:\n");
+                sw.WriteLine("===============================================================================================================");
+                //int entrycount = 0;
+                //frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
+                sw.WriteLine("Current file Count: " + FileCount);
+                sw.WriteLine("===============================================================================================================");
+            }
+
+        }
+
+
+        //Attempts to spoil the full path in.
+        public static string SpoilerTagName(string Name)
+        {
+
+            int Separator = Name.LastIndexOf(Path.DirectorySeparatorChar);
+
+            if (Separator == -1)
+            {
+                return Name;
+            }
+
+            string IndexToStart = Name.Substring(0, Separator);
+            string FileName = Name.Substring(Separator);
+
+            string Spoilered = new string(IndexToStart.Select((c, i) =>
+            {
+
+                if (i < 2 && (char.IsLetter(c) || c == ':'))
+                    return c;
+
+                return '*';
+
+            }).ToArray());
+
+            return Spoilered + FileName;
+        }
+
+
     }
 }

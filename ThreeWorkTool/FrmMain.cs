@@ -66,17 +66,17 @@ namespace ThreeWorkTool
                 var releases = client.Repository.Release.GetAll("EternalYoshi", "ThreeWorkTool").Result;
                 var latest = releases[0];
                 var LatestDateTime = latest.CreatedAt.DateTime;
-                LatestDateTime = TimeZoneInfo.ConvertTimeFromUtc(LatestDateTime,
-                TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
+                //LatestDateTime = TimeZoneInfo.ConvertTimeFromUtc(LatestDateTime,
+                //TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
                 DateTime CurrentBuildDateTime = new DateTime();
                 var str = String.Format("Version: {0} built on {1}", Assembly.GetEntryAssembly().GetName().Version, Properties.Resources.BuildDate);
                 //Match match = Regex.Match(str, @"\d{2}\/\d{2}\/\d{4}");
                 Match match = Regex.Match(str, @"\d{2}\/\d{2}\/\d{4}");
 
                 var str2 = match.Value;
-                CurrentBuildDateTime = DateTime.ParseExact(str2, "MM/dd/yyyy", CultureInfo.CurrentCulture);
+                CurrentBuildDateTime = DateTime.ParseExact(str2, "MM/dd/yyyy", CultureInfo.InvariantCulture).Date;
 
-                if (CurrentBuildDateTime > LatestDateTime)
+                if (CurrentBuildDateTime.Date > LatestDateTime.Date)
                 {
                     //MessageBox.Show("This bulid is newer.");
                     //IsUpToDate = true;
@@ -139,6 +139,7 @@ namespace ThreeWorkTool
         public static FrmTrackEditor TrackEditor;
         public static FrmFontSlider frmfontSlide;
         public string RPLBackup;
+        public string ShownSavePath;
         public bool isFinishRPLRead;
         public bool HasSaved;
         public bool InvalidImport;
@@ -281,9 +282,11 @@ namespace ThreeWorkTool
                     //Writes to log file.
                     string ProperPath = "";
                     ProperPath = Globals.ToolPath + "Log.txt";
+                    ShownSavePath = "";
+                    ShownSavePath = CFGHandler.SpoilerTagName(frename.Mainfrm.FilePath);
                     using (StreamWriter sw = File.AppendText(ProperPath))
                     {
-                        sw.WriteLine("Attempting to save: " + frename.Mainfrm.FilePath + "\nCurrent File List:\n");
+                        sw.WriteLine("Attempting to save: " + ShownSavePath + "\nCurrent File List:\n");
                     }
                     try
                     {
@@ -302,9 +305,11 @@ namespace ThreeWorkTool
                             }
                             //Writes to log file.
                             ProperPath = Globals.ToolPath + "Log.txt";
+                            ShownSavePath = "";
+                            ShownSavePath = CFGHandler.SpoilerTagName(SFDialog.FileName);
                             using (StreamWriter sw = File.AppendText(ProperPath))
                             {
-                                sw.WriteLine("Saved: " + SFDialog.FileName + "\n Currently opened file hasn't been modified so the file was effectively copied.");
+                                sw.WriteLine("Saved: " + ShownSavePath + "\n Currently opened file hasn't been modified so the file was effectively copied.");
                                 sw.WriteLine("===============================================================================================================");
                             }
                         }
@@ -467,9 +472,11 @@ namespace ThreeWorkTool
 
                                         //Writes to log file.
                                         ProperPath = Globals.ToolPath + "Log.txt";
+                                        ShownSavePath = "";
+                                        ShownSavePath = CFGHandler.SpoilerTagName(SFDialog.FileName);
                                         using (StreamWriter sw = File.AppendText(ProperPath))
                                         {
-                                            sw.WriteLine("Successfully Saved: " + SFDialog.FileName);
+                                            sw.WriteLine("Successfully Saved: " + ShownSavePath);
                                             sw.WriteLine("SaveCounterA = " + frename.Mainfrm.SaveCounterA + "SaveCounterB" + frename.Mainfrm.SaveCounterB + "\n");
                                             sw.WriteLine("===============================================================================================================");
                                         }
@@ -2318,9 +2325,11 @@ namespace ThreeWorkTool
 
                                         //Writes to log file.
                                         ProperPath = Globals.ToolPath + "Log.txt";
+                                        ShownSavePath = "";
+                                        ShownSavePath = CFGHandler.SpoilerTagName(ProperPath);
                                         using (StreamWriter sw = File.AppendText(ProperPath))
                                         {
-                                            sw.WriteLine("Successfully Saved: " + SFDialog.FileName);
+                                            sw.WriteLine("Successfully Saved: " + ShownSavePath);
                                             sw.WriteLine("SaveCounterA = " + frename.Mainfrm.SaveCounterA + "SaveCounterB" + frename.Mainfrm.SaveCounterB + "\n");
                                             sw.WriteLine("===============================================================================================================");
                                         }
@@ -6221,9 +6230,11 @@ namespace ThreeWorkTool
                         MessageBox.Show("Unable to decompress the file because the arc is in a corrupted state. Here's details\n" + ex, "Oh no it's an error.");
                         string ProperPath = "";
                         ProperPath = Globals.ToolPath + "Log.txt";
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(OFDialog.FileName);
                         using (StreamWriter sw = File.AppendText(ProperPath))
                         {
-                            sw.WriteLine("Cannot decompress the files inside:" + OFDialog.FileName + " because the arc is corrupt.\n" + ex);
+                            sw.WriteLine("Cannot decompress the files inside:" + ShownSavePath + " because the arc is corrupt.\n" + ex);
                         }
                         return;
                     }
@@ -6231,9 +6242,11 @@ namespace ThreeWorkTool
                     {
                         string ProperPath = "";
                         ProperPath = Globals.ToolPath + "Log.txt";
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(OFDialog.FileName);
                         using (StreamWriter sw = File.AppendText(ProperPath))
                         {
-                            sw.WriteLine("Unknown exception trying to open:" + OFDialog.FileName + "\n" + ex);
+                            sw.WriteLine("Unknown exception trying to open:" + ShownSavePath + "\n" + ex);
                         }
                         return;
                     }
@@ -7355,9 +7368,9 @@ namespace ThreeWorkTool
             //Gets the Data from the SelectedNode's Tag and checks the data type so it can export with the correct filter.
             SaveFileDialog EXDialog = new SaveFileDialog();
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
+            string ProperPath = "";
             string extension = tag.GetType().ToString();
-
+            string ShownSavePath = "";
             switch (extension)
             {
                 //Textures.
@@ -7374,14 +7387,6 @@ namespace ThreeWorkTool
                     {
                         ExportFileWriter.TexEntryWriter(EXDialog.FileName, Tentry);
                     }
-
-                    //Writes to log file.
-                    string ProperPath = "";
-                    ProperPath = Globals.ToolPath + "Log.txt";
-                    using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 //Material.
@@ -7396,13 +7401,6 @@ namespace ThreeWorkTool
                     if (EXDialog.ShowDialog() == DialogResult.OK)
                     {
                         ExportFileWriter.MaterialEntryWriter(EXDialog.FileName, Matentry);
-                    }
-
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt";
-                    using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -7439,13 +7437,6 @@ namespace ThreeWorkTool
                     {
                         ExportFileWriter.ArcEntryWriter(EXDialog.FileName, Aentry);
                     }
-
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt";
-                    using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a file: " + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
 
@@ -7464,12 +7455,6 @@ namespace ThreeWorkTool
                     {
                         ExportFileWriter.RPListEntryWriter(EXDialog.FileName, RPLentry);
                     }
-
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ChainListEntry":
@@ -7485,12 +7470,6 @@ namespace ThreeWorkTool
                     if (EXDialog.ShowDialog() == DialogResult.OK)
                     {
                         ExportFileWriter.ChainListEntryWriter(EXDialog.FileName, CSLentry);
-                    }
-
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -7508,12 +7487,6 @@ namespace ThreeWorkTool
                     {
                         ExportFileWriter.ChainEntryWriter(EXDialog.FileName, CHNentry);
                     }
-
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ModelEntry":
@@ -7529,12 +7502,6 @@ namespace ThreeWorkTool
                     if (EXDialog.ShowDialog() == DialogResult.OK)
                     {
                         ExportFileWriter.ModelEntryWriter(EXDialog.FileName, MODentry);
-                    }
-
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a Model Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -7553,11 +7520,6 @@ namespace ThreeWorkTool
                         ExportFileWriter.ChainCollisionEntryWriter(EXDialog.FileName, CCLentry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a Resource Path List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.LMTEntry":
@@ -7573,12 +7535,6 @@ namespace ThreeWorkTool
                     if (EXDialog.ShowDialog() == DialogResult.OK)
                     {
                         ExportFileWriter.LMTEntryWriter(EXDialog.FileName, LMTentry);
-                    }
-
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a LMT Motion List Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -7596,12 +7552,6 @@ namespace ThreeWorkTool
                     {
                         ExportFileWriter.MSDEntryWriter(EXDialog.FileName, MSDentry);
                     }
-
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a Message Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.MissionEntry":
@@ -7617,12 +7567,6 @@ namespace ThreeWorkTool
                     if (EXDialog.ShowDialog() == DialogResult.OK)
                     {
                         ExportFileWriter.MissionWriter(EXDialog.FileName, MISentry);
-                    }
-
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a Mission Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
                     }
                     break;
 
@@ -7641,11 +7585,6 @@ namespace ThreeWorkTool
                         ExportFileWriter.GemWriter(EXDialog.FileName, gementry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a Gem Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 //Effects.
@@ -7664,11 +7603,6 @@ namespace ThreeWorkTool
                         ExportFileWriter.EffectListWriter(EXDialog.FileName, eflentry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a Gem Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 //Riff/XSew/Sound Effects.
@@ -7687,11 +7621,6 @@ namespace ThreeWorkTool
                         ExportFileWriter.RIFFWriter(EXDialog.FileName, rifentry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a XSEW Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 //ShotList.
@@ -7712,11 +7641,6 @@ namespace ThreeWorkTool
                         ExportFileWriter.ShotListWriter(EXDialog.FileName, lshentry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a ShotList Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 //StageObjLayoutEntry.
@@ -7735,11 +7659,6 @@ namespace ThreeWorkTool
                         ExportFileWriter.StageOBJLayoutWriter(EXDialog.FileName, sloentry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a StageDataObjectList Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.STQREntry":
@@ -7757,11 +7676,7 @@ namespace ThreeWorkTool
                         ExportFileWriter.STQRWriter(EXDialog.FileName, stqrentry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a STQR Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
+
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.AtkInfoEntry":
@@ -7779,11 +7694,6 @@ namespace ThreeWorkTool
                         ExportFileWriter.AtkInfoWriter(EXDialog.FileName, atientry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a AtkInfo Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ShotEntry":
@@ -7801,11 +7711,6 @@ namespace ThreeWorkTool
                         ExportFileWriter.ShotWriter(EXDialog.FileName, shtentry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a Shot Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.ChrBaseActEntry":
@@ -7823,11 +7728,6 @@ namespace ThreeWorkTool
                         ExportFileWriter.ChrBaseActWriter(EXDialog.FileName, cbamentry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a ChrBaseActEntry Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.AnmCmdEntry":
@@ -7845,11 +7745,7 @@ namespace ThreeWorkTool
                         ExportFileWriter.AnmCmdWriter(EXDialog.FileName, anmentry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a AnmCmd Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
+
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.SoundBankEntry":
@@ -7867,11 +7763,6 @@ namespace ThreeWorkTool
                         ExportFileWriter.SoundBankWriter(EXDialog.FileName, sbkrentry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a SoundBank Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
                     break;
 
                 case "ThreeWorkTool.Resources.Wrappers.SoundRequestEntry":
@@ -7889,11 +7780,7 @@ namespace ThreeWorkTool
                         ExportFileWriter.SoundRequestWriter(EXDialog.FileName, srqrentry);
                     }
 
-                    //Writes to log file.
-                    ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                    {
-                        sw.WriteLine("Exported a SoundRequest Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                    }
+
                     break;
 
 
@@ -7915,17 +7802,19 @@ namespace ThreeWorkTool
                     ExportFileWriter.*****Writer(EXDialog.FileName, ***entry);
                 }
 
-                //Writes to log file.
-                                    string ProperPath = "";ProperPath = Globals.ToolPath + "Log.txt";using (StreamWriter sw = File.AppendText(ProperPath))
-                {
-                    sw.WriteLine("Exported a ***** Data Entry:" + frename.Mainfrm.TreeSource.SelectedNode.Name + " at " + EXDialog.FileName + "\n");
-                }
                 break;
                  */
 
 
                 default:
                     break;
+            }
+
+            if(EXDialog.FileName != "")
+            {
+                ShownSavePath = "";
+                ShownSavePath = CFGHandler.SpoilerTagName(EXDialog.FileName);
+                CFGHandler.LogTemplateForExport(frename.Mainfrm.TreeSource.SelectedNode.Name, ShownSavePath);
             }
 
         }
@@ -10350,9 +10239,11 @@ namespace ThreeWorkTool
             else
             {
                 //Writes to log file.
+                string ShownSavePath = "";
+                ShownSavePath = CFGHandler.SpoilerTagName(RPDialog.FileName);
                 string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                 {
-                    sw.WriteLine("Replaced a file: " + RPDialog.FileName + "\nCurrent File List:\n");
+                    sw.WriteLine("Replaced a file: " + ShownSavePath + "\nCurrent File List:\n");
                     sw.WriteLine("===============================================================================================================");
                     int entrycount = 0;
                     frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
@@ -10369,6 +10260,7 @@ namespace ThreeWorkTool
 
             TextureEntry Tentry = new TextureEntry();
             OpenFileDialog RPDialog = new OpenFileDialog();
+            string ShownSavePath = "";
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
             string ProperPath = "";
             if (tag is TextureEntry)
@@ -10444,9 +10336,11 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
 
                             //Writes to log file.
+                            ShownSavePath = "";
+                            ShownSavePath = CFGHandler.SpoilerTagName(RPDialog.FileName);
                             ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                             {
-                                sw.WriteLine("Replaced a file via .tex Import: " + RPDialog.FileName + "\nCurrent File List:\n");
+                                sw.WriteLine("Replaced a file via .tex Import: " + ShownSavePath + "\nCurrent File List:\n");
                                 sw.WriteLine("===============================================================================================================");
                                 int entrycount = 0;
                                 frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
@@ -10570,9 +10464,11 @@ namespace ThreeWorkTool
                     frename.Mainfrm.TreeSource.EndUpdate();
 
                     //Writes to log file.
+                    ShownSavePath = "";
+                    ShownSavePath = CFGHandler.SpoilerTagName(RPDialog.FileName);
                     ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                     {
-                        sw.WriteLine("Replaced a file via DDS Import: " + RPDialog.FileName + "\nCurrent File List:\n");
+                        sw.WriteLine("Replaced a file via DDS Import: " + ShownSavePath + "\nCurrent File List:\n");
                         sw.WriteLine("===============================================================================================================");
                         int entrycount = 0;
                         frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
@@ -10760,6 +10656,7 @@ namespace ThreeWorkTool
         {
             ArcEntry Aentry = new ArcEntry();
             OpenFileDialog IMPDialog = new OpenFileDialog();
+            string ProperPath = "";
             var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
             Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
             if (IMPDialog.ShowDialog() == DialogResult.OK)
@@ -10819,15 +10716,10 @@ namespace ThreeWorkTool
 
 
                         //Writes to log file.
-                        string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountTEX);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+
+                        string ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountTEX);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeTEX;
 
@@ -10888,16 +10780,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcRPL;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountRPL);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountRPL);
                         frename.Mainfrm.isFinishRPLRead = true;
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeRPL;
@@ -10960,16 +10845,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcCST;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountCST);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountCST);
                         frename.Mainfrm.isFinishRPLRead = true;
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeCST;
@@ -11026,16 +10904,9 @@ namespace ThreeWorkTool
 
 
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + chnfilecount);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, chnfilecount);
 
                         frename.Mainfrm.TreeSource.SelectedNode = CHNselectednode;
                         break;
@@ -11092,16 +10963,9 @@ namespace ThreeWorkTool
 
 
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + CCLfilecount);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, CCLfilecount);
 
                         frename.Mainfrm.TreeSource.SelectedNode = CCLselectednode;
                         break;
@@ -11159,16 +11023,9 @@ namespace ThreeWorkTool
 
 
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountMSD);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountMSD);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeMSD;
                         break;
@@ -11225,16 +11082,9 @@ namespace ThreeWorkTool
 
 
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountLMT);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountLMT);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeLMT;
 
@@ -11312,16 +11162,9 @@ namespace ThreeWorkTool
 
 
 
-                            //Writes to log file.
-                            ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                            {
-                                sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                                sw.WriteLine("===============================================================================================================");
-                                int entrycount = 0;
-                                frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                                sw.WriteLine("Current file Count: " + filecountDDS);
-                                sw.WriteLine("===============================================================================================================");
-                            }
+                            ShownSavePath = "";
+                            ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                            CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountDDS);
 
                             frename.Mainfrm.TreeSource.SelectedNode = selectednodeDDS;
                             frename.Mainfrm.Focus();
@@ -11381,16 +11224,9 @@ namespace ThreeWorkTool
 
 
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + MRLfilecount);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, MRLfilecount);
 
                         frename.Mainfrm.TreeSource.SelectedNode = MRLselectednode;
 
@@ -11452,16 +11288,9 @@ namespace ThreeWorkTool
 
 
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + MODfilecount);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, MODfilecount);
 
                         frename.Mainfrm.TreeSource.SelectedNode = MODselectednode;
 
@@ -11526,16 +11355,9 @@ namespace ThreeWorkTool
 
 
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + MISfilecount);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, MISfilecount);
 
                         frename.Mainfrm.TreeSource.SelectedNode = MISselectednode;
 
@@ -11603,16 +11425,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcGEM;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountGEM);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountGEM);
                         frename.Mainfrm.isFinishRPLRead = true;
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeGEM;
@@ -11666,16 +11481,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcEFL;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountEFL);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountEFL);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeEFL;
                         frename.Mainfrm.TreeSource.Hide();
@@ -11736,16 +11544,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcRIF;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountRIF);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountRIF);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeRIF;
                         break;
@@ -11806,16 +11607,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcLSH;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountLSH);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountLSH);
 
                         frename.Mainfrm.isFinishRPLRead = true;
 
@@ -11871,16 +11665,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSLO;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountSLO);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountSLO);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeSLO;
 
@@ -11938,16 +11725,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSTQR;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountSTQR);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountSTQR);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeSTQR;
 
@@ -12006,16 +11786,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcAtkInfo;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountAtkInfo);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountAtkInfo);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeAtkInfo;
 
@@ -12070,16 +11843,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcShot;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountShot);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountShot);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeShot;
 
@@ -12135,16 +11901,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcAnmCmd;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountAnmCmd);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountAnmCmd);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeAnmCmd;
 
@@ -12199,16 +11958,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcChrBaseAct;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountChrBaseAct);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountChrBaseAct);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeChrBaseAct;
 
@@ -12263,16 +12015,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSoundBank;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountSoundBank);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountSoundBank);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeSoundBank;
 
@@ -12327,16 +12072,9 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcSoundRequest;
                         }
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecountSoundRequest);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountSoundRequest);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednodeSoundRequest;
 
@@ -12397,16 +12135,10 @@ namespace ThreeWorkTool
 
 
 
-                        //Writes to log file.
-                        ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-                        {
-                            sw.WriteLine("Inserted a file: " + IMPDialog.FileName + "\nCurrent File List:\n");
-                            sw.WriteLine("===============================================================================================================");
-                            int entrycount = 0;
-                            frename.Mainfrm.PrintRecursive(frename.Mainfrm.TreeSource.TopNode, sw, entrycount);
-                            sw.WriteLine("Current file Count: " + filecount);
-                            sw.WriteLine("===============================================================================================================");
-                        }
+
+                        ShownSavePath = "";
+                        ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+                        CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecount);
 
                         frename.Mainfrm.TreeSource.SelectedNode = selectednode;
                         break;
@@ -23191,9 +22923,13 @@ namespace ThreeWorkTool
                 //Writes to log file.
                 string ProperPath = "";
                 ProperPath = Globals.ToolPath + "Log.txt";
+
+                ShownSavePath = "";
+                ShownSavePath = CFGHandler.SpoilerTagName(FilePath);
+
                 using (StreamWriter sw = File.AppendText(ProperPath))
                 {
-                    sw.WriteLine("Archive file: " + FilePath + " Opened.\nFile List:\n");
+                    sw.WriteLine("Archive file: " + ShownSavePath + " Opened.\nFile List:\n");
                     sw.WriteLine("===============================================================================================================");
                     int entrycount = 0;
                     PrintRecursive(TreeSource.TopNode, sw, 0);
