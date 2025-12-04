@@ -12,6 +12,10 @@ using ThreeWorkTool.Resources.Wrappers;
 using System.Windows.Forms;
 using System.Drawing.Imaging;
 using System.Collections;
+using System.Security.Cryptography;
+using System.Buffers.Binary;
+using Force.Crc32;
+
 
 namespace ThreeWorkTool.Resources.Utility
 {
@@ -447,7 +451,7 @@ namespace ThreeWorkTool.Resources.Utility
             return tru;
         }
 
-        public static string HashToMatName(string s, byte[] HashBytes )
+        public static string HashToMatName(string s, byte[] HashBytes)
         {
             string name = "";
             int ZestyTest = 0;
@@ -697,7 +701,7 @@ namespace ThreeWorkTool.Resources.Utility
         }
 
         //Gets all offsets of instances of term represented by specified byte array. 
-        public static List<int> GetAllCharPatterns(byte[] buffer,byte[] CharSequence)
+        public static List<int> GetAllCharPatterns(byte[] buffer, byte[] CharSequence)
         {
             List<int> Offsets = new List<int>();
 
@@ -724,13 +728,69 @@ namespace ThreeWorkTool.Resources.Utility
 
         }
 
-        //static uint ComputeCrc32(string input)
-        //{
-        //    byte[] bytes = Encoding.ASCII.GetBytes(input);
-        //    CRC32 crc32 = new CRC32();
-        //    //byte[] hash = crc32.ComputeHash(bytes);
-        //    //return BitConverter.ToUInt32(hash, 0);
-        //}
+        private static uint U32(int v)
+        {
+            return (uint)(v & 0xFFFFFFFF);
+        }
+
+        public static uint ComputeHash(string input)
+        {
+            byte[] bytes = Encoding.ASCII.GetBytes(input);
+            uint crc = Crc32Algorithm.Compute(bytes);  // returns uint
+            return ~crc;  // bitwise NOT for JAMCRC
+        }
+
+        static uint ComputeJamcrc(string input)
+        {
+            byte[] bytes = Encoding.ASCII.GetBytes(input);
+            uint crc = Crc32Algorithm.Compute(bytes);  // Matches zlib.crc32
+            return ~crc;
+        }
 
     }
+
+    public class CRC32Helper
+    {
+        private static readonly uint[] Table = GenerateTable();
+
+        public static int ComputeHash(string input)
+        {
+            byte[] bytes = Encoding.ASCII.GetBytes(input);
+            uint crc = 0xFFFFFFFF;
+
+            foreach (byte b in bytes)
+            {
+                byte index = (byte)((crc ^ b) & 0xFF);
+                crc = (crc >> 8) ^ Table[index];
+            }
+
+            crc = ~crc;
+
+            // Convert to signed int (wraps if > int.MaxValue)
+            return unchecked((int)crc);
+        }
+
+        private static uint[] GenerateTable()
+        {
+            uint[] table = new uint[256];
+            const uint polynomial = 0xEDB88320;
+
+            for (uint i = 0; i < table.Length; i++)
+            {
+                uint c = i;
+                for (int j = 0; j < 8; j++)
+                {
+                    if ((c & 1) != 0)
+                        c = polynomial ^ (c >> 1);
+                    else
+                        c >>= 1;
+                }
+                table[i] = c;
+            }
+
+            return table;
+        }
+    }
+
 }
+

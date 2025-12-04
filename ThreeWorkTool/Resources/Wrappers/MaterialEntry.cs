@@ -20,6 +20,8 @@ using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using static ThreeWorkTool.Resources.Wrappers.MaterialMaterialEntry;
 using System.Collections;
 using Force.Crc32;
+using static ThreeWorkTool.Resources.Utility.ByteUtilitarian;
+using System.Buffers.Binary;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -271,8 +273,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                         for (int v = 0; v < MATEntry.MatAnims.Count; v++)
                         {
                             if (MATEntry.MatAnims[v].MaterialIndex == y)
-                            {                                
-                                string MatDat = Convert.ToBase64String(MATEntry.MatAnims[v].RawData);                                
+                            {
+                                string MatDat = Convert.ToBase64String(MATEntry.MatAnims[v].RawData);
                                 YML = YML + "        animData: " + MatDat + "\n";
                             }
                         }
@@ -300,9 +302,13 @@ namespace ThreeWorkTool.Resources.Wrappers
             int IMaterialSize = 0;
             int IAnimDataSize = 0;
             int ProjectedFinalMatSize = 0;
+            int MatBufferSize = 0;
             List<int> AnimIndexCounter = new List<int>();
             List<string> AnimDataStr = new List<string>();
             List<byte> AnimDataRaw = new List<byte>();
+            List<byte> CmdDataRaw = new List<byte>();
+            List<byte> ExtraDataRaw = new List<byte>();
+            List<byte> TempDataRaw = new List<byte>();            
 
             //Time to check the yml file.
             using (var input = File.OpenText(filename))
@@ -355,11 +361,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                     }
 
                     //Checks for animation data.
-                    if(Mitem.First().Value.animData != null)
+                    if (Mitem.First().Value.animData != null)
                     {
                         AnimDataStr.Add(Mitem.First().Value.animData);
                         AnimIndexCounter.Add(counter);
-                    }                    
+                    }
                     counter++;
                 }
 
@@ -377,7 +383,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 byte[] PlaceHolderHeaderPartB = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
                 byte[] DefaultTextureHash = { 0xEB, 0x5D, 0x1F, 0x24 };
                 byte[] TextureFiller = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-                
+
 
                 NewUncompressedData.AddRange(HeaderPart1);
                 NewUncompressedData.AddRange(PlaceHolderHeaderPartA);
@@ -399,8 +405,9 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 IAnimDataSize = AnimDataRaw.Count;
 
+                #region Textures Chunk
                 //Texture Names part.
-                foreach(string texname in DistinctTextureNames)
+                foreach (string texname in DistinctTextureNames)
                 {
                     //First the hash.
                     NewUncompressedData.AddRange(DefaultTextureHash);
@@ -423,33 +430,274 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     NewUncompressedData.AddRange(writenamedata);
 
-                }
+                }          
+                #endregion
+
+#if DEBUG
+                File.WriteAllBytes("D:\\Workshop\\MaterialWorkshop\\Ryu_PART1TEST.mrl", NewUncompressedData.ToArray());
+#endif
 
                 byte[] HashBytes = new byte[4];
+                
                 //Materials Part.
                 for (int i = 0; i < MatList.materials.Count; ++i)
                 {
+                    List<byte> MatChunkRaw = new List<byte>();
+                    List<byte> CmdChunkRaw = new List<byte>();
 
                     //Checks for unique/undocumented Material Types.
                     if (MatList.materials[i].First().Value.type.Contains("0x"))
                     {
                         //Gotta convert this to hex and remove the 0x.
                         HashBytes = ByteUtilitarian.StringToByteArray(MatList.materials[i].First().Value.type.Substring(2));
-                        int Convvalue = Convert.ToInt32(MatList.materials[i].First().Value.type,16);
+                        int Convvalue = Convert.ToInt32(MatList.materials[i].First().Value.type, 16);
                     }
                     else
                     {
                         //Gotta figure out how the hash is computed.
+                        //First the hashcode for the Material.
+                        Ionic.Zlib.CRC32 crc32 = new Ionic.Zlib.CRC32();
+                        //uint TypeTocrc = JamcrcHelper.ComputeJamcrc(MatList.materials[i].First().Value.type);
+                        byte[] StringBytes = new byte[4];
+                        StringBytes = System.Text.Encoding.ASCII.GetBytes(MatList.materials[i].First().Value.type);
+                        uint CRCMatType = ByteUtilitarian.ComputeHash(MatList.materials[i].First().Value.type);
+                        HashBytes = BitConverter.GetBytes(CRCMatType);
 
-                        var crc32 = new System.IO.Hashing.Crc32();
+                        MatChunkRaw.AddRange(HashBytes);
+                    }
 
-                        //uint crc = (uint)Crc32Algorithm.Compute(System.Text.Encoding.ASCII.GetBytes(MatList.materials[i].First().Value.type));
-                        //byte[] hbytes = BitConverter.GetBytes(crc);
-                        //Array.Reverse(hbytes);
+                    //PlaceHolder for Field04.
+                    MatChunkRaw.AddRange(Field14);
 
-                        //var crc = Ionic.Zlib.CRC32
+                    //Namehash.
+                    //StringBytes = System.Text.Encoding.ASCII.GetBytes(MatList.materials[i].First().Key);
+                    uint CRCMatName = ByteUtilitarian.ComputeHash(MatList.materials[i].First().Key);
+                    HashBytes = BitConverter.GetBytes(CRCMatName);
+                    MatChunkRaw.AddRange(HashBytes);
+
+                    //PlaceHolder for CmdBuffersize.
+                    MatChunkRaw.AddRange(Field14);
+
+                    //Shaders. BlendState.
+                    #region Shaders
+                    int TempNum = 0;
+                    string Tempstr = "";
+                    string NewShadRaw = CFGHandler.ShaderNameToHash(Tempstr, MatList.materials[i].First().Value.blendState);
+                    TempNum = CFGHandler.GetShaderNameIndex(i, MatList.materials[i].First().Value.blendState);
+
+                    string binarystringhash = String.Join(String.Empty, NewShadRaw.Select
+                        (c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0')));
+
+                    string binarystringIndHex = TempNum.ToString("X3");
+
+                    string binarystringInd = String.Join(String.Empty, binarystringIndHex.Select
+                        (c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0')));
+
+                    string binarystringcombined = binarystringhash + binarystringInd;
+
+                    int FinalShaderValue = Convert.ToInt32(binarystringcombined, 2);
+
+                    MatChunkRaw.AddRange(BitConverter.GetBytes(FinalShaderValue));
+
+                    //Shaders. DepthStencilState.
+                    NewShadRaw = CFGHandler.ShaderNameToHash(Tempstr, MatList.materials[i].First().Value.depthStencilState);
+                    TempNum = CFGHandler.GetShaderNameIndex(i, MatList.materials[i].First().Value.depthStencilState);
+
+                    binarystringhash = String.Join(String.Empty, NewShadRaw.Select
+                       (c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0')));
+
+                    binarystringIndHex = TempNum.ToString("X3");
+
+                    binarystringInd = String.Join(String.Empty, binarystringIndHex.Select
+                       (c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0')));
+
+                    binarystringcombined = binarystringhash + binarystringInd;
+
+                    FinalShaderValue = Convert.ToInt32(binarystringcombined, 2);
+
+                    MatChunkRaw.AddRange(BitConverter.GetBytes(FinalShaderValue));
+
+                    //Shaders. RasterizeState.
+                    NewShadRaw = CFGHandler.ShaderNameToHash(Tempstr, MatList.materials[i].First().Value.rasterizerState);
+                    TempNum = CFGHandler.GetShaderNameIndex(i, MatList.materials[i].First().Value.rasterizerState);
+
+                    binarystringhash = String.Join(String.Empty, NewShadRaw.Select
+                        (c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0')));
+
+                    binarystringIndHex = TempNum.ToString("X3");
+
+                    binarystringInd = String.Join(String.Empty, binarystringIndHex.Select
+                       (c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0')));
+
+                    binarystringcombined = binarystringhash + binarystringInd;
+
+                    FinalShaderValue = Convert.ToInt32(binarystringcombined, 2);
+
+                    MatChunkRaw.AddRange(BitConverter.GetBytes(FinalShaderValue));
+                    #endregion
+
+                    //CommandListInfo.
+                    string TempCMDFlags = MatList.materials[i].First().Value.cmdListFlags.Substring(2);
+                    //int Num = int.Parse(TempCMDFlags);
+                    int Num = Convert.ToInt32(TempCMDFlags, 16);
+                    binarystringhash = Convert.ToString(Num, 2).PadLeft(20, '0');
+
+
+                    binarystringIndHex = MatList.materials[i].First().Value.cmds.Count.ToString("X2");
+
+                    binarystringInd = String.Join(String.Empty, binarystringIndHex.Select
+                        (c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0')));
+
+                    binarystringcombined = binarystringhash + binarystringInd;
+
+                    FinalShaderValue = Convert.ToInt32(binarystringcombined, 2);
+
+                    MatChunkRaw.AddRange(BitConverter.GetBytes(FinalShaderValue));
+
+                    //Mat Flags.
+                    TempCMDFlags = MatList.materials[i].First().Value.matFlags.Substring(2);
+                    HashBytes = ByteUtilitarian.StringToByteArray(TempCMDFlags);
+                    MatChunkRaw.AddRange(HashBytes);
+
+                    //Filler/Placeholder for undocumented fields.
+                    MatChunkRaw.AddRange(Field14);
+                    MatChunkRaw.AddRange(Field14);
+                    MatChunkRaw.AddRange(Field14);
+                    MatChunkRaw.AddRange(Field14);
+
+                    //AnimDataSize.
+                    MatChunkRaw.AddRange(Field14);
+
+                    //Pointers for CmdLists and AnimData.
+                    MatChunkRaw.AddRange(Field14);
+                    MatChunkRaw.AddRange(Field14);
+                    MatChunkRaw.AddRange(Field14);
+                    MatChunkRaw.AddRange(Field14);
+
+                    //Now the commands. Are all the commands 24/0x18 bytes?
+                    for (int u =0; u < MatList.materials[i].First().Value.cmds.Count; u++)
+                    {
+                        //First the Command info.
+
+                        //Gotta do the inverse of this block....
+                        //Command.MCInfo = new MatCmdInfo();
+                        //Command.MCInfo.CmdFlag = ((ENumerators.IMatType)Convert.ToInt32(CmdInfoTemp & 0x1F)).ToString();
+                        //Command.MCInfo.SomeValue = Convert.ToInt32(CmdInfoTemp & 0x0000FFF0);
+                        //Command.MCInfo.ShaderObjectIndex = Convert.ToInt32((CmdInfoTemp >> 20) & 0x1fff);
+                        //Command.MCInfo.TypeInt = Convert.ToInt32(CmdInfoTemp & 0x1F);
+                        //Command.SomeField04 = bnr.ReadInt32();
+
+                        
+
+                        //Type.
+                        List<object> CmdObj = MatList.materials[i].First().Value.cmds[u] as List<object>;
+                        List<float> TempFloats = new List<float>();
+                        string CmdType = (CmdObj[0]).ToString();
+                        string SecondCmd = "";
+                        string ThirdCmd = "";
+                        int Hash = 0;
+                        int FlagValue = 0;
+                        switch (CmdType)
+                        {
+                            case "flag":
+                            case "Flag":
+                            case "samplerstate":
+                            case "Samplerstate":
+                                SecondCmd = (CmdObj[1]).ToString();
+                                ThirdCmd = (CmdObj[2]).ToString();
+
+                                if (SecondCmd.StartsWith("0x"))
+                                {
+
+                                }
+                                else
+                                {
+                                    Hash = CFGHandler.GetShaderNameIndex(Hash, SecondCmd);
+                                    //Gets the hex value to insert together through building the binary.
+                                    Tempstr = Convert.ToString(Hash, 2).PadLeft(12,'0');
+                                    binarystringhash = Tempstr.PadRight(28,'0');
+
+                                    if(CmdType == "flag" || CmdType == "Flag")
+                                    {
+                                        binarystringhash = binarystringhash + "0000";
+                                    }
+                                    else
+                                    {
+                                        binarystringhash = binarystringhash + "0000";
+                                    }
+
+                                    FlagValue = Convert.ToInt32(binarystringhash, 2);
+                                    CmdChunkRaw.AddRange(BitConverter.GetBytes(FlagValue));
+
+                                    //Placeholder for Field04.
+                                    CmdChunkRaw.AddRange(Field14);
+
+                                    //Placeholder for Rest of the data.
+                                    CmdChunkRaw.AddRange(Field14);
+                                    CmdChunkRaw.AddRange(Field14);
+                                    CmdChunkRaw.AddRange(Field14);
+                                    CmdChunkRaw.AddRange(Field14);
+
+
+                                }
+
+                                break;
+
+                            case "cbuffer":
+                            case "Cbuffer":
+                                SecondCmd = (CmdObj[1]).ToString();
+
+                                //cbuffer type has an array of floating points.
+                                List<object> TempValues = (List<object>)CmdObj[2];
+                                float TFloat = 0.0f;
+                                foreach(var obj in TempValues)
+                                {
+                                    string TempStr = obj.ToString();
+                                    if (float.TryParse(TempStr, out float value))
+                                    {
+                                        TFloat = value;
+                                        TempFloats.Add(TFloat);
+                                        CmdChunkRaw.AddRange(BitConverter.GetBytes(TFloat));
+                                    }                                                                        
+                                }
+
+                                CmdChunkRaw.AddRange(TempDataRaw);
+                                int ArrSize = TempDataRaw.Count();
+
+                                //Gotta update the data chunk of the Material before adding it to NewUncompressedData.
+
+                                break;
+
+                            case "Texture":
+                            case "texture":
+                                SecondCmd = (CmdObj[1]).ToString();
+                                ThirdCmd = (CmdObj[2]).ToString();
+
+                                if(SecondCmd != "" && ThirdCmd != "")
+                                {
+                                    int Tindex = DistinctTextureNames.IndexOf(ThirdCmd);
+                                }
+
+                                //Gotta update the data chunk of the Material before adding it to NewUncompressedData.
+                                if (SecondCmd != "")
+                                {
+
+                                }
+
+                                break;
+
+                            default:
+                                //For undocumented stuff.
+                                break;
+                        }
+
+
 
                     }
+
+
+
+                    File.WriteAllBytes("D:\\Workshop\\MaterialWorkshop\\Ryu_PART2TEST1.mrl", MatChunkRaw.ToArray());
 
 
                 }
@@ -583,432 +831,3 @@ namespace ThreeWorkTool.Resources.Wrappers
     }
 }
 
-//using Ionic.Zlib;
-//using System;
-//using System.Collections.Generic;
-//using System.ComponentModel;
-//using System.Drawing;
-//using System.Drawing.Imaging;
-//using System.Globalization;
-//using System.IO;
-//using System.Linq;
-//using System.Numerics;
-//using System.Runtime.InteropServices;
-//using System.Text;
-//using System.Windows.Forms;
-//using ThreeWorkTool.Resources.Archives;
-//using ThreeWorkTool.Resources.Utility;
-//using YamlDotNet.Core;
-//using YamlDotNet.Serialization;
-//using YamlDotNet.Serialization.NamingConventions;
-//using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
-//using static ThreeWorkTool.Resources.Wrappers.MaterialMaterialEntry;
-
-//namespace ThreeWorkTool.Resources.Wrappers
-//{
-//    public class MaterialEntry : DefaultWrapper
-//    {
-//        public const int SIZE = 0x28;
-//        public const int MATSIZE = 0x48;
-//        public const int MAX_NAME_LENGTH = 64;
-//        public const int TEXENTRYSIZE = 0x58;
-//        public string Magic;
-//        public string Constant;
-//        public int EntryCount;
-//        public byte[] WTemp;
-//        public int SomethingCount;
-//        public int TextureCount;
-//        public int MaterialCount;
-//        public long TextureOffset;
-//        public long MaterialOffset;
-//        public int UnknownField;
-//        public string WeirdHash;
-//        public int Field14;
-//        public List<MaterialTextureReference> Textures;
-//        public List<MaterialMaterialEntry> Materials;
-//        public List<MaterialAnimEntry> MatAnims;
-//        public string YMLText;
-//        public MTMaterial YMLMat { get; set; }
-
-//        public static MaterialEntry FillMatEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
-//        {
-//            var MATEntry = new MaterialEntry();
-//            List<byte> BTemp = new List<byte>();
-
-//            FillEntry(filename, subnames, tree, br, c, ID, MATEntry);
-
-//            //Decompression Time.
-//            MATEntry.UncompressedData = ZlibStream.UncompressBuffer(MATEntry.CompressedData);
-
-//            //Material specific work here.
-//            using (MemoryStream MatStream = new MemoryStream(MATEntry.UncompressedData))
-//            {
-//                using (BinaryReader MBR = new BinaryReader(MatStream))
-//                {
-//                    BuildMatEntry(MBR, MATEntry);
-//                }
-//            }
-
-//            return MATEntry;
-
-//        }
-
-//        public static MaterialEntry ReplaceMat(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
-//        {
-
-//            MaterialEntry matentry = new MaterialEntry();
-//            MaterialEntry oldentry = new MaterialEntry();
-
-//            tree.BeginUpdate();
-
-//            ReplaceEntry(tree, node, filename, matentry, oldentry);
-//            matentry.FileName = matentry.TrueName;
-//            //Type Specific Work Here.
-//            using (MemoryStream LmtStream = new MemoryStream(matentry.UncompressedData))
-//            {
-//                using (BinaryReader bnr = new BinaryReader(LmtStream))
-//                {
-//                    BuildMatEntry(bnr, matentry);
-//                }
-//            }
-
-//            return node.entryfile as MaterialEntry;
-
-//        }
-
-//        public static MaterialEntry InsertEntry(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
-//        {
-//            MaterialEntry matentry = new MaterialEntry();
-
-//            try
-//            {
-//                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
-//                {
-//                    InsertKnownEntry(tree, node, filename, matentry, bnr);
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//                string ProperPath = "";
-//                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-//                {
-//                    sw.WriteLine("Caught an exception using the BinaryReader. Here's the details:\n" + ex);
-//                }
-//            }
-
-//            //Decompression Time.
-//            matentry.UncompressedData = ZlibStream.UncompressBuffer(matentry.CompressedData);
-
-//            try
-//            {
-//                using (BinaryReader bnr = new BinaryReader(File.OpenRead(filename)))
-//                {
-//                    //Material specific work here.
-//                    using (MemoryStream MatStream = new MemoryStream(matentry.UncompressedData))
-//                    {
-//                        using (BinaryReader MBR = new BinaryReader(MatStream))
-//                        {
-//                            BuildMatEntry(MBR, matentry);
-//                        }
-//                    }
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//                string ProperPath = "";
-//                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
-//                {
-//                    sw.WriteLine("Caught an exception using the BinaryReader. Here's the details:\n" + ex);
-//                }
-//            }
-
-//            return matentry;
-//        }
-
-//        public static MaterialEntry BuildMatEntry(BinaryReader MBR, MaterialEntry MATEntry)
-//        {
-
-//            //Experimental.
-
-//            //Header variables.
-//            MATEntry.Magic = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MATEntry.Magic);
-//            MATEntry.SomethingCount = MBR.ReadInt32();
-//            MATEntry.MaterialCount = MBR.ReadInt32();
-//            MATEntry.TextureCount = MBR.ReadInt32();
-//            MATEntry.WeirdHash = ByteUtilitarian.BytesToStringL2R(MBR.ReadBytes(4).ToList(), MATEntry.Magic);
-//            MATEntry.Field14 = MBR.ReadInt32();
-//            MATEntry.TextureOffset = MBR.ReadInt64();
-//            MATEntry.MaterialOffset = MBR.ReadInt64();
-
-//            //For the Texture References.
-//            MATEntry.Textures = new List<MaterialTextureReference>();
-//            MBR.BaseStream.Position = MATEntry.TextureOffset;
-//            for (int i = 0; i < MATEntry.TextureCount; i++)
-//            {
-//                MaterialTextureReference TexTemp = new MaterialTextureReference();
-//                TexTemp = TexTemp.FillMaterialTexReference(MATEntry, i, MBR, TexTemp);
-//                MATEntry.Textures.Add(TexTemp);
-//            }
-
-//            //Now for the Materials themselves.
-//            MATEntry.Materials = new List<MaterialMaterialEntry>();
-//            byte[] ShadeTemp = new byte[4];
-//            int PrevOffset = Convert.ToInt32(MBR.BaseStream.Position);
-
-//            //Material Anims.
-//            MATEntry.MatAnims = new List<MaterialAnimEntry>();
-
-//            //Materials.
-//            for (int i = 0; i < MATEntry.MaterialCount; i++)
-//            {
-
-//                MaterialMaterialEntry MMEntry = new MaterialMaterialEntry();
-//                MMEntry = MMEntry.FIllMatMatEntryPropertiesPart1(MMEntry, MATEntry, MBR, PrevOffset, i);
-//                MMEntry = MMEntry.FIllMatMatEntryPropertiesPart2(MMEntry, MATEntry, MBR, PrevOffset, i);
-
-//                //Material Animation Work.
-
-//                if (MMEntry.AnimDataSize > 0 && MMEntry.AnimDataOffset > 0)
-//                {
-
-//                    MBR.BaseStream.Position = MMEntry.AnimDataOffset;
-
-//                    MaterialAnimEntry Manim = new MaterialAnimEntry();
-//                    Manim.RawData = MBR.ReadBytes(MMEntry.AnimDataSize);
-//                    Manim.MaterialIndex = i;
-//                    Manim.IsNew = false;
-
-
-//                    MATEntry.MatAnims.Add(Manim);
-//                }
-
-//                //--------------------------------------
-
-//                MATEntry.Materials.Add(MMEntry);
-//                PrevOffset = PrevOffset + 72;
-//                MBR.BaseStream.Position = PrevOffset;
-
-//            }
-
-//            MATEntry = BuildYML(MATEntry, MATEntry.YMLText);
-
-//            return MATEntry;
-
-//        }
-
-//        //This function based off code TGE Wrote for Material support in the importer.
-//        public static MaterialEntry BuildYML(MaterialEntry MATEntry, string YML)
-//        {
-
-//            YML = "";
-//            YML = YML + "version: 1\n";
-//            YML = YML + "materials:\n";
-
-//            //Materials.
-//            for (int y = 0; y < MATEntry.Materials.Count; y++)
-//            {
-//                if (MATEntry.Materials[y].MatName == "" || MATEntry.Materials[y].MatName == null)
-//                {
-//                    YML = YML + "    - _0x" + MATEntry.Materials[y].NameHash + ":\n";
-//                }
-//                else
-//                {
-//                    YML = YML + "    - " + MATEntry.Materials[y].MatName + ":\n";
-//                }
-//                YML = YML + "        type: " + MATEntry.Materials[y].MatType + "\n";
-//                YML = YML + "        blendState: " + MATEntry.Materials[y].BlendStateType + "\n";
-//                YML = YML + "        depthStencilState: " + MATEntry.Materials[y].DepthStencilStateType + "\n";
-//                YML = YML + "        rasterizerState: " + MATEntry.Materials[y].RasterizerStateType + "\n";
-//                YML = YML + "        cmdListFlags: 0x" + MATEntry.Materials[y].cmdListFlags.ToString("X") + "\n";
-//                YML = YML + "        matFlags: 0x" + MATEntry.Materials[y].matFlags + "\n";
-//                YML = YML + "        cmds:\n";
-
-
-//                //Commands.
-//                for (int z = 0; z < MATEntry.Materials[y].MaterialCommands.Count; z++)
-//                {
-//                    if (MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "cbuffer")
-//                    {
-//                        if (MATEntry.Materials[y].MaterialCommands[z].RawFloats.Count <= 1)
-//                        {
-//                            YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].FloatStr + " ]\n";
-//                        }
-//                        else
-//                        {
-//                            YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].FloatStr + "]\n";
-//                        }
-//                    }
-//                    else if (MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "flag" || MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "samplerstate")
-//                    {
-//                        YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].CmdName + " ]\n";
-
-//                    }
-//                    else if (MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag == "texture")
-//                    {
-//                        YML = YML + "            - [ " + MATEntry.Materials[y].MaterialCommands[z].MCInfo.CmdFlag + ", " + MATEntry.Materials[y].MaterialCommands[z].MaterialCommandData.VShaderObjectID.Hash + ", " + MATEntry.Materials[y].MaterialCommands[z].DataStr + " ]\n";
-
-//                    }
-//                    //YML = YML + " ";
-
-//                }
-
-//            }
-
-//            MATEntry.YMLText = YML;
-
-//            return MATEntry;
-//        }
-
-//        //This function also based off code TGE wrote for Material support in the importer.
-//        public static MaterialEntry ReplaceYMLToMRL(TreeView tree, ArcEntryWrapper node, string filename, Type filetype = null)
-//        {
-
-//            MaterialEntry matentry = new MaterialEntry();
-//            MaterialEntry oldentry = new MaterialEntry();
-//            string strtemp = "";
-
-//            //Time to check the yml file.
-//            var deserializer = new YamlDotNet.Serialization.DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
-//            strtemp = File.ReadAllText(filename);
-//            var p = deserializer.Deserialize<MTMaterial>(strtemp);
-
-//            //var myConfig = deserializer.Deserialize<Configuration>(File.ReadAllText(filename));
-
-
-//            using (StreamReader sr = new StreamReader(filename))
-//            {
-//                strtemp = sr.ReadLine();
-
-//                //Checks the yml version.
-//                if (strtemp == "version: 1")
-//                {
-
-//                }
-//                else
-//                {
-//                    MessageBox.Show("The selected yml file is not a supported material library version. Apologies.");
-//                    return null;
-//                }
-
-//            }
-
-//            /*
-//            tree.BeginUpdate();
-
-//            ReplaceEntry(tree, node, filename, matentry, oldentry);
-
-//            //Type Specific Work Here.
-//            using (MemoryStream LmtStream = new MemoryStream(matentry.UncompressedData))
-//            {
-//                using (BinaryReader bnr = new BinaryReader(LmtStream))
-//                {
-//                    BuildMatEntry(bnr, matentry);
-//                }
-//            }
-//            */
-
-
-//            return node.entryfile as MaterialEntry;
-
-//        }
-
-//        #region Material Properties
-
-//        [Category("Material Data"), ReadOnlyAttribute(true)]
-//        public string FileName
-//        {
-
-//            get
-//            {
-//                return TrueName;
-//            }
-//            set
-//            {
-//                TrueName = value;
-//            }
-//        }
-
-//        [Category("Material Data"), ReadOnlyAttribute(true)]
-//        public string FileType
-//        {
-
-//            get
-//            {
-//                return FileExt;
-//            }
-//            set
-//            {
-//                FileExt = value;
-//            }
-//        }
-
-//        [Category("Material Data"), ReadOnlyAttribute(true)]
-//        public int FileLength
-//        {
-
-//            get
-//            {
-//                return DSize;
-//            }
-//            set
-//            {
-//                DSize = value;
-//            }
-//        }
-
-//        [Category("Material Data"), ReadOnlyAttribute(true)]
-//        public int TextureTotal
-//        {
-//            get
-//            {
-//                return TextureCount;
-//            }
-//            set
-//            {
-//                TextureCount = value;
-//            }
-//        }
-
-//        [Category("Material Data"), ReadOnlyAttribute(true)]
-//        public int MaterialTotal
-//        {
-//            get
-//            {
-//                return MaterialCount;
-//            }
-//            set
-//            {
-//                MaterialCount = value;
-//            }
-//        }
-
-//        [Category("Material Data"), ReadOnlyAttribute(true)]
-//        public long TextureStartingOffset
-//        {
-//            get
-//            {
-//                return TextureOffset;
-//            }
-//            set
-//            {
-//                TextureOffset = value;
-//            }
-//        }
-
-//        [Category("Material Data"), ReadOnlyAttribute(true)]
-//        public long MaterialStartingOffset
-//        {
-//            get
-//            {
-//                return MaterialOffset;
-//            }
-//            set
-//            {
-//                MaterialOffset = value;
-//            }
-//        }
-
-//        #endregion
-
-//    }
-//}
