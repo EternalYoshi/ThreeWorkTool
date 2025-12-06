@@ -7810,7 +7810,7 @@ namespace ThreeWorkTool
                     break;
             }
 
-            if(EXDialog.FileName != "")
+            if (EXDialog.FileName != "")
             {
                 ShownSavePath = "";
                 ShownSavePath = CFGHandler.SpoilerTagName(EXDialog.FileName);
@@ -18753,50 +18753,57 @@ namespace ThreeWorkTool
 
                             //For everything else.
                             default:
-                                ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
-                                ArcEntry NEntry = new ArcEntry();
 
-                                NEntry = ArcEntry.InsertArcEntry(frename.Mainfrm.TreeSource, NewWrapper, FilePath);
-                                NewWrapper.Tag = NEntry;
-                                NewWrapper.Text = NEntry.TrueName;
-                                NewWrapper.Name = NEntry.TrueName;
-                                NewWrapper.FileExt = NEntry.FileExt;
-                                NewWrapper.entryData = NEntry;
-                                NEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + NEntry.TrueName + "." + NEntry.FileExt;
+                                int SlashIndex = (FilePath.LastIndexOf("\\") + 1);
+                                string TFilename = FilePath.Substring(SlashIndex, (FilePath.Length - (SlashIndex)));
 
-                                frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
-
-                                NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
-
-                                frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapper);
-
-                                frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
-
-                                frename.Mainfrm.OpenFileModified = true;
-
-                                string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
-                                frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-
-                                TreeNode rootnode = new TreeNode();
-                                TreeNode selectednode = new TreeNode();
-                                selectednode = frename.Mainfrm.TreeSource.SelectedNode;
-                                rootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
-                                frename.Mainfrm.TreeSource.SelectedNode = rootnode;
-
-                                int filecount = 0;
-
-                                ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
-                                if (rootarc != null)
+                                if(CFGHandler.CheckIfExtExistsInCFG(TFilename, otherhelper))
                                 {
-                                    filecount = rootarc.FileCount;
-                                    filecount++;
-                                    rootarc.FileCount++;
-                                    rootarc.FileAmount++;
-                                    frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
+                                    ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
+                                    ArcEntry NEntry = new ArcEntry();
+
+                                    NEntry = ArcEntry.InsertArcEntry(frename.Mainfrm.TreeSource, NewWrapper, FilePath);
+                                    NewWrapper.Tag = NEntry;
+                                    NewWrapper.Text = NEntry.TrueName;
+                                    NewWrapper.Name = NEntry.TrueName;
+                                    NewWrapper.FileExt = NEntry.FileExt;
+                                    NewWrapper.entryData = NEntry;
+                                    NEntry.EntryName = frename.Mainfrm.TreeSource.SelectedNode.FullPath + "\\" + NEntry.TrueName + "." + NEntry.FileExt;
+
+                                    frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
+
+                                    NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapper);
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+
+                                    frename.Mainfrm.OpenFileModified = true;
+
+                                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                    TreeNode rootnode = new TreeNode();
+                                    TreeNode selectednode = new TreeNode();
+                                    selectednode = frename.Mainfrm.TreeSource.SelectedNode;
+                                    rootnode = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+                                    frename.Mainfrm.TreeSource.SelectedNode = rootnode;
+
+                                    int filecount = 0;
+
+                                    ArcFile rootarc = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+                                    if (rootarc != null)
+                                    {
+                                        filecount = rootarc.FileCount;
+                                        filecount++;
+                                        rootarc.FileCount++;
+                                        rootarc.FileAmount++;
+                                        frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarc;
+                                    }
+
+
+                                    frename.Mainfrm.TreeSource.SelectedNode = selectednode.Parent;
                                 }
-
-
-                                frename.Mainfrm.TreeSource.SelectedNode = selectednode.Parent;
                                 break;
                         }
 

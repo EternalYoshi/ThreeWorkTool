@@ -453,7 +453,7 @@ namespace ThreeWorkTool.Resources.Utility
 
         }
 
-       public static void LogTemplateForExport(string Filename, string ShownSavePath)
+        public static void LogTemplateForExport(string Filename, string ShownSavePath)
         {
 
             string ProperPath = "";
@@ -483,7 +483,6 @@ namespace ThreeWorkTool.Resources.Utility
 
         }
 
-
         //Attempts to spoil the full path in.
         public static string SpoilerTagName(string Name)
         {
@@ -511,6 +510,44 @@ namespace ThreeWorkTool.Resources.Utility
             return Spoilered + FileName;
         }
 
+        public static bool CheckIfExtExistsInCFG(string FilePath, string Term)
+        {
+
+            string lines = "";
+
+            try
+            {
+                //Gets the Corrected path for the cfg .
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+
+                lines = File.ReadAllText(ProperPath);
+
+                if (lines.Contains(Term))
+                {
+                    return true;
+                }
+                else
+                {
+
+                    DialogResult DelResult = MessageBox.Show("The incoming file: " + FilePath + "\nis not recognized as a valid MT file in the archive_filetypes list of extensions.\nImporting this into the arc might cause problems that cause corruption. Are you sure you want to import this into the arc??", "Caution", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+                    if (DelResult == DialogResult.Yes)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            catch(Exception xx)
+            {
+                MessageBox.Show("archive_filetypes.cfg is missing or not read. Can't continue parsing this file.\n" + xx, "Uh-Oh");
+                return false;
+
+            }
+        }
 
     }
 }
