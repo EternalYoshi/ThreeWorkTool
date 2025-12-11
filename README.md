@@ -12,6 +12,23 @@ By Eternal Yoshi
 
 Current Changelog:
 
+**MATERIAL YML IMPORTING IS NOT READY YET.**  I apologize for any inconvenience.
+V0.9
+
+- Can now edit file paths that exist in EFLs. 
+- Can now empty out a chosen animation in a LMT file.
+- Fixed an issue that caused LMT files to have incorrect context menus when importing new ones.
+- Fixed an issue that caused new SLO entries to have their data misaligned.
+- Can now edit Shader, RenderMode, LOD Index, and Group ID of a model's primitives.
+- Folders now have an "Import Folder and Contents" option that will import all files and subdirectories inside a chosen folder.
+**Make sure the folder and all subfolders of folder chosen have valid files.**
+- Made adjustment to DateTimes to hopefully fix the UPDATE AVAILABLE notification.
+- Made adjustments to logging.
+- Made sure to use the Release build for release instead of the Debug version last time.
+- Made sure to include Animation importing script since I forgot it last time.
+- Added Error Checking to STQR value that caused saving to fail when invalid to notify the user when there's a problem.
+
+
 V0.85
 
 - Texture imports now default to Specular/Normal maps if the respective suffix is present.
