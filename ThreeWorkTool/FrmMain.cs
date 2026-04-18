@@ -283,6 +283,10 @@ namespace ThreeWorkTool
                     string ProperPath = "";
                     ProperPath = Globals.ToolPath + "Log.txt";
                     ShownSavePath = "";
+                    if(frename.Mainfrm.FilePath == null)
+                    {
+                        frename.Mainfrm.FilePath = SFDialog.FileName;
+                    }
                     ShownSavePath = CFGHandler.SpoilerTagName(frename.Mainfrm.FilePath);
                     using (StreamWriter sw = File.AppendText(ProperPath))
                     {
@@ -595,6 +599,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -671,6 +682,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -734,6 +752,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -797,6 +822,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -860,6 +892,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -923,6 +962,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -986,6 +1032,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1049,6 +1102,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1112,6 +1172,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1175,6 +1242,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1242,6 +1316,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1305,6 +1386,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1368,6 +1456,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1431,6 +1526,14 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                //Checks if a filepath is too long.
+                                                if(namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!","Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1494,6 +1597,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1561,6 +1671,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1628,6 +1745,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1691,6 +1815,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1754,6 +1885,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1817,6 +1955,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1880,6 +2025,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -1943,6 +2095,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -2006,6 +2165,13 @@ namespace ThreeWorkTool
                                                 byte[] writenamedata = new byte[64];
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                                if (namebuffer.Length > 64)
+                                                {
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                    bwr.Close();
+                                                    TreeSource.EndUpdate();
+                                                    return;
+                                                }
 
                                                 for (int i = 0; i < namebuffer.Length; ++i)
                                                 {
@@ -2455,6 +2621,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -2530,6 +2703,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -2592,6 +2772,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -2655,6 +2842,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -2718,6 +2912,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -2781,6 +2982,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -2844,6 +3052,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -2907,6 +3122,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -2970,6 +3192,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3032,6 +3261,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3099,6 +3335,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3162,6 +3405,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3225,6 +3475,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3287,6 +3544,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3350,6 +3614,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3416,6 +3687,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3482,6 +3760,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3544,6 +3829,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3606,6 +3898,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3669,6 +3968,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3732,6 +4038,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3795,6 +4108,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -3858,6 +4178,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4037,6 +4364,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4112,6 +4446,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4174,6 +4515,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4237,6 +4585,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4300,6 +4655,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4363,6 +4725,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4426,6 +4795,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4489,6 +4865,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4552,6 +4935,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4614,6 +5004,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4681,6 +5078,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4744,6 +5148,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4807,6 +5218,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4869,6 +5287,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4932,6 +5357,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -4998,6 +5430,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -5064,6 +5503,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -5126,6 +5572,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -5188,6 +5641,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -5251,6 +5711,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -5314,6 +5781,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -5377,6 +5851,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -5440,6 +5921,13 @@ namespace ThreeWorkTool
                 byte[] writenamedata = new byte[64];
                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                if (namebuffer.Length > 64)
+                {
+                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                    bwr.Close();
+                    TreeSource.EndUpdate();
+                    return -1;
+                }
 
                 for (int i = 0; i < namebuffer.Length; ++i)
                 {
@@ -25072,6 +25560,13 @@ namespace ThreeWorkTool
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
@@ -25149,6 +25644,14 @@ namespace ThreeWorkTool
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
                                                 writenamedata[i] = namebuffer[i];
@@ -25211,6 +25714,14 @@ namespace ThreeWorkTool
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
+
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
@@ -25275,6 +25786,14 @@ namespace ThreeWorkTool
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
                                                 writenamedata[i] = namebuffer[i];
@@ -25338,6 +25857,14 @@ namespace ThreeWorkTool
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
                                                 writenamedata[i] = namebuffer[i];
@@ -25399,6 +25926,14 @@ namespace ThreeWorkTool
                                             //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
 
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
@@ -25464,6 +25999,14 @@ namespace ThreeWorkTool
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
                                                 writenamedata[i] = namebuffer[i];
@@ -25525,6 +26068,14 @@ namespace ThreeWorkTool
                                             //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
 
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
@@ -25589,6 +26140,14 @@ namespace ThreeWorkTool
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
@@ -25651,6 +26210,14 @@ namespace ThreeWorkTool
                                             //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
 
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
@@ -25719,6 +26286,14 @@ namespace ThreeWorkTool
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
@@ -25781,6 +26356,14 @@ namespace ThreeWorkTool
                                             //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
 
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
@@ -25845,6 +26428,14 @@ namespace ThreeWorkTool
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
@@ -25908,6 +26499,14 @@ namespace ThreeWorkTool
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
@@ -25970,6 +26569,14 @@ namespace ThreeWorkTool
                                             //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
 
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
@@ -26038,6 +26645,14 @@ namespace ThreeWorkTool
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
@@ -26105,6 +26720,14 @@ namespace ThreeWorkTool
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
@@ -26167,6 +26790,14 @@ namespace ThreeWorkTool
                                             //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
 
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
@@ -26231,6 +26862,14 @@ namespace ThreeWorkTool
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
@@ -26293,6 +26932,14 @@ namespace ThreeWorkTool
                                             //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
 
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
@@ -26357,6 +27004,14 @@ namespace ThreeWorkTool
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
@@ -26420,6 +27075,14 @@ namespace ThreeWorkTool
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
 
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
+
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
                                             {
@@ -26482,6 +27145,14 @@ namespace ThreeWorkTool
                                             //Space for name is 64 bytes so we make a byte array with that size and then inject the name data in it.
                                             byte[] writenamedata = new byte[64];
                                             Array.Clear(writenamedata, 0, writenamedata.Length);
+
+                                            if (namebuffer.Length > 64)
+                                            {
+                                                MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
+                                                bwr.Close();
+                                                TreeSource.EndUpdate();
+                                                return;
+                                            }
 
 
                                             for (int i = 0; i < namebuffer.Length; ++i)
