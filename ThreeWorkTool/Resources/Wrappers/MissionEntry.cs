@@ -120,27 +120,27 @@ namespace ThreeWorkTool.Resources.Wrappers
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 8;
                 mis.P1PointCharacterAIFlag = bnr.ReadInt32();
                 mis.P1PointCharacterAssistType = bnr.ReadInt32();
-                mis.P1PointCharacterUnkownParamA = bnr.ReadInt32();
+                mis.P1PointCharacterMeterHealthRegen = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 16;
-                mis.P1PointCharacterUnkownParamB = bnr.ReadSingle();
+                mis.P1PointCharacterHealthPercentage = bnr.ReadSingle();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 8;
 
                 mis.P1Assist1CharID = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 8;
                 mis.P1Assist1CharAIFlag = bnr.ReadInt32();
                 mis.P1Assist1CharAssistType = bnr.ReadInt32();
-                mis.P1Assist1CharUnkownParamA = bnr.ReadInt32();
+                mis.P1Assist1CharMeterHealthRegen = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 16;
-                mis.P1Assist1CharUnkownParamB = bnr.ReadSingle();
+                mis.P1Assist1CharHealthPercentage = bnr.ReadSingle();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 8;
 
                 mis.P1Assist2CharID = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 8;
                 mis.P1Assist2CharAIFlag = bnr.ReadInt32();
                 mis.P1Assist2CharAssistType = bnr.ReadInt32();
-                mis.P1Assist2CharUnkownParamA = bnr.ReadInt32();
+                mis.P1Assist2CharMeterHealthRegen = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 16;
-                mis.P1Assist2CharUnkownParamB = bnr.ReadSingle();
+                mis.P1Assist2CharHealthPercentage = bnr.ReadSingle();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 4;
 
                 mis.Unknown100 = bnr.ReadInt32();
@@ -149,27 +149,27 @@ namespace ThreeWorkTool.Resources.Wrappers
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 8;
                 mis.P2PointCharacterAIFlag = bnr.ReadInt32();
                 mis.P2PointCharacterAssistType = bnr.ReadInt32();
-                mis.P2PointCharacterUnkownParamA = bnr.ReadInt32();
+                mis.P2PointCharacterMeterHealthRegen = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 16;
-                mis.P2PointCharacterUnkownParamB = bnr.ReadSingle();
+                mis.P2PointCharacterHealthPercentage = bnr.ReadSingle();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 8;
 
                 mis.P2Assist1CharID = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 8;
                 mis.P2Assist1CharAIFlag = bnr.ReadInt32();
                 mis.P2Assist1CharAssistType = bnr.ReadInt32();
-                mis.P2Assist1CharUnkownParamA = bnr.ReadInt32();
+                mis.P2Assist1CharMeterHealthRegen = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 16;
-                mis.P2Assist1CharUnkownParamB = bnr.ReadSingle();
+                mis.P2Assist1CharHealthPercentage = bnr.ReadSingle();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 8;
 
                 mis.P2Assist2CharID = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 8;
                 mis.P2Assist2CharAIFlag = bnr.ReadInt32();
                 mis.P2Assist2CharAssistType = bnr.ReadInt32();
-                mis.P2Assist2CharUnkownParamA = bnr.ReadInt32();
+                mis.P2Assist2CharMeterHealthRegen = bnr.ReadInt32();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 16;
-                mis.P2Assist2CharUnkownParamB = bnr.ReadSingle();
+                mis.P2Assist2CharHealthPercentage = bnr.ReadSingle();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 8;
 
                 mis.MovePartPointer = bnr.ReadInt32();
@@ -181,7 +181,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 mis.ComboListString = Encoding.ASCII.GetString(bnr.ReadBytes(64)).Trim('\0');
 
                 mis.ComboListFlagA = bnr.ReadInt32();
-                mis.ComboListFlagB = bnr.ReadInt32();
+                mis.MissionConditionFlag = bnr.ReadInt32();
 
                 mis.AnmChrMoveIDList = new int[82];
                 int Move;
@@ -217,27 +217,27 @@ namespace ThreeWorkTool.Resources.Wrappers
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 8;
                         bwr.Write(msn.P1PointCharacterAIFlag);
                         bwr.Write(msn.P1PointCharacterAssistType);
-                        bwr.Write(msn.P1PointCharacterUnkownParamA);
+                        bwr.Write(msn.P1PointCharacterMeterHealthRegen);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 16;
-                        bwr.Write(msn.P1PointCharacterUnkownParamB);
+                        bwr.Write(msn.P1PointCharacterHealthPercentage);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 8;
 
                         bwr.Write(msn.P1Assist1CharID);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 8;
                         bwr.Write(msn.P1Assist1CharAIFlag);
                         bwr.Write(msn.P1Assist1CharAssistType);
-                        bwr.Write(msn.P1Assist1CharUnkownParamA);
+                        bwr.Write(msn.P1Assist1CharMeterHealthRegen);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 16;
-                        bwr.Write(msn.P1Assist1CharUnkownParamB);
+                        bwr.Write(msn.P1Assist1CharHealthPercentage);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 8;
 
                         bwr.Write(msn.P1Assist2CharID);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 8;
                         bwr.Write(msn.P1Assist2CharAIFlag);
                         bwr.Write(msn.P1Assist2CharAssistType);
-                        bwr.Write(msn.P1Assist2CharUnkownParamA);
+                        bwr.Write(msn.P1Assist2CharMeterHealthRegen);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 16;
-                        bwr.Write(msn.P1Assist2CharUnkownParamB);
+                        bwr.Write(msn.P1Assist2CharHealthPercentage);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 4;
 
                         bwr.Write(msn.Unknown100);
@@ -246,31 +246,31 @@ namespace ThreeWorkTool.Resources.Wrappers
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 8;
                         bwr.Write(msn.P2PointCharacterAIFlag);
                         bwr.Write(msn.P2PointCharacterAssistType);
-                        bwr.Write(msn.P2PointCharacterUnkownParamA);
+                        bwr.Write(msn.P2PointCharacterMeterHealthRegen);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 16;
-                        bwr.Write(msn.P2PointCharacterUnkownParamB);
+                        bwr.Write(msn.P2PointCharacterHealthPercentage);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 8;
 
                         bwr.Write(msn.P2Assist1CharID);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 8;
                         bwr.Write(msn.P2Assist1CharAIFlag);
                         bwr.Write(msn.P2Assist1CharAssistType);
-                        bwr.Write(msn.P2Assist1CharUnkownParamA);
+                        bwr.Write(msn.P2Assist1CharMeterHealthRegen);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 16;
-                        bwr.Write(msn.P2Assist1CharUnkownParamB);
+                        bwr.Write(msn.P2Assist1CharHealthPercentage);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 8;
 
                         bwr.Write(msn.P2Assist2CharID);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 8;
                         bwr.Write(msn.P2Assist2CharAIFlag);
                         bwr.Write(msn.P2Assist2CharAssistType);
-                        bwr.Write(msn.P2Assist2CharUnkownParamA);
+                        bwr.Write(msn.P2Assist2CharMeterHealthRegen);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 16;
-                        bwr.Write(msn.P2Assist2CharUnkownParamB);
+                        bwr.Write(msn.P2Assist2CharHealthPercentage);
                         bwr.BaseStream.Position = bwr.BaseStream.Position + 424;
 
                         bwr.Write(msn.ComboListFlagA);
-                        bwr.Write(msn.ComboListFlagB);
+                        bwr.Write(msn.MissionConditionFlag);
 
                         for (int j = 0; j < 82; j++)
                         {

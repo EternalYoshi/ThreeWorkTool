@@ -20,40 +20,40 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         public int P1PointCharacterID;
         public int P1PointCharacterAIFlag;
         public int P1PointCharacterAssistType;
-        public int P1PointCharacterUnkownParamA;
-        public float P1PointCharacterUnkownParamB;
+        public int P1PointCharacterMeterHealthRegen;
+        public float P1PointCharacterHealthPercentage;
 
         public int P1Assist1CharID;
         public int P1Assist1CharAIFlag;
         public int P1Assist1CharAssistType;
-        public int P1Assist1CharUnkownParamA;
-        public float P1Assist1CharUnkownParamB;
+        public int P1Assist1CharMeterHealthRegen;
+        public float P1Assist1CharHealthPercentage;
 
         public int Unknown100;
 
         public int P1Assist2CharID;
         public int P1Assist2CharAIFlag;
         public int P1Assist2CharAssistType;
-        public int P1Assist2CharUnkownParamA;
-        public float P1Assist2CharUnkownParamB;
+        public int P1Assist2CharMeterHealthRegen;
+        public float P1Assist2CharHealthPercentage;
 
         public int P2PointCharacterID;
         public int P2PointCharacterAIFlag;
         public int P2PointCharacterAssistType;
-        public int P2PointCharacterUnkownParamA;
-        public float P2PointCharacterUnkownParamB;
+        public int P2PointCharacterMeterHealthRegen;
+        public float P2PointCharacterHealthPercentage;
 
         public int P2Assist1CharID;
         public int P2Assist1CharAIFlag;
         public int P2Assist1CharAssistType;
-        public int P2Assist1CharUnkownParamA;
-        public float P2Assist1CharUnkownParamB;
+        public int P2Assist1CharMeterHealthRegen;
+        public float P2Assist1CharHealthPercentage;
 
         public int P2Assist2CharID;
         public int P2Assist2CharAIFlag;
         public int P2Assist2CharAssistType;
-        public int P2Assist2CharUnkownParamA;
-        public float P2Assist2CharUnkownParamB;
+        public int P2Assist2CharMeterHealthRegen;
+        public float P2Assist2CharHealthPercentage;
 
         public int MovePartPointer;
         public string MovePartString;
@@ -61,7 +61,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
 
         public string ComboListString;
         public int ComboListFlagA;
-        public int ComboListFlagB;
+        public int MissionConditionFlag;
         public int[] AnmChrMoveIDList;
 
         #region Mission Properties
@@ -109,30 +109,30 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("Player1"), ReadOnlyAttribute(false)]
-        public int Player1UnknownParamA
+        public int Player1ResourceRegen
         {
 
             get
             {
-                return P1PointCharacterUnkownParamA;
+                return P1PointCharacterMeterHealthRegen;
             }
             set
             {
-                P1PointCharacterUnkownParamA = value;
+                P1PointCharacterMeterHealthRegen = value;
             }
         }
 
         [Category("Player1"), ReadOnlyAttribute(false)]
-        public float Player1UnknownParamB
+        public float Player1HealthPercent
         {
 
             get
             {
-                return P1PointCharacterUnkownParamB;
+                return P1PointCharacterHealthPercentage;
             }
             set
             {
-                P1PointCharacterUnkownParamB = value;
+                P1PointCharacterHealthPercentage = value;
             }
         }
 
@@ -179,30 +179,30 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("Player1"), ReadOnlyAttribute(false)]
-        public int Player1MiddleUnknownParamA
+        public int Player1MiddleResourceRegen
         {
 
             get
             {
-                return P1Assist1CharUnkownParamA;
+                return P1Assist1CharMeterHealthRegen;
             }
             set
             {
-                P1Assist1CharUnkownParamA = value;
+                P1Assist1CharMeterHealthRegen = value;
             }
         }
 
         [Category("Player1"), ReadOnlyAttribute(false)]
-        public float Player1MiddleUnknownParamB
+        public float Player1MiddleHealthPercent
         {
 
             get
             {
-                return P1Assist1CharUnkownParamB;
+                return P1Assist1CharHealthPercentage;
             }
             set
             {
-                P1Assist1CharUnkownParamB = value;
+                P1Assist1CharHealthPercentage = value;
             }
         }
 
@@ -249,30 +249,30 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("Player1"), ReadOnlyAttribute(false)]
-        public int Player1AnchorUnknownParamA
+        public int Player1AnchorResourceRegen
         {
 
             get
             {
-                return P1Assist2CharUnkownParamA;
+                return P1Assist2CharMeterHealthRegen;
             }
             set
             {
-                P1Assist2CharUnkownParamA = value;
+                P1Assist2CharMeterHealthRegen = value;
             }
         }
 
         [Category("Player1"), ReadOnlyAttribute(false)]
-        public float Player1AnchorUnknownParamB
+        public float Player1AnchorHealthPercent
         {
 
             get
             {
-                return P1Assist2CharUnkownParamB;
+                return P1Assist2CharHealthPercentage;
             }
             set
             {
-                P1Assist2CharUnkownParamB = value;
+                P1Assist2CharHealthPercentage = value;
             }
         }
 
@@ -319,30 +319,30 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("Player2"), ReadOnlyAttribute(false)]
-        public int Player2UnknownParamA
+        public int Player2ResourceRegen
         {
 
             get
             {
-                return P2PointCharacterUnkownParamA;
+                return P2PointCharacterMeterHealthRegen;
             }
             set
             {
-                P2PointCharacterUnkownParamA = value;
+                P2PointCharacterMeterHealthRegen = value;
             }
         }
 
         [Category("Player2"), ReadOnlyAttribute(false)]
-        public float Player2UnknownParamB
+        public float Player2HealthPercent
         {
 
             get
             {
-                return P2PointCharacterUnkownParamB;
+                return P2PointCharacterHealthPercentage;
             }
             set
             {
-                P2PointCharacterUnkownParamB = value;
+                P2PointCharacterHealthPercentage = value;
             }
         }
 
@@ -389,30 +389,30 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("Player2"), ReadOnlyAttribute(false)]
-        public int Player2MiddleUnknownParamA
+        public int Player2MiddleResourceRegen
         {
 
             get
             {
-                return P2Assist1CharUnkownParamA;
+                return P2Assist1CharMeterHealthRegen;
             }
             set
             {
-                P2Assist1CharUnkownParamA = value;
+                P2Assist1CharMeterHealthRegen = value;
             }
         }
 
         [Category("Player2"), ReadOnlyAttribute(false)]
-        public float Player2MiddleUnknownParamB
+        public float Player2MiddleHealthPercent
         {
 
             get
             {
-                return P2Assist1CharUnkownParamB;
+                return P2Assist1CharHealthPercentage;
             }
             set
             {
-                P2Assist1CharUnkownParamB = value;
+                P2Assist1CharHealthPercentage = value;
             }
         }
 
@@ -459,30 +459,30 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("Player2"), ReadOnlyAttribute(false)]
-        public int Player2AnchorUnknownParamA
+        public int Player2AnchorResourceRegen
         {
 
             get
             {
-                return P2Assist2CharUnkownParamA;
+                return P2Assist2CharMeterHealthRegen;
             }
             set
             {
-                P2Assist2CharUnkownParamA = value;
+                P2Assist2CharMeterHealthRegen = value;
             }
         }
 
         [Category("Player2"), ReadOnlyAttribute(false)]
-        public float Player2AnchorUnknownParamB
+        public float Player2AnchorHealthPercent
         {
 
             get
             {
-                return P2Assist2CharUnkownParamB;
+                return P2Assist2CharHealthPercentage;
             }
             set
             {
-                P2Assist2CharUnkownParamB = value;
+                P2Assist2CharHealthPercentage = value;
             }
         }
 
@@ -514,16 +514,16 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         }
 
         [Category("ComboList"), ReadOnlyAttribute(false)]
-        public int UnknownMoveListFlagB
+        public int MissionClearCondition
         {
 
             get
             {
-                return ComboListFlagB;
+                return MissionConditionFlag;
             }
             set
             {
-                ComboListFlagB = value;
+                MissionConditionFlag = value;
             }
         }
         
