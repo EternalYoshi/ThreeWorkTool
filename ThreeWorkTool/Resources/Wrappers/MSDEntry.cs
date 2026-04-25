@@ -274,6 +274,22 @@ namespace ThreeWorkTool.Resources.Wrappers
                                     TChar = "[*ERBUMPER*]";
                                     break;
 
+                                case "FFFFFF0F":
+                                    TChar = "[*FMAYBEL3*]";
+                                    break;
+
+                                case "FFFFFF10":
+                                    TChar = "[*GMAYBER3*]";
+                                    break;
+
+                                case "FFFFFF11":
+                                    TChar = "[*HSTARTBTN*]";
+                                    break;
+
+                                case "FFFFFF12":
+                                    TChar = "[*ISELECTBTN*]";
+                                    break;
+
                                 case "FFFFFFFE":
                                     TChar = "[*line break*]";
                                     break;
@@ -378,6 +394,23 @@ namespace ThreeWorkTool.Resources.Wrappers
                                 j = j + 8;
                                 break;
 
+                            case '2':
+                                TempMSDData.Add(0x02);
+                                TempMSDData.Add(0xFF);
+                                j = j + 8;
+                                break;
+                            case '3':
+                                TempMSDData.Add(0x03);
+                                TempMSDData.Add(0xFF);
+                                j = j + 8;
+                                break;
+
+                            case '4':
+                                TempMSDData.Add(0x04);
+                                TempMSDData.Add(0xFF);
+                                j = j + 8;
+                                break;
+
                             case '5':
                                 TempMSDData.Add(0x05);
                                 TempMSDData.Add(0xFF);
@@ -424,6 +457,30 @@ namespace ThreeWorkTool.Resources.Wrappers
                                 TempMSDData.Add(0x0E);
                                 TempMSDData.Add(0xFF);
                                 j = j + 11;
+                                break;
+
+                            case 'F':
+                                TempMSDData.Add(0x0F);
+                                TempMSDData.Add(0xFF);
+                                j = j + 11;
+                                break;
+
+                            case 'G':
+                                TempMSDData.Add(0x10);
+                                TempMSDData.Add(0xFF);
+                                j = j + 11;
+                                break;
+
+                            case 'H':
+                                TempMSDData.Add(0x11);
+                                TempMSDData.Add(0xFF);
+                                j = j + 12;
+                                break;
+
+                            case 'I':
+                                TempMSDData.Add(0x12);
+                                TempMSDData.Add(0xFF);
+                                j = j + 12;
                                 break;
 
                             default:
