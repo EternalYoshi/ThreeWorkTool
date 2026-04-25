@@ -34,6 +34,7 @@ using System.Globalization;
 using static ThreeWorkTool.Resources.Wrappers.ShotListEntry;
 using ThreeWorkTool.Properties;
 using static ThreeWorkTool.Resources.Wrappers.EffectListEntry;
+using ScintillaNET;
 
 namespace ThreeWorkTool
 {
@@ -23600,13 +23601,14 @@ namespace ThreeWorkTool
 
         #endregion
 
-        public void UpdateMSD(RichTextBox textBox)
+        public void UpdateMSD(FrmTxtEditor txtEditor, Scintilla textBox)
         {
             MSDEntry msdupdated = frename.Mainfrm.TreeSource.SelectedNode.Tag as MSDEntry;
             if (msdupdated != null)
             {
                 frename.Mainfrm.TreeSource.SelectedNode.Tag = MSDEntry.UpdateMSDFromTexEditorForm(textBox, msdupdated);
             }
+            //textBox.ClearAll();
         }
 
         private void TxtRPList_TextChanged(object sender, EventArgs e)
@@ -27637,7 +27639,7 @@ namespace ThreeWorkTool
     {
         //Filepath
         public static string ToolPath;
-
+        public static readonly string[] MSDTableText = File.ReadAllLines(ToolPath + "MSDTable.cfg");
     }
 
 }

@@ -1,4 +1,5 @@
 ﻿using Ionic.Zlib;
+using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -157,10 +158,11 @@ namespace ThreeWorkTool.Resources.Wrappers
             return texbox;
         }
 
-        public static RichTextBox LoadMSDInTexEditorForm(RichTextBox texbox, MSDEntry msde)
+        public static Scintilla LoadMSDInTexEditorForm(Scintilla texbox, MSDEntry msde)
         {
             texbox.Text = "";
-
+            string ProperPath = "";
+            //static string[] MSDTableText = File.ReadAllText(Globals.ToolPath + "MSDTable.cfg");
 
             //Fills in the entries using a hopefully more efficient method based on what I see from Anotak and co's MSD Editor from a few years back.
             using (MemoryStream mstream = new MemoryStream(msde.UncompressedData))
@@ -170,7 +172,16 @@ namespace ThreeWorkTool.Resources.Wrappers
                     bnr.BaseStream.Position = 8;
                     msde.EntryList = new List<MessageEntries>();
                     StringBuilder SBuild = new StringBuilder();
-                    msde.TextBackup = new List<string>(msde.EntryCount);
+                    if (msde.TextBackup == null || msde.TextBackup.Count < 1)
+                    {
+                        msde.TextBackup = new List<string>(msde.EntryCount);
+                    }
+                    else
+                    {
+                        msde.TextBackup.Clear();
+                        msde.TextBackup.TrimExcess();
+                        msde.TextBackup = new List<string>(msde.EntryCount);
+                    }
                     MessageEntries me = new MessageEntries();
                     byte[] TestArray = new byte[2];
                     int ITChar = 0;
@@ -186,31 +197,23 @@ namespace ThreeWorkTool.Resources.Wrappers
                             ITChar = bnr.ReadInt16();
                             TChar = ITChar.ToString("X4");
 
+                            //Rewrote this part.
                             try
                             {
-                                string ProperPath = "";
-                                ProperPath = Globals.ToolPath + "MSDTable.cfg";
-                                using (var sr = new StreamReader(ProperPath))
+                                foreach (var line in Globals.MSDTableText)
                                 {
-                                    while (!sr.EndOfStream)
+                                    if (line.Contains(TChar))
                                     {
-                                        var keyword = Console.ReadLine() ?? TChar;
-                                        var line = sr.ReadLine();
-                                        if (String.IsNullOrEmpty(line)) continue;
-                                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
-                                        {
-                                            TChar = line;
-                                            TChar = TChar.Split(' ')[1];
-                                            break;
-                                        }
+                                        TChar = line;
+                                        TChar = TChar.Split(' ')[1];
+                                        break;
                                     }
                                 }
-
                             }
                             catch (FileNotFoundException)
                             {
                                 MessageBox.Show("I cannot find MSDTable.cfg and cannot continue.\n Restart with this file in the same directory as the exe file itself.", "Oh Boy");
-                                string ProperPath = "";
+                                ProperPath = "";
                                 ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
                                 {
                                     sw.WriteLine("Cannot find MSDTable.cfg so I cannot load the MSD file.");
@@ -218,12 +221,25 @@ namespace ThreeWorkTool.Resources.Wrappers
                                 Process.GetCurrentProcess().Kill();
                             }
 
+
                             //For Irregular cases.
                             switch (TChar)
                             {
 
                                 case "FFFFFF01":
                                     TChar = "[*1DPAD*]";
+                                    break;
+
+                                case "FFFFFF02":
+                                    TChar = "[*2DPAD*]";
+                                    break;
+
+                                case "FFFFFF03":
+                                    TChar = "[*3DPAD*]";
+                                    break;
+
+                                case "FFFFFF04":
+                                    TChar = "[*4DPAD*]";
                                     break;
 
                                 case "FFFFFF05":
@@ -292,11 +308,26 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
-        public static MSDEntry UpdateMSDFromTexEditorForm(RichTextBox texbox, MSDEntry msde)
+        public static MSDEntry UpdateMSDFromTexEditorForm(Scintilla texbox, MSDEntry msde)
         {
             //This gets the line count of the text box and eliminates the last line if empty.
             int lineCount = texbox.Lines.Count();
-            lineCount -= String.IsNullOrWhiteSpace(texbox.Lines.Last()) ? 1 : 0;
+
+            if(texbox.Lines[(lineCount - 1)].Length == 0)
+            {
+                string LastLine = texbox.Lines[(lineCount - 1)].Text;
+                if (string.IsNullOrWhiteSpace(LastLine))
+                {
+                    texbox.TargetStart = texbox.Lines[(lineCount - 1)].Position;
+                    texbox.TargetEnd = texbox.Lines[(lineCount - 1)].EndPosition;
+                    texbox.ReplaceTarget("");
+                    lineCount = lineCount - 1;
+                }
+            }
+
+
+            //int lineCount = texbox.Lines.Count();
+            //lineCount -= String.IsNullOrWhiteSpace(texbox.Lines.Last()) ? 1 : 0;
 
             //Builds a new MSD File to replace the uncompressed and compressed data variables.
             List<byte> newMSDData = new List<byte>();
@@ -318,7 +349,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             for (int i = 0; i < lineCount; i++)
             {
                 //Gets the line.
-                STemp = texbox.Lines[i];
+                //STemp = texbox.Lines[i].Text;
+                STemp = texbox.Lines[i].Text.TrimEnd('\r','\n');
                 LTemp = texbox.Lines[i].Length;
                 ByTemp = BitConverter.GetBytes(LTemp);
                 TempMSDData.Clear();
@@ -458,7 +490,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             msde.CompressedData = Zlibber.Compressor(msde.UncompressedData);
 
             msde.EntryCount = lineCount;
-
+            
             return msde;
 
         }
