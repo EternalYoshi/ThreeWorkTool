@@ -93,6 +93,12 @@
     <Reference Include="Ookii.Dialogs.Wpf, Version=5.0.0.0, Culture=neutral, PublicKeyToken=66aa232afad40158, processorArchitecture=MSIL">
       <HintPath>..\packages\Ookii.Dialogs.Wpf.5.0.1\lib\net462\Ookii.Dialogs.Wpf.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK.GLControl, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.GLControl.3.3.3\lib\net20\OpenTK.GLControl.dll</HintPath>
+    </Reference>
     <Reference Include="Pfim, Version=0.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Pfim.0.10.0\lib\netstandard2.0\Pfim.dll</HintPath>
     </Reference>
@@ -134,7 +140,9 @@
     <Reference Include="SharpDX.XInput, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.XInput.4.2.0\lib\net45\SharpDX.XInput.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
+    <Reference Include="System">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll</HintPath>
+    </Reference>
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
     </Reference>
@@ -234,6 +242,12 @@
     <Compile Include="FrmManifestEditor.Designer.cs">
       <DependentUpon>FrmManifestEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmModelViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmModelViewer.Designer.cs">
+      <DependentUpon>FrmModelViewer.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmNotes.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -245,6 +259,12 @@
     </Compile>
     <Compile Include="FrmRename.Designer.cs">
       <DependentUpon>FrmRename.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmReplaceDeluxe.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmReplaceDeluxe.Designer.cs">
+      <DependentUpon>FrmReplaceDeluxe.cs</DependentUpon>
     </Compile>
     <Compile Include="FrmReplace.cs">
       <SubType>Form</SubType>
@@ -276,12 +296,6 @@
     <Compile Include="FrmTxtEditor.Designer.cs">
       <DependentUpon>FrmTxtEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="ModelViewer.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ModelViewer.Designer.cs">
-      <DependentUpon>ModelViewer.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Archives\ArcEntry.cs" />
@@ -289,10 +303,12 @@
     <Compile Include="Resources\ExportFileWriter.cs" />
     <Compile Include="Resources\Geometry\CameraTake1.cs" />
     <Compile Include="Resources\Geometry\Checkerboard.cs" />
+    <Compile Include="Resources\Geometry\KeyboardStateHandler.cs" />
     <Compile Include="Resources\ImportFilters.cs" />
     <Compile Include="Resources\ExportFilters.cs" />
     <Compile Include="Resources\BSWConverter.cs" />
     <Compile Include="Resources\ShaderEnum.cs" />
+    <Compile Include="Resources\TheRenderer.cs" />
     <Compile Include="Resources\ThreeSourceMSDRPLEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -378,12 +394,18 @@
     <EmbeddedResource Include="FrmManifestEditor.resx">
       <DependentUpon>FrmManifestEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FrmModelViewer.resx">
+      <DependentUpon>FrmModelViewer.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmNotes.resx">
       <DependentUpon>FrmNotes.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmRename.resx">
       <DependentUpon>FrmRename.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmReplaceDeluxe.resx">
+      <DependentUpon>FrmReplaceDeluxe.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmReplace.resx">
       <DependentUpon>FrmReplace.cs</DependentUpon>
@@ -400,9 +422,6 @@
     <EmbeddedResource Include="FrmTxtEditor.resx">
       <DependentUpon>FrmTxtEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ModelViewer.resx">
-      <DependentUpon>ModelViewer.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -414,6 +433,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="ClassDiagram1.cd" />
+    <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -424,6 +444,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Resources\ShaderTest.frag" />
+    <None Include="Resources\ShaderTest.vert" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

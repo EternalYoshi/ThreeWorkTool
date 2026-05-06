@@ -131,11 +131,12 @@ namespace ThreeWorkTool
         public static FrmRename frename;
         public static FrmSpecialRename fspcrename;
         public static FrmReplace freplace;
+        public static FrmReplaceDeluxe freplaceDX;
         public static FrmTxtEditor frmTxtEdit;
         public static FrmTexEncodeDialog frmtexencode;
         public static FrmNotes frmNote;
         public static FrmManifestEditor frmManiEditor;
-        public static ModelViewer RenderView;
+        public static FrmModelViewer RenderView;
         public static FrmLoading frmLoadBox;
         public static FrmTrackEditor TrackEditor;
         public static FrmFontSlider frmfontSlide;
@@ -11013,8 +11014,8 @@ namespace ThreeWorkTool
         private static void MenuItemReplaceTextInAllFilePathNames_Click(Object sender, System.EventArgs e)
         {
 
-            FrmReplace frp = new FrmReplace();
-            frp = freplace;
+            FrmReplaceDeluxe frp = new FrmReplaceDeluxe();
+            frp = freplaceDX;
             frp.AllFiles = true;
             frp.Mainfrm = frename.Mainfrm;
             frp.ShowItItem();
@@ -20786,15 +20787,41 @@ namespace ThreeWorkTool
 
         }
 
+        private void findAndReplaceInAllMaterialsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (frename == null)
+            {
+                MessageBox.Show("Nothing is open.");
+            }
+            else
+            {
+                MenuItemReplaceTextInAllMaterials_Click(sender, e);
+            }
+        }
+
+        private static void MenuItemReplaceTextInAllMaterials_Click(Object sender, System.EventArgs e)
+        {
+
+            FrmReplace frp = new FrmReplace();
+            frp = freplace;
+            frp.AllFiles = true;
+            frp.Mainfrm = frename.Mainfrm;
+            frp.ShowItItem();
+
+        }
+
+
         //Don't get your hopes up. Construction JUST began.
         private static void RenderModel_Click(Object sender, System.EventArgs e)
         {
-            if (RenderView == null)
-            {
-                RenderView = new ModelViewer();
-                RenderView.Mainfrm = frename.Mainfrm;
-                RenderView.FormClosed += ModelViewerClosed;
-            }
+            RenderView = new FrmModelViewer();
+
+            //if (RenderView == null)
+            //{
+            //    RenderView = new FrmModelViewer();
+            //    RenderView.Mainfrm = frename.Mainfrm;
+            //    RenderView.FormClosed += ModelViewerClosed;
+            //}
             RenderView.ShowDialog();
             //RenderView.ShowMV(frename.Mainfrm.TreeSource.SelectedNode);
 
@@ -23383,7 +23410,11 @@ namespace ThreeWorkTool
                 frn.Mainfrm = this;
                 freplace = frp;
 
-                ModelViewer modv = new ModelViewer();
+                FrmReplaceDeluxe frpdx = new FrmReplaceDeluxe();
+                frn.Mainfrm = this;
+                freplaceDX = frpdx;
+
+                FrmModelViewer modv = new FrmModelViewer();
                 modv.Mainfrm = this;
                 RenderView = modv;
 

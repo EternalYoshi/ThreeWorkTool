@@ -16,7 +16,7 @@ using ThreeWorkTool.Resources.Wrappers.ModelNodes;
 
 namespace ThreeWorkTool
 {
-    public partial class FrmReplace : Form
+    public partial class FrmReplaceDeluxe : Form
     {
 
         private static ThreeSourceTree treeview;
@@ -24,12 +24,14 @@ namespace ThreeWorkTool
         private static TreeNode node_;
         //private static ThreeSourceNodeBase node_;
         public FrmMainThree Mainfrm { get; set; }
-        public bool AllFiles;
-        public bool AllMaterials;
-        public bool AllShotsLists;
-        public bool AllRPLists;
+        public bool AllFiles = false;
+        public bool AllMaterials = false;
+        public bool AllShotsLists = false;
+        public bool AllRPLists = false;
+        public bool AllEFLs = false;
+        public bool AllGEMs = false;
 
-        public FrmReplace()
+        public FrmReplaceDeluxe()
         {
             InitializeComponent();
         }
@@ -53,7 +55,6 @@ namespace ThreeWorkTool
             Hide();
             Mainfrm.Focus();
         }
-
 
         private void btnReplaceReplace_Click(object sender, EventArgs e)
         {
@@ -84,7 +85,7 @@ namespace ThreeWorkTool
                         if (awrapper.Tag as MaterialTextureReference == null || awrapper.Tag as LMTM3AEntry == null || awrapper.Tag as ModelBoneEntry == null
                         || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                         || awrapper.Tag as EffectNode == null || awrapper.Tag as STQREventData == null || awrapper.Tag as STQRNode == null || awrapper.Tag as LMTTrackNode == null
-                        || awrapper.Tag as ModelBoneEntry == null || awrapper.Tag as ModelPrimitiveEntry == null || awrapper.Tag as ModelGroupEntry == null 
+                        || awrapper.Tag as ModelBoneEntry == null || awrapper.Tag as ModelPrimitiveEntry == null || awrapper.Tag as ModelGroupEntry == null
                         || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as MaterialAnimEntry == null || awrapper.Tag as EFLPathEntry == null)
                         {
                             {
@@ -332,7 +333,193 @@ namespace ThreeWorkTool
                                         tno.Text = tno.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                         tno.Name = tno.Name.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
                                     }
-                                    RenameCount++;
+
+                                    //This part for the node's Tag.
+
+                                    if (AllMaterials && tno.Tag as MaterialEntry != null)
+                                    {
+                                        TreeNodeCollection TNoCollection = tno.Nodes;
+
+                                        foreach (TreeNode node in TNoCollection)
+                                        {
+                                            if (node.Tag as string != null)
+                                            {
+                                                if (node.Text as string == "Textures")
+                                                {
+                                                    Mainfrm.TreeSource.SelectedNode = node;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        TNoCollection = Mainfrm.TreeSource.SelectedNode.Nodes;
+                                        Mainfrm.TreeSource.BeginUpdate();
+
+                                        foreach (TreeNode node in TNoCollection)
+                                        {
+
+                                            string Namer = node.Name as string;
+                                            node.Text = node.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                            Namer = Namer.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                            node.Name = Namer;
+
+                                        }
+
+                                        Mainfrm.TreeSource.SelectedNode = Mainfrm.TreeSource.SelectedNode.Parent;
+
+                                        //Now to update the Material file with all these, Whether they're changed or not.
+                                        TreeNode Parentnode = tno;
+                                        MaterialEntry ParentMateial = tno.Tag as MaterialEntry;
+                                        MaterialTextureReference texref = new MaterialTextureReference();
+                                        string TermToInject = "";
+                                        //int count = 0;
+
+                                        for (int i = 0; i < TNoCollection.Count; i++)
+                                        {
+
+                                            texref = TNoCollection[i].Tag as MaterialTextureReference;
+
+                                            TermToInject = TNoCollection[i].Text;
+
+                                            //Now for the actual file update.                    
+                                            List<byte> NameToInject = new List<byte>();
+                                            NameToInject.AddRange(Encoding.ASCII.GetBytes(TermToInject));
+                                            int OffsetToUse;
+                                            OffsetToUse = 64 + (88 * (texref.Index - 1));
+                                            byte[] NewName = new byte[64];
+                                            Array.Copy(NameToInject.ToArray(), 0, NewName, 0, NameToInject.ToArray().Length);
+                                            Array.Copy(NewName, 0, ParentMateial.UncompressedData, OffsetToUse, NewName.Length);
+                                            ParentMateial.CompressedData = Zlibber.Compressor(ParentMateial.UncompressedData);
+
+                                        }
+                                        ////Gotta Replace This line.....
+                                        //tno.Tag = ParentMateial;
+
+                                        Mainfrm.OpenFileModified = true;
+                                        Mainfrm.TreeSource.Update();
+                                        Mainfrm.TreeSource.EndUpdate();
+                                    }
+                                    else if (AllShotsLists && tno.Tag as ShotListEntry != null)
+                                    {
+                                        ShotListEntry lshentry = new ShotListEntry();
+                                        lshentry = tno.Tag as ShotListEntry;
+
+                                        if (lshentry != null)
+                                        {
+
+                                            //Puts the text in the Textbox on the bottom without showing the textbox so I can reuse code.
+                                            Mainfrm.txtRPList = ShotListEntry.LoadLSHInTextBox(Mainfrm.txtRPList, lshentry);
+
+                                            //Gets the text, then replaces every instance of the search term with the new term.
+                                            string text = Mainfrm.txtRPList.Text;
+                                            text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                            Mainfrm.txtRPList.Text = text;
+
+
+                                            lshentry = ShotListEntry.RenewShotListEntry(Mainfrm.txtRPList, lshentry);
+                                            //Mainfrm.TreeSource.SelectedNode.Tag = lshentry;
+                                            Mainfrm.OpenFileModified = true;
+                                        }
+
+                                    }
+                                    else if (AllRPLists && tno.Tag as ResourcePathListEntry != null)
+                                    {
+
+                                        ResourcePathListEntry rplentry = new ResourcePathListEntry();
+                                        rplentry = tno.Tag as ResourcePathListEntry;
+
+                                        if (rplentry != null)
+                                        {
+
+                                            //Puts the text in the Textbox on the bottom without showing the textbox so I can reuse code.
+                                            Mainfrm.txtRPList = ResourcePathListEntry.LoadRPLInTextBox(Mainfrm.txtRPList, rplentry);
+
+                                            //Gets the text, then replaces every instance of the search term with the new term.
+                                            string text = Mainfrm.txtRPList.Text;
+                                            text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                            Mainfrm.txtRPList.Text = text;
+
+                                            rplentry = ResourcePathListEntry.RenewRPLList(Mainfrm.txtRPList, rplentry);
+                                            //Mainfrm.TreeSource.SelectedNode.Tag = lshentry;
+                                            Mainfrm.OpenFileModified = true;
+
+
+
+                                        }
+
+
+                                    }
+                                    else if (AllGEMs && tno.Tag as GemEntry != null)
+                                    {
+                                        GemEntry gementry = new GemEntry();
+                                        gementry = tno.Tag as GemEntry;
+
+                                        if (gementry != null)
+                                        {
+
+                                            //Puts the text in the Textbox on the bottom without showing the textbox so I can reuse code.
+                                            Mainfrm.txtRPList = GemEntry.LoadGEMInTextBox(Mainfrm.txtRPList, gementry);
+
+                                            //Gets the text, then replaces every instance of the search term with the new term.
+                                            string text = Mainfrm.txtRPList.Text;
+                                            text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                            Mainfrm.txtRPList.Text = text;
+
+                                            gementry = GemEntry.RenewGemEntry(Mainfrm.txtRPList, gementry);
+                                            //Mainfrm.TreeSource.SelectedNode.Tag = lshentry;
+                                            Mainfrm.OpenFileModified = true;
+
+                                        }
+                                    }
+                                    else if (AllEFLs && tno.Tag as EffectListEntry != null)
+                                    {
+                                        EffectListEntry eftentry = new EffectListEntry();
+                                        eftentry = tno.Tag as EffectListEntry;
+                                        if(eftentry != null)
+                                        {
+                                            TreeNodeCollection TNoCollection = tno.Nodes;
+                                            //EffectListEntry EffectList = Mainfrm.TreeSource.SelectedNode.Tag as EffectListEntry;
+
+                                            foreach (TreeNode node in TNoCollection)
+                                            {
+                                                string Namer = node.Name as string;
+                                                node.Text = node.Text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                                Namer = Namer.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                                node.Name = Namer;
+                                            }
+
+                                            //Time to update the EFL with all the terms, regardless of modified state.
+                                            EFLPathEntry eflpref = new EFLPathEntry();
+                                            string TermToInject = "";
+                                            int PathOff = 0;
+
+                                            for (int i = 0; i < TNoCollection.Count; i++)
+                                            {
+                                                eflpref = TNoCollection[i].Tag as EFLPathEntry;
+                                                TermToInject = TNoCollection[i].Text;
+                                                PathOff = eflpref.Offset;
+
+                                                //Now for the actual file update.                    
+                                                List<byte> NameToInject = new List<byte>();
+                                                NameToInject.AddRange(Encoding.ASCII.GetBytes(TermToInject));
+                                                byte[] NewName = new byte[64];
+                                                Array.Copy(NameToInject.ToArray(), 0, NewName, 0, NameToInject.ToArray().Length);
+                                                Array.Copy(NewName, 0, eftentry.UncompressedData, PathOff, NewName.Length);
+
+                                            }
+
+                                            eftentry.CompressedData = Zlibber.Compressor(eftentry.UncompressedData);
+                                            tno.Tag = eftentry;
+
+
+
+
+
+                                        }
+                                    }
+
+
+                                        RenameCount++;
                                 }
                             }
                         }
@@ -449,6 +636,7 @@ namespace ThreeWorkTool
 
                     }
 
+                    //Gotta Replace This line.....
                     Mainfrm.TreeSource.SelectedNode.Tag = ParentMateial;
 
                     Mainfrm.OpenFileModified = true;
@@ -457,7 +645,6 @@ namespace ThreeWorkTool
 
 
                 }
-
                 else if (Mainfrm.TreeSource.SelectedNode.Tag is EffectListEntry)
                 {
                     TreeNodeCollection TNoCollection = Mainfrm.TreeSource.SelectedNode.Nodes;
@@ -508,5 +695,29 @@ namespace ThreeWorkTool
 
         }
 
+        private void ChkMRL_CheckedChanged(object sender, EventArgs e)
+        {
+            AllMaterials = ChkMRL.Checked;
+        }
+
+        private void ChkShotLists_CheckedChanged(object sender, EventArgs e)
+        {
+            AllShotsLists = ChkShotLists.Checked;
+        }
+
+        private void ChkRPL_CheckedChanged(object sender, EventArgs e)
+        {
+            AllRPLists = ChkRPL.Checked;
+        }
+
+        private void ChkEFLs_CheckedChanged(object sender, EventArgs e)
+        {
+            AllEFLs = ChkEFLs.Checked;
+        }
+
+        private void ChkGEMs_CheckedChanged(object sender, EventArgs e)
+        {
+            AllGEMs = ChkGEMs.Checked;
+        }
     }
 }
