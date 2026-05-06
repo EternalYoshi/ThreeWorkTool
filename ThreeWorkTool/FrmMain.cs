@@ -1873,6 +1873,10 @@ namespace ThreeWorkTool
                                             else if (treno.Tag as ShotEntry != null)
                                             {
                                                 shtenty = treno.Tag as ShotEntry;
+
+                                                //Gotta Update The StageObjLayout File First.
+                                                shtenty = ShotEntry.SaveShotEntry(shtenty, treno); 
+
                                                 exportname = "";
 
                                                 exportname = treno.FullPath;
@@ -3886,6 +3890,10 @@ namespace ThreeWorkTool
             else if (treno.Tag as ShotEntry != null)
             {
                 shtenty = treno.Tag as ShotEntry;
+
+                //Gotta Update The StageObjLayout File First.
+                shtenty = ShotEntry.SaveShotEntry(shtenty, treno);
+
                 exportname = "";
 
                 exportname = treno.FullPath;
@@ -26881,6 +26889,10 @@ namespace ThreeWorkTool
                                         else if (treno.Tag as ShotEntry != null)
                                         {
                                             shtenty = treno.Tag as ShotEntry;
+
+                                            //Gotta Update The StageObjLayout File First.
+                                            shtenty = ShotEntry.SaveShotEntry(shtenty, treno);
+
                                             exportname = "";
 
                                             exportname = treno.FullPath;
@@ -27655,6 +27667,11 @@ namespace ThreeWorkTool
                 Settings.Default.UI_NodeSpacing = this.TreeSource.ItemHeight;
             }
             Settings.Default.Save();
+        }
+
+        private void TreeSource_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+        {
+
         }
 
         //async void UpdateLabels()

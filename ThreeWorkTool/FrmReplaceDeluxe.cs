@@ -475,7 +475,7 @@ namespace ThreeWorkTool
                                     {
                                         EffectListEntry eftentry = new EffectListEntry();
                                         eftentry = tno.Tag as EffectListEntry;
-                                        if(eftentry != null)
+                                        if (eftentry != null)
                                         {
                                             TreeNodeCollection TNoCollection = tno.Nodes;
                                             //EffectListEntry EffectList = Mainfrm.TreeSource.SelectedNode.Tag as EffectListEntry;
@@ -519,7 +519,7 @@ namespace ThreeWorkTool
                                     }
 
 
-                                        RenameCount++;
+                                    RenameCount++;
                                 }
                             }
                         }
