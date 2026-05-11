@@ -21,7 +21,7 @@ namespace ThreeWorkTool
         public FrmMainThree Mainfrm { get; set; }
         private TheRenderer renderer;
         private KeyboardStateHandler Kboard;
-
+        public bool ShowFloor = true;
         private System.Windows.Forms.Timer rTimer;
 
         //From the OpenTK guide.
@@ -30,6 +30,20 @@ namespace ThreeWorkTool
                  0.5f, -0.5f, 0.0f, //Bottom-right vertex
                  0.0f,  0.5f, 0.0f  //Top vertex
         };
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            Keys bare = keyData & Keys.KeyCode;
+
+            if (bare == Keys.Up || bare == Keys.Down ||
+                bare == Keys.Left || bare == Keys.Right)
+            {
+                Kboard.KeyDown(bare);
+                return true; // tells WinForms "I handled this, stop processing it"
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
 
         public FrmModelViewer()
         {
@@ -41,7 +55,7 @@ namespace ThreeWorkTool
             GlControl = new GLControl(new GraphicsMode(32, 24, 0, 4));
             GlControl.Dock = DockStyle.Fill;
             GlControl.Load += (s, e) => renderer.Load();
-            GlControl.Paint += (s, e) => renderer.Render();
+            GlControl.Paint += (s, e) => renderer.Render(ShowFloor);
             GlControl.Resize += (s, e) => renderer.Resize(GlControl.Width, GlControl.Height);
             GlControl.KeyDown += (s, e) => Kboard.KeyDown(e.KeyCode);
 
@@ -52,6 +66,9 @@ namespace ThreeWorkTool
             this.KeyPreview = true;
             this.KeyDown += (s, e) => Kboard.KeyDown(e.KeyCode);
             this.KeyUp += (s, e) => Kboard.KeyUp(e.KeyCode);
+
+            //This is for zooming.
+            this.MouseWheel += (s, e) => renderer.Zoom(e.Delta);
 
             //GlControl.KeyDown += (s, e) => Kboard.KeyDown(e.KeyCode);
             //GlControl.KeyUp += (s, e) => Kboard.KeyUp(e.KeyCode);
@@ -72,6 +89,27 @@ namespace ThreeWorkTool
             //renderTimer.Stop();
             //floor.Dispose();
             base.OnFormClosing(e);
+        }
+
+        private void backgroundColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (ColorDialog cDialog = new ColorDialog())
+            {
+                if (cDialog.ShowDialog() == DialogResult.OK)
+                {
+                    //Gets the proper GLControl context.
+                    GlControl.MakeCurrent();
+                    GL.ClearColor(cDialog.Color);
+                    //Activates a repaint.
+                    GlControl.Invalidate();
+                    //GlControl.BackColor = cDialog.Color;
+                }
+            }
+        }
+
+        private void floorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowFloor = floorToolStripMenuItem.Checked;
         }
     }
 }

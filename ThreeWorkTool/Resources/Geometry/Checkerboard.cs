@@ -16,8 +16,8 @@ namespace ThreeWorkTool.Resources.Geometry
         private int shaderProgram;
 
         // Configurable properties
-        public int GridSize { get; set; } = 20;   // number of squares per side
-        public float TileSize { get; set; } = 1.0f; // world-space size of each tile
+        public int GridSize { get; set; } = 50;   // number of squares per side
+        public float TileSize { get; set; } = 10.0f; // world-space size of each tile
         public Color4 ColorA { get; set; } = new Color4(0.8f, 0.8f, 0.8f, 1.0f); // light
         public Color4 ColorB { get; set; } = new Color4(0.2f, 0.2f, 0.2f, 1.0f); // dark
 

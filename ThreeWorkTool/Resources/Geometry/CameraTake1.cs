@@ -18,7 +18,7 @@ namespace ThreeWorkTool.Resources.Geometry
         public float Pitch { get; set; } = -20f;
 
         public float MoveSpeed { get; set; } = 100f;
-        public float ZoomSpeed { get; set; } = 100f;
+        public float ZoomSpeed { get; set; } = 20f;
         public float RotateSpeed { get; set; } = 60f;
         public float PanSpeed { get; set; } = 100f;
 
@@ -84,63 +84,10 @@ namespace ThreeWorkTool.Resources.Geometry
             VectorUpdate();
         }
 
-        //public void Rotate(float deltaX, float deltaY)
-        //{
-        //    Yaw += deltaX * RotateSpeed;
-        //    Pitch += deltaY * RotateSpeed;
-
-        //    Pitch = MathUtil.Clamp(Pitch, -MathUtil.PiOverTwo + 0.01f, MathUtil.PiOverTwo - 0.01f);
-
-        //    UpdateCameraPosition();
-        //}
-
-        //public void Zoom(float delta)
-        //{
-        //    Distance = MathUtil.Clamp(Distance - delta * ZoomSpeed, MinDistance, MaxDistance);
-        //    UpdateCameraPosition();
-        //}
-
-        //public void Pan(float deltaX, float deltaY)
-        //{
-        //    // Calculate right and up vectors
-        //    Vector3 forward = Vector3.Normalize(Target - Position);
-        //    Vector3 right = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, forward));
-        //    Vector3 up = Vector3.Normalize(Vector3.Cross(forward, right));
-
-        //    Target += -right * deltaX * PanSpeed + up * deltaY * PanSpeed;
-        //    UpdateCameraPosition();
-        //}
-
-        //public void Move(Vector3 direction, float deltaTime)
-        //{
-        //    Vector3 forward = Vector3.Normalize(Target - Position);
-        //    Vector3 right = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, forward));
-
-        //    Vector3 moveVec = (forward * direction.Z + right * direction.X + Vector3.UnitY * direction.Y);
-        //    Target += moveVec * MoveSpeed * deltaTime;
-        //    UpdateCameraPosition();
-        //}
-
-        //public void Reset()
-        //{
-        //    //Target = Vector3.Zero;
-        //    //Distance = 10f;
-        //    //Yaw = MathUtil.PiOverTwo;
-        //    //Pitch = 0.0f;
-        //    //UpdateCameraPosition();
-
-        //    float YyawRad = MathHelper.DegreesToRadians(Yaw);
-        //    float PitchRad = MathHelper.DegreesToRadians(Pitch);
-
-        //    Forward = Vector3.Normalize(new Vector3(
-        //        (float)(Math.Cos(PitchRad) * Math.Cos(YyawRad)),
-        //        (float)Math.Sin(PitchRad),
-        //        (float)(Math.Cos(PitchRad) * Math.Sin(YyawRad))
-        //    ));
-
-        //    Right = Vector3.Normalize(Vector3.Cross(Forward, Vector3.UnitY));
-
-        //}
+        public void Zoom(float delta)
+        {
+            Position += Forward * delta * ZoomSpeed;
+        }
 
         public void VectorUpdate()
         {

@@ -22,6 +22,8 @@ namespace ThreeWorkTool.Resources
         private CameraTake1 Cam;
         private KeyboardStateHandler KeyStateHandler;
         public DateTime PrevFrameTime;
+        private readonly Stopwatch sClock = Stopwatch.StartNew();
+        private double LastTime;
 
         //From the OpenTK guide.
         float[] Testvertices = {
@@ -48,7 +50,7 @@ namespace ThreeWorkTool.Resources
             Floor = new Checkerboard
             {
                 GridSize = 20,
-                TileSize = 5.0f,
+                TileSize = 50.0f,
                 ColorA = new Color4(0.9f, 0.9f, 0.9f, 1.0f),
                 ColorB = new Color4(0.2f, 0.2f, 0.2f, 1.0f)
             };
@@ -64,40 +66,53 @@ namespace ThreeWorkTool.Resources
             new Vector3(0, 0, 0),    // looking at origin
             Vector3.UnitY);          // up direction
 
-            // Set safe defaults so Render has valid matrices even before Resize fires
+            // Set safe defaults so Render has valid matrices even before Resize fires. The last floats control the clip plane distance.
             Projection = Matrix4.CreatePerspectiveFieldOfView(
                 MathHelper.DegreesToRadians(45f),
                 (float)GlControl.Width / GlControl.Height,
-                0.1f, 1000f);
+                0.1f, 5000f);
         }
 
-
-        public void Render()
+        public void Render(bool ShowFloor)
         {
 
             // Calculate delta time for frame-rate independent movement
-            var now = DateTime.Now;
-            float DeltaT = (float)(now - PrevFrameTime).TotalSeconds;
-            PrevFrameTime = now;
+            //var now = DateTime.Now;
+            //float DeltaT = (float)(now - PrevFrameTime).TotalSeconds;
+            //PrevFrameTime = now;
 
-            Cam.UpdateCameraPosition(KeyStateHandler.HeldKeys, DeltaT);
+            double now = sClock.Elapsed.TotalSeconds;
+            float DeltaTm = (float)(now - LastTime);
+            LastTime = now;
+
+            Cam.UpdateCameraPosition(KeyStateHandler.HeldKeys, DeltaTm);
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             //Draw Model Here!
 
             var view = Cam.GetViewMatrix();
-            Floor.Render(View, Projection);
 
+            if (ShowFloor)
+            {
+                Floor.Render(view, Projection);
+            }
             //
             GlControl.SwapBuffers();
         }
 
+        public void Zoom(int DeltaT)
+        {
+            float Normalizer = DeltaT / 120.0f;
+            Cam.Zoom(Normalizer);
+        }
+
         public void Resize(int Width, int Height)
         {
+            //Also controls the clip plane distance.
             GL.Viewport(0, 0, Width, Height);
             Projection = Matrix4.CreatePerspectiveFieldOfView(
                 MathHelper.DegreesToRadians(45f),
-                (float)Width / Height, 0.1f, 1000f);
+                (float)Width / Height, 0.1f, 5000f);
         }
 
 

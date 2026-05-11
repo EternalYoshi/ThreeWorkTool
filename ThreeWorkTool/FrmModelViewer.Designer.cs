@@ -72,19 +72,19 @@
             this.typeAToolStripMenuItem,
             this.typeBToolStripMenuItem});
             this.cameraControlsToolStripMenuItem.Name = "cameraControlsToolStripMenuItem";
-            this.cameraControlsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cameraControlsToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.cameraControlsToolStripMenuItem.Text = "Camera Controls";
             // 
             // typeAToolStripMenuItem
             // 
             this.typeAToolStripMenuItem.Name = "typeAToolStripMenuItem";
-            this.typeAToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.typeAToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.typeAToolStripMenuItem.Text = "Type A";
             // 
             // typeBToolStripMenuItem
             // 
             this.typeBToolStripMenuItem.Name = "typeBToolStripMenuItem";
-            this.typeBToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.typeBToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.typeBToolStripMenuItem.Text = "Type B";
             // 
             // backgroundColorToolStripMenuItem
@@ -92,6 +92,7 @@
             this.backgroundColorToolStripMenuItem.Name = "backgroundColorToolStripMenuItem";
             this.backgroundColorToolStripMenuItem.Size = new System.Drawing.Size(115, 20);
             this.backgroundColorToolStripMenuItem.Text = "Background Color";
+            this.backgroundColorToolStripMenuItem.Click += new System.EventHandler(this.backgroundColorToolStripMenuItem_Click);
             // 
             // floorToolStripMenuItem
             // 
@@ -101,6 +102,7 @@
             this.floorToolStripMenuItem.Name = "floorToolStripMenuItem";
             this.floorToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.floorToolStripMenuItem.Text = "Floor";
+            this.floorToolStripMenuItem.Click += new System.EventHandler(this.floorToolStripMenuItem_Click);
             // 
             // FrmModelViewer
             // 
