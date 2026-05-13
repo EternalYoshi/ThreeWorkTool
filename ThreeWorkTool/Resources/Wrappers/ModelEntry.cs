@@ -207,6 +207,62 @@ namespace ThreeWorkTool.Resources.Wrappers
             modentry.BoneMap = new List<byte>();
             modentry.BoneMap.AddRange(bnr.ReadBytes(256));
 
+            //Bones' Transformation Matrices.
+            bnr.BaseStream.Position = modentry.BoneLocalMatrixOffset;
+            for (int u = 0; u < modentry.BoneCount; u++)
+            {
+
+                //Read the Matrix. It's 4x4 after all.
+                modentry.Bones[u].LocalMatrix.M11 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M12 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M13 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M14 = bnr.ReadSingle();
+
+                modentry.Bones[u].LocalMatrix.M21 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M22 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M23 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M24 = bnr.ReadSingle();
+
+                modentry.Bones[u].LocalMatrix.M31 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M32 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M33 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M34 = bnr.ReadSingle();
+
+                modentry.Bones[u].LocalMatrix.M41 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M42 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M43 = bnr.ReadSingle();
+                modentry.Bones[u].LocalMatrix.M44 = bnr.ReadSingle();
+
+            }
+
+            bnr.BaseStream.Position = modentry.BoneInvBindMatrixOffset;
+            for (int u = 0; u < modentry.BoneCount; u++)
+            {
+
+                //Read the Matrix. It's 4x4 after all.
+                modentry.Bones[u].InvBindMatrix.M11 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M12 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M13 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M14 = bnr.ReadSingle();
+
+                modentry.Bones[u].InvBindMatrix.M21 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M22 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M23 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M24 = bnr.ReadSingle();
+
+                modentry.Bones[u].InvBindMatrix.M31 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M32 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M33 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M34 = bnr.ReadSingle();
+
+                modentry.Bones[u].InvBindMatrix.M41 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M42 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M43 = bnr.ReadSingle();
+                modentry.Bones[u].InvBindMatrix.M44 = bnr.ReadSingle();
+
+            }
+
+
             //Material Names.
             bnr.BaseStream.Position = modentry.MaterialsOffset;
             modentry.MaterialNames = new List<string>();
@@ -470,7 +526,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                                 bwMDL.Write(FinalShaderValue);
 
-                                
+
 
 
 

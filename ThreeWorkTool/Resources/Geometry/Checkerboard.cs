@@ -14,7 +14,7 @@ namespace ThreeWorkTool.Resources.Geometry
         private int vao, vbo;
         private int vertexCount;
         private int shaderProgram;
-
+        private bool Disposed = false;
         // Configurable properties
         public int GridSize { get; set; } = 50;   // number of squares per side
         public float TileSize { get; set; } = 10.0f; // world-space size of each tile
@@ -150,9 +150,20 @@ namespace ThreeWorkTool.Resources.Geometry
 
         public void Dispose()
         {
+            //Meant to avoid double disposing.
+            if (Disposed)
+            {
+                return;
+            }
+            Disposed = true;
+
+
             GL.DeleteBuffer(vbo);
             GL.DeleteVertexArray(vao);
             GL.DeleteProgram(shaderProgram);
+
+            //Another thing I think is meant to protect against double disposing.
+            GC.SuppressFinalize(this);
         }
 
     }

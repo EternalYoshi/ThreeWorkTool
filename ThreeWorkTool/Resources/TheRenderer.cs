@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -24,6 +26,46 @@ namespace ThreeWorkTool.Resources
         public DateTime PrevFrameTime;
         private readonly Stopwatch sClock = Stopwatch.StartNew();
         private double LastTime;
+        //private bool IsDragging = false;
+        
+        private enum DragMode { None, Pan, Rotate }
+        private DragMode DraggingMode = DragMode.None;
+        private Point PrevMousePos;
+
+        public void StartDrag(Point pos, bool CtrlHeld)
+        {
+            DraggingMode = CtrlHeld ? DragMode.Rotate : DragMode.Pan;
+            PrevMousePos = pos;
+        }
+
+        //So this is a lambda expression for an anonymous function..?
+        public void StopDrag()
+        {
+            DraggingMode = DragMode.None;
+        }
+
+        //This runs when the mouse moves.
+        public void FastMove(Point position, bool control)
+        {
+            if (DraggingMode == DragMode.None) return;
+
+            //Updates the Camera control mode based on the state of the CTRL key.
+            DraggingMode = control ? DragMode.Rotate : DragMode.Pan;
+
+            float FX = position.X - PrevMousePos.X;
+            float FY = position.Y - PrevMousePos.Y;
+            PrevMousePos = position;
+
+            if(DraggingMode == DragMode.Rotate)
+            {
+                Cam.Rotation(FX, FY);
+            }
+            else if (DraggingMode == DragMode.Pan)
+            {
+                Cam.Pan(FX, FY);
+            }
+            
+        }
 
         //From the OpenTK guide.
         float[] Testvertices = {
@@ -73,7 +115,7 @@ namespace ThreeWorkTool.Resources
                 0.1f, 5000f);
         }
 
-        public void Render(bool ShowFloor)
+        public void Render(bool ShowFloor, bool ShowJoints, bool ShowPolygons)
         {
 
             // Calculate delta time for frame-rate independent movement
@@ -100,6 +142,7 @@ namespace ThreeWorkTool.Resources
             GlControl.SwapBuffers();
         }
 
+        //Zooms bsaed on Mouse Wheel.
         public void Zoom(int DeltaT)
         {
             float Normalizer = DeltaT / 120.0f;
@@ -115,12 +158,28 @@ namespace ThreeWorkTool.Resources
                 (float)Width / Height, 0.1f, 5000f);
         }
 
+        //Sets the Camera position and Rotation back to default.
+        public void ResetCamera()
+        {
+            Cam.Position = new Vector3(0, 25, 15);
+            Cam.Yaw = -90f;
+            Cam.Pitch = -20f;
+        }
 
         public void Closing()
         {
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.DeleteBuffer(VertexBufferObject);
-            Floor.Dispose();
+            try
+            {
+                GlControl.MakeCurrent();
+
+                Floor.Dispose();
+                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                GL.DeleteBuffer(VertexBufferObject);
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GL cleanup failed!\n Details: {ex.Message}");
+            }
         }
 
 

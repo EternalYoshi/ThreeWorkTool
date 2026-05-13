@@ -20818,20 +20818,20 @@ namespace ThreeWorkTool
 
         }
 
-        //Don't get your hopes up. Construction JUST began.
         private static void RenderModel_Click(Object sender, System.EventArgs e)
         {
-            RenderView = new FrmModelViewer();
 
-            //if (RenderView == null)
-            //{
-            //    RenderView = new FrmModelViewer();
-            //    RenderView.Mainfrm = frename.Mainfrm;
-            //    RenderView.FormClosed += ModelViewerClosed;
-            //}
-            RenderView.ShowDialog();
-            //RenderView.ShowMV(frename.Mainfrm.TreeSource.SelectedNode);
+            using (var RenderView = new FrmModelViewer())
+            {
+                //A roundabout way of getting the ModelEntry for later.
+                ModelEntry NewaentMDL = new ModelEntry();
+                ArcEntryWrapper OriginalWrapper = new ArcEntryWrapper();
+                OriginalWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+                NewaentMDL = OriginalWrapper.Tag as ModelEntry;
 
+                RenderView.GetModelDetails(NewaentMDL);
+                RenderView.ShowDialog();
+            }
 
         }
 

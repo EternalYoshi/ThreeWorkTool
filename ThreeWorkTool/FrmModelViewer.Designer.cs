@@ -15,6 +15,7 @@
         {
             if (disposing && (components != null))
             {
+                //System.Diagnostics.Debug.WriteLine("FrmModelViewer disposed successfully!");
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -36,6 +37,9 @@
             this.typeBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundColorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.floorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.jointsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.polygonsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnResetCamera = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -45,7 +49,9 @@
             this.fileToolStripMenuItem,
             this.optionsToolStripMenuItem,
             this.backgroundColorToolStripMenuItem,
-            this.floorToolStripMenuItem});
+            this.floorToolStripMenuItem,
+            this.jointsToolStripMenuItem,
+            this.polygonsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(877, 24);
@@ -104,11 +110,37 @@
             this.floorToolStripMenuItem.Text = "Floor";
             this.floorToolStripMenuItem.Click += new System.EventHandler(this.floorToolStripMenuItem_Click);
             // 
+            // jointsToolStripMenuItem
+            // 
+            this.jointsToolStripMenuItem.Name = "jointsToolStripMenuItem";
+            this.jointsToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
+            this.jointsToolStripMenuItem.Text = "Joints";
+            this.jointsToolStripMenuItem.Click += new System.EventHandler(this.jointsToolStripMenuItem_Click);
+            // 
+            // polygonsToolStripMenuItem
+            // 
+            this.polygonsToolStripMenuItem.Name = "polygonsToolStripMenuItem";
+            this.polygonsToolStripMenuItem.Size = new System.Drawing.Size(68, 20);
+            this.polygonsToolStripMenuItem.Text = "Polygons";
+            this.polygonsToolStripMenuItem.Click += new System.EventHandler(this.polygonsToolStripMenuItem_Click);
+            // 
+            // btnResetCamera
+            // 
+            this.btnResetCamera.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnResetCamera.Location = new System.Drawing.Point(762, 0);
+            this.btnResetCamera.Name = "btnResetCamera";
+            this.btnResetCamera.Size = new System.Drawing.Size(115, 23);
+            this.btnResetCamera.TabIndex = 1;
+            this.btnResetCamera.Text = "Reset Camera";
+            this.btnResetCamera.UseVisualStyleBackColor = true;
+            this.btnResetCamera.Click += new System.EventHandler(this.btnResetCamera_Click);
+            // 
             // FrmModelViewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(877, 510);
+            this.Controls.Add(this.btnResetCamera);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FrmModelViewer";
@@ -131,5 +163,8 @@
         private System.Windows.Forms.ToolStripMenuItem cameraControlsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem typeAToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem typeBToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem jointsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem polygonsToolStripMenuItem;
+        private System.Windows.Forms.Button btnResetCamera;
     }
 }
