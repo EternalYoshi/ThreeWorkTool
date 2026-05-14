@@ -23,9 +23,9 @@ namespace ThreeWorkTool
         public FrmMainThree Mainfrm { get; set; }
         private TheRenderer renderer;
         private KeyboardStateHandler Kboard;
-        private ModelEntry modelEntry;
-        private List<ModelBoneEntry> Joints;
-        private List<ModelPrimitiveEntry> Polygons;
+        public ModelEntry modelEntry;
+        public List<ModelBoneEntry> Joints;
+        public List<ModelPrimitiveEntry> Polygons;
         public bool ShowFloor = true;
         public bool UseTypeB = false;
         public bool ShowJoints = true;
@@ -62,7 +62,7 @@ namespace ThreeWorkTool
             //This creates and configures the GLControl.
             GlControl = new GLControl(new GraphicsMode(32, 24, 0, 4));
             GlControl.Dock = DockStyle.Fill;
-            GlControl.Load += (s, e) => renderer.Load();
+            GlControl.Load += (s, e) => renderer.Load(this);
             GlControl.Paint += (s, e) => renderer.Render(ShowFloor, ShowJoints, ShowPolygons);
             GlControl.Resize += (s, e) => renderer.Resize(GlControl.Width, GlControl.Height);
             GlControl.KeyDown += (s, e) => Kboard.KeyDown(e.KeyCode);

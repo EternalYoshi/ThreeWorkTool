@@ -54,7 +54,7 @@
             this.polygonsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(877, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(895, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -112,6 +112,7 @@
             // 
             // jointsToolStripMenuItem
             // 
+            this.jointsToolStripMenuItem.CheckOnClick = true;
             this.jointsToolStripMenuItem.Name = "jointsToolStripMenuItem";
             this.jointsToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
             this.jointsToolStripMenuItem.Text = "Joints";
@@ -127,7 +128,7 @@
             // btnResetCamera
             // 
             this.btnResetCamera.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnResetCamera.Location = new System.Drawing.Point(762, 0);
+            this.btnResetCamera.Location = new System.Drawing.Point(780, 0);
             this.btnResetCamera.Name = "btnResetCamera";
             this.btnResetCamera.Size = new System.Drawing.Size(115, 23);
             this.btnResetCamera.TabIndex = 1;
@@ -139,7 +140,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(877, 510);
+            this.ClientSize = new System.Drawing.Size(895, 613);
             this.Controls.Add(this.btnResetCamera);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;

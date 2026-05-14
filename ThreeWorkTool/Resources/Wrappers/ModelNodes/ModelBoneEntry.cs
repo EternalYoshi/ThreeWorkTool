@@ -38,6 +38,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
         //}
 
         public Matrix4x4 LocalMatrix;
+        public Matrix4x4 MatrixForViewer;
         public Matrix4x4 InvBindMatrix;
 
         public BoundingSphere SphereBound;
@@ -215,6 +216,36 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
                 Offset = value;
             }
         }
+
+        //[Category("Bone Data"), ReadOnlyAttribute(true)]
+        //public Vector3 Location
+        //{
+        //    get
+        //    {
+        //        if (Matrix4x4.Decompose(LocalMatrix, out Vector3 scale, out Quaternion rotation, out Vector3 location))
+        //        {
+        //            return location;
+        //        }
+        //        else;
+        //        {
+        //            return new Vector3(-1.0f,-1.0f,-1.0f);
+        //        }
+                    
+        //    }
+        //}
+
+        //[Category("Bone Data"), ReadOnlyAttribute(true)]
+        //public Matrix4x4 BoneInvBindMatrix
+        //{
+        //    get
+        //    {
+        //        return InvBindMatrix;
+        //    }
+        //    set
+        //    {
+        //        InvBindMatrix = value;
+        //    }
+        //}
 
         #endregion
 

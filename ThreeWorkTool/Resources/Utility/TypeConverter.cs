@@ -7,6 +7,7 @@ using System.ComponentModel;
 using static ThreeWorkTool.Resources.Wrappers.MaterialMaterialEntry;
 using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 using YamlDotNet.Serialization;
+using OpenTK;
 
 namespace ThreeWorkTool.Resources.Utility
 {
@@ -53,8 +54,6 @@ namespace ThreeWorkTool.Resources.Utility
         }
 
     }
-
-
 
     //Generic Deserialization Function.
     public static class SerializeAndDeserialize

@@ -233,6 +233,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                 modentry.Bones[u].LocalMatrix.M43 = bnr.ReadSingle();
                 modentry.Bones[u].LocalMatrix.M44 = bnr.ReadSingle();
 
+                //Makes a copy for use later so we don't tamper with the original value.
+                modentry.Bones[u].MatrixForViewer = modentry.Bones[u].LocalMatrix;
             }
 
             bnr.BaseStream.Position = modentry.BoneInvBindMatrixOffset;
@@ -261,8 +263,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 modentry.Bones[u].InvBindMatrix.M44 = bnr.ReadSingle();
 
             }
-
-
+            
             //Material Names.
             bnr.BaseStream.Position = modentry.MaterialsOffset;
             modentry.MaterialNames = new List<string>();
