@@ -27,12 +27,27 @@ namespace ThreeWorkTool.Resources.Utility
         //This is to convert a Matrix for use in the Model Viewer.
         public static Matrix4 FromSystemNumericsMatrixToOpenTKMatrix(System.Numerics.Matrix4x4 m)
         {
-            return new Matrix4(
+            return new OpenTK.Matrix4(
                 m.M11, m.M12, m.M13, m.M14,
                 m.M21, m.M22, m.M23, m.M24,
                 m.M31, m.M32, m.M33, m.M34,
                 m.M41, m.M42, m.M43, m.M44
             );
+        }
+
+        public void DecomposeMatrix(Matrix4 m, out OpenTK.Vector3 position, out OpenTK.Quaternion rotation, out OpenTK.Vector3 scale)
+        {
+            position = m.ExtractTranslation();
+            scale = m.ExtractScale();
+
+            var rotMatrix = new Matrix4(
+                m.Column0 / (scale.X == 0 ? 1 : scale.X),
+                m.Column1 / (scale.Y == 0 ? 1 : scale.Y),
+                m.Column2 / (scale.Z == 0 ? 1 : scale.Z),
+                m.Column3
+            );
+
+            rotation = rotMatrix.ExtractRotation();
         }
 
         // Gets World Position from 4x4 Matrix.

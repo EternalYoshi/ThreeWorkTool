@@ -15,8 +15,9 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 {
     public class ModelPrimitiveEntry : DefaultWrapper
     {
+        //Primitive Joint Link = Envelopes
         public int ID, VerticeCount, VertexFlags, VertexStartIndex, VertexBufferOffset, IndexBufferOffset,
-            IndexCount, IndexStartIndex, BoneMapStartIndex, PrimitiveJointLinkCount, MinVertexindex, MaxVertexIndex, Unknown2C,
+            IndexCount, IndexStartIndex, BoneMapStartIndex, EnvelopeCount, MinVertexindex, MaxVertexIndex, Unknown2C, 
              p, VertexStride, reIndexBufferOffset;
 
         public short Flags;
@@ -25,7 +26,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 
         public int PrimOffset { get; set; }
 
-        public long PrimitiveJointLinkPtr;
+        public long EnvelopesPtr;//AKA Primitive Joint Links.
 
         [Category("Indices")]
         public ushort GroupID { get; set; }
@@ -34,6 +35,25 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
         [Category("Indices")]
         public byte LODIndex { get; set; }
 
+        [Category("UVs"), ReadOnlyAttribute(true)]
+        public List<Vector3> UVPrimary { get; set; }
+
+        [Category("UVs"), ReadOnlyAttribute(true)]
+        public List<Vector3> UVSecondary { get; set; }
+
+        [Category("UVs"), ReadOnlyAttribute(true)]
+        public List<Vector3> UVUnique { get; set; }
+
+        [Category("UVs"), ReadOnlyAttribute(true)]
+        public List<Vector3> UVExtend { get; set; }
+
+        public struct Vertex
+        {
+            public Vector3 Coordinate;
+            public List<float> Weights;
+            public Vector4 Normals;
+            public List<int> Joints;
+        }
 
         public struct MTShader
         {
@@ -179,11 +199,11 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 
             get
             {
-                return PrimitiveJointLinkCount;
+                return EnvelopeCount;
             }
             set
             {
-                PrimitiveJointLinkCount = value;
+                EnvelopeCount = value;
             }
         }
 
@@ -235,11 +255,11 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 
             get
             {
-                return PrimitiveJointLinkPtr;
+                return EnvelopesPtr;
             }
             set
             {
-                PrimitiveJointLinkPtr = value;
+                EnvelopesPtr = value;
             }
         }
 

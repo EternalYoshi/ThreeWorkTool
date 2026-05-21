@@ -303,8 +303,10 @@
     <Compile Include="Resources\ExportFileWriter.cs" />
     <Compile Include="Resources\Geometry\CameraTake1.cs" />
     <Compile Include="Resources\Geometry\Checkerboard.cs" />
+    <Compile Include="Resources\Geometry\Joint.cs" />
     <Compile Include="Resources\Geometry\KeyboardStateHandler.cs" />
     <Compile Include="Resources\Geometry\MVRenderings.cs" />
+    <Compile Include="Resources\Geometry\Skeleton.cs" />
     <Compile Include="Resources\ImportFilters.cs" />
     <Compile Include="Resources\ExportFilters.cs" />
     <Compile Include="Resources\BSWConverter.cs" />

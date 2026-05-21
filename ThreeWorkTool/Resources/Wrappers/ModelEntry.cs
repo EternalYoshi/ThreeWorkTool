@@ -299,7 +299,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             modentry.Primitives = new List<ModelPrimitiveEntry>();
             for (int v = 0; v < modentry.PrimitiveCount; v++)
             {
-                ModelPrimitiveEntry Prim = new ModelPrimitiveEntry();
+                ModelPrimitiveEntry Prim = new ModelPrimitiveEntry();                
                 Prim.PrimOffset = Convert.ToInt32(bnr.BaseStream.Position);
                 Prim.Flags = bnr.ReadInt16();
                 Prim.VerticeCount = bnr.ReadInt16();
@@ -327,12 +327,12 @@ namespace ThreeWorkTool.Resources.Wrappers
                 Prim.IndexCount = bnr.ReadInt32();
                 Prim.IndexStartIndex = bnr.ReadInt32();
                 Prim.BoneMapStartIndex = bnr.ReadByte();
-                Prim.PrimitiveJointLinkCount = bnr.ReadByte();
+                Prim.EnvelopeCount = bnr.ReadByte();
                 Prim.ID = bnr.ReadInt16();
                 Prim.MinVertexindex = bnr.ReadInt16();
                 Prim.MaxVertexIndex = bnr.ReadInt16();
                 Prim.Unknown2C = bnr.ReadInt32();
-                Prim.PrimitiveJointLinkPtr = bnr.ReadInt64();
+                Prim.EnvelopesPtr = bnr.ReadInt64();
 
 
                 //Validates the Primitive's Index count.
@@ -351,6 +351,11 @@ namespace ThreeWorkTool.Resources.Wrappers
                     bnr.BaseStream.Position = PrevAddr;
                 }
 
+                //Vertex coordinates and UVs. This will be a while.
+                Prim.UVPrimary = new List<Vector3>();
+                Prim.UVSecondary = new List<Vector3>();
+                Prim.UVExtend = new List<Vector3>();
+                Prim.UVUnique = new List<Vector3>();
 
 
                 modentry.Primitives.Add(Prim);

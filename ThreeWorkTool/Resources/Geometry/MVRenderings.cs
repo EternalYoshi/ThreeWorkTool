@@ -29,7 +29,7 @@ namespace ThreeWorkTool.Resources.Geometry
         public float Radius { get; set; } = 1.0f;
         public int Stacks { get; set; } = 16;
         public int Slices { get; set; } = 16;
-        public Color4 Color { get; set; } = new Color4(0.4f, 0.9f, 0.0f, 1.0f);
+        public Color4 Color { get; set; } = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
         public bool Wireframe { get; set; } = false;
 
         //Spline needs its own shader.
@@ -172,7 +172,7 @@ namespace ThreeWorkTool.Resources.Geometry
             //Matrix4 SplineModel = Matrix4.CreateScale(SplineScale) * model;
             //GL.UseProgram(shaderProgram);
             GL.UseProgram(SplineShader);
-
+            //
             GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModel"), false, ref model);
             GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uView"), false, ref view);
             GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uProjection"), false, ref projection);

@@ -36,6 +36,7 @@ namespace ThreeWorkTool.Resources
         private List<Sphere> BoneSpheres;
         private List<Matrix4> Matrices;
         private List<BoneRectangle> BoneRectangles;
+        private List<Skeleton> skeletons;
         //private bool IsDragging = false;
 
         private enum DragMode { None, Pan, Rotate }
@@ -100,7 +101,10 @@ namespace ThreeWorkTool.Resources
             Matrices = new List<Matrix4>();
             BoneRectangles = new List<BoneRectangle>();
             Models.Add(modelViewer.modelEntry);
-            Joints = modelViewer.Joints;
+            Joints = new List<ModelBoneEntry>();
+            //Skeleton
+            skeletons = new List<Skeleton>();
+            Joints.AddRange(modelViewer.modelEntry.Bones);
             Polygons = modelViewer.Polygons;
 
             //Setup Shaders and Buffers Here!
@@ -118,48 +122,53 @@ namespace ThreeWorkTool.Resources
             };
             Floor.Load();
 
-            //Bones. Need to calculate new matrices for child bones and stuff because of how Marvel 3 calculates bone matrices.
-            for (int v = 0; v < modelViewer.Joints.Count; v++)
-            {
-                Matrix4x4 TargetMatrix = modelViewer.modelEntry.Bones[v].LocalMatrix;
+            Skeleton RigSkeleton = new Skeleton();
+            RigSkeleton = RigSkeleton.BuildSkeletonFromModelEntry(modelViewer.modelEntry);
+            skeletons.Add(RigSkeleton);
+            ////Bones. Need to calculate new matrices for child bones and stuff because of how Marvel 3 calculates bone matrices.
+            //for (int v = 0; v < modelViewer.Joints.Count; v++)
+            //{
+            //    Matrix4x4 TargetMatrix = modelViewer.modelEntry.Bones[v].LocalMatrix;
 
-                //Time to get the parent index.
-                int ParentIndex = modelViewer.modelEntry.Bones[v].Parent;
-                if (ParentIndex != 255 && ParentIndex != -1)
-                {
-                    TargetMatrix = TargetMatrix * modelViewer.modelEntry.Bones[ParentIndex].MatrixForViewer;
-                    modelViewer.modelEntry.Bones[v].MatrixForViewer = TargetMatrix;
+            //    //Time to get the parent index.
+            //    int ParentIndex = modelViewer.modelEntry.Bones[v].Parent;
+            //    if (ParentIndex != 255 && ParentIndex != -1)
+            //    {
+            //        TargetMatrix = TargetMatrix * modelViewer.modelEntry.Bones[ParentIndex].MatrixForViewer;
+            //        modelViewer.modelEntry.Bones[v].MatrixForViewer = TargetMatrix;
 
-                    //For the Bone Lines.
-                    BoneRectangle rectangle = new BoneRectangle
-                    {
-                        LineColor = new Color4(0.1f, 0.10f, 0.10f, 1.0f)
-                    };
-                    rectangle.StartPos = ByteUtilitarian.GetPosition(modelViewer.modelEntry.Bones[ParentIndex].MatrixForViewer);
-                    rectangle.EndPos = ByteUtilitarian.GetPosition(modelViewer.modelEntry.Bones[v].MatrixForViewer);
-                    BoneRectangles.Add(rectangle);
-                    rectangle.Load();
-                }
-                else
-                {
-                    modelViewer.modelEntry.Bones[v].MatrixForViewer = TargetMatrix;
-                }
-                //MatrixForViewer
+            //        //For the Bone Lines.
+            //        BoneRectangle rectangle = new BoneRectangle
+            //        {
+            //            LineColor = new Color4(0.1f, 0.10f, 0.10f, 1.0f)
+            //        };
+            //        rectangle.StartPos = ByteUtilitarian.GetPosition(modelViewer.modelEntry.Bones[ParentIndex].MatrixForViewer);
+            //        rectangle.EndPos = ByteUtilitarian.GetPosition(modelViewer.modelEntry.Bones[v].MatrixForViewer);
+            //        BoneRectangles.Add(rectangle);
+            //        rectangle.Load();
+            //    }
+            //    else
+            //    {
+            //        modelViewer.modelEntry.Bones[v].MatrixForViewer = TargetMatrix;
+            //    }
+            //    //MatrixForViewer
 
-            }
+            //}
 
-            //Bones. Need the view matrix.
-            for (int v = 0; v < Joints.Count; v++)
-            {
-                Matrix4 TKMatrix = ByteUtilitarian.FromSystemNumericsMatrixToOpenTKMatrix(Joints[v].MatrixForViewer);
-                Sphere BoneSphere = new Sphere
-                {
-                    Color = new Color4(0.5f, 0.5f, 0.5f, 1.0f)
-                };
-                BoneSpheres.Add(BoneSphere);
-                Matrices.Add(TKMatrix);
-                BoneSphere.Load();
-            }
+            ////Bones. Need the view matrix.
+            //for (int v = 0; v < Joints.Count; v++)
+            //{
+            //    Matrix4 TKMatrix = ByteUtilitarian.FromSystemNumericsMatrixToOpenTKMatrix(Joints[v].MatrixForViewer);
+            //    Sphere BoneSphere = new Sphere
+            //    {
+            //        Color = new Color4(0.5f, 0.5f, 0.5f, 1.0f)
+            //    };
+            //    BoneSpheres.Add(BoneSphere);
+            //    Matrices.Add(TKMatrix);
+            //    BoneSphere.Load();
+            //}
+
+
 
             PrevFrameTime = DateTime.Now;
 
@@ -203,21 +212,27 @@ namespace ThreeWorkTool.Resources
             {
                 Floor.Render(view, Projection);
             }
-            //
+            
 
             if (ShowJoints)
             {
-                for (int v = 0; v < BoneSpheres.Count; v++)
-                {
-                    BoneSpheres[v].Render(Matrices[v], view, Projection);
 
-                    //
+                foreach(Skeleton skeleton in skeletons)
+                {
+                    skeleton.Render(Cam.Position, view, Projection, skeleton);
                 }
 
-                for (int w = 0; w < BoneRectangles.Count; w++)
-                {
-                    BoneRectangles[w].Render(BoneRectangles[w].StartPos, BoneRectangles[w].EndPos, Cam.Position, view, Projection);
-                }
+                //for (int v = 0; v < BoneSpheres.Count; v++)
+                //{
+                //    BoneSpheres[v].Render(Matrices[v], view, Projection);
+
+                //    //
+                //}
+
+                //for (int w = 0; w < BoneRectangles.Count; w++)
+                //{
+                //    BoneRectangles[w].Render(BoneRectangles[w].StartPos, BoneRectangles[w].EndPos, Cam.Position, view, Projection);
+                //}
             }
             ////Bones. Need the view matrix.
             //for (int v = 0; v < Joints.Count; v++)
