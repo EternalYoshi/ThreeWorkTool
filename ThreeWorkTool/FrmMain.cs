@@ -6885,8 +6885,25 @@ namespace ThreeWorkTool
         //Adds Context Menu Strip for folders.
         public static ContextMenuStrip FolderContextAdder(TreeNode FolderNode, TreeView TreeV)
         {
-
             ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //New
+            var newthinglitem = new ToolStripMenuItem("New");
+            conmenu.Items.Add(newthinglitem);
+
+            //Create New Resource Path List.
+            var mewrplitem = new ToolStripMenuItem("RPL (Resource Path List)", null, MenuNewRPL_Click);
+
+            //Create new GEM file.
+            var mewgemitem = new ToolStripMenuItem("GEM (Game Effect Model)", null, MenuNewGEM_Click);
+
+            //Create new CST file.
+            var mewcstitem = new ToolStripMenuItem("CST (ChainList)", null, MenuNewCST_Click);
+
+            //Adds the ToolStripItems to the topmost ToolStripItem's Dropdown list.
+            newthinglitem.DropDownItems.Add(mewrplitem);
+            newthinglitem.DropDownItems.Add(mewgemitem);
+            newthinglitem.DropDownItems.Add(mewcstitem);
 
             var rnfitem = new ToolStripMenuItem("Rename Folder", null, MenuItemRenameFolder_Click);
             rnfitem.ShortcutKeys = Keys.F2;
@@ -6909,8 +6926,10 @@ namespace ThreeWorkTool
             conmenu.Items.Add(rpallitem);
 
             //Creates New Folder.
-            var nfitem = new ToolStripMenuItem("New Folder", null, NewFolderNode, Keys.Control | Keys.F);
-            conmenu.Items.Add(nfitem);
+            var nfitem = new ToolStripMenuItem("Folder", null, NewFolderNode, Keys.Control | Keys.F);
+            //conmenu.Items.Add(newthinglitem);
+            newthinglitem.DropDownItems.Add(new ToolStripSeparator());
+            newthinglitem.DropDownItems.Add(nfitem);
 
             //Import Into Folder.
             var impitem = new ToolStripMenuItem("Import Into Folder", null, MenuItemImportFileInFolder_Click, Keys.Control | Keys.I);
@@ -20928,6 +20947,225 @@ namespace ThreeWorkTool
             frp.AllFiles = true;
             frp.Mainfrm = frename.Mainfrm;
             frp.ShowItItem();
+
+        }
+
+        //Makes a new Empty ResourcePathList. Code based largely on importing a RPL.
+        private static void MenuNewRPL_Click(Object sender, System.EventArgs e)
+        {
+            ArcEntry Aentry = new ArcEntry();
+            OpenFileDialog IMPDialog = new OpenFileDialog();
+            string ProperPath = "";
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
+
+            string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+            string otherhelper = Path.GetExtension(IMPDialog.FileName);
+
+
+            frename.Mainfrm.TreeSource.BeginUpdate();
+            ArcEntryWrapper NewWrapperRPL = new ArcEntryWrapper();
+            ResourcePathListEntry RlistEntry = new ResourcePathListEntry();
+
+            RlistEntry = ResourcePathListEntry.CreateEmptyRPL(frename.Mainfrm.TreeSource, NewWrapperRPL);
+            NewWrapperRPL.Tag = RlistEntry;
+            NewWrapperRPL.Text = RlistEntry.TrueName;
+            NewWrapperRPL.Name = RlistEntry.TrueName;
+            NewWrapperRPL.FileExt = RlistEntry.FileExt;
+            NewWrapperRPL.entryData = RlistEntry;
+            NewWrapperRPL.entryfile = RlistEntry;
+
+            frename.Mainfrm.IconSetter(NewWrapperRPL, NewWrapperRPL.FileExt);
+
+            NewWrapperRPL.ContextMenuStrip = TXTContextAdder(NewWrapperRPL, frename.Mainfrm.TreeSource);
+
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperRPL);
+
+            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperRPL;
+
+            frename.Mainfrm.OpenFileModified = true;
+            frename.Mainfrm.isFinishRPLRead = false;
+
+            //Reloads the replaced file data in the text box.
+            frename.Mainfrm.txtRPList = ResourcePathListEntry.LoadRPLInTextBox(frename.Mainfrm.txtRPList, RlistEntry);
+            frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+            string typeRPL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+            frename.Mainfrm.TreeSource.EndUpdate();
+
+            TreeNode rootnodeRPL = new TreeNode();
+            TreeNode selectednodeRPL = new TreeNode();
+            selectednodeRPL = frename.Mainfrm.TreeSource.SelectedNode;
+            rootnodeRPL = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+            frename.Mainfrm.TreeSource.SelectedNode = rootnodeRPL;
+
+            int filecountRPL = 0;
+
+            ArcFile rootarcRPL = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+            if (rootarcRPL != null)
+            {
+                filecountRPL = rootarcRPL.FileCount;
+                filecountRPL++;
+                rootarcRPL.FileCount++;
+                rootarcRPL.FileAmount++;
+                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcRPL;
+            }
+
+            //ShownSavePath = "";
+            //ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+            //CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountRPL);
+            frename.Mainfrm.isFinishRPLRead = true;
+
+            frename.Mainfrm.TreeSource.SelectedNode = selectednodeRPL;
+
+
+        }
+
+        //Makes a new Empty gem File. Code based largely on importing a RPL.
+        private static void MenuNewGEM_Click(Object sender, System.EventArgs e)
+        {
+            ArcEntry Aentry = new ArcEntry();
+            OpenFileDialog IMPDialog = new OpenFileDialog();
+            string ProperPath = "";
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
+
+            string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+            string otherhelper = Path.GetExtension(IMPDialog.FileName);
+
+
+            frename.Mainfrm.TreeSource.BeginUpdate();
+            ArcEntryWrapper NewWrapperRPL = new ArcEntryWrapper();
+            GemEntry GEMEntry = new GemEntry();
+
+            GEMEntry = GemEntry.CreateEmptyGEM(frename.Mainfrm.TreeSource, NewWrapperRPL);
+            NewWrapperRPL.Tag = GEMEntry;
+            NewWrapperRPL.Text = GEMEntry.TrueName;
+            NewWrapperRPL.Name = GEMEntry.TrueName;
+            NewWrapperRPL.FileExt = GEMEntry.FileExt;
+            NewWrapperRPL.entryData = GEMEntry;
+            NewWrapperRPL.entryfile = GEMEntry;
+
+            frename.Mainfrm.IconSetter(NewWrapperRPL, NewWrapperRPL.FileExt);
+
+            NewWrapperRPL.ContextMenuStrip = TXTContextAdder(NewWrapperRPL, frename.Mainfrm.TreeSource);
+
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperRPL);
+
+            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperRPL;
+
+            frename.Mainfrm.OpenFileModified = true;
+            frename.Mainfrm.isFinishRPLRead = false;
+
+            //Reloads the replaced file data in the text box.
+            frename.Mainfrm.txtRPList = GemEntry.LoadGEMInTextBox(frename.Mainfrm.txtRPList, GEMEntry);
+            frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+            string typeRPL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+            frename.Mainfrm.TreeSource.EndUpdate();
+
+            TreeNode rootnodeRPL = new TreeNode();
+            TreeNode selectednodeRPL = new TreeNode();
+            selectednodeRPL = frename.Mainfrm.TreeSource.SelectedNode;
+            rootnodeRPL = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+            frename.Mainfrm.TreeSource.SelectedNode = rootnodeRPL;
+
+            int filecountRPL = 0;
+
+            ArcFile rootarcRPL = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+            if (rootarcRPL != null)
+            {
+                filecountRPL = rootarcRPL.FileCount;
+                filecountRPL++;
+                rootarcRPL.FileCount++;
+                rootarcRPL.FileAmount++;
+                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcRPL;
+            }
+
+            //ShownSavePath = "";
+            //ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+            //CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountRPL);
+            frename.Mainfrm.isFinishRPLRead = true;
+
+            frename.Mainfrm.TreeSource.SelectedNode = selectednodeRPL;
+
+
+        }
+
+        //Makes a new Empty ChainList. Code based largely on importing a RPL.
+        private static void MenuNewCST_Click(Object sender, System.EventArgs e)
+        {
+            ArcEntry Aentry = new ArcEntry();
+            OpenFileDialog IMPDialog = new OpenFileDialog();
+            string ProperPath = "";
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            Aentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcEntry;
+
+            string helper = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+            string otherhelper = Path.GetExtension(IMPDialog.FileName);
+
+
+            frename.Mainfrm.TreeSource.BeginUpdate();
+            ArcEntryWrapper NewWrapperRPL = new ArcEntryWrapper();
+            ChainListEntry CSTEntry = new ChainListEntry();
+
+            CSTEntry = ChainListEntry.CreateEmptyCST(frename.Mainfrm.TreeSource, NewWrapperRPL);
+            NewWrapperRPL.Tag = CSTEntry;
+            NewWrapperRPL.Text = CSTEntry.TrueName;
+            NewWrapperRPL.Name = CSTEntry.TrueName;
+            NewWrapperRPL.FileExt = CSTEntry.FileExt;
+            NewWrapperRPL.entryData = CSTEntry;
+            NewWrapperRPL.entryfile = CSTEntry;
+
+            frename.Mainfrm.IconSetter(NewWrapperRPL, NewWrapperRPL.FileExt);
+
+            NewWrapperRPL.ContextMenuStrip = TXTContextAdder(NewWrapperRPL, frename.Mainfrm.TreeSource);
+
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperRPL);
+
+            frename.Mainfrm.TreeSource.SelectedNode = NewWrapperRPL;
+
+            frename.Mainfrm.OpenFileModified = true;
+            frename.Mainfrm.isFinishRPLRead = false;
+
+            //Reloads the replaced file data in the text box.
+            frename.Mainfrm.txtRPList = ChainListEntry.LoadCSTInTextBox(frename.Mainfrm.txtRPList, CSTEntry);
+            frename.Mainfrm.RPLBackup = frename.Mainfrm.txtRPList.Text;
+
+            string typeRPL = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+            frename.Mainfrm.TreeSource.EndUpdate();
+
+            TreeNode rootnodeRPL = new TreeNode();
+            TreeNode selectednodeRPL = new TreeNode();
+            selectednodeRPL = frename.Mainfrm.TreeSource.SelectedNode;
+            rootnodeRPL = frename.Mainfrm.FindRootNode(frename.Mainfrm.TreeSource.SelectedNode);
+            frename.Mainfrm.TreeSource.SelectedNode = rootnodeRPL;
+
+            int filecountRPL = 0;
+
+            ArcFile rootarcRPL = frename.Mainfrm.TreeSource.SelectedNode.Tag as ArcFile;
+            if (rootarcRPL != null)
+            {
+                filecountRPL = rootarcRPL.FileCount;
+                filecountRPL++;
+                rootarcRPL.FileCount++;
+                rootarcRPL.FileAmount++;
+                frename.Mainfrm.TreeSource.SelectedNode.Tag = rootarcRPL;
+            }
+
+            //ShownSavePath = "";
+            //ShownSavePath = CFGHandler.SpoilerTagName(IMPDialog.FileName);
+            //CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, filecountRPL);
+            frename.Mainfrm.isFinishRPLRead = true;
+
+            frename.Mainfrm.TreeSource.SelectedNode = selectednodeRPL;
+
 
         }
 

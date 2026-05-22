@@ -683,5 +683,75 @@ namespace ThreeWorkTool.Resources.Wrappers
             return node.entryfile as ResourcePathListEntry;
         }
 
+        public static ResourcePathListEntry CreateEmptyRPL(TreeView tree, ArcEntryWrapper node)
+        {
+
+            ResourcePathListEntry rpathentry = new ResourcePathListEntry();
+
+            tree.BeginUpdate();
+
+            //Empty RPL File bytes.
+            rpathentry.UncompressedData = new byte[]
+                                         { 0x4C, 0x52, 0x50, 0x00, 0x00, 0x01, 0xFE, 0xFF, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+            rpathentry.CompressedData = Zlibber.Compressor(rpathentry.UncompressedData);
+            rpathentry.TextBackup = new List<string>();
+
+            rpathentry.DSize = rpathentry.UncompressedData.Length;
+            rpathentry.CSize = rpathentry.CompressedData.Length;
+
+            rpathentry.TrueName = "NewRPL";
+            rpathentry._FileName = rpathentry.TrueName;
+            rpathentry.FileExt = ".lrp";
+            rpathentry._FileType = rpathentry.FileExt;
+            rpathentry._EntryTotal = 0;
+            rpathentry._FileLength = rpathentry.UncompressedData.Length;
+            rpathentry.EntryCount = 0;
+            rpathentry.EntryList = new List<PathEntries>();
+
+            //Gets the path of the selected node to inject here.
+            string nodepath = tree.SelectedNode.FullPath;
+            nodepath = nodepath.Substring(nodepath.IndexOf("\\") + 1);
+
+            //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
+            try
+            {
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                using (var sr2 = new StreamReader(ProperPath))
+                {
+                    while (!sr2.EndOfStream)
+                    {
+                        var keyword = Console.ReadLine() ?? rpathentry.FileExt;
+                        var line = sr2.ReadLine();
+                        if (String.IsNullOrEmpty(line)) continue;
+                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        {
+                            rpathentry.TypeHash = line;
+                            rpathentry.TypeHash = rpathentry.TypeHash.Split(' ')[0];
+
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                {
+                    sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
+                }
+                Process.GetCurrentProcess().Kill();
+            }
+
+            tree.EndUpdate();
+            return rpathentry;
+        }
+
     }
 }

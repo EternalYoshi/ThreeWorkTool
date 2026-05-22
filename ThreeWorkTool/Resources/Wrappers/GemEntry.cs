@@ -13,6 +13,7 @@ using System.Text;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources.Utility;
 using ThreeWorkTool.Resources.Archives;
+using System.Diagnostics;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -292,6 +293,83 @@ namespace ThreeWorkTool.Resources.Wrappers
 
         }
 
+        public static GemEntry CreateEmptyGEM(TreeView tree, ArcEntryWrapper node)
+        {
+
+            GemEntry gemmentry = new GemEntry();
+
+            tree.BeginUpdate();
+
+            //Empty RPL File bytes.
+            gemmentry.UncompressedData = new byte[]
+                                         { 0x47, 0x45, 0x4D, 0x00, 0x01, 0x01, 0xFE, 0xFF, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+            gemmentry.CompressedData = Zlibber.Compressor(gemmentry.UncompressedData);
+            gemmentry.TextBackup = new List<string>();
+
+            gemmentry.DSize = gemmentry.UncompressedData.Length;
+            gemmentry.CSize = gemmentry.CompressedData.Length;
+
+            gemmentry.TrueName = "NewGEM";
+            gemmentry.FileExt = ".gem";
+            gemmentry._FileLength = gemmentry.UncompressedData.Length;
+            gemmentry.EntryCountA = 0;
+            gemmentry.EntryCountB = 0;
+            gemmentry.EntryCountTotal = 0;
+            gemmentry.EntryList = new List<GEMEntries>();
+
+            //Gets the path of the selected node to inject here.
+            string nodepath = tree.SelectedNode.FullPath;
+            nodepath = nodepath.Substring(nodepath.IndexOf("\\") + 1);
+
+            //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
+            try
+            {
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                using (var sr2 = new StreamReader(ProperPath))
+                {
+                    while (!sr2.EndOfStream)
+                    {
+                        var keyword = Console.ReadLine() ?? gemmentry.FileExt;
+                        var line = sr2.ReadLine();
+                        if (String.IsNullOrEmpty(line)) continue;
+                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        {
+                            gemmentry.TypeHash = line;
+                            gemmentry.TypeHash = gemmentry.TypeHash.Split(' ')[0];
+
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                {
+                    sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
+                }
+                Process.GetCurrentProcess().Kill();
+            }
+
+            tree.EndUpdate();
+            return gemmentry;
+        }
 
 
         #region Gem Properties

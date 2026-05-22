@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -766,6 +767,80 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             return clstentry;
         }
+
+        public static ChainListEntry CreateEmptyCST(TreeView tree, ArcEntryWrapper node)
+        {
+
+            ChainListEntry cstentry = new ChainListEntry();
+
+            tree.BeginUpdate();
+
+            //Empty RPL File bytes.
+            cstentry.UncompressedData = new byte[]
+                                         { 0x43, 0x53, 0x54, 0x00, 0x00, 0x01, 0xFE, 0xFF, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           0x00, 0x00, 0x00, 0x00 };
+
+            cstentry.CompressedData = Zlibber.Compressor(cstentry.UncompressedData);
+            cstentry.TextBackup = new List<string>();
+
+            cstentry.DSize = cstentry.UncompressedData.Length;
+            cstentry.CSize = cstentry.CompressedData.Length;
+
+            cstentry.TrueName = "NewCST";
+            cstentry._FileName = cstentry.TrueName;
+            cstentry.FileExt = ".cst";
+            cstentry.Unknown04 = -130816;
+            cstentry.TotalEntrySize = 0;
+            cstentry.CCLEntryCount = 0;
+            cstentry.CHNEntryCount = 0;
+            cstentry.ChainEntries = new List<CHNEntry>();
+            cstentry.ChainCollEntries = new List<CCLEntry>();
+
+            //Gets the path of the selected node to inject here.
+            string nodepath = tree.SelectedNode.FullPath;
+            nodepath = nodepath.Substring(nodepath.IndexOf("\\") + 1);
+
+            //Looks through the archive_filetypes.cfg file to find the typehash associated with the extension.
+            try
+            {
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "archive_filetypes.cfg";
+                using (var sr2 = new StreamReader(ProperPath))
+                {
+                    while (!sr2.EndOfStream)
+                    {
+                        var keyword = Console.ReadLine() ?? cstentry.FileExt;
+                        var line = sr2.ReadLine();
+                        if (String.IsNullOrEmpty(line)) continue;
+                        if (line.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        {
+                            cstentry.TypeHash = line;
+                            cstentry.TypeHash = cstentry.TypeHash.Split(' ')[0];
+
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("Cannot find archive_filetypes.cfg so I cannot continue parsing this file.\n Find archive_filetypes.cfg and then restart this program.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string ProperPath = "";
+                ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                {
+                    sw.WriteLine("Cannot find archive_filetypes.cfg so I cannot continue parsing the file.");
+                }
+                Process.GetCurrentProcess().Kill();
+            }
+
+            tree.EndUpdate();
+            return cstentry;
+        }
+
+
 
         #region CST Properties
         private string _FileName;
