@@ -285,7 +285,7 @@ namespace ThreeWorkTool
                     string ProperPath = "";
                     ProperPath = Globals.ToolPath + "Log.txt";
                     ShownSavePath = "";
-                    if(frename.Mainfrm.FilePath == null)
+                    if (frename.Mainfrm.FilePath == null)
                     {
                         frename.Mainfrm.FilePath = SFDialog.FileName;
                     }
@@ -1529,9 +1529,9 @@ namespace ThreeWorkTool
                                                 Array.Clear(writenamedata, 0, writenamedata.Length);
 
                                                 //Checks if a filepath is too long.
-                                                if(namebuffer.Length > 64)
+                                                if (namebuffer.Length > 64)
                                                 {
-                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!","Save Failed!");
+                                                    MessageBox.Show("The save failed because the file path:\n" + exportname + "\n exceeds the length allocated for filenames in an arc!", "Save Failed!");
                                                     bwr.Close();
                                                     TreeSource.EndUpdate();
                                                     return;
@@ -1875,7 +1875,7 @@ namespace ThreeWorkTool
                                                 shtenty = treno.Tag as ShotEntry;
 
                                                 //Gotta Update The StageObjLayout File First.
-                                                shtenty = ShotEntry.SaveShotEntry(shtenty, treno); 
+                                                shtenty = ShotEntry.SaveShotEntry(shtenty, treno);
 
                                                 exportname = "";
 
@@ -6950,6 +6950,10 @@ namespace ThreeWorkTool
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
+
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
             conmenu.Items.Add(exportitem);
@@ -6994,6 +6998,10 @@ namespace ThreeWorkTool
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
             conmenu.Items.Add("Preview/Edit", null, MenuMSDEdit_Click);
+
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
 
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
@@ -7056,6 +7064,12 @@ namespace ThreeWorkTool
             conmenu.Items.Add(exallkeyitem);
             //ExportAllKeyfraames
 
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
+
             //Replace.
             var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
             conmenu.Items.Add(replitem);
@@ -7101,6 +7115,10 @@ namespace ThreeWorkTool
 
             conmenu.Items.Add(new ToolStripSeparator());
 
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
+
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
             conmenu.Items.Add(exportitem);
@@ -7144,6 +7162,10 @@ namespace ThreeWorkTool
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
+
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
             conmenu.Items.Add(exportitem);
@@ -7184,6 +7206,10 @@ namespace ThreeWorkTool
         public static ContextMenuStrip SLOContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
 
             //Add Entry
             var addgroupnodeitem = new ToolStripMenuItem("Add SLO Group Node", null, AddSLONode_Click, Keys.Control | Keys.N | Keys.Shift);
@@ -7235,6 +7261,10 @@ namespace ThreeWorkTool
             conmenu.Items.Add(reptxtitem);
 
             conmenu.Items.Add(new ToolStripSeparator());
+
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
 
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
@@ -7301,6 +7331,10 @@ namespace ThreeWorkTool
 
             conmenu.Items.Add(new ToolStripSeparator());
 
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
+
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
             conmenu.Items.Add(exportitem);
@@ -7341,6 +7375,10 @@ namespace ThreeWorkTool
         public static ContextMenuStrip ModelFileContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
 
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
@@ -7403,6 +7441,10 @@ namespace ThreeWorkTool
 
             conmenu.Items.Add(new ToolStripSeparator());
 
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
+
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
             conmenu.Items.Add(exportitem);
@@ -7434,6 +7476,10 @@ namespace ThreeWorkTool
         public static ContextMenuStrip EFLContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
 
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
@@ -7474,6 +7520,10 @@ namespace ThreeWorkTool
         public static ContextMenuStrip MiscNodeContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
 
             //Export.
             var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
@@ -14495,6 +14545,69 @@ namespace ThreeWorkTool
 
         }
 
+        private static void MenuItemCopyFile(Object sender, System.EventArgs e)
+        {
+
+            ArcEntry Aentry = new ArcEntry();
+            OpenFileDialog RPDialog = new OpenFileDialog();
+
+            ArcEntryWrapper OriginalWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+            ArcEntryWrapper ClonedWrapper = (ArcEntryWrapper)OriginalWrapper.Clone();
+            //TreeNode Node = frename.Mainfrm.TreeSource.SelectedNode;
+            //ArcEntryWrapper CloneWrapper = new ArcEntryWrapper();
+            //TreeNode CloneNode = (TreeNode)Node.Clone();
+
+            if (ClonedWrapper != null)
+            {
+                //Gotta Update the names.
+                ClonedWrapper.Name = ClonedWrapper.Name + "_COPY";
+                ClonedWrapper.Text = ClonedWrapper.Text + "_COPY";
+
+                DefaultWrapper tag = ClonedWrapper.Tag as DefaultWrapper;
+                if (tag != null)
+                {
+                    tag.BaseEntryName = tag.BaseEntryName + "_COPY";
+
+                    //Gotta update the names in the DefaultWrapper.
+                    string TempString = Path.GetDirectoryName(tag.EntryName);
+                    string TempStringTwo = Path.GetFileNameWithoutExtension(tag.EntryName);
+                    string TempStringThree = Path.GetExtension(tag.EntryName);
+
+                    tag.EntryName = Path.Combine
+                        (
+                            TempString, TempStringTwo + "_COPY" + TempStringThree
+                        );
+
+                    tag.TrueName = tag.TrueName + "_COPY";
+
+                    //Gotta do this last part...
+
+
+                }
+                ClonedWrapper.Tag = tag;
+
+                //Now we add the node to the TreeView.
+                TreeNodeCollection TNcollection;
+
+                //This is to account for Root Level Nodes.
+                if (frename.Mainfrm.TreeSource.SelectedNode.Parent == null)
+                {
+                    TNcollection = frename.Mainfrm.TreeSource.Nodes;
+                }
+                else
+                {
+                    TNcollection = frename.Mainfrm.TreeSource.SelectedNode.Parent.Nodes;
+                }
+
+                //inserts the duplicate right after the original.
+                int TNIndex = frename.Mainfrm.TreeSource.SelectedNode.Index + 1;
+                TNcollection.Insert(TNIndex,ClonedWrapper);
+                frename.Mainfrm.OpenFileModified = true;
+
+            }
+
+        }
+
         private static void ExportAllFolder(Object sender, System.EventArgs e)
         {
             //Uses the Save File Dialog for the Export All Folder command since it's less ugly and remembers where your previous directory is.
@@ -19255,7 +19368,7 @@ namespace ThreeWorkTool
                                 int SlashIndex = (FilePath.LastIndexOf("\\") + 1);
                                 string TFilename = FilePath.Substring(SlashIndex, (FilePath.Length - (SlashIndex)));
 
-                                if(CFGHandler.CheckIfExtExistsInCFG(TFilename, otherhelper))
+                                if (CFGHandler.CheckIfExtExistsInCFG(TFilename, otherhelper))
                                 {
                                     ArcEntryWrapper NewWrapper = new ArcEntryWrapper();
                                     ArcEntry NEntry = new ArcEntry();
