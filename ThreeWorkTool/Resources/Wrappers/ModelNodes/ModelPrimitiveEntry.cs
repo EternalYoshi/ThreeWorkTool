@@ -10,6 +10,7 @@ using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Wrappers;
 using ThreeWorkTool.Resources.Utility;
 using System.Windows;
+using static ThreeWorkTool.Resources.Utility.Mvc3ShaderDatabase;
 
 namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
 {
@@ -59,8 +60,11 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
         {
             public int Index;
             public string ShaderObjectHash;
+            public uint ShaderObjectHashValue;
         }
         public MTShader Shaders;
+
+        public ShaderObjectInfo Shader { get; set; }
 
         public List<short> IndexBuffer { get; set; }
 

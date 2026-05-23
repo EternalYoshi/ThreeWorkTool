@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
 using ThreeWorkTool.Resources.Wrappers.ModelNodes;
+using static ThreeWorkTool.Resources.Utility.Mvc3ShaderDatabase;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -58,6 +59,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public byte[] VertexBuffer;
         public byte[] IndexBuffer;
         public byte[] ExtraDataBuffer;
+        public int PositionForUVs = 0;
 
         public static ModelEntry FillModelEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {
@@ -263,7 +265,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                 modentry.Bones[u].InvBindMatrix.M44 = bnr.ReadSingle();
 
             }
-            
+
             //Material Names.
             bnr.BaseStream.Position = modentry.MaterialsOffset;
             modentry.MaterialNames = new List<string>();
@@ -289,6 +291,13 @@ namespace ThreeWorkTool.Resources.Wrappers
                 PrevOffset = PrevOffset + 32;
             }
 
+            //Going to get the Vertex & Indice buffers ahead of time.
+            bnr.BaseStream.Position = modentry.VertexBufferOffset;
+            modentry.VertexBuffer = bnr.ReadBytes(modentry.VertexBufferSize);
+
+            bnr.BaseStream.Position = modentry.IndexBufferOffset;
+            modentry.IndexBuffer = bnr.ReadBytes(modentry.IndexCount);
+
             //Primitives. Still Under Construction.
             uint PrimIndTemp, ShaderTemp;
             int PrevAddr, IndexBufferByteCount, IndexBufferOffset, VertBufferOffset, CurrentIndexBufferPosition;
@@ -299,7 +308,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             modentry.Primitives = new List<ModelPrimitiveEntry>();
             for (int v = 0; v < modentry.PrimitiveCount; v++)
             {
-                ModelPrimitiveEntry Prim = new ModelPrimitiveEntry();                
+                ModelPrimitiveEntry Prim = new ModelPrimitiveEntry();
                 Prim.PrimOffset = Convert.ToInt32(bnr.BaseStream.Position);
                 Prim.Flags = bnr.ReadInt16();
                 Prim.VerticeCount = bnr.ReadInt16();
@@ -321,7 +330,8 @@ namespace ThreeWorkTool.Resources.Wrappers
                 ModelPrimitiveEntry.MTShader shader = new ModelPrimitiveEntry.MTShader();
                 shader.Index = Convert.ToInt32(ShaderTemp & 0x00000FFF);
                 shader.ShaderObjectHash = CFGHandler.ShaderHashToName(shader.ShaderObjectHash, Convert.ToInt32(shader.Index));
-                Prim.Shaders = shader;
+                shader.ShaderObjectHashValue = ShaderTemp >> 12;
+                Prim.Shader = ShaderDatabase.ByName[shader.ShaderObjectHash];
 
                 Prim.IndexBufferOffset = bnr.ReadInt32();
                 Prim.IndexCount = bnr.ReadInt32();
@@ -356,10 +366,39 @@ namespace ThreeWorkTool.Resources.Wrappers
                 Prim.UVSecondary = new List<Vector3>();
                 Prim.UVExtend = new List<Vector3>();
                 Prim.UVUnique = new List<Vector3>();
+                //ShaderObjectInfo shaderInfo;
 
+                //Setup the Vertex Buffer for reading.
+                using (MemoryStream BufferReader = new MemoryStream(modentry.VertexBuffer))
+                {
+                    using (BinaryReader BinBufReader = new BinaryReader(BufferReader))
+                    {
+                        int StartOfVertices = Prim.VertexBufferOffset + (Prim.VertexStartIndex * Prim.VertexStride);
+                        BinBufReader.BaseStream.Position = StartOfVertices;
+
+                        for(int j = 0; j < Prim.VerticeCount; j++)
+                        {
+                            BinBufReader.BaseStream.Position = StartOfVertices + (j * Prim.VertexStride);
+
+                            //Going to try and replicate the model importer plugin & decoding each vertex input.
+                            List<int> VertJointArray = new List<int>();
+                            List<float> VertWeightArray = new List<float>();
+
+                            //foreach (var (key, inputs) in shaderInfo.InputsByName)
+                            //{
+
+                            //}
+
+
+
+                        }
+
+
+                    }
+                }
 
                 modentry.Primitives.Add(Prim);
-
+                //PositionForUVs = bnr.BaseStream.Position;
 
             }
 
@@ -442,14 +481,6 @@ namespace ThreeWorkTool.Resources.Wrappers
 
 
             }
-
-            //Now for the Vertex Buffer.
-            bnr.BaseStream.Position = modentry.VertexBufferOffset;
-            modentry.VertexBuffer = bnr.ReadBytes(modentry.VertexBufferSize);
-
-            //And The Indice Buffer.
-            bnr.BaseStream.Position = modentry.IndexBufferOffset;
-            modentry.IndexBuffer = bnr.ReadBytes(modentry.IndexCount);
 
 
 

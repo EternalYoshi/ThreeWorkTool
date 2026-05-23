@@ -27,11 +27,11 @@ namespace ThreeWorkTool.Resources.Utility
             xpto = 5
         };
 
-        public enum ShaderObjectInfo
-        {
+        //public enum ShaderObjectInfo
+        //{
 
 
-        };
+        //};
 
         public enum KnownExtensions
         {

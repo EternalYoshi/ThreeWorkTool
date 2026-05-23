@@ -321,6 +321,7 @@
     </Compile>
     <Compile Include="Resources\Utility\ByteUtilitarian.cs" />
     <Compile Include="Resources\Utility\CFGHandler.cs" />
+    <Compile Include="Resources\Utility\Mvc3ShaderDatabase.cs" />
     <Compile Include="Resources\Utility\TypeConverter.cs" />
     <Compile Include="Resources\Utility\ENumerators.cs" />
     <Compile Include="Resources\Utility\QToEuler.cs" />
