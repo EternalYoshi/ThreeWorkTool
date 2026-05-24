@@ -40,6 +40,7 @@
             this.ChkRPL = new System.Windows.Forms.CheckBox();
             this.ChkEFLs = new System.Windows.Forms.CheckBox();
             this.ChkGEMs = new System.Windows.Forms.CheckBox();
+            this.ChkSht = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // txtReplaceFind
@@ -173,6 +174,18 @@
             this.ChkGEMs.UseVisualStyleBackColor = true;
             this.ChkGEMs.CheckedChanged += new System.EventHandler(this.ChkGEMs_CheckedChanged);
             // 
+            // ChkSht
+            // 
+            this.ChkSht.AutoSize = true;
+            this.ChkSht.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.ChkSht.Location = new System.Drawing.Point(408, 95);
+            this.ChkSht.Name = "ChkSht";
+            this.ChkSht.Size = new System.Drawing.Size(53, 17);
+            this.ChkSht.TabIndex = 13;
+            this.ChkSht.Text = "SHTs";
+            this.ChkSht.UseVisualStyleBackColor = true;
+            this.ChkSht.CheckedChanged += new System.EventHandler(this.ChkSht_CheckedChanged);
+            // 
             // FrmReplaceDeluxe
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -180,6 +193,7 @@
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.CancelButton = this.btnReplaceExit;
             this.ClientSize = new System.Drawing.Size(494, 125);
+            this.Controls.Add(this.ChkSht);
             this.Controls.Add(this.ChkGEMs);
             this.Controls.Add(this.ChkEFLs);
             this.Controls.Add(this.ChkRPL);
@@ -218,5 +232,6 @@
         private System.Windows.Forms.CheckBox ChkRPL;
         private System.Windows.Forms.CheckBox ChkEFLs;
         private System.Windows.Forms.CheckBox ChkGEMs;
+        private System.Windows.Forms.CheckBox ChkSht;
     }
 }

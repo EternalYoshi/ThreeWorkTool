@@ -30,6 +30,7 @@ namespace ThreeWorkTool
         public bool AllRPLists = false;
         public bool AllEFLs = false;
         public bool AllGEMs = false;
+        public bool AllSHTs = false;
 
         public FrmReplaceDeluxe()
         {
@@ -517,7 +518,53 @@ namespace ThreeWorkTool
 
                                         }
                                     }
+                                    else if (AllSHTs && tno.Tag as ShotEntry != null)
+                                    {
+                                        ShotEntry shtentry = new ShotEntry();
+                                        shtentry = tno.Tag as ShotEntry;
+                                        if (shtentry != null)
+                                        {
 
+                                            //Gets the text, then replaces every instance of the search term with the new term.
+                                            string text = shtentry.InternalShotName;
+                                            text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                            shtentry.InternalShotName = text;
+
+                                            text = shtentry.InternalShotPath;
+                                            text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                            shtentry.InternalShotPath = text;
+
+                                            //Skips if blank or empty.
+                                            if (shtentry.InternalAnmPath != "" || shtentry.InternalAnmPath != " ")
+                                            {
+                                                text = shtentry.InternalAnmPath;
+                                                text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                                shtentry.InternalAnmPath = text;
+                                            }
+
+                                            if (shtentry.Internal2ndShotPath != "" || shtentry.Internal2ndShotPath != " ")
+                                            {
+                                                text = shtentry.Internal2ndShotPath;
+                                                text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                                shtentry.Internal2ndShotPath = text;
+                                            }
+
+                                            if (shtentry.Internal3rdShotPath != "" || shtentry.Internal3rdShotPath != " ")
+                                            {
+                                                text = shtentry.Internal3rdShotPath;
+                                                text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                                shtentry.Internal3rdShotPath = text;
+                                            }
+
+                                            if (shtentry.Internal4thShotPath != "" || shtentry.Internal4thShotPath != " ")
+                                            {
+                                                text = shtentry.Internal4thShotPath;
+                                                text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                                                shtentry.Internal4thShotPath = text;
+                                            }
+                                            Mainfrm.OpenFileModified = true;
+                                        }
+                                    }
 
                                     RenameCount++;
                                 }
@@ -688,7 +735,54 @@ namespace ThreeWorkTool
                     Mainfrm.TreeSource.EndUpdate();
                     Mainfrm.TreeSource.Show();
                 }
+                else if (Mainfrm.TreeSource.SelectedNode.Tag is ShotEntry)
+                {
 
+                    ShotEntry shtentry = new ShotEntry();
+                    shtentry = Mainfrm.TreeSource.SelectedNode.Tag as ShotEntry;
+                    if (shtentry != null)
+                    {
+
+                        //Gets the text, then replaces every instance of the search term with the new term.
+                        string text = shtentry.InternalShotName;
+                        text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                        shtentry.InternalShotName = text;
+
+                        text = shtentry.InternalShotPath;
+                        text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                        shtentry.InternalShotPath = text;
+
+                        //Skips if blank or empty.
+                        if (shtentry.InternalAnmPath != "" || shtentry.InternalAnmPath != " ")
+                        {
+                            text = shtentry.InternalAnmPath;
+                            text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                            shtentry.InternalAnmPath = text;
+                        }
+
+                        if (shtentry.Internal2ndShotPath != "" || shtentry.Internal2ndShotPath != " ")
+                        {
+                            text = shtentry.Internal2ndShotPath;
+                            text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                            shtentry.Internal2ndShotPath = text;
+                        }
+
+                        if (shtentry.Internal3rdShotPath != "" || shtentry.Internal3rdShotPath != " ")
+                        {
+                            text = shtentry.Internal3rdShotPath;
+                            text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                            shtentry.Internal3rdShotPath = text;
+                        }
+
+                        if (shtentry.Internal4thShotPath != "" || shtentry.Internal4thShotPath != " ")
+                        {
+                            text = shtentry.Internal4thShotPath;
+                            text = text.Replace(txtReplaceFind.Text, txtReplaceReplace.Text);
+                            shtentry.Internal4thShotPath = text;
+                        }
+                    }
+
+                }
 
 
             }
@@ -718,6 +812,11 @@ namespace ThreeWorkTool
         private void ChkGEMs_CheckedChanged(object sender, EventArgs e)
         {
             AllGEMs = ChkGEMs.Checked;
+        }
+
+        private void ChkSht_CheckedChanged(object sender, EventArgs e)
+        {
+            AllSHTs = ChkSht.Checked;
         }
     }
 }
