@@ -384,10 +384,25 @@ namespace ThreeWorkTool.Resources.Wrappers
                             List<int> VertJointArray = new List<int>();
                             List<float> VertWeightArray = new List<float>();
 
-                            //foreach (var (key, inputs) in shaderInfo.InputsByName)
-                            //{
+                            //Prim.Shader
 
-                            //}
+                            foreach (var thing in Prim.Shader.InputsByName)
+                            {
+                                string Key = thing.Key;
+                                var Inputs = thing.Value;
+
+                                foreach (var inputInfo in Inputs)
+                                {
+                                    switch (Key)
+                                    {
+
+
+
+
+
+                                    }
+                                }
+                            }
 
 
 

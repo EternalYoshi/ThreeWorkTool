@@ -16,6 +16,7 @@ using System.Security.Cryptography;
 using System.Buffers.Binary;
 using Force.Crc32;
 using OpenTK;
+using static ThreeWorkTool.Resources.Utility.Mvc3ShaderDatabase;
 
 namespace ThreeWorkTool.Resources.Utility
 {
@@ -775,6 +776,87 @@ namespace ThreeWorkTool.Resources.Utility
             uint crc = Crc32Algorithm.Compute(bytes);  // Matches zlib.crc32
             return ~crc;
         }
+
+        //Based on functions from the model importer plugin by TGE.
+        public static object DecodeVertexComponent(int compType, BinaryReader reader)
+        {
+            switch (compType)
+            {
+                case 1:
+                    return Convert.ToSingle(reader.ReadSingle());
+                case 2:
+                    //This is allegedly manual half-float conversion...
+                    ushort bits = reader.ReadUInt16();
+                    int sign = (bits >> 15) & 0x1;
+                    int exponent = (bits >> 10) & 0x1F;
+                    int mantissa = bits & 0x3FF;
+
+                    float value;
+                    if (exponent == 0)
+                        value = (float)(Math.Pow(2, -14) * (mantissa / 1024.0));  // subnormal
+                    else if (exponent == 0x1F)
+                        value = mantissa != 0 ? float.NaN : float.PositiveInfinity; // NaN / Inf
+                    else
+                        value = (float)(Math.Pow(2, exponent - 15) * (1 + mantissa / 1024.0));
+
+                    return  sign == 1 ? -value : value;
+                case 3:
+                    return Convert.ToSingle(reader.ReadUInt16());
+                case 4:
+                    return Convert.ToSingle(reader.ReadInt16());
+                case 5:
+                    return Convert.ToSingle((reader.ReadUInt16()) / 32767.0f);
+                case 6:
+                    return Convert.ToSingle((reader.ReadUInt16()) / 65535.0f);
+                case 7:
+                    return Convert.ToSingle(reader.ReadByte());
+                case 8:
+                    return Convert.ToSingle((reader.ReadByte()));
+                case 9:
+                    return Convert.ToSingle(((reader.ReadByte()) - 127.0f) / 127.0f);
+                case 10:
+                    return Convert.ToSingle((reader.ReadByte()) / 255.0f);
+                case 11:
+                    uint val = reader.ReadUInt32();
+                    return new[]
+                    {
+                        ((byte)((val & 0x000000FFu) >>  0) - 127.0f) / 127.0f,
+                        ((byte)((val & 0x0000FF00u) >>  8) - 127.0f) / 127.0f,
+                        ((byte)((val & 0x00FF0000u) >> 16) - 127.0f) / 127.0f,
+                        ((byte)((val & 0xFF000000u) >> 24) - 127.0f) / 127.0f,
+                    };
+                case 13:
+                    return Convert.ToSingle(reader.ReadByte());
+                case 14:
+                    uint valtwo = reader.ReadUInt32();
+                    return new[]
+                    {
+                        (float)((valtwo & 0x000000FFu) >>  0),
+                        (float)((valtwo & 0x0000FF00u) >>  8),
+                        (float)((valtwo & 0x00FF0000u) >> 16),
+                        (float)((valtwo & 0xFF000000u) >> 24),
+                    };
+                default:
+                    return -1;
+            }
+        }
+
+        //public static System.Numerics.Vector3 FromBytesToVector3(ShaderInputInfo Shaderin, BinaryReader vertexStream)
+        //{
+        //    if (Shaderin.Type == 11)
+        //    {
+        //        var components = DecodeVertexComponent(Shaderin.Type, vertexStream);
+        //        return new System.Numerics.Vector3(components[0], components[1], components[2]);
+        //    }
+        //    else
+        //    {
+        //        //Debug.Assert(Shaderin.Count >= 3);
+        //        float x = DecodeVertexComponent(Shaderin.Type, vertexStream)[0];
+        //        float y = DecodeVertexComponent(Shaderin.Type, vertexStream)[0];
+        //        float z = DecodeVertexComponent(Shaderin.Type, vertexStream)[0];
+        //        return new System.Numerics.Vector3(x, y, z);
+        //    }
+        //}
 
     }
 

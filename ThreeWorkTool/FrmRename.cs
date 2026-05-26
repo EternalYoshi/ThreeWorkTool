@@ -225,6 +225,39 @@ namespace ThreeWorkTool
 
 
             }
+            else if (treeview.SelectedNode.Tag != null && treeview.SelectedNode.Tag is SoundBankEntryPath)
+            {
+                //Goes about accessing and updating the data inside the SoundBankEntry in a roundabout way.
+                SoundBankEntryPath sbkref = treeview.SelectedNode.Tag as SoundBankEntryPath;
+                SoundBankEntry sentry = new SoundBankEntry();
+                TreeNode parent = treeview.SelectedNode.Parent;
+                TreeNode child = treeview.SelectedNode;
+                treeview.SelectedNode = parent;
+                sentry = parent.Tag as SoundBankEntry;
+                if(sentry != null)
+                {
+                    //Now for the actual file update.                    
+                    List<byte> NameToInject = new List<byte>();
+                    NameToInject.AddRange(Encoding.ASCII.GetBytes(txtRename.Text));
+                    long OffsetToUse;
+                    OffsetToUse = sentry.Offsets[sbkref.index];
+
+                    //Gotta do something different. This time I'm going to just get enough bytes for the characters.
+                    byte[] NewName = new byte[NameToInject.Count];
+                    Array.Copy(NameToInject.ToArray(), 0, NewName, 0, NameToInject.ToArray().Length);
+
+                    //Next we go into the UncompressedData and update it.
+                    //Will return to this later.
+
+                }
+
+
+
+
+
+
+            }
+
             Mainfrm.OpenFileModified = true;
             treeview.EndUpdate();
 

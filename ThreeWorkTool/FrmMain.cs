@@ -387,7 +387,7 @@ namespace ThreeWorkTool
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                         || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
                                                         || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null
-                                                        || awrapper.Tag as EFLPathEntry == null)
+                                                        || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null)
                                                         {
                                                             {
                                                                 //Removes the archive name from the FullPath for a proper search.
@@ -441,7 +441,7 @@ namespace ThreeWorkTool
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                         || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
                                                         || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null
-                                                        || awrapper.Tag as EFLPathEntry == null)
+                                                        || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null)
                                                         {
                                                             //Removes the archive name from the FullPath for a proper search.
                                                             string FullPathSearch = awrapper.FullPath;
@@ -519,7 +519,8 @@ namespace ThreeWorkTool
                                                 treno.Tag as string == "Model Primitive Group" || treno.Tag as string == "Events" || treno.Tag as string == "Entries" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
                                                 || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce
                                                 || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelEnvelopeEntry || treno.Tag is StageObjLayoutGroup || treno.Tag is STQRNode
-                                                || treno.Tag is STQREventData || treno.Tag is LMTTrackNode || treno.Tag is MaterialAnimEntry || treno.Tag is EFLPathEntry)
+                                                || treno.Tag is STQREventData || treno.Tag is LMTTrackNode || treno.Tag is MaterialAnimEntry || treno.Tag is EFLPathEntry 
+                                                || treno.Tag is SoundBankEntryPath || treno.Tag is ChainColNode)
                                             {
 
                                             }
@@ -1090,6 +1091,10 @@ namespace ThreeWorkTool
                                             else if (treno.Tag as ChainCollisionEntry != null)
                                             {
                                                 cclentry = treno.Tag as ChainCollisionEntry;
+
+                                                //Gotta Update The ChainCollisionEntry File First.
+                                                cclentry = ChainCollisionEntry.SaveCCLEntry(cclentry, treno);
+
                                                 exportname = "";
 
                                                 exportname = treno.FullPath;
@@ -3114,6 +3119,10 @@ namespace ThreeWorkTool
             else if (treno.Tag as ChainCollisionEntry != null)
             {
                 cclentry = treno.Tag as ChainCollisionEntry;
+
+                //Gotta Update The ChainCollisionEntry File First.
+                cclentry = ChainCollisionEntry.SaveCCLEntry(cclentry, treno);
+
                 exportname = "";
 
                 exportname = treno.FullPath;
@@ -4861,6 +4870,10 @@ namespace ThreeWorkTool
             else if (Ark as ChainCollisionEntry != null)
             {
                 cclentry = Ark as ChainCollisionEntry;
+
+                ////Gotta Update The ChainCollisionEntry File First.
+                //cclentry = ChainCollisionEntry.SaveCCLEntry(cclentry, treno);
+
                 exportname = "";
 
                 exportname = cclentry.BaseEntryName;
@@ -9458,6 +9471,8 @@ namespace ThreeWorkTool
                             //frename.Mainfrm.TreeSource.SelectedNode.Remove();
                             //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
 
+
+                            frename.Mainfrm.CCLChildrenCreation(NewWrapper, NewWrapper.Tag as ChainCollisionEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
                             frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
                             frename.Mainfrm.TreeSource.SelectedNode.Text = oldname;
@@ -11535,6 +11550,18 @@ namespace ThreeWorkTool
                         CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, CCLfilecount);
 
                         frename.Mainfrm.TreeSource.SelectedNode = CCLselectednode;
+
+
+                        frename.Mainfrm.TreeSource.Hide();
+                        //Removes the old child nodes.
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                        //Creates the Material Children of the new node.
+                        frename.Mainfrm.CCLChildrenCreation(CCLselectednode, CCLselectednode.Tag as ChainCollisionEntry);
+                        frename.Mainfrm.TreeSource.SelectedNode = CCLselectednode;
+                        frename.Mainfrm.TreeSource.Show();
+
+
                         break;
 
                     #endregion
@@ -13057,8 +13084,17 @@ namespace ThreeWorkTool
                                 sw.WriteLine("Current file Count: " + CCLfilecount);
                                 sw.WriteLine("===============================================================================================================");
                             }
+                            frename.Mainfrm.TreeSource.SelectedNode = CCLselectednode;
+                            frename.Mainfrm.TreeSource.Hide();
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
 
+                            //Creates the Material Children of the new node.
+                            frename.Mainfrm.CCLChildrenCreation(CCLselectednode, CCLselectednode.Tag as ChainCollisionEntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = CCLselectednode;
+                            frename.Mainfrm.TreeSource.Show();
                             frename.Mainfrm.TreeSource.SelectedNode = CCLselectednode.Parent;
+
                             break;
 
                         #endregion
@@ -15407,7 +15443,8 @@ namespace ThreeWorkTool
                             && awrapper.Tag as MaterialMaterialEntry == null && awrapper.Tag as ModelGroupEntry == null && awrapper.Tag as Mission == null
                             && awrapper.Tag as EffectNode == null && awrapper.Tag as EffectFieldTextureRefernce == null && awrapper.Tag as ModelPrimitiveEntry == null
                             && awrapper.Tag as ModelEnvelopeEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null
-                            && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null && awrapper.Tag as EFLPathEntry == null)
+                            && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null && awrapper.Tag as EFLPathEntry == null 
+                            && awrapper.Tag as SoundBankEntryPath == null && awrapper.Tag as ChainColNode == null)
                             {
                                 {
                                     ArcEntry Aentry = tno.Tag as ArcEntry;
@@ -15746,7 +15783,8 @@ namespace ThreeWorkTool
                             && awrapper.Tag as MaterialMaterialEntry == null && awrapper.Tag as ModelGroupEntry == null && awrapper.Tag as Mission == null
                             && awrapper.Tag as EffectNode == null && awrapper.Tag as EffectFieldTextureRefernce == null && awrapper.Tag as ModelPrimitiveEntry == null
                             && awrapper.Tag as ModelEnvelopeEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null
-                            && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null && awrapper.Tag as EFLPathEntry == null)
+                            && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null && awrapper.Tag as EFLPathEntry == null 
+                            && awrapper.Tag as SoundBankEntryPath == null && awrapper.Tag as ChainColNode == null)
                             {
                                 {
                                     CurrentFilePath = tno.FullPath;
@@ -16680,6 +16718,13 @@ namespace ThreeWorkTool
 
                                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
+                                            //Removes the old child nodes.
+                                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                                            //Creates the Material Children of the new node.
+                                            frename.Mainfrm.CCLChildrenCreation(NewWrapper, NewWrapper.Tag as ChainCollisionEntry);
+                                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                                            frename.Mainfrm.TreeSource.Show();
 
                                             frename.Mainfrm.OpenFileModified = true;
                                             frename.Mainfrm.TreeSource.SelectedNode.GetType();
@@ -21843,6 +21888,8 @@ namespace ThreeWorkTool
 
                     cclchild.ContextMenuStrip = GenericFileContextAdder(cclchild, TreeSource);
 
+                    CCLChildrenCreation(cclchild, cclchild.Tag as ChainCollisionEntry);
+
                     TreeSource.SelectedNode = cclrootNode;
 
                     tcount++;
@@ -23029,6 +23076,24 @@ namespace ThreeWorkTool
             }
         }
 
+        public void CCLChildrenCreation(TreeNode MEntry, ChainCollisionEntry ccl)
+        {
+            TreeSource.SelectedNode = MEntry;
+
+            //Fills in Mission.
+            for (int i = 0; i < ccl.EntryCount; i++)
+            {
+                ArcEntryWrapper clog = new ArcEntryWrapper();
+                clog.Name = Convert.ToString(ccl.Collisions[i].index);
+                clog.Tag = ccl.Collisions[i];
+                clog.Text = Convert.ToString(ccl.Collisions[i].index);
+                clog.ImageIndex = 16;
+                clog.SelectedImageIndex = 16;
+                TreeSource.SelectedNode.Nodes.Add(clog);
+
+            }
+        }
+
         public void STQRChildrenCreation(TreeNode MEntry, STQREntry stqr)
         {
             TreeSource.SelectedNode = MEntry;
@@ -23088,6 +23153,30 @@ namespace ThreeWorkTool
 
 
 
+        }
+
+        public void SBKRChildrenCreation(TreeNode MEntry, SoundBankEntry sbkr)
+        {
+            TreeSource.SelectedNode = MEntry;
+            for (int i = 0; i < sbkr.SectionBCount; i++)
+            {
+                SoundBankEntryPath path = new SoundBankEntryPath();
+
+                ArcEntryWrapper sbfnn = new ArcEntryWrapper();
+                sbfnn.Name = sbkr.SoundFilePaths[i].SoundFilePath;
+                sbfnn.Tag = sbkr.SoundFilePaths[i];
+                sbfnn.Text = sbkr.SoundFilePaths[i].SoundFilePath;
+                sbfnn.ImageIndex = 16;
+                sbfnn.SelectedImageIndex = 16;
+                TreeSource.SelectedNode.Nodes.Add(sbfnn);
+                TreeSource.SelectedNode = sbfnn;
+                ContextMenuStrip conmenu = new ContextMenuStrip();
+                var Mrefnitem = new ToolStripMenuItem("Change Reference via Rename", null, MenuItemRenameFile_Click, Keys.F2);
+                conmenu.Items.Add(Mrefnitem);
+                sbfnn.ContextMenuStrip = conmenu;
+
+
+            }
         }
 
         public ArcEntryWrapper IconSetter(ArcEntryWrapper wrapper, string extension)
@@ -24783,6 +24872,21 @@ namespace ThreeWorkTool
 
                 #endregion
 
+                #region EFLPath
+                case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.ChainColNode":
+                    ChainColNode CCLNEntryP = new ChainColNode();
+                    CCLNEntryP = TreeSource.SelectedNode.Tag as ChainColNode;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                #endregion
+
                 default:
                     pGrdMain.SelectedObject = null;
                     picBoxA.Visible = false;
@@ -25740,7 +25844,8 @@ namespace ThreeWorkTool
                                                     || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                     || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                     || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
-                                                    || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null || awrapper.Tag as EFLPathEntry == null)
+                                                    || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null 
+                                                    || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null)
                                                     {
                                                         {
                                                             //Removes the archive name from the FullPath for a proper search.
@@ -25793,7 +25898,8 @@ namespace ThreeWorkTool
                                                     || awrapper.Tag as MaterialMaterialEntry == null || awrapper.Tag as ModelGroupEntry == null || awrapper.Tag as Mission == null
                                                     || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                     || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
-                                                    || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null || awrapper.Tag as EFLPathEntry == null)
+                                                    || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null 
+                                                    || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null)
                                                     {
                                                         //Removes the archive name from the FullPath for a proper search.
                                                         string FullPathSearch = awrapper.FullPath;
@@ -25869,7 +25975,7 @@ namespace ThreeWorkTool
                                             treno.Tag as string == "Model Primitive Group" || treno.Tag as string == "Events" || treno.Tag as string == "Entries" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
                                             || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce
                                             || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelEnvelopeEntry || treno.Tag is StageObjLayoutGroup || treno.Tag is STQRNode
-                                            || treno.Tag is STQREventData || treno.Tag is LMTTrackNode || treno.Tag is MaterialAnimEntry || treno.Tag is EFLPathEntry)
+                                            || treno.Tag is STQREventData || treno.Tag is LMTTrackNode || treno.Tag is MaterialAnimEntry || treno.Tag is EFLPathEntry || treno.Tag is SoundBankEntryPath || treno.Tag is ChainColNode)
                                         {
 
                                         }
@@ -26446,6 +26552,10 @@ namespace ThreeWorkTool
                                         else if (treno.Tag as ChainCollisionEntry != null)
                                         {
                                             cclentry = treno.Tag as ChainCollisionEntry;
+
+                                            //Gotta Update The StageObjLayout File First.
+                                            cclentry = ChainCollisionEntry.SaveCCLEntry(cclentry, treno);
+
                                             exportname = "";
 
                                             exportname = treno.FullPath;
