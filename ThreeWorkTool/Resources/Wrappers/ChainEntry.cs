@@ -146,6 +146,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             {
                 bnr.BaseStream.Position = 0x10 + j * CHAINSEGMENTSIZE;
                 ChainSegment seg = new ChainSegment();
+                seg.Index = j;
                 seg.NodeCount = bnr.ReadByte();
                 seg.Flags = bnr.ReadByte();
                 bnr.BaseStream.Position = bnr.BaseStream.Position + 2;
@@ -194,7 +195,7 @@ namespace ThreeWorkTool.Resources.Wrappers
                     //bnr.BaseStream.Position = Rec.AbsoluteLocation + CHAINRECORDLINKTABLEOFFSET;
                     //long TempL = (Rec.AbsoluteLocation + CHAINSEGMENTRECORDSIZE) - (Rec.AbsoluteLocation + CHAINRECORDLINKTABLEOFFSET);
                     //Rec.TailBytes.AddRange(bnr.ReadBytes(Convert.ToInt32(TempL)));
-
+                    Rec.Index = k;
                     bnr.BaseStream.Position = Rec.AbsoluteLocation;
                     Rec.Flags = bnr.ReadUInt32();
 
@@ -218,7 +219,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Rec.SomeFloat2C = bnr.ReadSingle();
 
                     Rec.SomeFloat30 = bnr.ReadSingle();
-                    Rec.SomeFloat34 = bnr.ReadSingle();
+                    Rec.SomeByte34 = bnr.ReadByte();
+                    Rec.SomeByte35 = bnr.ReadByte();
+                    Rec.SomeByte36 = bnr.ReadByte();
+                    Rec.SomeByte37 = bnr.ReadByte();
                     Rec.SomeFloat38 = bnr.ReadSingle();
                     Rec.SomeFloat3C = bnr.ReadSingle();
 
@@ -236,9 +240,9 @@ namespace ThreeWorkTool.Resources.Wrappers
                     Rec.SomeFloat50 = bnr.ReadSingle();
                     Rec.SomeFloat54 = bnr.ReadSingle();
                     Rec.SomeFloat58 = bnr.ReadSingle();
-
+                    seg.Records.Add(Rec);
                 }
-
+                chnentry.Segments.Add(seg);
 
             }
 
@@ -290,6 +294,14 @@ namespace ThreeWorkTool.Resources.Wrappers
             return chnentry;
         }
 
+        //Rebuilds using the new data.
+        public static ChainEntry RebuildChainEntry(ChainEntry chnentry)
+        {
+
+
+
+            return chnentry;
+        }
         #region Chain Collision Properties
         private string _FileName;
         [Category("Filename"), ReadOnlyAttribute(true)]

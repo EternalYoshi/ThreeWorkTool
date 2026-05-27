@@ -387,7 +387,8 @@ namespace ThreeWorkTool
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                         || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
                                                         || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null
-                                                        || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null)
+                                                        || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null 
+                                                        || awrapper.Tag as ChainSegment == null || awrapper.Tag as ChainSegmentRecord == null)
                                                         {
                                                             {
                                                                 //Removes the archive name from the FullPath for a proper search.
@@ -441,7 +442,8 @@ namespace ThreeWorkTool
                                                         || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                         || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
                                                         || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null
-                                                        || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null)
+                                                        || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null 
+                                                        || awrapper.Tag as ChainSegment == null || awrapper.Tag as ChainSegmentRecord == null)
                                                         {
                                                             //Removes the archive name from the FullPath for a proper search.
                                                             string FullPathSearch = awrapper.FullPath;
@@ -520,7 +522,7 @@ namespace ThreeWorkTool
                                                 || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce
                                                 || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelEnvelopeEntry || treno.Tag is StageObjLayoutGroup || treno.Tag is STQRNode
                                                 || treno.Tag is STQREventData || treno.Tag is LMTTrackNode || treno.Tag is MaterialAnimEntry || treno.Tag is EFLPathEntry 
-                                                || treno.Tag is SoundBankEntryPath || treno.Tag is ChainColNode)
+                                                || treno.Tag is SoundBankEntryPath || treno.Tag is ChainColNode || treno.Tag is ChainSegment || treno.Tag is ChainSegmentRecord)
                                             {
 
                                             }
@@ -7549,6 +7551,79 @@ namespace ThreeWorkTool
             return conmenu;
         }
 
+        //Adds Context Menu for Chain files.
+        public static ContextMenuStrip ChnContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            //Rebuild Chain File.
+            var rebuilditem = new ToolStripMenuItem("Rebuild Chain File", null, AddChainSegment_Click, Keys.Control | Keys.Shift | Keys.A);
+            conmenu.Items.Add(rebuilditem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var additem = new ToolStripMenuItem("Add Segment", null, AddChainSegment_Click, Keys.Control | Keys.Shift | Keys.A);
+            conmenu.Items.Add(additem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Copy.
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            conmenu.Items.Add(copyitem);
+
+            //Export.
+            var exportitem = new ToolStripMenuItem("Export", null, MenuExportFile_Click, Keys.Control | Keys.E);
+            conmenu.Items.Add(exportitem);
+
+            //Replace.
+            var replitem = new ToolStripMenuItem("Replace", null, MenuReplaceFile_Click, Keys.Control | Keys.R);
+            conmenu.Items.Add(replitem);
+
+            var rnitem = new ToolStripMenuItem("Rename", null, MenuItemRenameFile_Click, Keys.F2);
+            conmenu.Items.Add(rnitem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            //Move Up.
+            var muitem = new ToolStripMenuItem("Move Up", null, MoveNodeUp, Keys.Control | Keys.Up);
+            conmenu.Items.Add(muitem);
+
+            //Move Down.
+            var mditem = new ToolStripMenuItem("Move Down", null, MoveNodeDown, Keys.Control | Keys.Down);
+            conmenu.Items.Add(mditem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            var muolitem = new ToolStripMenuItem("Move Up One Level", null, MoveNodeUpOneLevel, Keys.Control | Keys.Shift | Keys.Up);
+            conmenu.Items.Add(muolitem);
+
+            var mdolitem = new ToolStripMenuItem("Move Down One Level into Adjacent Folder", null, MoveNodeDownOneLevel, Keys.Control | Keys.Shift | Keys.Down);
+            conmenu.Items.Add(mdolitem);
+
+            return conmenu;
+        }
+
+        //Adds Context Menu for Chain Segment files.
+        public static ContextMenuStrip ChnSegContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
+        {
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            var additem = new ToolStripMenuItem("Add Record", null, AddChainSegmentRecord_Click, Keys.Control | Keys.Shift | Keys.R);
+            conmenu.Items.Add(additem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            return conmenu;
+        }
+
         public static ContextMenuStrip MiscNodeContextAdder(ArcEntryWrapper EntryNode, TreeView TreeV)
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
@@ -7938,6 +8013,88 @@ namespace ThreeWorkTool
             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
             SLO = StageObjLayoutEntry.RebuildSLOEntry(SLO);
             frename.Mainfrm.TreeSource.SelectedNode.Tag = SLO;
+
+            frename.Mainfrm.OpenFileModified = true;
+
+        }
+
+        //Adds a chain segment to the chain file and rebulids it. Gotta build hte function.
+        private static void AddChainSegmentRecord_Click(Object sender, System.EventArgs e)
+        {
+            //Time To add the new node.
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            ChainSegment SEGMENT = tag as ChainSegment;
+            ChainSegmentRecord Rec = new ChainSegmentRecord();
+
+            Rec.Flags = 2;
+            Rec.Joint = 0;
+            Rec.LinkCount = 1;
+            Rec.unk07 = 0;
+            Rec.Index = SEGMENT.NodeCount;
+            Rec.SomeFloat08 = 0.0f;
+            Rec.SomeFloat0C = 0.0f;
+
+            Rec.SomeFloat10 = 0.0f;
+            Rec.SomeFloat14 = 0.0f;
+            Rec.SomeFloat18 = 0.0f;
+            Rec.SomeFloat1C = 0.0f;
+
+            Rec.SomeFloat20 = 0.0f;
+            Rec.SomeFloat24 = 0.0f;
+            Rec.SomeFloat28 = 0.0f;
+            Rec.SomeFloat2C = 0.0f;
+
+            Rec.SomeFloat30 = 0.0f;
+            Rec.SomeByte34 = 0;
+            Rec.SomeByte35 = 0;
+            Rec.SomeByte36 = 0;
+            Rec.SomeByte37 = 0;
+            Rec.SomeFloat38 = 0.0f;
+            Rec.SomeFloat3C = 0.0f;
+
+            Rec.JointLinkIndex1 = 0;
+            Rec.JointLinkIndex2 = 0;
+            Rec.JointLinkIndex3 = 0;
+            Rec.JointLinkIndex4 = 0;
+            Rec.JointLinkIndex5 = 0;
+            Rec.JointLinkIndex6 = 0;
+            Rec.JointLinkIndex7 = 0;
+            Rec.JointLinkIndex8 = 0;
+
+            Rec.SomeFloat48 = 0.0f;
+            Rec.SomeFloat4C = 0.0f;
+            Rec.SomeFloat50 = 0.0f;
+            Rec.SomeFloat54 = 0.0f;
+            Rec.SomeFloat58 = 0.0f;
+
+            //Update the Segment.
+            SEGMENT.Records.Add(Rec);
+            SEGMENT.NodeCount++;
+
+            //Update the Selected node.
+            frename.Mainfrm.TreeSource.SelectedNode.Tag = SEGMENT;
+
+            //Create the Node and inserts the data.
+            ArcEntryWrapper stq = new ArcEntryWrapper();
+            stq.Name = Convert.ToString(SEGMENT.Records[SEGMENT.NodeCount - 1].Index);
+            stq.Tag = SEGMENT.Records[SEGMENT.NodeCount -1];
+            stq.Text = Convert.ToString(SEGMENT.Records[SEGMENT.NodeCount - 1].Index);
+            stq.ImageIndex = 16;
+            stq.SelectedImageIndex = 16;
+            
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
+            frename.Mainfrm.TreeSource.SelectedNode = stq;
+            //frename.Mainfrm.TreeSource.SelectedNode.Tag = Rec;
+
+            frename.Mainfrm.OpenFileModified = true;
+
+        }
+
+        //Adds a chain segment to the chain file and rebulids it. Gotta build hte function.
+        private static void AddChainSegment_Click(Object sender, System.EventArgs e)
+        {
+
+
 
             frename.Mainfrm.OpenFileModified = true;
 
@@ -9345,7 +9502,7 @@ namespace ThreeWorkTool
                             NewWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
                             int index = frename.Mainfrm.TreeSource.SelectedNode.Index;
                             NewWrapper.Tag = ChainEntry.ReplaceChainEntry(frename.Mainfrm.TreeSource, NewWrapper, RPDialog.FileName);
-                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                            NewWrapper.ContextMenuStrip = ChnContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
                             //Takes the path data from the old node and slaps it on the new node.
                             Newaent = NewWrapper.entryfile as ChainEntry;
@@ -9376,10 +9533,11 @@ namespace ThreeWorkTool
 
 
 
-                            //Removes the node and inserts the new one.
-                            //TreeNode node = 
-                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
-                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                            //Creates the Chain Children of the new node.
+                            frename.Mainfrm.ChainChildrenCreation(NewWrapper, NewWrapper.Tag as ChainEntry);
 
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
                             frename.Mainfrm.TreeSource.SelectedNode.Name = oldname;
@@ -11453,7 +11611,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.IconSetter(NewWrapperCHN, NewWrapperCHN.FileExt);
 
-                        NewWrapperCHN.ContextMenuStrip = GenericFileContextAdder(NewWrapperCHN, frename.Mainfrm.TreeSource);
+                        NewWrapperCHN.ContextMenuStrip = ChnContextAdder(NewWrapperCHN, frename.Mainfrm.TreeSource);
 
                         frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperCHN);
 
@@ -11491,6 +11649,17 @@ namespace ThreeWorkTool
                         CFGHandler.LogTemplateForExport(IMPDialog.FileName, ShownSavePath, chnfilecount);
 
                         frename.Mainfrm.TreeSource.SelectedNode = CHNselectednode;
+
+                        frename.Mainfrm.TreeSource.Hide();
+                        //Removes the old child nodes.
+                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                        //Creates the Material Children of the new node.
+                        frename.Mainfrm.ChainChildrenCreation(CHNselectednode, CHNselectednode.Tag as ChainEntry);
+                        frename.Mainfrm.TreeSource.SelectedNode = CHNselectednode;
+                        frename.Mainfrm.TreeSource.Show();
+
+
                         break;
 
                     #endregion
@@ -12980,7 +13149,7 @@ namespace ThreeWorkTool
 
                             frename.Mainfrm.IconSetter(NewWrapperCHN, NewWrapperCHN.FileExt);
 
-                            NewWrapperCHN.ContextMenuStrip = GenericFileContextAdder(NewWrapperCHN, frename.Mainfrm.TreeSource);
+                            NewWrapperCHN.ContextMenuStrip = ChnContextAdder(NewWrapperCHN, frename.Mainfrm.TreeSource);
 
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(NewWrapperCHN);
 
@@ -13022,6 +13191,15 @@ namespace ThreeWorkTool
                                 sw.WriteLine("===============================================================================================================");
                             }
 
+                            frename.Mainfrm.TreeSource.SelectedNode = CHNselectednode;
+                            frename.Mainfrm.TreeSource.Hide();
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                            //Creates the Chain Children of the new node.
+                            frename.Mainfrm.ChainChildrenCreation(CHNselectednode, CHNselectednode.Tag as ChainEntry);
+                            frename.Mainfrm.TreeSource.SelectedNode = CHNselectednode;
+                            frename.Mainfrm.TreeSource.Show();
                             frename.Mainfrm.TreeSource.SelectedNode = CHNselectednode.Parent;
                             break;
 
@@ -15444,7 +15622,8 @@ namespace ThreeWorkTool
                             && awrapper.Tag as EffectNode == null && awrapper.Tag as EffectFieldTextureRefernce == null && awrapper.Tag as ModelPrimitiveEntry == null
                             && awrapper.Tag as ModelEnvelopeEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null
                             && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null && awrapper.Tag as EFLPathEntry == null 
-                            && awrapper.Tag as SoundBankEntryPath == null && awrapper.Tag as ChainColNode == null)
+                            && awrapper.Tag as SoundBankEntryPath == null && awrapper.Tag as ChainColNode == null && awrapper.Tag as ChainSegment == null 
+                            && awrapper.Tag as ChainSegmentRecord == null)
                             {
                                 {
                                     ArcEntry Aentry = tno.Tag as ArcEntry;
@@ -15784,7 +15963,8 @@ namespace ThreeWorkTool
                             && awrapper.Tag as EffectNode == null && awrapper.Tag as EffectFieldTextureRefernce == null && awrapper.Tag as ModelPrimitiveEntry == null
                             && awrapper.Tag as ModelEnvelopeEntry == null && awrapper.Tag as StageObjLayoutGroup == null && awrapper.Tag as STQREventData == null
                             && awrapper.Tag as STQRNode == null && awrapper.Tag as LMTTrackNode == null && awrapper.Tag as EFLPathEntry == null 
-                            && awrapper.Tag as SoundBankEntryPath == null && awrapper.Tag as ChainColNode == null)
+                            && awrapper.Tag as SoundBankEntryPath == null && awrapper.Tag as ChainColNode == null && awrapper.Tag as ChainSegment == null 
+                            && awrapper.Tag as ChainSegmentRecord == null)
                             {
                                 {
                                     CurrentFilePath = tno.FullPath;
@@ -16607,7 +16787,7 @@ namespace ThreeWorkTool
                                             NewWrapper = tno as ArcEntryWrapper;
                                             int indexZ = tno.Index;
                                             NewWrapper.Tag = ChainEntry.ReplaceChainEntry(frename.Mainfrm.TreeSource, NewWrapper, TexToCheck);
-                                            NewWrapper.ContextMenuStrip = GenericFileContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
+                                            NewWrapper.ContextMenuStrip = ChnContextAdder(NewWrapper, frename.Mainfrm.TreeSource);
                                             frename.Mainfrm.IconSetter(NewWrapper, NewWrapper.FileExt);
 
                                             //Takes the path data from the old node and slaps it on the new node.
@@ -16639,6 +16819,14 @@ namespace ThreeWorkTool
 
                                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
+                                            //Removes the old child nodes.
+                                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+
+                                            //Creates the Chain Children of the new node.
+                                            frename.Mainfrm.ChainChildrenCreation(NewWrapper, NewWrapper.Tag as ChainEntry);
+                                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
+                                            frename.Mainfrm.TreeSource.Show();
+                                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper.Parent;
 
                                             frename.Mainfrm.OpenFileModified = true;
                                             frename.Mainfrm.TreeSource.SelectedNode.GetType();
@@ -21845,7 +22033,9 @@ namespace ThreeWorkTool
                     TreeSource.SelectedNode.SelectedImageIndex = 20;
 
 
-                    chnchild.ContextMenuStrip = GenericFileContextAdder(chnchild, TreeSource);
+                    chnchild.ContextMenuStrip = ChnContextAdder(chnchild, TreeSource);
+
+                    ChainChildrenCreation(chnchild, chnchild.Tag as ChainEntry);
 
                     TreeSource.SelectedNode = chnrootNode;
 
@@ -23092,6 +23282,49 @@ namespace ThreeWorkTool
                 TreeSource.SelectedNode.Nodes.Add(clog);
 
             }
+        }
+
+        public void ChainChildrenCreation(TreeNode MEntry, ChainEntry chn)
+        {
+            TreeSource.SelectedNode = MEntry;
+            TreeNode ChainNode = TreeSource.SelectedNode;
+            //Makes the Segments Children in the TreeNode.
+            for (int i = 0; i < chn.SegmentCount; i++)
+            {
+                TreeSource.SelectedNode = ChainNode;
+                ArcEntryWrapper slog = new ArcEntryWrapper();
+                slog.Name = Convert.ToString(chn.Segments[i].Index);
+                slog.Tag = chn.Segments[i];
+                slog.Text = Convert.ToString(chn.Segments[i].Index);
+                slog.ImageIndex = 16;
+                slog.SelectedImageIndex = 16;
+
+                ContextMenuStrip conmenu = new ContextMenuStrip();
+                var addsritem = new ToolStripMenuItem("Add Segment Record", null, AddChainSegmentRecord_Click, Keys.Control | Keys.A);
+                conmenu.Items.Add(addsritem);
+                slog.ContextMenuStrip = conmenu;
+
+                TreeSource.SelectedNode.Nodes.Add(slog);
+                TreeSource.SelectedNode = slog;
+
+                //Now for the Segment's records.
+                for (int j = 0; j < chn.Segments[i].Records.Count; j++)
+                {
+                    ArcEntryWrapper rec = new ArcEntryWrapper();
+                    rec.Name = Convert.ToString(chn.Segments[i].Records[j].Index);
+                    rec.Tag = chn.Segments[i].Records[j];
+                    rec.Text = Convert.ToString(chn.Segments[i].Records[j].Index);
+                    rec.ImageIndex = 16;
+                    rec.SelectedImageIndex = 16;
+                    TreeSource.SelectedNode.Nodes.Add(rec);
+
+
+                }
+
+            }
+
+            TreeSource.SelectedNode = ChainNode; 
+
         }
 
         public void STQRChildrenCreation(TreeNode MEntry, STQREntry stqr)
@@ -24872,10 +25105,40 @@ namespace ThreeWorkTool
 
                 #endregion
 
-                #region EFLPath
+                #region CCLEntry
                 case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.ChainColNode":
                     ChainColNode CCLNEntryP = new ChainColNode();
                     CCLNEntryP = TreeSource.SelectedNode.Tag as ChainColNode;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                #endregion
+
+                #region ChnSegEntry
+                case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.ChainSegment":
+                    ChainSegment ChnSEntryP = new ChainSegment();
+                    ChnSEntryP = TreeSource.SelectedNode.Tag as ChainSegment;
+                    pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
+                    picBoxA.Visible = false;
+                    txtRPList.Visible = false;
+                    pnlAudioPlayer.Visible = false;
+                    txtRPList.Dock = System.Windows.Forms.DockStyle.None;
+                    pnlAudioPlayer.Dock = System.Windows.Forms.DockStyle.None;
+                    UpdateTheEditMenu();
+                    break;
+
+                #endregion
+
+                #region ChnSegRecEntry
+                case "ThreeWorkTool.Resources.Wrappers.ExtraNodes.ChainSegmentRecord":
+                    ChainSegmentRecord CChnSRecEntryP = new ChainSegmentRecord();
+                    CChnSRecEntryP = TreeSource.SelectedNode.Tag as ChainSegmentRecord;
                     pGrdMain.SelectedObject = TreeSource.SelectedNode.Tag;
                     picBoxA.Visible = false;
                     txtRPList.Visible = false;
@@ -25845,7 +26108,8 @@ namespace ThreeWorkTool
                                                     || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                     || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
                                                     || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null 
-                                                    || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null)
+                                                    || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null 
+                                                    || awrapper.Tag as ChainSegment == null || awrapper.Tag as ChainSegmentRecord == null)
                                                     {
                                                         {
                                                             //Removes the archive name from the FullPath for a proper search.
@@ -25899,7 +26163,8 @@ namespace ThreeWorkTool
                                                     || awrapper.Tag as EffectNode == null || awrapper.Tag as EffectFieldTextureRefernce == null || awrapper.Tag as ModelPrimitiveEntry == null
                                                     || awrapper.Tag as ModelEnvelopeEntry == null || awrapper.Tag as StageObjLayoutGroup == null || awrapper.Tag as STQRNode == null
                                                     || awrapper.Tag as STQREventData == null || awrapper.Tag as LMTTrackNode == null || awrapper.Tag as MaterialAnimEntry == null 
-                                                    || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null)
+                                                    || awrapper.Tag as EFLPathEntry == null || awrapper.Tag as SoundBankEntryPath == null || awrapper.Tag as ChainColNode == null 
+                                                    || awrapper.Tag as ChainSegment == null || awrapper.Tag as ChainSegmentRecord == null)
                                                     {
                                                         //Removes the archive name from the FullPath for a proper search.
                                                         string FullPathSearch = awrapper.FullPath;
@@ -25975,7 +26240,8 @@ namespace ThreeWorkTool
                                             treno.Tag as string == "Model Primitive Group" || treno.Tag as string == "Events" || treno.Tag as string == "Entries" || treno.Tag is MaterialTextureReference || treno.Tag is LMTM3AEntry || treno.Tag is ModelBoneEntry
                                             || treno.Tag is MaterialMaterialEntry || treno.Tag is ModelGroupEntry || treno.Tag is Mission || treno.Tag is EffectNode || treno.Tag is EffectFieldTextureRefernce
                                             || treno.Tag is ModelPrimitiveEntry || treno.Tag is ModelEnvelopeEntry || treno.Tag is StageObjLayoutGroup || treno.Tag is STQRNode
-                                            || treno.Tag is STQREventData || treno.Tag is LMTTrackNode || treno.Tag is MaterialAnimEntry || treno.Tag is EFLPathEntry || treno.Tag is SoundBankEntryPath || treno.Tag is ChainColNode)
+                                            || treno.Tag is STQREventData || treno.Tag is LMTTrackNode || treno.Tag is MaterialAnimEntry || treno.Tag is EFLPathEntry || treno.Tag is SoundBankEntryPath 
+                                            || treno.Tag is ChainColNode || treno.Tag is ChainSegment || treno.Tag is ChainSegmentRecord)
                                         {
 
                                         }
