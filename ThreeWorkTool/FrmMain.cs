@@ -9580,7 +9580,7 @@ namespace ThreeWorkTool
                                 }
                             }
 
-
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
                             //Removes the old child nodes.
                             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
@@ -9672,12 +9672,10 @@ namespace ThreeWorkTool
                             }
 
 
+                            frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;
 
-                            //Removes the node and inserts the new one.
-                            //TreeNode node = 
-                            //frename.Mainfrm.TreeSource.SelectedNode.Remove();
-                            //frename.Mainfrm.TreeSource.Nodes.Add(NewWrapper);
-
+                            //Removes the old child nodes.
+                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
 
                             frename.Mainfrm.CCLChildrenCreation(NewWrapper, NewWrapper.Tag as ChainCollisionEntry);
                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapper;

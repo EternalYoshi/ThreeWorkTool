@@ -98,14 +98,7 @@ namespace ThreeWorkTool.Resources.Wrappers
 
             tree.BeginUpdate();
 
-            //Type Specific Work Here.
-            using (MemoryStream LmtStream = new MemoryStream(ccolentry.UncompressedData))
-            {
-                using (BinaryReader bnr = new BinaryReader(LmtStream))
-                {
-                    BuildChainCollEntry(bnr, ccolentry);
-                }
-            }
+            ReplaceEntry(tree, node, filename, ccolentry, oldentry);
 
             ReplaceEntry(tree, node, filename, ccolentry, oldentry);
             ccolentry.DecompressedFileLength = ccolentry.UncompressedData.Length;
@@ -115,6 +108,15 @@ namespace ThreeWorkTool.Resources.Wrappers
             ccolentry._FileName = ccolentry.TrueName;
             ccolentry._FileType = ccolentry.FileExt;
             ccolentry.FileName = ccolentry.TrueName;
+
+            //Type Specific Work Here.
+            using (MemoryStream CCLStream = new MemoryStream(ccolentry.UncompressedData))
+            {
+                using (BinaryReader bnr = new BinaryReader(CCLStream))
+                {
+                    BuildChainCollEntry(bnr, ccolentry);
+                }
+            }
 
             return node.entryfile as ChainCollisionEntry;
         }
