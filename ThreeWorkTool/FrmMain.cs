@@ -7557,7 +7557,7 @@ namespace ThreeWorkTool
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
             //Rebuild Chain File.
-            var rebuilditem = new ToolStripMenuItem("Rebuild Chain File", null, AddChainSegment_Click, Keys.Control | Keys.Shift | Keys.A);
+            var rebuilditem = new ToolStripMenuItem("Rebuild Chain File", null, MenuRebuildChainFile_Click, Keys.Control | Keys.Shift | Keys.R);
             conmenu.Items.Add(rebuilditem);
 
             conmenu.Items.Add(new ToolStripSeparator());
@@ -7612,7 +7612,7 @@ namespace ThreeWorkTool
         {
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
-            var additem = new ToolStripMenuItem("Add Record", null, AddChainSegmentRecord_Click, Keys.Control | Keys.Shift | Keys.R);
+            var additem = new ToolStripMenuItem("Add Segment Record", null, AddChainSegmentRecord_Click, Keys.Control | Keys.Shift | Keys.R);
             conmenu.Items.Add(additem);
 
             //Delete.
@@ -8093,6 +8093,55 @@ namespace ThreeWorkTool
         //Adds a chain segment to the chain file and rebulids it. Gotta build hte function.
         private static void AddChainSegment_Click(Object sender, System.EventArgs e)
         {
+            //Time To create the new node.
+            var tag = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+            ChainEntry CHAIN = tag as ChainEntry;
+            ChainSegment Seg = new ChainSegment();
+
+            Seg.Records = new List<ChainSegmentRecord>();
+
+            Seg.Index = CHAIN.Segments.Count;
+            Seg.NodeCount = 0;
+            Seg.Flags = 1;
+            Seg.RecordOffset = 0;
+
+            Seg.UnkParam1 = 0.0f;
+            Seg.UnkParam2 = 0.0f;
+            Seg.UnkParam3 = 0.0f;
+            Seg.UnkParam4 = 0.0f;
+            Seg.UnkParam5 = 0.0f;
+            Seg.UnkParam6 = 0.0f;
+
+            //Update the Chain file Proper.
+            CHAIN.Segments.Add(Seg);
+            CHAIN.SegmentCount++;
+
+            //Update the Selected node.
+            frename.Mainfrm.TreeSource.SelectedNode.Tag = CHAIN;
+
+            //Create the Node and inserts the data.
+            ArcEntryWrapper stq = new ArcEntryWrapper();
+            stq.Name = Convert.ToString(CHAIN.Segments[CHAIN.SegmentCount - 1].Index);
+            stq.Tag = CHAIN.Segments[CHAIN.SegmentCount - 1];
+            stq.Text = Convert.ToString(CHAIN.Segments[CHAIN.SegmentCount - 1].Index);
+            stq.ImageIndex = 16;
+            stq.SelectedImageIndex = 16;
+
+            ContextMenuStrip conmenu = new ContextMenuStrip();
+
+            var additem = new ToolStripMenuItem("Add Segment Record", null, AddChainSegmentRecord_Click, Keys.Control | Keys.Shift | Keys.R);
+            conmenu.Items.Add(additem);
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            conmenu.Items.Add(delitem);
+
+            conmenu.Items.Add(new ToolStripSeparator());
+
+            stq.ContextMenuStrip = conmenu;
+
+            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
+            frename.Mainfrm.TreeSource.SelectedNode = stq;
 
 
 
@@ -18276,6 +18325,40 @@ namespace ThreeWorkTool
             }
         }
 
+        public static void MenuRebuildChainFile_Click(Object sender, System.EventArgs e)
+        {
+            //Let's rebuild bsaed on the TreeNode's stuff. This is going to take a little bit.
+            frename.Mainfrm.TreeSource.BeginUpdate();
+
+            ChainEntry NewChainN = new ChainEntry();
+            ArcEntryWrapper OldWrapper = new ArcEntryWrapper();
+            ArcEntryWrapper RebuiltCHNWrapper = new ArcEntryWrapper();
+
+            OldWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+            RebuiltCHNWrapper = frename.Mainfrm.TreeSource.SelectedNode as ArcEntryWrapper;
+
+            NewChainN = RebuiltCHNWrapper.Tag as ChainEntry;
+            NewChainN = ChainEntry.RebuildChainEntry(frename.Mainfrm.TreeSource, RebuiltCHNWrapper);
+            RebuiltCHNWrapper.ContextMenuStrip = ChnContextAdder(RebuiltCHNWrapper, frename.Mainfrm.TreeSource);
+            frename.Mainfrm.IconSetter(RebuiltCHNWrapper, RebuiltCHNWrapper.FileExt);
+
+            //Takes the path data from the old node and slaps it on the new node.
+            ChainEntry OldCHN = new ChainEntry();
+            OldCHN = OldWrapper.entryfile as ChainEntry;
+
+            //Transfer the Chain's properties that can't really be done outside of that class.
+            NewChainN = ChainEntry.TransferCHNEntryProperties(OldCHN, NewChainN);
+            string[] paths = OldCHN.EntryDirs;
+
+            NewChainN.EntryDirs = paths;
+            RebuiltCHNWrapper.Tag = NewChainN;
+            RebuiltCHNWrapper.entryfile = NewChainN;
+
+            frename.Mainfrm.TreeSource.SelectedNode = RebuiltCHNWrapper;
+            frename.Mainfrm.TreeSource.EndUpdate();
+
+        }
+
         public static void MenuRebuildModel_Click(Object sender, System.EventArgs e)
         {
 
@@ -23302,6 +23385,11 @@ namespace ThreeWorkTool
                 ContextMenuStrip conmenu = new ContextMenuStrip();
                 var addsritem = new ToolStripMenuItem("Add Segment Record", null, AddChainSegmentRecord_Click, Keys.Control | Keys.A);
                 conmenu.Items.Add(addsritem);
+
+                //Delete.
+                var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+                conmenu.Items.Add(delitem);
+
                 slog.ContextMenuStrip = conmenu;
 
                 TreeSource.SelectedNode.Nodes.Add(slog);

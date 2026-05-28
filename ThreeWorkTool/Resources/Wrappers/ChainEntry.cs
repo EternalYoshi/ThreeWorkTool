@@ -28,74 +28,6 @@ namespace ThreeWorkTool.Resources.Wrappers
         public static int CHAINSEGMENTRECORDSIZE = 0x5C;
         public static int CHAINRECORDLINKTABLEOFFSET = 0x40;
 
-        //public struct ChainSegmentRecord
-        //{
-        //    public int Index;
-        //    public int Offset;
-        //    public uint Flags;
-        //    public uint MoreFlags;
-        //    public int Joint;
-        //    public byte LinkCount;
-        //    public byte unk07;
-        //    public float SomeFloat08 { get; set; }
-        //    public float SomeFloat0C { get; set; }
-        //    public float SomeFloat10 { get; set; }
-        //    public float SomeFloat14 { get; set; }
-        //    public float SomeFloat18 { get; set; }
-        //    public float SomeFloat1C { get; set; }
-        //    public float SomeFloat20 { get; set; }
-        //    public float SomeFloat24 { get; set; }
-        //    public float SomeFloat28 { get; set; }
-        //    public float SomeFloat2C { get; set; }
-        //    public float SomeFloat30 { get; set; }
-        //    public float SomeFloat34 { get; set; }
-        //    public float SomeFloat38 { get; set; }
-        //    public float SomeFloat3C { get; set; }
-        //    public long AbsoluteLocation;
-        //    public byte JointLinkIndex1 { get; set; }
-        //    public byte JointLinkIndex2 { get; set; }
-        //    public byte JointLinkIndex3 { get; set; }
-        //    public byte JointLinkIndex4 { get; set; }
-        //    public byte JointLinkIndex5 { get; set; }
-        //    public byte JointLinkIndex6 { get; set; }
-        //    public byte JointLinkIndex7 { get; set; }
-        //    public byte JointLinkIndex8 { get; set; }
-        //    public float SomeFloat48 { get; set; }
-        //    public float SomeFloat4C { get; set; }
-        //    public float SomeFloat50 { get; set; }
-        //    public float SomeFloat54 { get; set; }
-        //    public float SomeFloat58 { get; set; }
-        //    //public List<int> JointLinkIndices;
-        //    //public List<int> LinkTable;
-        //    //public List<uint> SolverParams;
-        //    //public List<float> SolverFloatParams;
-        //    //public List<uint> RawData;
-        //    //public List<float> rawFloats;
-        //    //public List<byte> TailBytes;
-        //};
-
-        //public struct ChainSegment
-        //{
-        //    public int Index;
-        //    public int Offset;
-        //    public byte NodeCount;
-        //    public byte Flags { get; set; }
-        //    public uint RecordOffset;
-        //    public uint RecordAbsOffset;
-        //    public int RecordBytes;
-        //    //public List<uint> ParametersU;
-        //    //public List<float> ParamtersF;
-
-        //    public float UnkParam1 { get; set; }
-        //    public float UnkParam2 { get; set; }
-        //    public float UnkParam3 { get; set; }
-        //    public float UnkParam4 { get; set; }
-        //    public float UnkParam5 { get; set; }
-        //    public float UnkParam6 { get; set; }
-
-        //    public List<ChainSegmentRecord> Records;
-        //};
-
         public List<ChainSegment> Segments;
 
         public static ChainEntry FillChainEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
@@ -295,13 +227,200 @@ namespace ThreeWorkTool.Resources.Wrappers
         }
 
         //Rebuilds using the new data.
-        public static ChainEntry RebuildChainEntry(ChainEntry chnentry)
+        public static ChainEntry RebuildChainEntry(TreeView tree, ArcEntryWrapper node)
         {
 
+            ChainEntry oldChain = tree.SelectedNode.Tag as ChainEntry;
+
+            //Gotta start from scratch.
+            ChainEntry newChain = new ChainEntry();
+            newChain.Segments = new List<ChainSegment>();
+            newChain.TrueName = oldChain.TrueName;
+
+            int SegmentCount = 0;
+            int RecordCount = 0;
+            int CurrentRecordCounter = 0;
+            int l = 0;
+            //We need to get all the Segment TreeNodes, then the Segment Record TreeNodes.
+            List<TreeNode> Children = new List<TreeNode>();
+            List<TreeNode> GrandChildren = new List<TreeNode>();
+
+            foreach (TreeNode thisNode in tree.SelectedNode.Nodes)
+            {
+                //Children.Add(thisNode);
+                //SegmentCount++;
+
+                //Let's get the Segment' Records.
+                ChainSegment segment = thisNode.Tag as ChainSegment;
+                segment.Index = l;
+                if (segment != null)
+                {
+                    segment.Records = new List<ChainSegmentRecord>();
+                    segment.NodeCount = Convert.ToByte(thisNode.Nodes.Count);
+
+                    //foreach (TreeNode RecNode in tree.SelectedNode.Nodes)
+                    for (int m = 0; m < thisNode.Nodes.Count; m++)
+                    {
+                        ChainSegmentRecord record = thisNode.Nodes[m].Tag as ChainSegmentRecord;
+                        if (record != null)
+                        {
+                            record.Index = m;
+                            segment.Records.Add(record);
+                            GrandChildren.Add(thisNode.Nodes[m]);
+                        }
+                    }
+                    //
+                    newChain.Segments.Add(segment);
+                }
+
+                Children.Add(thisNode);
+                SegmentCount++;
+
+                l++;
+            }
+
+            //Now to rebuild from scratch using the data from above.
+            List<byte> NewUncompressedData = new List<byte>();
+
+            //Header is a size of 0x10.
+            byte[] HeaderAndVersion = { 0x43, 0x48, 0x4E, 0x00, 0x18, 0x06, 0x08, 0x00 };
+            byte[] PlaceholderRestOfHeader = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+            //Segments are always 0x20.
+            byte[] PlaceholderSegment = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            byte[] FillerForSegment = { 0x00, 0x00 };
+
+            //Records are always 0x5C.
+            byte[] PlaceholderRecord = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            byte FillerForRecord = 0x00;
+
+            //Gonna fill in the params as I go.
+            newChain.SegmentCount = Children.Count;
+            newChain.ProjectedFileSize = (Children.Count * 0x20) + (GrandChildren.Count * 0x5C);
+
+            NewUncompressedData.AddRange(HeaderAndVersion);
+            NewUncompressedData.AddRange(BitConverter.GetBytes(newChain.ProjectedFileSize));
+            NewUncompressedData.AddRange(BitConverter.GetBytes(newChain.SegmentCount));
+
+            int RecordCounter = 0;
+            long OffsetForRecords = (Children.Count * 0x20) + 0x10;
+
+            //Segment data.
+            for (int p = 0; p < Children.Count; p++)
+            {
+                ChainSegment segm = Children[p].Tag as ChainSegment;
+                if (segm != null)
+                {
+                    NewUncompressedData.Add(segm.NodeCount);
+                    NewUncompressedData.Add(segm.Flags);
+                    NewUncompressedData.AddRange(FillerForSegment);
 
 
-            return chnentry;
+                    //Calculate the offset for the start of the records.
+                    int OffsetForThisSegment = (RecordCounter * 0x5C) + ((newChain.SegmentCount - p) * 0x20);
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(OffsetForThisSegment));
+
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(segm.UnkParam1));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(segm.UnkParam2));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(segm.UnkParam3));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(segm.UnkParam4));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(segm.UnkParam5));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(segm.UnkParam6));
+                    RecordCounter = RecordCounter + segm.NodeCount;
+
+                }
+            }
+
+            //Records data.
+            for (int q = 0; q < GrandChildren.Count; q++)
+            {
+                ChainSegmentRecord Srec = GrandChildren[q].Tag as ChainSegmentRecord;
+                if (Srec != null)
+                {
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.Flags));
+                    NewUncompressedData.Add(Convert.ToByte(Srec.Joint));
+                    NewUncompressedData.Add(FillerForRecord);
+                    NewUncompressedData.Add(Srec.LinkCount);
+                    NewUncompressedData.Add(Srec.unk07);
+
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat08));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat0C));
+
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat10));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat14));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat18));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat1C));
+
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat20));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat24));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat28));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat2C));
+
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat30));
+                    NewUncompressedData.Add(Srec.SomeByte34);
+                    NewUncompressedData.Add(Srec.SomeByte35);
+                    NewUncompressedData.Add(Srec.SomeByte36);
+                    NewUncompressedData.Add(Srec.SomeByte37);
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat38));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat3C));
+
+                    NewUncompressedData.Add(Srec.JointLinkIndex1);
+                    NewUncompressedData.Add(Srec.JointLinkIndex2);
+                    NewUncompressedData.Add(Srec.JointLinkIndex3);
+                    NewUncompressedData.Add(Srec.JointLinkIndex4);
+                    NewUncompressedData.Add(Srec.JointLinkIndex5);
+                    NewUncompressedData.Add(Srec.JointLinkIndex6);
+                    NewUncompressedData.Add(Srec.JointLinkIndex7);
+                    NewUncompressedData.Add(Srec.JointLinkIndex8);
+
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat48));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat4C));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat50));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat54));
+                    NewUncompressedData.AddRange(BitConverter.GetBytes(Srec.SomeFloat58));
+
+                }
+
+            }
+
+#if DEBUG
+            File.WriteAllBytes("D:\\Workshop\\MessHall\\Etc\\ChainTestSamples\\" + newChain.TrueName  + "_ChainHeaderSampleTest.bin", NewUncompressedData.ToArray());
+#endif
+
+            newChain.UncompressedData = NewUncompressedData.ToArray();
+            newChain.CompressedData = Zlibber.Compressor(newChain.UncompressedData);
+
+            newChain._FileType = ".chn";
+            newChain.FileExt = ".chn";
+
+            return newChain;
         }
+
+        public static ChainEntry TransferCHNEntryProperties(ChainEntry OldCHN, ChainEntry NewCHN, Type filetype = null)
+        {
+
+            NewCHN._FileName = OldCHN._FileName;
+            NewCHN._CompressedFileLength = NewCHN.CompressedData.Length;
+            NewCHN._DecompressedFileLength = NewCHN.UncompressedData.Length;
+            NewCHN.FileExt = OldCHN.FileExt;
+            NewCHN.FileName = OldCHN.FileName;
+            NewCHN.TrueName = OldCHN.TrueName;
+            NewCHN.EntryDirs = OldCHN.EntryDirs;
+            NewCHN.EntryID = OldCHN.EntryID;
+            NewCHN.TypeHash = OldCHN.TypeHash;
+            NewCHN.EntryName = OldCHN.EntryName;
+
+            return NewCHN;
+        }
+
         #region Chain Collision Properties
         private string _FileName;
         [Category("Filename"), ReadOnlyAttribute(true)]

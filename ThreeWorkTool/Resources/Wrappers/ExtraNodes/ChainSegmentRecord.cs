@@ -15,7 +15,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ExtraNodes
         public uint Flags { get; set; }
         //public uint MoreFlags { get; set; }
         [Category("Chain Segment Record"), ReadOnlyAttribute(false)]
-        public int Joint;
+        public int Joint { get; set; }
         [Category("Chain Segment Record"), ReadOnlyAttribute(false)]
         public byte LinkCount;
         [Category("Chain Segment Record"), ReadOnlyAttribute(false)]
