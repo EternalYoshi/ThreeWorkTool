@@ -11701,7 +11701,7 @@ namespace ThreeWorkTool
 
                         frename.Mainfrm.TreeSource.Hide();
                         //Removes the old child nodes.
-                        frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+                        //frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
 
                         //Creates the Material Children of the new node.
                         frename.Mainfrm.ChainChildrenCreation(CHNselectednode, CHNselectednode.Tag as ChainEntry);
@@ -13243,7 +13243,7 @@ namespace ThreeWorkTool
                             frename.Mainfrm.TreeSource.SelectedNode = CHNselectednode;
                             frename.Mainfrm.TreeSource.Hide();
                             //Removes the old child nodes.
-                            frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
+                            //frename.Mainfrm.TreeSource.SelectedNode.Nodes.Clear();
 
                             //Creates the Chain Children of the new node.
                             frename.Mainfrm.ChainChildrenCreation(CHNselectednode, CHNselectednode.Tag as ChainEntry);

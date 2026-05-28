@@ -204,6 +204,15 @@ namespace ThreeWorkTool.Resources.Wrappers
             chnentry._FileName = chnentry.TrueName;
             chnentry._FileType = chnentry.FileExt;
 
+            //Type Specific Work Here.
+            using (MemoryStream LmtStream = new MemoryStream(chnentry.UncompressedData))
+            {
+                using (BinaryReader bnr = new BinaryReader(LmtStream))
+                {
+                    BuildChainEntry(bnr, chnentry);
+                }
+            }
+
             return node.entryfile as ChainEntry;
         }
 
@@ -221,7 +230,14 @@ namespace ThreeWorkTool.Resources.Wrappers
             chnentry._FileType = chnentry.FileExt;
             chnentry.EntryName = chnentry.FileName;
 
-
+            //Type Specific Work Here.
+            using (MemoryStream LmtStream = new MemoryStream(chnentry.UncompressedData))
+            {
+                using (BinaryReader bnr = new BinaryReader(LmtStream))
+                {
+                    BuildChainEntry(bnr, chnentry);
+                }
+            }
 
             return chnentry;
         }
