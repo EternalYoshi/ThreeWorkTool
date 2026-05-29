@@ -8081,7 +8081,16 @@ namespace ThreeWorkTool
             stq.Text = Convert.ToString(SEGMENT.Records[SEGMENT.NodeCount - 1].Index);
             stq.ImageIndex = 16;
             stq.SelectedImageIndex = 16;
-            
+
+            //Context Menu.
+
+            ContextMenuStrip strip = new ContextMenuStrip();
+
+            //Delete.
+            var delitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+            strip.Items.Add(delitem);
+            stq.ContextMenuStrip = strip;
+
             frename.Mainfrm.TreeSource.SelectedNode.Nodes.Add(stq);
             frename.Mainfrm.TreeSource.SelectedNode = stq;
             //frename.Mainfrm.TreeSource.SelectedNode.Tag = Rec;
@@ -23400,6 +23409,13 @@ namespace ThreeWorkTool
                     rec.Name = Convert.ToString(chn.Segments[i].Records[j].Index);
                     rec.Tag = chn.Segments[i].Records[j];
                     rec.Text = Convert.ToString(chn.Segments[i].Records[j].Index);
+
+                    //For Context Menu.
+                    ContextMenuStrip conmenustrip = new ContextMenuStrip();
+                    //Delete.
+                    var deleteitem = new ToolStripMenuItem("Delete", null, MenuItemDeleteFile_Click, Keys.Delete);
+                    conmenustrip.Items.Add(deleteitem);
+                    rec.ContextMenuStrip = conmenustrip;
                     rec.ImageIndex = 16;
                     rec.SelectedImageIndex = 16;
                     TreeSource.SelectedNode.Nodes.Add(rec);
