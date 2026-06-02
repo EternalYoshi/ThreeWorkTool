@@ -386,6 +386,12 @@
     <Compile Include="Resources\Wrappers\RIFFEntry.cs" />
     <Compile Include="Resources\Zlibber.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="UX\MVJointList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UX\MVJointList.Designer.cs">
+      <DependentUpon>MVJointList.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="FrmAbout.resx">
       <DependentUpon>FrmAbout.cs</DependentUpon>
     </EmbeddedResource>
@@ -440,6 +446,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="UX\MVJointList.resx">
+      <DependentUpon>MVJointList.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="ClassDiagram1.cd" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />

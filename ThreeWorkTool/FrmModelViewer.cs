@@ -14,12 +14,13 @@ using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Geometry;
 using ThreeWorkTool.Resources.Wrappers;
 using ThreeWorkTool.Resources.Wrappers.ModelNodes;
+using ThreeWorkTool.UX;
 
 namespace ThreeWorkTool
 {
     public partial class FrmModelViewer : Form
     {
-        private GLControl GlControl;
+        //private GLControl GlControl;
         public FrmMainThree Mainfrm { get; set; }
         private TheRenderer renderer;
         private KeyboardStateHandler Kboard;
@@ -31,6 +32,8 @@ namespace ThreeWorkTool
         public bool ShowJoints = true;
         public bool ShowPolygons = true;
         private System.Windows.Forms.Timer rTimer;
+        private MVJointList RightPanel;
+        private bool RightPanelActive = false;
 
         //From the OpenTK guide.
         float[] Testvertices = {
@@ -60,8 +63,8 @@ namespace ThreeWorkTool
             Kboard = new KeyboardStateHandler();
 
             //This creates and configures the GLControl.
-            GlControl = new GLControl(new GraphicsMode(32, 24, 0, 4));
-            GlControl.Dock = DockStyle.Fill;
+            //GlControl = new GLControl(new GraphicsMode(32, 24, 0, 4));
+            //GlControl.Dock = DockStyle.Fill;
             GlControl.Load += (s, e) => renderer.Load(this);
             GlControl.Paint += (s, e) => renderer.Render(ShowFloor, ShowJoints, ShowPolygons);
             GlControl.Resize += (s, e) => renderer.Resize(GlControl.Width, GlControl.Height);
@@ -99,13 +102,20 @@ namespace ThreeWorkTool
             //GlControl.KeyDown += (s, e) => Kboard.KeyDown(e.KeyCode);
             //GlControl.KeyUp += (s, e) => Kboard.KeyUp(e.KeyCode);
 
-            this.Controls.Add(GlControl);
+            //this.Controls.Add(GlControl);
 
             renderer = new TheRenderer(GlControl, Kboard);
 
             rTimer = new System.Windows.Forms.Timer { Interval = 16 };
             rTimer.Tick += (s, e) => GlControl.Invalidate();
             rTimer.Start();
+
+            //Side Panels.
+            RightPanel = new MVJointList();
+
+            RightPanel.Dock = DockStyle.Right;
+            RightPanel.Anchor = AnchorStyles.None;
+            RightPanel.Width = 0;
 
         }
 
@@ -160,6 +170,46 @@ namespace ThreeWorkTool
         private void btnResetCamera_Click(object sender, EventArgs e)
         {
             renderer.ResetCamera();
+        }
+
+        //Creates the Joint List UC and fills it in.
+        private void btnRToggle_Click(object sender, EventArgs e)
+        {
+
+            if(RightPanelActive == false)
+            {
+                RightPanelActive = true;
+                btnRToggle.Text = ">\n>\n>\n>\n>";
+            }
+            else
+            {
+                RightPanelActive = false;
+                btnRToggle.Text = "<\n<\n<\n<\n<";  
+            }
+
+            if (RightPanelActive)
+            {
+                //RightPanel = new MVJointList();
+                RightPanel.Width = 20;
+                RightPanel.Dock = DockStyle.Right;
+                //RightPanel.Anchor = AnchorStyles.None;
+
+                //Fill that Joint List.
+                RightPanel.listJointList = new ListBox();
+                List<string> JointNames = new List<string>();
+                for (int i = 0; i < modelEntry.Bones.Count; i++)
+                {
+                    string Str = "jnt_" + modelEntry.Bones[i].ID;
+                    JointNames.Add(Str);
+                }
+                RightPanel.listJointList.DataSource = JointNames;
+            }
+            else
+            {
+                RightPanel.Width = 0;
+            }
+
+
         }
     }
 }

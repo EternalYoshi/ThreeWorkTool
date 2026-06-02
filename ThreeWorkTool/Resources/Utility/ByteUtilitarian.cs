@@ -778,7 +778,7 @@ namespace ThreeWorkTool.Resources.Utility
         }
 
         //Based on functions from the model importer plugin by TGE.
-        public static object DecodeVertexComponent(int compType, BinaryReader reader)
+        public static float DecodeVertexComponent(int compType, BinaryReader reader)
         {
             switch (compType)
             {
@@ -793,13 +793,13 @@ namespace ThreeWorkTool.Resources.Utility
 
                     float value;
                     if (exponent == 0)
-                        value = (float)(Math.Pow(2, -14) * (mantissa / 1024.0));  // subnormal
+                        value = (float)(Math.Pow(2, -14) * (mantissa / 1024.0f));  // subnormal
                     else if (exponent == 0x1F)
                         value = mantissa != 0 ? float.NaN : float.PositiveInfinity; // NaN / Inf
                     else
-                        value = (float)(Math.Pow(2, exponent - 15) * (1 + mantissa / 1024.0));
+                        value = (float)(Math.Pow(2, exponent - 15) * (1 + mantissa / 1024.0f));
 
-                    return  sign == 1 ? -value : value;
+                    return sign == 1 ? -value : value;
                 case 3:
                     return Convert.ToSingle(reader.ReadUInt16());
                 case 4:
@@ -816,6 +816,17 @@ namespace ThreeWorkTool.Resources.Utility
                     return Convert.ToSingle(((reader.ReadByte()) - 127.0f) / 127.0f);
                 case 10:
                     return Convert.ToSingle((reader.ReadByte()) / 255.0f);
+                case 13:
+                    return Convert.ToSingle(reader.ReadByte());
+                default:
+                    return -1;
+            }
+        }
+
+        public static float[] DecodeVertex11And14Component(int compType, BinaryReader reader)
+        {
+            switch (compType)
+            {
                 case 11:
                     uint val = reader.ReadUInt32();
                     return new[]
@@ -825,8 +836,6 @@ namespace ThreeWorkTool.Resources.Utility
                         ((byte)((val & 0x00FF0000u) >> 16) - 127.0f) / 127.0f,
                         ((byte)((val & 0xFF000000u) >> 24) - 127.0f) / 127.0f,
                     };
-                case 13:
-                    return Convert.ToSingle(reader.ReadByte());
                 case 14:
                     uint valtwo = reader.ReadUInt32();
                     return new[]
@@ -837,71 +846,68 @@ namespace ThreeWorkTool.Resources.Utility
                         (float)((valtwo & 0xFF000000u) >> 24),
                     };
                 default:
-                    return -1;
+                    return null;
+                    break;
             }
         }
 
-        //public static System.Numerics.Vector3 FromBytesToVector3(ShaderInputInfo Shaderin, BinaryReader vertexStream)
-        //{
-        //    if (Shaderin.Type == 11)
-        //    {
-        //        var components = DecodeVertexComponent(Shaderin.Type, vertexStream);
-        //        return new System.Numerics.Vector3(components[0], components[1], components[2]);
-        //    }
-        //    else
-        //    {
-        //        //Debug.Assert(Shaderin.Count >= 3);
-        //        float x = DecodeVertexComponent(Shaderin.Type, vertexStream)[0];
-        //        float y = DecodeVertexComponent(Shaderin.Type, vertexStream)[0];
-        //        float z = DecodeVertexComponent(Shaderin.Type, vertexStream)[0];
-        //        return new System.Numerics.Vector3(x, y, z);
-        //    }
-        //}
-
-    }
-
-    public class CRC32Helper
-    {
-        private static readonly uint[] Table = GenerateTable();
-
-        public static int ComputeHash(string input)
+        //Unpacker stuff from the plugin, ported.
+        public static float DecodeFS8(byte val)
         {
-            byte[] bytes = Encoding.ASCII.GetBytes(input);
-            uint crc = 0xFFFFFFFF;
-
-            foreach (byte b in bytes)
-            {
-                byte index = (byte)((crc ^ b) & 0xFF);
-                crc = (crc >> 8) ^ Table[index];
-            }
-
-            crc = ~crc;
-
-            // Convert to signed int (wraps if > int.MaxValue)
-            return unchecked((int)crc);
+            return (val - 127f) / 127f;
         }
 
-        private static uint[] GenerateTable()
+        public static float[] DecodeX8Y8Z8W8(uint packed) => new[]
         {
-            uint[] table = new uint[256];
-            const uint polynomial = 0xEDB88320;
+            DecodeFS8((byte)( packed        & 0xFF)),
+            DecodeFS8((byte)((packed >>  8) & 0xFF)),
+            DecodeFS8((byte)((packed >> 16) & 0xFF)),
+            DecodeFS8((byte)((packed >> 24) & 0xFF)),
+        };
 
-            for (uint i = 0; i < table.Length; i++)
+
+        public class CRC32Helper
+        {
+            private static readonly uint[] Table = GenerateTable();
+
+            public static int ComputeHash(string input)
             {
-                uint c = i;
-                for (int j = 0; j < 8; j++)
+                byte[] bytes = Encoding.ASCII.GetBytes(input);
+                uint crc = 0xFFFFFFFF;
+
+                foreach (byte b in bytes)
                 {
-                    if ((c & 1) != 0)
-                        c = polynomial ^ (c >> 1);
-                    else
-                        c >>= 1;
+                    byte index = (byte)((crc ^ b) & 0xFF);
+                    crc = (crc >> 8) ^ Table[index];
                 }
-                table[i] = c;
+
+                crc = ~crc;
+
+                // Convert to signed int (wraps if > int.MaxValue)
+                return unchecked((int)crc);
             }
 
-            return table;
+            private static uint[] GenerateTable()
+            {
+                uint[] table = new uint[256];
+                const uint polynomial = 0xEDB88320;
+
+                for (uint i = 0; i < table.Length; i++)
+                {
+                    uint c = i;
+                    for (int j = 0; j < 8; j++)
+                    {
+                        if ((c & 1) != 0)
+                            c = polynomial ^ (c >> 1);
+                        else
+                            c >>= 1;
+                    }
+                    table[i] = c;
+                }
+
+                return table;
+            }
         }
+
     }
-
 }
-

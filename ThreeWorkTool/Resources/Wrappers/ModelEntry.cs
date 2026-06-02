@@ -12,6 +12,7 @@ using ThreeWorkTool.Resources.Archives;
 using ThreeWorkTool.Resources.Utility;
 using ThreeWorkTool.Resources.Wrappers.ModelNodes;
 using static ThreeWorkTool.Resources.Utility.Mvc3ShaderDatabase;
+using static ThreeWorkTool.Resources.Wrappers.ModelNodes.ModelPrimitiveEntry;
 
 namespace ThreeWorkTool.Resources.Wrappers
 {
@@ -44,6 +45,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public float BoundingSphereRadius;
         public Vector4 BoundingBoxCenter;
         public Vector4 BoundingBoxRadius;
+        public Matrix4x4 ModelMatrixNormal;
         public new static string TypeHash = "58A15856";
         public int Field90;
         public int Field94;
@@ -309,6 +311,8 @@ namespace ThreeWorkTool.Resources.Wrappers
             for (int v = 0; v < modentry.PrimitiveCount; v++)
             {
                 ModelPrimitiveEntry Prim = new ModelPrimitiveEntry();
+                Prim.Vertices = new List<ModelPrimitiveEntry.Vertex>();
+
                 Prim.PrimOffset = Convert.ToInt32(bnr.BaseStream.Position);
                 Prim.Flags = bnr.ReadInt16();
                 Prim.VerticeCount = bnr.ReadInt16();
@@ -361,11 +365,42 @@ namespace ThreeWorkTool.Resources.Wrappers
                     bnr.BaseStream.Position = PrevAddr;
                 }
 
+                //And now for the Matrix that will be used for the vertices later.
+                Matrix4x4 TransformMtx = Matrix4x4.Identity;
+
+                //We want our Z to be up, so we need to multiply this matrix.
+                Matrix4x4 ForYUpToZup = new Matrix4x4
+                    (
+                        1, 0, 0, 0,
+                        0, 0, 1, 0,
+                        0, -1, 0, 0,
+                        0, 0, 0, 1
+                    );
+
+                TransformMtx *= ForYUpToZup;
+
+                //We would apply a uniform scale matrix here, but the scale is 1.0 so whatever.
+                Matrix4x4 ForTheJoints = Matrix4x4.Identity;
+                //Next we gotta check the joint count to apply what the Root Joint's transformations.
+                if (modentry.JointTotal > 0)
+                {
+                    ForTheJoints = modentry.Bones[0].InvBindMatrix * modentry.Bones[0].LocalMatrix;
+                }
+
+                Matrix4x4 ModelMatrix = ForTheJoints * TransformMtx;
+
+                //Matrix4x4.Invert(ModelMatrix, out Matrix4x4 InvModelMatrix);
+                //Matrix4x4 ModelMatrixNormal = Matrix4x4.Transpose(InvModelMatrix); 
+
+                Matrix4x4 TransPoseMatrixNormal = Matrix4x4.Transpose(ModelMatrix);
+                Matrix4x4.Invert(TransPoseMatrixNormal, out Matrix4x4 ModelMatrixNormal);
+
+                modentry.ModelMatrixNormal = ModelMatrixNormal;
                 //Vertex coordinates and UVs. This will be a while.
-                Prim.UVPrimary = new List<Vector3>();
-                Prim.UVSecondary = new List<Vector3>();
-                Prim.UVExtend = new List<Vector3>();
-                Prim.UVUnique = new List<Vector3>();
+                Prim.UVPrimary = new List<Vector2>();
+                Prim.UVSecondary = new List<Vector2>();
+                Prim.UVExtend = new List<Vector2>();
+                Prim.UVUnique = new List<Vector2>();
                 //ShaderObjectInfo shaderInfo;
 
                 //Setup the Vertex Buffer for reading.
@@ -376,15 +411,28 @@ namespace ThreeWorkTool.Resources.Wrappers
                         int StartOfVertices = Prim.VertexBufferOffset + (Prim.VertexStartIndex * Prim.VertexStride);
                         BinBufReader.BaseStream.Position = StartOfVertices;
 
-                        for(int j = 0; j < Prim.VerticeCount; j++)
+#if DEBUG
+                        //StreamWriter outputFile = new StreamWriter("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVALUESFROMCSHARP.txt");
+                        //File.AppendAllText("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVALUESFROMCSHARP.txt", "\nPrim ID: " + Prim.ID + "    BinBufReader.BaseStream.Position Offset " + Environment.NewLine + "___________________________________________________" + Environment.NewLine);
+
+#endif                            
+
+                        for (int j = 0; j < Prim.VerticeCount; j++)
                         {
                             BinBufReader.BaseStream.Position = StartOfVertices + (j * Prim.VertexStride);
+                            long VertStart = StartOfVertices + (j * Prim.VertexStride);
+                            Vertex vert = new Vertex();
+                            vert.Weights = new List<float>();
+                            vert.Joints = new List<int>();
 
                             //Going to try and replicate the model importer plugin & decoding each vertex input.
                             List<int> VertJointArray = new List<int>();
                             List<float> VertWeightArray = new List<float>();
 
-                            //Prim.Shader
+                            if (Prim.ID == 1)
+                            {
+                                int Filler = 1;
+                            }
 
                             foreach (var thing in Prim.Shader.InputsByName)
                             {
@@ -393,17 +441,181 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                                 foreach (var inputInfo in Inputs)
                                 {
+                                    BinBufReader.BaseStream.Position = VertStart + inputInfo.Offset;
+
+
+                                    //string TextForDebug = "BinBufReader.BaseStream.Position = " + Convert.ToString(BinBufReader.BaseStream.Position + "\n");
+                                    //File.AppendAllText("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVALUESFROMCSHARP.txt", TextForDebug);
+
                                     switch (Key)
                                     {
+                                        case "Position":
+                                            if (inputInfo.Type == 11)
+                                            {
+                                                //Allegdly for compressed normals according to the model importer plugin's comments.
+                                                float[] xyzw = ByteUtilitarian.DecodeX8Y8Z8W8(BinBufReader.ReadUInt32());
+                                                vert.Coordinate = new Vector3(xyzw[0], xyzw[1], xyzw[2]);
+                                            }
+
+                                            if (inputInfo.Count < 3)
+                                            {
+                                                throw new InvalidDataException("There's insufficient components for a Vector3....");
+                                            }
+
+                                            //if (inputInfo.Type == 11 || inputInfo.Type == 14)
+                                            //{
+
+                                            //}
+                                            //else
+                                            //{
+                                            vert.Coordinate.X = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            vert.Coordinate.Y = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            vert.Coordinate.Z = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            //}
+                                            //Leftover declared components have to be eaten up.
+                                            for (int i = 3; i < inputInfo.Count; i++)
+                                            {
+                                                ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            }
+
+                                            break;
+                                        case "Normal":
+                                            if (inputInfo.Type == 11)
+                                            {
+                                                //Allegdly for compressed normals according to the model importer plugin's comments.
+                                                float[] xyzw = ByteUtilitarian.DecodeX8Y8Z8W8(BinBufReader.ReadUInt32());
+                                                vert.Normals = new Vector3(xyzw[0], xyzw[1], xyzw[2]);
+
+                                            }
+                                            else
+                                            {
+                                                if (inputInfo.Count < 3)
+                                                {
+                                                    throw new InvalidDataException("There's insufficient components for a Vector3....");
+                                                }
+
+                                                vert.Normals.X = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                                vert.Normals.Y = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                                vert.Normals.Z = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+
+                                                //Vector3 TransformaedNormal = Vector3.Transform(vert.Normals, Matrix4x4.Transpose(modentry.ModelMatrixNormal));
+                                                //vert.Normals = Vector3.Normalize(TransformaedNormal);
+                                                Vector3 TransformaedNormal = Vector3.TransformNormal(vert.Normals, modentry.ModelMatrixNormal);
+                                                vert.Normals = Vector3.Normalize(TransformaedNormal);
 
 
 
+                                                //Leftover declared components have to be eaten up.
+                                                for (int i = 3; i < inputInfo.Count; i++)
+                                                {
+                                                    ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                                }
+
+                                            }
+
+                                            break;
+                                        case "UV_Primary":
+
+                                            if (inputInfo.Count < 2)
+                                            {
+                                                throw new InvalidDataException("Not enough components, UVs require at least 2 components, and this entry has\n " + inputInfo.Count + ".");
+                                            }
+
+                                            vert.UVPrimary.X = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            vert.UVPrimary.Y = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+
+                                            //Leftover declared components have to be eaten up.
+                                            if (inputInfo.Count > 2)
+                                            {
+                                                ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            }
+
+                                            break;
+                                        case "UV_Secondary":
+
+                                            if (inputInfo.Count < 2)
+                                            {
+                                                throw new InvalidDataException("Not enough components, UVs require at least 2 components, and this entry has\n " + inputInfo.Count + ".");
+                                            }
+
+                                            vert.UVSecondary.X = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            vert.UVSecondary.Y = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+
+                                            //Leftover declared components have to be eaten up.
+                                            if (inputInfo.Count > 2)
+                                            {
+                                                ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            }
+
+                                            break;
+                                        case "UV_Unique":
+
+                                            if (inputInfo.Count < 2)
+                                            {
+                                                throw new InvalidDataException("Not enough components, UVs require at least 2 components, and this entry has\n " + inputInfo.Count + ".");
+                                            }
+
+                                            vert.UVUnique.X = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            vert.UVUnique.Y = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+
+                                            //Leftover declared components have to be eaten up.
+                                            if (inputInfo.Count > 2)
+                                            {
+                                                ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            }
+
+                                            break;
+                                        case "UV_Extend":
+
+                                            if (inputInfo.Count < 2)
+                                            {
+                                                throw new InvalidDataException("Not enough components, UVs require at least 2 components, and this entry has\n " + inputInfo.Count + ".");
+                                            }
+
+                                            vert.UVUnique.X = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            vert.UVUnique.Y = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+
+                                            //Leftover declared components have to be eaten up.
+                                            if (inputInfo.Count > 2)
+                                            {
+                                                ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+                                            }
+
+                                            break;
+                                        case "Joint":
+
+                                            for (int i = 0; i < inputInfo.Count; i++)
+                                            {
+                                                float raw = ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader);
+
+                                                // Type 4 (int16) can be sign-extended negative; mask to the low byte.
+                                                vert.Joints.Add(raw < 0 ? (int)raw & 0xFF : (int)raw);
+
+                                            }
+
+                                            break;
+                                        case "Weight":
+
+                                            for (int i = 0; i < inputInfo.Count; i++)
+                                            {
+                                                vert.Weights.Add(ByteUtilitarian.DecodeVertexComponent(inputInfo.Type, BinBufReader));
+                                            }
+
+                                            break;
 
 
                                     }
                                 }
                             }
 
+                            if (VertJointArray.Count > 0)
+                            {
+
+                            }
+                            if (VertWeightArray.Count > 0)
+                            {
+
+                            }
 
 
                         }

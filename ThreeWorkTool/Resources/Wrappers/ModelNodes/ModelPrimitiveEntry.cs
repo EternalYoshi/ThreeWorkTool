@@ -37,24 +37,32 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
         public byte LODIndex { get; set; }
 
         [Category("UVs"), ReadOnlyAttribute(true)]
-        public List<Vector3> UVPrimary { get; set; }
+        public List<Vector2> UVPrimary { get; set; }
 
         [Category("UVs"), ReadOnlyAttribute(true)]
-        public List<Vector3> UVSecondary { get; set; }
+        public List<Vector2> UVSecondary { get; set; }
 
         [Category("UVs"), ReadOnlyAttribute(true)]
-        public List<Vector3> UVUnique { get; set; }
+        public List<Vector2> UVUnique { get; set; }
 
         [Category("UVs"), ReadOnlyAttribute(true)]
-        public List<Vector3> UVExtend { get; set; }
+        public List<Vector2> UVExtend { get; set; }
 
         public struct Vertex
         {
             public Vector3 Coordinate;
             public List<float> Weights;
-            public Vector4 Normals;
+            public Vector3 Normals;
             public List<int> Joints;
+            public Vector2 UVPrimary;
+            public Vector2 UVSecondary;
+            public Vector2 UVUnique;
+            public Vector2 UVExtend;
         }
+        public List<Vertex> Vertices;
+
+        public List<int> VertJointArray;
+        public List<float> VertWeightArray;
 
         public struct MTShader
         {
@@ -97,7 +105,7 @@ namespace ThreeWorkTool.Resources.Wrappers.ModelNodes
         }
 
         [Category("Primitive"), ReadOnlyAttribute(true)]
-        public int Vertices
+        public int AmountOfVertices
         {
 
             get
