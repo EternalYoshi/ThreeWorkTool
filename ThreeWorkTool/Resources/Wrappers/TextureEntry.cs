@@ -439,6 +439,24 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                         #endregion
 
+                        #region Alternate Bitmap Textures with Transparency
+                        case "15":
+                            teXentry._Format = "Alternate DXT5/BC3";
+
+                            byte[] HeaderTwo15 = { 0x01, 0x17, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo15);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
+
+                            teXentry = DDSToRGBA(teXentry);
+
+                            break;
+                        #endregion
+
                         #region Bitmap Textures with Transparency
                         case "17":
                             teXentry._Format = "DXT5/BC3";
@@ -707,6 +725,24 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                             break;
 
+                        #endregion
+
+                        #region Bitmap Textures with Transparency
+                        case "15":
+                            teXentry._Format = "Alternate DXT5/BC3";
+
+                            byte[] HeaderTwo15 = { 0x01, 0x15, 0x01, 0x01 };
+                            TBuffer.AddRange(HeaderTwo15);
+
+                            for (int mip = 0; mip < teXentry.MipMapCount; mip++)
+                            {
+                                //Writes a dummy entry for each mipmap.
+                                byte[] MipOffsetData = { 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                            }
+
+                            teXentry = DDSToRGBA(teXentry);
+
+                            break;
                         #endregion
 
                         #region Bitmap Textures with Transparency

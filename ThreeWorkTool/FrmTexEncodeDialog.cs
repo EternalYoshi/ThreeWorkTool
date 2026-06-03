@@ -1158,7 +1158,7 @@ namespace ThreeWorkTool
                         break;
                     }
 
-                case 6:
+                case 7:
                     if (this.IsDXT1 == true && this.DXType == "44585431")
                     {
                         MessageBox.Show("This texture was saved as a DXT1 .DDS file, meaning the DXT compression method used for this is not compatible with this texture type.\nIf you want to import this as this type of texture, return to the image editing software you used to save this and make sure to save it as a DXT5 instead.", "Hold it!");
