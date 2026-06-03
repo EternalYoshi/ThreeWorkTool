@@ -145,8 +145,8 @@
             // 
             // btnRToggle
             // 
+            this.btnRToggle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnRToggle.AutoSize = true;
-            this.btnRToggle.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnRToggle.Location = new System.Drawing.Point(0, 0);
             this.btnRToggle.Name = "btnRToggle";
             this.btnRToggle.Size = new System.Drawing.Size(23, 589);

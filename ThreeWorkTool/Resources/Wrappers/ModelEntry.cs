@@ -62,6 +62,7 @@ namespace ThreeWorkTool.Resources.Wrappers
         public byte[] IndexBuffer;
         public byte[] ExtraDataBuffer;
         public int PositionForUVs = 0;
+        public bool FullyLoaded = false;
 
         public static ModelEntry FillModelEntry(string filename, List<string> subnames, TreeView tree, BinaryReader br, int c, int ID, Type filetype = null)
         {

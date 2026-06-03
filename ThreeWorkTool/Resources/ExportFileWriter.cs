@@ -131,7 +131,7 @@ namespace ThreeWorkTool.Resources
                 }
 
             }
-            else if (entrytowrite.TexType == "15" || entrytowrite.Format == "??????")
+            else if (entrytowrite.Format == "??????")
             {
                 try
                 {

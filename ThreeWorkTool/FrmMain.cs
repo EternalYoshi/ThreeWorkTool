@@ -6985,7 +6985,7 @@ namespace ThreeWorkTool
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Export.
@@ -7034,7 +7034,7 @@ namespace ThreeWorkTool
             conmenu.Items.Add("Preview/Edit", null, MenuMSDEdit_Click);
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Export.
@@ -7101,7 +7101,7 @@ namespace ThreeWorkTool
             conmenu.Items.Add(new ToolStripSeparator());
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Replace.
@@ -7150,7 +7150,7 @@ namespace ThreeWorkTool
             conmenu.Items.Add(new ToolStripSeparator());
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Export.
@@ -7197,7 +7197,7 @@ namespace ThreeWorkTool
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Export.
@@ -7242,7 +7242,7 @@ namespace ThreeWorkTool
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Add Entry
@@ -7297,7 +7297,7 @@ namespace ThreeWorkTool
             conmenu.Items.Add(new ToolStripSeparator());
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Export.
@@ -7366,7 +7366,7 @@ namespace ThreeWorkTool
             conmenu.Items.Add(new ToolStripSeparator());
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Export.
@@ -7411,7 +7411,7 @@ namespace ThreeWorkTool
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Export.
@@ -7476,7 +7476,7 @@ namespace ThreeWorkTool
             conmenu.Items.Add(new ToolStripSeparator());
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Export.
@@ -7512,7 +7512,7 @@ namespace ThreeWorkTool
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Export.
@@ -7568,7 +7568,7 @@ namespace ThreeWorkTool
             conmenu.Items.Add(new ToolStripSeparator());
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Export.
@@ -7629,7 +7629,7 @@ namespace ThreeWorkTool
             ContextMenuStrip conmenu = new ContextMenuStrip();
 
             //Copy.
-            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.C);
+            var copyitem = new ToolStripMenuItem("Copy File", null, MenuItemCopyFile, Keys.Control | Keys.Shift | Keys.C);
             conmenu.Items.Add(copyitem);
 
             //Export.

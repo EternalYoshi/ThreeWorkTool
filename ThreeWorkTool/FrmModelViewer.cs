@@ -190,12 +190,12 @@ namespace ThreeWorkTool
             if (RightPanelActive)
             {
                 //RightPanel = new MVJointList();
-                RightPanel.Width = 20;
+                RightPanel.Width = 119;
                 RightPanel.Dock = DockStyle.Right;
                 //RightPanel.Anchor = AnchorStyles.None;
 
                 //Fill that Joint List.
-                RightPanel.listJointList = new ListBox();
+                //RightPanel.listJointList = new ListBox();
                 List<string> JointNames = new List<string>();
                 for (int i = 0; i < modelEntry.Bones.Count; i++)
                 {
@@ -203,10 +203,28 @@ namespace ThreeWorkTool
                     JointNames.Add(Str);
                 }
                 RightPanel.listJointList.DataSource = JointNames;
+
+                //Adjust the panel to fit the Joint List Control.
+                pnlBaseRight.Width = 142;                
+                btnRToggle.Dock = DockStyle.Left;
+                btnRToggle.Width = 20;
+                RightPanel.Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+                RightPanel.Dock = DockStyle.Fill;
+                //RightPanel.listJointList.BackColor = Color.Red;
+                pnlBaseRight.Controls.Add(RightPanel);
+
             }
             else
             {
+                pnlBaseRight.Controls.Remove(RightPanel);
+                RightPanel.Dock = DockStyle.None;
+                btnRToggle.Width = 140;
+                //btnRToggle.Dock = DockStyle.Fill;
+                btnRToggle.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+                btnRToggle.Dock = DockStyle.None;
+                pnlBaseRight.Width = 23;
                 RightPanel.Width = 0;
+
             }
 
 

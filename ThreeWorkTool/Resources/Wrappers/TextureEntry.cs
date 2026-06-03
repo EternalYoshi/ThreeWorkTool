@@ -1020,6 +1020,123 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 #endregion
 
+                #region That Weird Format that has Transparency and DXT5
+                case "15":
+                    texentry._Format = "Alternate DXT5/BC3";
+
+                    //Gets the unsigned integers which hold data on the texture's dimensions.
+                    brStream.BaseStream.Position = 4;
+                    LWData[0] = BitConverter.ToUInt32(brStream.ReadBytes(4), 0);
+                    LWData[1] = BitConverter.ToUInt32(brStream.ReadBytes(4), 0);
+                    LWData[2] = BitConverter.ToUInt32(brStream.ReadBytes(4), 0);
+
+                    //X and Y coordinates. This method is borrowed from the old TexCheck.py file.
+                    texentry.XSize = Convert.ToInt32(((LWData[1] >> 6) & 0x1fff));
+                    texentry._X = texentry.XSize;
+
+                    texentry.YSize = Convert.ToInt32(((LWData[1] >> 19) & 0x1fff));
+                    texentry._Y = texentry.YSize;
+
+                    texentry.Mips = Convert.ToInt32(((LWData[1]) & 0x3f));
+                    texentry._MipMapCount = texentry.Mips;
+
+                    texentry.PixelCount = texentry._X * texentry._Y;
+
+                    texentry.CSize = ((texentry._X / 4) * (texentry._Y / 4));
+
+                    texentry.DSize = 16;
+
+                    Array.Clear(DTemp, 0, 4);
+
+                    int v15 = 0x10;
+
+                    texentry.MipOffsets = new int[texentry.MipMapCount];
+
+                    for (int i = 0; i < texentry._MipMapCount; i++)
+                    {
+                        //Gets offsets of MipMapData.
+                        brStream.BaseStream.Position = v15;
+                        texentry.MipOffsets[i] = brStream.ReadInt32();
+                        v15 = v15 + 8;
+                    }
+                    v = 0x10;
+                    int w15 = 0;
+                    int u15 = 0;
+                    //Extracts and separates the Mip Maps.
+                    texentry.OutMapsB = new byte[texentry._MipMapCount][];
+                    for (int i = 0; i < texentry._MipMapCount; i++)
+                    {
+                        if ((i) == (texentry.MipOffsets.Length - 1))
+                        {
+                            texentry.WTemp = new byte[(Convert.ToInt32(TexStream.Length) - texentry.MipOffsets[i])];
+                            texentry.OutMaps = new byte[(texentry._MipMapCount)];
+                            Array.Copy(TexStream.ToArray(), texentry.MipOffsets[i], texentry.WTemp, 0, (Convert.ToInt32(TexStream.Length) - texentry.MipOffsets[i]));
+                            w15 = texentry.WTemp.Length;
+                            u15 = u15 + texentry.WTemp.Length;
+                            texentry.OutMaps = texentry.WTemp;
+                            texentry.OutMapsB[i] = texentry.OutMaps;
+                        }
+                        else
+                        {
+                            texentry.WTemp = new byte[(texentry.MipOffsets[(i + 1)] - texentry.MipOffsets[i])];
+                            texentry.OutMaps = new byte[(texentry._MipMapCount)]; Array.Copy(TexStream.ToArray(), texentry.MipOffsets[i], texentry.WTemp, 0, (texentry.MipOffsets[(i + 1)] - texentry.MipOffsets[i]));
+                            w = texentry.WTemp.Length;
+                            u15 = u15 + texentry.WTemp.Length;
+                            texentry.OutMaps = texentry.WTemp;
+                            texentry.OutMapsB[i] = texentry.OutMaps;
+                        }
+                    }
+                    //Debug Export. Gotta use this for the export as well.
+                    texentry.OutTexTest = new List<byte>();
+
+
+
+                    byte[] DDSHeader15 = { 0x44, 0x44, 0x53, 0x20, 0x7c, 0x00, 0x00, 0x00, 0x07, 0x10, 0x08, 0x00, 0x00, 0x01, 0x00, 0x00,
+                                         0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
+                                         0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x35, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+                    if (texentry.FileName.Contains("NOMIP"))
+                    {
+                        DDSHeader15[28] = Convert.ToByte(1);
+                    }
+                    else
+                    {
+                        DDSHeader15[28] = Convert.ToByte(texentry.MipMapCount);
+                    }
+
+                    texentry.OutTexTest.AddRange(DDSHeader15);
+
+                    foreach (byte[] array in texentry.OutMapsB)
+                    {
+                        texentry.OutTexTest.AddRange(array);
+                    }
+
+                    int findex15 = filename.LastIndexOf("\\");
+                    string outname15 = (filename.Substring(0, findex15) + "\\") + texentry.TrueName;
+                    string outpngname15 = outname15 + ".png";
+                    outname15 = outname15 + ".dds";
+
+                    texentry.OutMaps = texentry.OutTexTest.ToArray();
+
+                    uint blargx15 = Convert.ToUInt32(texentry.XSize);
+                    uint blargy15 = Convert.ToUInt32(texentry.YSize);
+
+                    byte[] Xbytes15 = BitConverter.GetBytes(blargy15);
+                    byte[] Ybytes15 = BitConverter.GetBytes(blargx15);
+
+                    Array.Copy(Xbytes15, 0, texentry.OutMaps, 12, 4);
+                    Array.Copy(Ybytes15, 0, texentry.OutMaps, 16, 4);
+
+                    texentry = DDSToRGBA(texentry);
+                    break;
+
+                #endregion
+
                 #region Bitmap Textures with Transparency
                 case "17":
                     texentry._Format = "DXT5/BC3";
@@ -2053,6 +2170,174 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                 #endregion
 
+                #region That Weird Format that has Transparency and DXT5
+                case "15":
+                    teXentry._Format = "Alternate DXT5/BC3";
+
+                    //Gets the unsigned integers which hold data on the texture's dimensions.
+                    bnr.BaseStream.Position = 4;
+                    LWData[0] = BitConverter.ToUInt32(bnr.ReadBytes(4), 0);
+                    LWData[1] = BitConverter.ToUInt32(bnr.ReadBytes(4), 0);
+                    LWData[2] = BitConverter.ToUInt32(bnr.ReadBytes(4), 0);
+
+                    //X and Y coordinates. This method is borrowed from the old TexCheck.py file.
+                    teXentry.XSize = Convert.ToInt32(((LWData[1] >> 6) & 0x1fff));
+                    teXentry._X = teXentry.XSize;
+
+                    teXentry.YSize = Convert.ToInt32(((LWData[1] >> 19) & 0x1fff));
+                    teXentry._Y = teXentry.YSize;
+
+                    teXentry.Mips = Convert.ToInt32(((LWData[1]) & 0x3f));
+                    teXentry._MipMapCount = teXentry.Mips;
+
+                    teXentry.PixelCount = teXentry._X * teXentry._Y;
+
+                    teXentry.CSize = ((teXentry._X / 4) * (teXentry._Y / 4));
+
+                    teXentry.DSize = 16;
+
+                    Array.Clear(DTemp, 0, 4);
+
+                    int v15 = 0x10;
+
+                    teXentry.MipOffsets = new int[teXentry.MipMapCount];
+
+                    for (int i = 0; i < teXentry._MipMapCount; i++)
+                    {
+                        //Gets offsets of MipMapData.
+                        bnr.BaseStream.Position = v15;
+                        teXentry.MipOffsets[i] = bnr.ReadInt32();
+                        v15 = v15 + 8;
+                    }
+
+                    v = 0x10;
+
+                    int w15 = 0;
+                    int u15 = 0;
+
+                    //Extracts and separates the Mip Maps.
+                    teXentry.OutMapsB = new byte[teXentry._MipMapCount][];
+
+                    for (int i = 0; i < teXentry._MipMapCount; i++)
+                    {
+
+                        if ((i) == (teXentry.MipOffsets.Length - 1))
+                        {
+                            teXentry.WTemp = new byte[(teXentry.UncompressedData.Length - teXentry.MipOffsets[i])];
+                            teXentry.OutMaps = new byte[(teXentry._MipMapCount)];
+
+                            System.Buffer.BlockCopy(teXentry.UncompressedData, teXentry.MipOffsets[i], teXentry.WTemp, 0, (teXentry.UncompressedData.Length - teXentry.MipOffsets[i]));
+                            w15 = teXentry.WTemp.Length;
+                            u15 = u15 + teXentry.WTemp.Length;
+
+                            teXentry.OutMaps = teXentry.WTemp;
+                            teXentry.OutMapsB[i] = teXentry.OutMaps;
+                        }
+                        else
+                        {
+                            teXentry.WTemp = new byte[(teXentry.MipOffsets[(i + 1)] - teXentry.MipOffsets[i])];
+                            teXentry.OutMaps = new byte[(teXentry._MipMapCount)];
+                            System.Buffer.BlockCopy(teXentry.UncompressedData, teXentry.MipOffsets[i], teXentry.WTemp, 0, (teXentry.MipOffsets[(i + 1)] - teXentry.MipOffsets[i]));
+                            w = teXentry.WTemp.Length;
+                            u15 = u15 + teXentry.WTemp.Length;
+
+                            teXentry.OutMaps = teXentry.WTemp;
+                            teXentry.OutMapsB[i] = teXentry.OutMaps;
+                        }
+
+                    }
+
+                    teXentry.OutTexTest = new List<byte>();
+
+
+                    byte[] DDSHeader15 = { 0x44, 0x44, 0x53, 0x20, 0x7c, 0x00, 0x00, 0x00, 0x07, 0x10, 0x08, 0x00, 0x00, 0x01, 0x00, 0x00,
+                                         0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
+                                         0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x35, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+                    teXentry.OutTexTest.AddRange(DDSHeader15);
+
+                    foreach (byte[] array in teXentry.OutMapsB)
+                    {
+                        teXentry.OutTexTest.AddRange(array);
+                    }
+
+                    teXentry.OutMaps = teXentry.OutTexTest.ToArray();
+                    uint blargx15 = Convert.ToUInt32(teXentry.XSize);
+                    uint blargy15 = Convert.ToUInt32(teXentry.YSize);
+
+                    byte[] Xbytes15 = BitConverter.GetBytes(blargy15);
+                    byte[] Ybytes15 = BitConverter.GetBytes(blargx15);
+
+                    Array.Copy(Xbytes15, 0, teXentry.OutMaps, 12, 4);
+                    Array.Copy(Ybytes15, 0, teXentry.OutMaps, 16, 4);
+
+                    #region ToRGBAPNG
+                    //Time to convert this to png for RGBA related reasons.
+                    byte[] DDSTemp15 = new byte[] { };
+                    byte[] RGBATemp15 = new byte[] { };
+                    DDSTemp15 = teXentry.OutMaps;
+
+                    using (Stream strim = new MemoryStream(DDSTemp15))
+                    {
+                        using (var image = Pfim.Pfim.FromStream(strim))
+                        {
+                            PixelFormat format;
+
+                            // Convert from Pfim's backend agnostic image format into GDI+'s image format
+                            switch (image.Format)
+                            {
+                                case Pfim.ImageFormat.Rgba32:
+                                    format = PixelFormat.Format32bppArgb;
+                                    break;
+                                case Pfim.ImageFormat.Rgb24:
+                                    format = PixelFormat.Format24bppRgb;
+                                    break;
+                                default:
+                                    // see the sample for more details
+                                    throw new NotImplementedException();
+                            }
+
+                            // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
+                            // in this snippet but useful technique if the data was going to be used in
+                            // control like a picture box
+                            var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+                            try
+                            {
+                                var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                                var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+
+
+                                using (var stream = new MemoryStream())
+                                {
+                                    bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                                    RGBATemp15 = stream.ToArray();
+                                }
+
+
+                            }
+                            finally
+                            {
+                                handle.Free();
+                            }
+
+
+                        }
+                    }
+
+                    teXentry.OutMaps = RGBATemp15;
+
+                    teXentry.Picture = ByteUtilitarian.BitmapBuilderDX(teXentry.OutMaps, teXentry);
+                    #endregion
+
+
+                    break;
+                #endregion
+
                 #region Bitmap Textures with Transparency
                 case "17":
                     teXentry._Format = "DXT5/BC3";
@@ -3020,6 +3305,124 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                     break;
 
+                #endregion
+
+                #region That Weird Format that has Transparency and DXT5
+                case "15":
+                    texentry._Format = "Alternate DXT5/BC3";
+
+                    //Gets the unsigned integers which hold data on the texture's dimensions.
+                    bnr.BaseStream.Position = 4;
+                    LWData[0] = BitConverter.ToUInt32(bnr.ReadBytes(4), 0);
+                    LWData[1] = BitConverter.ToUInt32(bnr.ReadBytes(4), 0);
+                    LWData[2] = BitConverter.ToUInt32(bnr.ReadBytes(4), 0);
+
+                    //X and Y coordinates. This method is borrowed from the old TexCheck.py file.
+                    texentry.XSize = Convert.ToInt32(((LWData[1] >> 6) & 0x1fff));
+                    texentry._X = texentry.XSize;
+
+                    texentry.YSize = Convert.ToInt32(((LWData[1] >> 19) & 0x1fff));
+                    texentry._Y = texentry.YSize;
+
+                    texentry.Mips = Convert.ToInt32(((LWData[1]) & 0x3f));
+                    texentry._MipMapCount = texentry.Mips;
+
+                    texentry.PixelCount = texentry._X * texentry._Y;
+
+                    texentry.CSize = ((texentry._X / 4) * (texentry._Y / 4));
+
+                    texentry.DSize = 16;
+
+                    Array.Clear(DTemp, 0, 4);
+
+                    int v15 = 0x10;
+
+                    texentry.MipOffsets = new int[texentry.MipMapCount];
+
+                    for (int i = 0; i < texentry._MipMapCount; i++)
+                    {
+                        //Gets offsets of MipMapData.
+                        bnr.BaseStream.Position = v15;
+                        texentry.MipOffsets[i] = bnr.ReadInt32();
+                        v15 = v15 + 8;
+                    }
+                    v = 0x10;
+                    int w15 = 0;
+                    int u15 = 0;
+                    //Extracts and separates the Mip Maps.
+                    texentry.OutMapsB = new byte[texentry._MipMapCount][];
+                    for (int i = 0; i < texentry._MipMapCount; i++)
+                    {
+                        if ((i) == (texentry.MipOffsets.Length - 1))
+                        {
+                            texentry.WTemp = new byte[(Convert.ToInt32(texentry.UncompressedData.Length) - texentry.MipOffsets[i])];
+                            texentry.OutMaps = new byte[(texentry._MipMapCount)];
+                            Array.Copy(texentry.UncompressedData.ToArray(), texentry.MipOffsets[i], texentry.WTemp, 0, (Convert.ToInt32(texentry.UncompressedData.Length) - texentry.MipOffsets[i]));
+                            w15 = texentry.WTemp.Length;
+                            u15 = u15 + texentry.WTemp.Length;
+                            texentry.OutMaps = texentry.WTemp;
+                            texentry.OutMapsB[i] = texentry.OutMaps;
+                        }
+                        else
+                        {
+                            texentry.WTemp = new byte[(texentry.MipOffsets[(i + 1)] - texentry.MipOffsets[i])];
+                            texentry.OutMaps = new byte[(texentry._MipMapCount)]; Array.Copy(texentry.UncompressedData.ToArray(), texentry.MipOffsets[i], texentry.WTemp, 0, (texentry.MipOffsets[(i + 1)] - texentry.MipOffsets[i]));
+                            w = texentry.WTemp.Length;
+                            u15 = u15 + texentry.WTemp.Length;
+                            texentry.OutMaps = texentry.WTemp;
+                            texentry.OutMapsB[i] = texentry.OutMaps;
+                        }
+                    }
+                    //Debug Export. Gotta use this for the export as well.
+                    texentry.OutTexTest = new List<byte>();
+
+
+
+                    byte[] DDSHeader15 = { 0x44, 0x44, 0x53, 0x20, 0x7c, 0x00, 0x00, 0x00, 0x07, 0x10, 0x08, 0x00, 0x00, 0x01, 0x00, 0x00,
+                                         0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
+                                         0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54, 0x35, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
+                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+                    if (texentry.FileName.Contains("NOMIP"))
+                    {
+                        DDSHeader15[28] = Convert.ToByte(1);
+                    }
+                    else
+                    {
+                        DDSHeader15[28] = Convert.ToByte(texentry.MipMapCount);
+                    }
+
+                    texentry.OutTexTest.AddRange(DDSHeader15);
+
+                    foreach (byte[] array in texentry.OutMapsB)
+                    {
+                        texentry.OutTexTest.AddRange(array);
+                    }
+
+                    int findex15 = filename.LastIndexOf("\\");
+                    string outname15 = (filename.Substring(0, findex15) + "\\") + texentry.TrueName;
+                    string outpngname15 = outname15 + ".png";
+                    outname15 = outname15 + ".dds";
+
+                    texentry.OutMaps = texentry.OutTexTest.ToArray();
+
+                    uint blargx15 = Convert.ToUInt32(texentry.XSize);
+                    uint blargy15 = Convert.ToUInt32(texentry.YSize);
+
+                    byte[] Xbytes15 = BitConverter.GetBytes(blargy15);
+                    byte[] Ybytes15 = BitConverter.GetBytes(blargx15);
+
+                    Array.Copy(Xbytes15, 0, texentry.OutMaps, 12, 4);
+                    Array.Copy(Ybytes15, 0, texentry.OutMaps, 16, 4);
+
+                    texentry = DDSToRGBA(texentry);
+
+
+                    break;
                 #endregion
 
                 #region Bitmap Textures with Transparency

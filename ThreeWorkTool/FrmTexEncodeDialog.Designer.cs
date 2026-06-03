@@ -186,7 +186,8 @@
             "BC5/Normal Map",
             "????/Toon Shader Picture",
             "LAB Color/Problematic Portrait Picture",
-            "Cube Map???"});
+            "Cube Map???",
+            "Alternate DXT5/BC3"});
             this.cmBoxTextureType.Location = new System.Drawing.Point(13, 151);
             this.cmBoxTextureType.Name = "cmBoxTextureType";
             this.cmBoxTextureType.Size = new System.Drawing.Size(196, 21);

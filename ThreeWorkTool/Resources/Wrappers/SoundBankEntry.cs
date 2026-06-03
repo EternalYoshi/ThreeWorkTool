@@ -80,40 +80,40 @@ namespace ThreeWorkTool.Resources.Wrappers
             byte B;
             long p = 0x14 + sbkr.SectionACount * 0x18;
 
-            for (int g = 0; g < sbkr.SectionBCount; g++)
-            {
-                SoundBankEntryPath soundBankEntryPath = new SoundBankEntryPath();
-                soundBankEntryPath.index = g;
-                //bnr.BaseStream.Position = p;
-                PLName.Clear();
-                PLHash.Clear();
-                sbkr.Offsets.Add(bnr.BaseStream.Position);
-                //Going to try and read bytes until I see a period. 
-                //Assuming that 0x00 is the terminating character.
-                while ((B = bnr.ReadByte()) != 0x00)
-                {
-                    PLName.Add(B);
-                }
+            //for (int g = 0; g < sbkr.SectionBCount; g++)
+            //{
+            //    SoundBankEntryPath soundBankEntryPath = new SoundBankEntryPath();
+            //    soundBankEntryPath.index = g;
+            //    //bnr.BaseStream.Position = p;
+            //    PLName.Clear();
+            //    PLHash.Clear();
+            //    sbkr.Offsets.Add(bnr.BaseStream.Position);
+            //    //Going to try and read bytes until I see a period. 
+            //    //Assuming that 0x00 is the terminating character.
+            //    while ((B = bnr.ReadByte()) != 0x00)
+            //    {
+            //        PLName.Add(B);
+            //    }
 
-                //Converts to ASCII.
-                Test = Encoding.ASCII.GetString(PLName.ToArray());
-                //sbkr.SoundFilePaths.Add(Test);
-                soundBankEntryPath.SoundFilePath = Test;
-                //For the Typehash just in case there's other formats than .xsew.
-                PLHash.AddRange(bnr.ReadBytes(4));
-                PLHash.Reverse();
-                //sbkr.TypeHashes.Add(ByteUtilitarian.ByteArrayToString(PLHash.ToArray()));
-                soundBankEntryPath.TypeHash = ByteUtilitarian.ByteArrayToString(PLHash.ToArray());
+            //    //Converts to ASCII.
+            //    Test = Encoding.ASCII.GetString(PLName.ToArray());
+            //    //sbkr.SoundFilePaths.Add(Test);
+            //    soundBankEntryPath.SoundFilePath = Test;
+            //    //For the Typehash just in case there's other formats than .xsew.
+            //    PLHash.AddRange(bnr.ReadBytes(4));
+            //    PLHash.Reverse();
+            //    //sbkr.TypeHashes.Add(ByteUtilitarian.ByteArrayToString(PLHash.ToArray()));
+            //    soundBankEntryPath.TypeHash = ByteUtilitarian.ByteArrayToString(PLHash.ToArray());
 
-                byte[] Tempbytes = bnr.ReadBytes(0x4C);
-                soundBankEntryPath.OtherData.AddRange(Tempbytes.ToList());
-                //sbkr.OtherData.Add(Tempbytes.ToList());
+            //    byte[] Tempbytes = bnr.ReadBytes(0x4C);
+            //    soundBankEntryPath.OtherData.AddRange(Tempbytes.ToList());
+            //    //sbkr.OtherData.Add(Tempbytes.ToList());
 
-                soundBankEntryPath.OriginalStringLength = soundBankEntryPath.SoundFilePath.Length;
+            //    soundBankEntryPath.OriginalStringLength = soundBankEntryPath.SoundFilePath.Length;
 
-                //p = bnr.BaseStream.Position + 0x4C;
-                sbkr.SoundFilePaths.Add(soundBankEntryPath);
-            }
+            //    //p = bnr.BaseStream.Position + 0x4C;
+            //    sbkr.SoundFilePaths.Add(soundBankEntryPath);
+            //}
 
             sbkr._FileType = sbkr.FileExt;
             sbkr._FileName = sbkr.TrueName;
