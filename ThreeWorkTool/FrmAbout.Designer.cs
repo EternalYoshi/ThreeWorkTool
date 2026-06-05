@@ -53,7 +53,7 @@
             this.lblAboutText.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblAboutText.Location = new System.Drawing.Point(12, 113);
             this.lblAboutText.Name = "lblAboutText";
-            this.lblAboutText.Size = new System.Drawing.Size(361, 102);
+            this.lblAboutText.Size = new System.Drawing.Size(368, 102);
             this.lblAboutText.TabIndex = 1;
             this.lblAboutText.Text = resources.GetString("lblAboutText.Text");
             // 
@@ -76,9 +76,9 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(178, 26);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(212, 72);
+            this.label1.Size = new System.Drawing.Size(202, 72);
             this.label1.TabIndex = 3;
-            this.label1.Text = "ThreeWork Tool V0.95β\r\n 2022-2026 by \r\nEternal Yoshi";
+            this.label1.Text = "ThreeWork Tool V1.0β\r\n 2022-2026 by \r\nEternal Yoshi";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // pictureBox1

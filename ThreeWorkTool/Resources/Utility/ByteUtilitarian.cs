@@ -596,18 +596,19 @@ namespace ThreeWorkTool.Resources.Utility
                 if (fted.DDSData[0] == 137 && fted.DDSData[1] == 80 && fted.DDSData[2] == 78 && fted.DDSData[3] == 71 && fted.DDSData[4] == 13 && fted.DDSData[5] == 10 && fted.DDSData[6] == 26 && fted.DDSData[7] == 10)
                 {
                     #region PNG
-                    Bitmap bmp;
-                    using (var ms = new MemoryStream(fted.DDSData))
+                    //Bitmap bmp;
+                    //Makes a copy of the bitmap to be independent of the MemoryStream. Should Fix the random occassional crashing.
+                    using (var Riskyms = new MemoryStream(fted.DDSData))
+                    using (var ms = new Bitmap(Riskyms))
                     {
-                        bmp = new Bitmap(ms);
-                        return bmp;
+                        return new Bitmap(ms);
                     }
                     #endregion
                 }
                 else
                 {
                     #region DDS Files
-                    Stream ztrim = new MemoryStream(fted.DDSData);
+                    using (Stream ztrim = new MemoryStream(fted.DDSData))
                     //From the pfim website.
                     using (var image = Pfim.Pfim.FromStream(ztrim))
                     {
@@ -634,8 +635,48 @@ namespace ThreeWorkTool.Resources.Utility
                         try
                         {
                             var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
-                            var pmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
-                            return pmap;
+
+                            //Safely copies the data before the handle is released.
+                            //var pmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+                            //return pmap;
+                            //using (var RiskyBitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data))
+                            //{
+                            //    return RiskyBitmap;
+                            //}
+
+                            //Gonna try this a safer way, making a copy and then duplicating the pixel data and the like.
+                            using (Bitmap RiskyBitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data))
+                            {
+                                Bitmap SaferBitmap = new Bitmap(image.Width, image.Height, format);
+
+                                BitmapData srcData = RiskyBitmap.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, format);
+                                BitmapData dstData = SaferBitmap.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, format);
+
+                                try
+                                {
+                                    int rowBytes = Math.Abs(srcData.Stride);
+                                    byte[] rowBuffer = new byte[rowBytes];
+
+                                    //Now to duplicate the pixel data and format.
+                                    for (int y = 0; y < image.Height; y++)
+                                    {
+                                        IntPtr src = srcData.Scan0 + y * srcData.Stride;
+                                        IntPtr dst = dstData.Scan0 + y * dstData.Stride;
+                                        Marshal.Copy(src, rowBuffer, 0, rowBytes);
+                                        Marshal.Copy(rowBuffer, 0, dst, rowBytes);
+                                    }
+                                }
+                                finally
+                                {
+                                    RiskyBitmap.UnlockBits(srcData);
+                                    SaferBitmap.UnlockBits(dstData);
+                                }
+                                return SaferBitmap;
+
+
+                            }
+
+
                         }
                         finally
                         {

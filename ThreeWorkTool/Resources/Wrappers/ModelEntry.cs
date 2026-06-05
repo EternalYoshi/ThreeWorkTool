@@ -413,9 +413,10 @@ namespace ThreeWorkTool.Resources.Wrappers
                         BinBufReader.BaseStream.Position = StartOfVertices;
 
 #if DEBUG
-                        //StreamWriter outputFile = new StreamWriter("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVALUESFROMCSHARP.txt");
-                        //File.AppendAllText("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVALUESFROMCSHARP.txt", "\nPrim ID: " + Prim.ID + "    BinBufReader.BaseStream.Position Offset " + Environment.NewLine + "___________________________________________________" + Environment.NewLine);
-
+                        //if (modentry.EntryName == "chr\\Ryu\\model\\1p\\Ryu.mod")
+                        //{
+                        //    File.AppendAllText("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVERTEXVALUES.txt", "\nPrim ID: " + Prim.ID + "    BinBufReader.BaseStream.Position Offset " + Environment.NewLine + "___________________________________________________" + Environment.NewLine);
+                        //}
 #endif                            
 
                         for (int j = 0; j < Prim.VerticeCount; j++)
@@ -443,10 +444,6 @@ namespace ThreeWorkTool.Resources.Wrappers
                                 foreach (var inputInfo in Inputs)
                                 {
                                     BinBufReader.BaseStream.Position = VertStart + inputInfo.Offset;
-
-
-                                    //string TextForDebug = "BinBufReader.BaseStream.Position = " + Convert.ToString(BinBufReader.BaseStream.Position + "\n");
-                                    //File.AppendAllText("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVALUESFROMCSHARP.txt", TextForDebug);
 
                                     switch (Key)
                                     {
@@ -618,10 +615,16 @@ namespace ThreeWorkTool.Resources.Wrappers
 
                             }
 
-
+                            //if (modentry.EntryName == "chr\\Ryu\\model\\1p\\Ryu.mod")
+                            //{
+                            //    File.AppendAllText("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVERTEXVALUES.txt", "\nVertex #: " + j + " X: " + vert.Coordinate.X + " Y: " + vert.Coordinate.Y + " Z: " + vert.Coordinate.Z);
+                            //    File.AppendAllText("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVERTEXVALUES.txt", "\nNormals: X: " + vert.Normals.X + " Y: " + vert.Normals.Y + " Z: " + vert.Normals.Z);
+                            //    File.AppendAllText("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVERTEXVALUES.txt", "\nUV_Primary: X: " + vert.UVPrimary.X + " Y: " + vert.UVPrimary.Y);
+                            //    File.AppendAllText("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVERTEXVALUES.txt", "\nUV_Secondary: X: " + vert.UVSecondary.X + " Y: " + vert.UVSecondary.Y);
+                            //    File.AppendAllText("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVERTEXVALUES.txt", "\nUV_UVUnique: X: " + vert.UVUnique.X + " Y: " + vert.UVUnique.Y);
+                            //    File.AppendAllText("C:\\Users\\Eternal Yoshi\\Desktop\\TESTVERTEXVALUES.txt", "\nUV_UVExtend: X: " + vert.UVExtend.X + " Y: " + vert.UVExtend.Y + "\n");
+                            //}
                         }
-
-
                     }
                 }
 

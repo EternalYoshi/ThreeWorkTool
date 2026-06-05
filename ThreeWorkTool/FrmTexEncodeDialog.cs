@@ -274,15 +274,17 @@ namespace ThreeWorkTool
                                 try
                                 {
                                     var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
-                                    var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
 
+                                    var Riskybitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
 
-                                    using (var stream = new MemoryStream())
+                                    using (var SaferBitmap = new Bitmap(Riskybitmap))
                                     {
-                                        bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                                        RGBATemp13 = stream.ToArray();
-                                    }
-
+                                        using (var stream = new MemoryStream())
+                                        {
+                                            SaferBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                                            RGBATemp13 = stream.ToArray();
+                                        }
+                                    }//This weird tweak should ensure that the bitmap is properly disposed safely.
 
                                 }
                                 finally
