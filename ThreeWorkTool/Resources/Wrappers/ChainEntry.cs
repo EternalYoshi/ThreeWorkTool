@@ -62,7 +62,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             //Going to validate. 
             if (bnr.BaseStream.Length != (chnentry.ProjectedFileSize + 0x10))
             {
-                MessageBox.Show("Something funky is up with the chain file:\n" + chnentry.TrueName + "The projected file size is incorrect and I can't read this further.");
+                MessageBox.Show("Something funky is up with the chain file:\n" + chnentry.TrueName + "\nThe projected file size is incorrect and I can't read this further.");
 
                 chnentry._FileType = chnentry.FileExt;
                 chnentry._FileName = chnentry.TrueName;

@@ -352,6 +352,7 @@
     <Compile Include="Resources\Wrappers\ExtraNodes\MaterialCommandCollectionPropertyDescriptor.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\Mission.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\MTMaterial.cs" />
+    <Compile Include="Resources\Wrappers\ExtraNodes\RTexture.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\SoundBankEntryPath.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\StageObjLayoutGroup.cs" />
     <Compile Include="Resources\Wrappers\ExtraNodes\STQREventData.cs" />

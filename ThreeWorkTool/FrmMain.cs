@@ -95,6 +95,7 @@ namespace ThreeWorkTool
             }
 
         }
+
         bool OutOfDate = false;
         public static bool NastyError = false;
         private bool FirstArcFileOpened = false;
@@ -11922,7 +11923,7 @@ namespace ThreeWorkTool
                     case ".DDS":
 
                         //Creates and Spawns the Texture Encoder Dialog.
-                        FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.LoadDDSData(IMPDialog.FileName, IMPDialog);
+                        FrmTexEncodeDialog frmtexencode = FrmTexEncodeDialog.NewLoadDDSData(IMPDialog.FileName, IMPDialog);
 
                         if (frmtexencode == null) return;
 

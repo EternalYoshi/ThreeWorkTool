@@ -54,7 +54,7 @@ namespace ThreeWorkTool.Resources.Geometry
         }
 
         //For Rendering.
-        public void Render(Vector3 cameraPos, Matrix4 view, Matrix4 projection, Skeleton skeleton)
+        public void Render(Vector3 cameraPos, Matrix4 view, Matrix4 projection, Skeleton skeleton, int SelectedJointIndex)
         {
             //So we draw our joint connectors first so our joint handles are always rendered on top.
             foreach (var joint in skeleton.Joints)
@@ -71,7 +71,7 @@ namespace ThreeWorkTool.Resources.Geometry
             foreach (var joint in skeleton.Joints)
             {
                 Matrix4 model = joint.WorldMatrix;
-                joint.Handle.Render(model, view, projection);
+                joint.Handle.Render(model, view, projection, SelectedJointIndex);
             }
         }
        

@@ -112,26 +112,26 @@ namespace ThreeWorkTool.Resources
 
         public static void TexEntryWriter(string filename, TextureEntry entrytowrite)
         {
-            if (entrytowrite.IsCubeMap == true)
-            {
-                try
-                {
-                    MessageBox.Show("CubeMaps aren't currently supported, so only the raw .tex file can be extracted.");
-                    using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
-                    {
-                        bw.Write(entrytowrite.UncompressedData);
-                        bw.Close();
-                    }
+            //if (entrytowrite.IsCubeMap == true)
+            //{
+            //    try
+            //    {
+            //        MessageBox.Show("CubeMaps aren't currently supported, so only the raw .tex file can be extracted.");
+            //        using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+            //        {
+            //            bw.Write(entrytowrite.UncompressedData);
+            //            bw.Close();
+            //        }
 
-                }
-                catch (Exception ex)
-                {
-                    ExceptionCatchAll(ex);
-                    return;
-                }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        ExceptionCatchAll(ex);
+            //        return;
+            //    }
 
-            }
-            else if (entrytowrite.Format == "??????")
+            //}
+            if (entrytowrite.Format == "??????")
             {
                 try
                 {
@@ -154,63 +154,86 @@ namespace ThreeWorkTool.Resources
             {
                 try
                 {
-
-                    Stream strim = new MemoryStream(entrytowrite.OutTar);
-                    //From the pfim website. Modified for my uses.
-                    using (var image = Pfim.Pfim.FromStream(strim))
+                    //First let's check the extension the end user has chosen.
+                    string ext = Path.GetExtension(filename);
+                    switch (ext)
                     {
-                        PixelFormat format;
-
-                        // Convert from Pfim's backend agnostic image format into GDI+'s image format
-                        switch (image.Format)
-                        {
-                            case Pfim.ImageFormat.Rgba32:
-                                format = PixelFormat.Format32bppArgb;
-                                break;
-                            case Pfim.ImageFormat.Rgb24:
-                                format = PixelFormat.Format24bppRgb;
-                                break;
-                            default:
-                                // see the sample for more details
-                                throw new NotImplementedException();
-                        }
-
-                        // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
-                        // in this snippet but useful technique if the data was going to be used in
-                        // control like a picture box
-                        var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
-                        try
-                        {
-                            var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
-                            var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
-                            string ext = Path.GetExtension(filename);
-
-                            if (ext == ".png")
+                        //entrytowrite.OutTexTest is already a DDS file ready to export so just use it.
+                        case ".dds":
+                        case ".DDS":
+                            using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
                             {
-                                bitmap.Save(Path.ChangeExtension(filename, ".png"), System.Drawing.Imaging.ImageFormat.Png);
+                                bw.Write(entrytowrite.OutTexTest.ToArray());
+                                bw.Close();
                             }
-                            else if (ext == ".dds")
+
+                            break;
+
+                        //The raw .tex file is just there.
+                        case ".tex":
+                            using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
                             {
+                                bw.Write(entrytowrite.UncompressedData);
+                                bw.Close();
+                            }
+
+                            break;
+
+
+                        case ".png":
+
+                            using (MemoryStream ms = new MemoryStream())
+                            {
+                                entrytowrite.Picture.Save(ms, ImageFormat.Png);
                                 using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
                                 {
-                                    bw.Write(entrytowrite.OutTar);
-                                    bw.Close();
-                                }
-                            }
-                            else if (ext == ".tex")
-                            {
-                                using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
-                                {
-                                    bw.Write(entrytowrite.UncompressedData);
+                                    bw.Write(ms.ToArray());
                                     bw.Close();
                                 }
                             }
 
-                        }
-                        finally
-                        {
-                            handle.Free();
-                        }
+                            //Stream strim = new MemoryStream(entrytowrite.OutTexTest.ToArray());
+                            ////From the pfim website. Modified for my uses.
+                            //using (var image = Pfim.Pfim.FromStream(strim))
+                            //{
+                            //    PixelFormat format;
+
+                            //    // Convert from Pfim's backend agnostic image format into GDI+'s image format
+                            //    switch (image.Format)
+                            //    {
+                            //        case Pfim.ImageFormat.Rgba32:
+                            //            format = PixelFormat.Format32bppArgb;
+                            //            break;
+                            //        case Pfim.ImageFormat.Rgb24:
+                            //            format = PixelFormat.Format24bppRgb;
+                            //            break;
+                            //        default:
+                            //            // see the sample for more details
+                            //            throw new NotImplementedException();
+                            //    }
+
+                            //    // Pin pfim's data array so that it doesn't get reaped by GC, unnecessary
+                            //    // in this snippet but useful technique if the data was going to be used in
+                            //    // control like a picture box
+                            //    var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+
+                            //    try
+                            //    {
+                            //        var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                            //        var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+                            //        bitmap.Save(Path.ChangeExtension(filename, ".png"), System.Drawing.Imaging.ImageFormat.Png);
+                            //    }
+                            //    finally
+                            //    {
+                            //        handle.Free();
+                            //    }
+                            //
+                            //
+                            //
+                            //
+                            //}
+
+                            break;
                     }
                 }
                 catch (Exception ex)

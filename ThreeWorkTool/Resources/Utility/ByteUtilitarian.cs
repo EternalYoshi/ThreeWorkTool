@@ -17,6 +17,7 @@ using System.Buffers.Binary;
 using Force.Crc32;
 using OpenTK;
 using static ThreeWorkTool.Resources.Utility.Mvc3ShaderDatabase;
+using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 
 namespace ThreeWorkTool.Resources.Utility
 {
@@ -690,6 +691,427 @@ namespace ThreeWorkTool.Resources.Utility
             {
                 return null;
             }
+        }
+
+        //Todo: Use this properly.
+        //Builds a bitmap from a raw dds file.
+        public static Bitmap NewBitmapBuilder(byte[] ddsfile)
+        {
+            MemoryStream ms = new MemoryStream(ddsfile);
+            var image = Pfim.Pfim.FromStream(ms);
+
+            PixelFormat format;
+            switch (image.Format)
+            {
+                case Pfim.ImageFormat.Rgba32:
+                    format = PixelFormat.Format32bppArgb;
+                    break;
+                case Pfim.ImageFormat.Rgb24:
+                    format = PixelFormat.Format24bppRgb;
+                    break;
+                default:
+                    throw new NotSupportedException($"Unexpected Pfim format: {image.Format}");
+            }
+
+            //Pin Pfim's data array so GC won't move it while we read from it.
+            var handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+            try
+            {
+                var data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+
+                //Construct a Bitmap directly over Pfim's buffer (zero-copy), then immediately clone it into a fully independent Bitmap so
+                //the returned object is safe to use after this method returns and the GCHandle is released.
+                var riskyBitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+
+                var safeBitmap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+
+                BitmapData srcData = riskyBitmap.LockBits(
+                    new Rectangle(0, 0, image.Width, image.Height),
+                    ImageLockMode.ReadOnly, format);
+                BitmapData dstData = safeBitmap.LockBits(
+                    new Rectangle(0, 0, image.Width, image.Height),
+                    ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                try
+                {
+                    int rowBytes = Math.Abs(srcData.Stride);
+                    var rowBuffer = new byte[rowBytes];
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        IntPtr src = srcData.Scan0 + y * srcData.Stride;
+                        IntPtr dst = dstData.Scan0 + y * dstData.Stride;
+                        Marshal.Copy(src, rowBuffer, 0, rowBytes);
+                        Marshal.Copy(rowBuffer, 0, dst, rowBytes);
+                    }
+                }
+                finally
+                {
+                    riskyBitmap.UnlockBits(srcData);
+                    safeBitmap.UnlockBits(dstData);
+                }
+
+                return safeBitmap;
+            }
+            finally
+            {
+                handle.Free();
+            }
+        }
+
+        public static Bitmap CubemapToCross(byte[] ddsBytes)
+        {
+            //Peek at the header to verify whether this is a cubemap.
+            var hr = new BinaryReader(new MemoryStream(ddsBytes));
+            if (hr.ReadUInt32() != 0x20534444u)
+                throw new ArgumentException("Not a valid DDS file.");
+
+            hr.ReadUInt32();                    // dwSize
+            hr.ReadUInt32();                    // dwFlags
+            int height = (int)hr.ReadUInt32();
+            int width = (int)hr.ReadUInt32();
+            hr.ReadBytes((4 + 11) * 4);         // pitch, depth, mipCount, reserved1
+            hr.ReadBytes(32);                   // DDS_PIXELFORMAT
+            hr.ReadUInt32();                    // dwCaps
+            uint dwCaps2 = hr.ReadUInt32();
+
+            bool isCubeMap = (dwCaps2 & DDSConstants.DDSCAPS2_CUBEMAP) != 0;
+
+            // DDS/TEX face storage order: +X=0, -X=1, +Y=2, -Y=3, +Z=4, -Z=5.
+            // Horizontal cross grid positions (col, row) for each face index:
+            //   +X → (2,1)   -X → (0,1)   +Y → (1,0)
+            //   -Y → (1,2)   +Z → (1,1)   -Z → (3,1)
+            var gridPositions = new (int col, int row)[6]
+            {
+                (2, 1),  // 0: +X
+                (0, 1),  // 1: -X
+                (1, 0),  // 2: +Y
+                (1, 2),  // 3: -Y
+                (1, 1),  // 4: +Z
+                (3, 1),  // 5: -Z
+            };
+
+            var Cross = new Bitmap(width * 4, height * 3, PixelFormat.Format32bppArgb);
+            var g = Graphics.FromImage(Cross);
+            g.Clear(Color.Transparent);
+
+            for (int face = 0; face < 6; face++)
+            {
+                var faceBitmap = NewBitmapBuilderForCubeMaps(ddsBytes, face);
+                var (col, row) = gridPositions[face];
+                g.DrawImage(faceBitmap, col * width, row * height, width, height);
+            }
+
+            return Cross;
+        }
+
+        //A function meant to build a single surface DDS from a multi surface one. For use with the below function and Cube Maps only.
+        private static byte[] BuildSingleSurfaceDds(byte[] src, int pixelOffset, int pixelSize, int width, int height, uint pfFlags, uint pfFourCC, uint pfBitCnt, int blockSize, bool isCompressed)
+        {
+            var ms = new MemoryStream();
+            var w = new BinaryWriter(ms);
+
+            //Magic.
+            w.Write(0x20534444u);
+
+            //The rest of the DDS header.
+            w.Write(124u);                                              
+            uint flags = DDSConstants.DDSD_CAPS  | DDSConstants.DDSD_HEIGHT
+                       | DDSConstants.DDSD_WIDTH | DDSConstants.DDSD_PIXELFORMAT
+                       | DDSConstants.DDSD_LINEARSIZE;
+            w.Write(flags);
+            w.Write((uint)height);
+            w.Write((uint)width);
+            uint pitch = isCompressed
+                ? (uint)DDSCalc.PitchBlockCompressed(width, blockSize)
+                : (uint)DDSCalc.PitchBpp(width, (int)pfBitCnt);
+            w.Write(pitch);
+            w.Write(0u);    // dwDepth
+            w.Write(1u);    // dwMipMapCount
+            for (int i = 0; i < 11; i++) w.Write(0u); // dwReserved1
+
+            //DDS_PIXELFORMAT, based on TGE's original code.
+            w.Write(32u);
+            w.Write(pfFlags);
+            w.Write(pfFourCC);
+            w.Write(pfBitCnt);
+            for (int i = 0; i < 4; i++) w.Write(0u);
+
+            w.Write(DDSConstants.DDSCAPS_TEXTURE); 
+            w.Write(0u);
+            w.Write(0u);
+            w.Write(0u);
+            w.Write(0u);
+
+            //Pixel data exclusively for the top-level mip of this face.
+            w.Write(src, pixelOffset, pixelSize);
+
+            return ms.ToArray();
+        }
+
+        public static Bitmap NewBitmapBuilderForCubeMaps(byte[] ddsfile, int FaceIndex)
+        {
+
+            if(FaceIndex < 0 || FaceIndex > 6)
+            {
+                FaceIndex = 0;
+            }
+
+            // Parse just enough of the header to know dimensions, mip count,
+            // compression format, and whether this is a cubemap.
+            BinaryReader hr = new BinaryReader(new MemoryStream(ddsfile));
+
+            uint magic = hr.ReadUInt32(); // "DDS "
+            if (magic != 0x20534444u)
+                throw new ArgumentException("This isn't a valid DDS file.");
+
+            hr.ReadUInt32();
+            hr.ReadUInt32();
+            int height = (int)hr.ReadUInt32();
+            int width = (int)hr.ReadUInt32();
+            hr.ReadUInt32();                    
+            hr.ReadUInt32();
+            int mipCount = (int)hr.ReadUInt32();
+            if (mipCount == 0) mipCount = 1;
+            hr.ReadBytes(11 * 4);
+
+            //DDS_PIXELFORMAT
+            hr.ReadUInt32();                    
+            uint pfFlags = hr.ReadUInt32();
+            uint pfFourCC = hr.ReadUInt32();
+            uint pfBitCnt = hr.ReadUInt32();
+            hr.ReadBytes(4 * 4);                
+
+            hr.ReadUInt32();
+            //This has Cubemap flags.
+            uint dwCaps2 = hr.ReadUInt32();     
+
+            bool isCubeMap = (dwCaps2 & DDSConstants.DDSCAPS2_CUBEMAP) != 0;
+            bool isCompressed = (pfFlags & DDSConstants.DDPF_FOURCC) != 0;
+            int blockSize = (pfFourCC == DDSConstants.FOURCC_DXT1) ? 8 : 16;
+
+            if (!isCubeMap && FaceIndex != 0)
+                throw new ArgumentException("FaceIndex must be 0 for non-cubemap textures.");
+            if (isCubeMap && (FaceIndex < 0 || FaceIndex > 5))
+                throw new ArgumentOutOfRangeException(nameof(FaceIndex), "Cubemap FaceIndex cannot be greater than 5.");
+
+
+            // ── Cubemap: slice out the requested face ─────────────────────────
+            // All six faces are stored consecutively after the 128-byte header,
+            // each consisting of a full mip chain.  Walk the mip chain sizes to
+            // find where each face starts.
+
+            // Compute the byte size of one complete mip chain (all levels).
+            int faceChainSize = 0;
+            int w = width, h = height;
+            for (int m = 0; m < mipCount; m++)
+            {
+                faceChainSize += isCompressed ? DDSCalc.LinearSizeBlockCompressed(w, h, blockSize) : DDSCalc.LinearSizeBpp(w, h, (int)pfBitCnt);
+                w = Math.Max(1, w / 2);
+                h = Math.Max(1, h / 2);
+            }
+
+            //Offset into ddsBytes where the requested face's mip chain begins.
+            //128 is the DDS Header size.
+            int faceDataOffset = 128 + FaceIndex * faceChainSize;
+
+            // Size of just the top-level mip of the requested face.
+            int topMipSize = isCompressed ? DDSCalc.LinearSizeBlockCompressed(width, height, blockSize) : DDSCalc.LinearSizeBpp(width, height, (int)pfBitCnt);
+
+            // Build a minimal single-surface DDS containing only that face's
+            // top-level mip so Pfim has exactly one surface to decode.
+            byte[] faceDds = BuildSingleSurfaceDds(ddsfile, faceDataOffset, topMipSize, width, height, pfFlags, pfFourCC, pfBitCnt, blockSize, isCompressed);
+
+            return NewBitmapBuilder(faceDds);
+        }
+
+        //Also based on a few functions from the model importer.
+        public static TextureEntry FromDDSToTex(TextureEntry texentry, BinaryReader bnr, FrmTexEncodeDialog FTED)
+        {
+            //First we read the DDS file's header.
+            uint Magic = bnr.ReadUInt32();
+            uint Size = bnr.ReadUInt32();
+            uint Flags = bnr.ReadUInt32();
+            uint Height = bnr.ReadUInt32();
+            uint Width = bnr.ReadUInt32();
+            uint Pitch = bnr.ReadUInt32();
+            uint Depth = bnr.ReadUInt32();
+            uint MipCnt = bnr.ReadUInt32();
+
+            //Jumps ahead to skip the reserved bytes.
+            bnr.BaseStream.Position = bnr.BaseStream.Position + (0x2C);
+
+            uint DDS_Size = bnr.ReadUInt32();
+            uint DDS_Flags = bnr.ReadUInt32();
+            uint DDS_FourCC = bnr.ReadUInt32();
+            uint DDS_BitCounnt = bnr.ReadUInt32();
+            uint DDS_RMask = bnr.ReadUInt32();
+            uint DDS_GMask = bnr.ReadUInt32();
+            uint DDS_BMask = bnr.ReadUInt32();
+            uint DDS_AMask = bnr.ReadUInt32();
+
+            uint dwCaps = bnr.ReadUInt32();
+            uint dwCaps2 = bnr.ReadUInt32();
+            uint dwCaps3 = bnr.ReadUInt32();
+
+            //More reserved bytes to skip.
+            bnr.BaseStream.Position = bnr.BaseStream.Position + (0x8);
+
+            //Now that the header's been read, we need to verify the surface count, type, MipMapCount, and whether or not this is a cube map.
+
+            bool isThisACubeMap = (dwCaps2 & DDSConstants.DDSCAPS2_CUBEMAP) != 0;
+            int surfCount = isThisACubeMap ? 6 : 1;
+            int mipCount = (int)Math.Max(1, MipCnt);
+            bool isCompressed = (DDS_Flags & DDSConstants.DDPF_FOURCC) != 0;
+            bool isUsingAlpha = DDS_FourCC == 844388420 || DDS_FourCC == 861165636 || DDS_FourCC == 877942852 || DDS_FourCC == 894720068;
+
+            int texFmt;
+            if (FTED.ShortName != null)
+            {
+                texFmt = RTextureSurfaceFormat.GetFormatFromTextureName(FTED.ShortName, isUsingAlpha)
+                         ?? RTextureSurfaceFormat.BM_OPA;
+            }
+            else if (!isCompressed)
+            {
+                texFmt = RTextureSurfaceFormat.LIN;
+            }
+            else
+            {
+                texFmt = (DDS_FourCC == DDSConstants.FOURCC_DXT1)
+                    ? RTextureSurfaceFormat.BM_OPA
+                    : RTextureSurfaceFormat.BM_XLU;
+            }
+
+            
+            int NewBlockSize = RTextureSurfaceFormat.GetBlockSize(texFmt);
+
+            //Read the pixel data to start building the raw file.
+            var surfaces = new List<List<byte[]>>();
+            for (int s = 0; s < surfCount; s++)
+            {
+                var mips = new List<byte[]>();
+                int w = (int)Width, h = (int)Height;
+                for (int m = 0; m < mipCount; m++)
+                {
+                    int size = (NewBlockSize > 0)
+                        ? DDSCalc.LinearSizeBlockCompressed(w, h, NewBlockSize)
+                        : DDSCalc.LinearSizeBpp(w, h, (int)DDS_BitCounnt);
+                    mips.Add(bnr.ReadBytes(size));
+                    w = Math.Max(1, w / 2);
+                    h = Math.Max(1, h / 2);
+                }
+                surfaces.Add(mips);
+            }
+
+            // Assemble TEX.
+            var tex = new RTextureData { Surfaces = surfaces };
+            tex.Header.MipCount = mipCount;
+            tex.Header.Width = (int)Width;
+            tex.Header.Height = (int)Height;
+            tex.Header.SurfaceFmt = texFmt;
+            tex.Header.Field3 = 1;
+            tex.Header.Field4 = 0;
+            tex.Header.SurfaceCount = surfaces.Count;
+            tex.Header.TypeVal = RTextureHeader.DefaultTypeVal;
+
+            if (isThisACubeMap)
+            {
+                tex.Header.Dimensions = 6;
+                tex.SetDefaultCubeMapFaces();
+            }
+            else
+            {
+                tex.Header.Dimensions = 2;
+            }
+
+            texentry.UncompressedData = tex.WriteToBytes();
+            texentry.CompressedData = Zlibber.Compressor(texentry.UncompressedData);
+//#if DEBUG
+//            File.WriteAllBytes("D:\\Workshop\\LMTHub\\Test\\TexTEST2026" + ".tex", texentry.UncompressedData);
+//#endif
+
+            //Now we start building the TexEntry from scratch with what we have above.
+            texentry.Magic = "54455800";
+            texentry.X = (int)Width;
+            texentry.Y = (int)Height;
+            texentry.XSize = (int)Width;
+            texentry.YSize = (int)Height;
+            texentry.MipMapCount = (int)MipCnt;
+            texentry.SurfaceCount = surfCount;
+            texentry.Dimensions = texentry.SurfaceCount;
+            texentry.Type = texFmt;
+            texentry.TextureType = texentry.Type.ToString();
+
+            #region Cube Maps
+
+            if (texentry.Dimensions == 6)
+            {
+                texentry.TexType = "Cube Map(DXT1)";
+                texentry.Format = "Cube Map(DXT1)";
+                texentry.IsCubeMap = true;
+
+                //using (BinaryReader texbnr = new BinaryReader())
+                //{
+                //    //Faces.
+                //    for (int y = 0; y < 3; y++)
+                //    {
+                //        RTextureFace rFace = new RTextureFace();
+                //        rFace = RTextureFace.ReadFaceFromTEX(texbnr);
+                //        texentry.Faces.Add(rFace);
+                //    }
+                //}
+            }
+
+            #endregion
+            else
+            {
+                switch (texentry.Type)
+                {
+                    case 0x13:
+                        texentry.Format = "DXT1/BC1";
+                        texentry.TexType = "DXT1/BC1";
+                        break;
+
+                    case 0x15:
+                        texentry.Format = "Alternate DXT5/BC3";
+                        texentry.TexType = "Alternate DXT5/BC3";
+                        break;
+
+                    case 0x17:
+                        texentry.Format = "DXT5/BC3";
+                        texentry.TexType = "DXT5/BC3";
+                        break;
+
+                    case 0x19:
+                        texentry.Format = "BC4_UNORM/Metalic/Specular Map";
+                        texentry.TexType = "BC4_UNORM/Metalic/Specular Map";
+                        break;
+
+                    case 0x1E:
+                        texentry.Format = "Cloth (Undocumented)";
+                        texentry.TexType = "Cloth (Undocumented)";
+                        break;
+
+                    case 0x1F:
+                        texentry.Format = "BC5/Normal Map";
+                        texentry.TexType = "BC5/Normal Map";
+                        break;
+
+                    case 0x27:
+                        texentry.Format = "RGBA Linear Texture";
+                        texentry.TexType = "RGBA Linear Texture";
+                        break;
+
+                    case 0x2A:
+                        texentry.Format = "LAB Color/Problematic UI Texture";
+                        texentry.TexType = "LAB Color/Problematic UI Texture";
+                        break;
+
+                    default:
+                        break;
+                }
+
+            }
+
+            return texentry;
         }
 
         //From AGuyCalledGerald and Mike Two.

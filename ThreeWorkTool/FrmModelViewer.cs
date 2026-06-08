@@ -204,30 +204,51 @@ namespace ThreeWorkTool
                 }
                 RightPanel.listJointList.DataSource = JointNames;
 
+                //Meant to install selection events for the Joint List on the right.
+                RightPanel.listJointList.SelectedIndexChanged -= JointList_SelectedIndexChanged;
+                RightPanel.listJointList.SelectedIndexChanged += JointList_SelectedIndexChanged;
+
                 //Adjust the panel to fit the Joint List Control.
                 pnlBaseRight.Width = 142;                
                 btnRToggle.Dock = DockStyle.Left;
                 btnRToggle.Width = 20;
-                RightPanel.Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
-                RightPanel.Dock = DockStyle.Fill;
+                //RightPanel.Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+                //RightPanel.Dock = DockStyle.Fill;
+                RightPanel.Dock = DockStyle.Right;
                 //RightPanel.listJointList.BackColor = Color.Red;
                 pnlBaseRight.Controls.Add(RightPanel);
+
+                //This is to ensure RightPanel docks properly.
+                if (!pnlBaseRight.Controls.Contains(RightPanel))
+                {
+                    pnlBaseRight.Controls.Add(RightPanel);
+                    pnlBaseRight.Controls.SetChildIndex(RightPanel, 0);
+                }
+
 
             }
             else
             {
                 pnlBaseRight.Controls.Remove(RightPanel);
                 RightPanel.Dock = DockStyle.None;
-                btnRToggle.Width = 140;
-                //btnRToggle.Dock = DockStyle.Fill;
-                btnRToggle.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-                btnRToggle.Dock = DockStyle.None;
-                pnlBaseRight.Width = 23;
                 RightPanel.Width = 0;
+
+                btnRToggle.Width = 140;
+                btnRToggle.Dock = DockStyle.Fill;
+                //btnRToggle.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+                //btnRToggle.Dock = DockStyle.None;
+                pnlBaseRight.Width = 23;
 
             }
 
-
         }
+
+        private void JointList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int AnID = RightPanel.listJointList.SelectedIndex;
+            renderer.SelectedJointIndex = AnID;
+        }
+
+
     }
 }

@@ -37,6 +37,7 @@ namespace ThreeWorkTool.Resources
         private List<Matrix4> Matrices;
         private List<BoneRectangle> BoneRectangles;
         private List<Skeleton> skeletons;
+        public int SelectedJointIndex = -1;
         //private bool IsDragging = false;
 
         private enum DragMode { None, Pan, Rotate }
@@ -219,7 +220,7 @@ namespace ThreeWorkTool.Resources
 
                 foreach(Skeleton skeleton in skeletons)
                 {
-                    skeleton.Render(Cam.Position, view, Projection, skeleton);
+                    skeleton.Render(Cam.Position, view, Projection, skeleton, SelectedJointIndex);
                 }
 
                 //for (int v = 0; v < BoneSpheres.Count; v++)

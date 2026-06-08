@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -9,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using ThreeWorkTool.Resources;
 using ThreeWorkTool.Resources.Utility;
+using ThreeWorkTool.Resources.Wrappers.ExtraNodes;
 
 namespace ThreeWorkTool
 {
@@ -23,6 +25,7 @@ namespace ThreeWorkTool
         public int TXy;
         public int TXmips;
         public string TXfilename;
+        public int SurfaceCount;
         public byte[] DDSData;
         public byte[] DDTemp;
         public byte[] XDTemp;
@@ -41,7 +44,10 @@ namespace ThreeWorkTool
         public bool IsReplacing;
         public bool IsDXT1;
         public bool Dialoginit;
+        public bool isCubeMap = false;
         public string DXType;
+        public string Suffix;
+        public List<byte> TheRestOfTheDDSData;
 
         public static FrmTexEncodeDialog LoadDDSData(string openedfile, OpenFileDialog ofd)
         {
@@ -387,6 +393,214 @@ namespace ThreeWorkTool
             return fted;
         }
 
+        public static FrmTexEncodeDialog NewLoadDDSData(string openedFile, OpenFileDialog ofd)
+        {
+
+            FrmTexEncodeDialog fted = new FrmTexEncodeDialog();
+
+            try
+            {
+                using (BinaryReader bnr = new BinaryReader(File.OpenRead(ofd.FileName)))
+                {
+                    //First we read the DDS file's header.
+                    uint Magic = bnr.ReadUInt32();
+
+                    if (Magic == 0x20534444)
+                    {
+                        uint Size = bnr.ReadUInt32();
+                        uint Flags = bnr.ReadUInt32();
+                        uint Height = bnr.ReadUInt32();
+                        uint Width = bnr.ReadUInt32();
+                        uint Pitch = bnr.ReadUInt32();
+                        uint Depth = bnr.ReadUInt32();
+                        uint MipCnt = bnr.ReadUInt32();
+
+                        //Jumps ahead to skip the reserved bytes.
+                        bnr.BaseStream.Position = bnr.BaseStream.Position + (0x2C);
+
+                        uint DDS_Size = bnr.ReadUInt32();
+                        uint DDS_Flags = bnr.ReadUInt32();
+                        uint DDS_FourCC = bnr.ReadUInt32();
+                        uint DDS_BitCnt = bnr.ReadUInt32();
+                        uint DDS_RMask = bnr.ReadUInt32();
+                        uint DDS_GMask = bnr.ReadUInt32();
+                        uint DDS_BMask = bnr.ReadUInt32();
+                        uint DDS_AMask = bnr.ReadUInt32();
+
+                        uint dwCaps = bnr.ReadUInt32();
+                        uint dwCaps2 = bnr.ReadUInt32();
+                        uint dwCaps3 = bnr.ReadUInt32();
+
+                        //More reserved bytes to skip.
+                        bnr.BaseStream.Position = bnr.BaseStream.Position + (0x8);
+
+                        //Now let's continue to update the variables in the dialog.
+                        fted.isCubeMap = (dwCaps2 & DDSConstants.DDSCAPS2_CUBEMAP) != 0;
+                        fted.TXmips = (int)Math.Max(1, MipCnt);
+
+                        //Now that the header's been read, we need to verify the surface count, type, MipMapCount, and whether or not this is a cube map.
+                        fted.SurfaceCount = fted.isCubeMap ? 6 : 1;
+                        bool isCompressed = (DDS_Flags & DDSConstants.DDPF_FOURCC) != 0;
+                        fted.TXx = Convert.ToInt32(Width);
+                        fted.TXy = Convert.ToInt32(Height);
+
+                        string FourCCStr = System.Text.Encoding.ASCII.GetString(BitConverter.GetBytes(DDS_FourCC));
+
+                        fted.lblMips.Text = Convert.ToString(fted.TXmips);
+                        fted.lblY.Text = Convert.ToString(fted.TXy);
+                        fted.lblX.Text = Convert.ToString(fted.TXx);
+                        fted.lblY.Text = Convert.ToString(fted.TXy);
+                        fted.TXfilename = openedFile;
+
+                        //Gets Filename without the extension and the previous directories.
+                        while (fted.TXfilename.Contains("\\"))
+                        {
+                            fted.TXfilename = fted.TXfilename.Substring(fted.TXfilename.IndexOf("\\") + 1);
+                        }
+
+                        int index = fted.TXfilename.IndexOf(".");
+                        if (index > 0)
+                            fted.TXfilename = fted.TXfilename.Substring(0, index);
+
+                        
+
+                        fted.ShortName = fted.TXfilename;
+                        fted.DDSData = File.ReadAllBytes(openedFile);
+
+                        //Gotta swap the endianess to accomodate for the old DXType method so I don't have to modify more old code than necessary.
+                        uint swapped = BinaryPrimitives.ReverseEndianness(DDS_FourCC);
+                        fted.DXType = swapped.ToString("X8");
+
+                        //Checks Suffix and will switch to appropriate map if true.
+                        fted.Suffix = openedFile.Substring((openedFile.LastIndexOf("_") + 1), 2);
+
+                        //Checks for specific extensions and changes the selection based on that.
+                        switch (FourCCStr)
+                        {
+                            //DXT1
+                            case "DXT1":
+                                fted.IsDXT1 = true;
+
+                                //Cube Maps are a special kind of texture aren't they?
+                                if (fted.isCubeMap)
+                                {
+                                    fted.cmBoxTextureType.SelectedIndex = 6;
+                                    fted.TXTextureType = "13";
+                                }
+
+                                if (fted.Suffix == "MM")
+                                {
+                                    fted.cmBoxTextureType.SelectedIndex = 2;
+                                    fted.TXTextureType = "19";
+                                }
+                                else
+                                {
+                                    fted.cmBoxTextureType.SelectedIndex = 0;
+                                    fted.TXTextureType = "13";
+                                }
+
+                                break;
+
+                            case "DXT5":
+                                fted.IsDXT1 = false;
+
+
+                                if (fted.Suffix == "NM")
+                                {
+                                    fted.cmBoxTextureType.SelectedIndex = 3;
+                                    fted.TXTextureType = "1F";
+                                }
+                                else
+                                {
+                                    fted.cmBoxTextureType.SelectedIndex = 1;
+                                    fted.TXTextureType = "17";
+                                }
+
+                                break;
+
+                            default:
+                                fted.IsDXT1 = false;
+
+                                break;
+
+                        }
+
+                        //Since we have the dds let's just convert it to png for the preview image.
+                        fted.txtTexConvFile.Text = openedFile;
+                        fted.TXpreview = ByteUtilitarian.NewBitmapBuilder(fted.DDSData);
+
+                        //Guess we gotta store the pixel/mipmap data for later.
+                        fted.TheRestOfTheDDSData = new List<byte>();
+                        bnr.BaseStream.Position = 128;
+                        int DataLength = Convert.ToInt32(bnr.BaseStream.Length - 128);
+                        fted.TheRestOfTheDDSData.AddRange(bnr.ReadBytes(DataLength));
+
+                        bnr.Close();
+
+                        //Checking for validity of said preivew.
+                        if (fted.TXpreview == null)
+                        {
+                            fted.PicBoxTex.Image = fted.PicBoxTex.ErrorImage;
+                            //throw new ArgumentException("The DDS file you selected is malinformed, bogus, or not the correct kind.");
+                        }
+                        else
+                        {
+                            if (fted.TXpreview.Width > fted.PicBoxTex.Width || fted.TXpreview.Height > fted.PicBoxTex.Height)
+                            {
+                                int OldX = fted.PicBoxTex.Width;
+                                int OldY = fted.PicBoxTex.Height;
+                                fted.PicBoxTex.Image = fted.TXpreview;
+                                fted.PicBoxTex.SizeMode = fted.TXpreview.Width > OldX || fted.TXpreview.Height > OldY ?
+                                PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
+
+                            }
+                            else
+                            {
+                                fted.PicBoxTex.Image = fted.TXpreview;
+                                fted.PicBoxTex.SizeMode = fted.TXpreview.Width < fted.PicBoxTex.Width || fted.TXpreview.Height < fted.PicBoxTex.Height ?
+                                PictureBoxSizeMode.Zoom : PictureBoxSizeMode.CenterImage;
+                            }
+                        }
+
+                        //Creates Background Checkerboard for PictureBox. Thank you TaW.
+
+                        if (fted.PicBoxTex.BackgroundImage != null)
+                        {
+                            fted.PicBoxTex.BackgroundImage.Dispose();
+                            fted.PicBoxTex.BackgroundImage = null;
+                            //return;
+                        }
+                        int size = 16;
+                        Bitmap bmp = new Bitmap(size * 2, size * 2);
+                        using (SolidBrush brush = new SolidBrush(Color.Gray))
+                        using (Graphics G = Graphics.FromImage(bmp))
+                        {
+                            G.FillRectangle(brush, 0, 0, size, size);
+                            G.FillRectangle(brush, size, size, size, size);
+                        }
+                        fted.PicBoxTex.BackgroundImage = bmp;
+                        fted.PicBoxTex.BackgroundImageLayout = ImageLayout.Tile;
+                    }
+                    else
+                    {
+                        MessageBox.Show("This ain't no DDS file.", "User...");
+                        return null;
+                    }
+                }
+            }
+            catch (Exception EX)
+            {
+                string ProperPath = ""; ProperPath = Globals.ToolPath + "Log.txt"; using (StreamWriter sw = File.AppendText(ProperPath))
+                {
+                    MessageBox.Show("Texture insertion from .DDS file failed. Here's details:\n" + EX, "A Problem!");
+                    sw.WriteLine("Texture insertion from .DDS file failed. Here's details:\n" + EX);
+                }
+            }
+
+
+            return fted;
+        }
+
         public static string BytesToString(byte[] bytes, string s)
         {
             string temps;
@@ -713,7 +927,6 @@ namespace ThreeWorkTool
                         break;
 
                     }
-
 
 
                 case 2:
@@ -1160,6 +1373,121 @@ namespace ThreeWorkTool
                         break;
                     }
 
+                    //Cube Maps.
+                case 6:
+
+                    if (this.IsDXT1 == false && this.DXType == "44585435")
+                    {
+                        MessageBox.Show("This texture was saved as a DXT5 .DDS file, meaning the DXT compression method used for this is not compatible with this texture type.\nIf you want to import this as this type of texture, return to the image editing software you used to save this and make sure to save it as a DXT1 instead.", "Hold it!");
+                        cmBoxTextureType.SelectedIndex = 1;
+                        return;
+                    }
+                    else
+                    {
+                        this.TXTextureType = "13";
+
+                        //Little Endian Binary. Gotta love it.
+                        this.TempTexData = new List<byte>();
+                        Byte[] TexHeader = { 0x54, 0x45, 0x58, 0x00, 0x9D, 0xA0, 0x00, 0x20 };
+                        this.TempTexData.AddRange(TexHeader);
+                        string WidthTemp = Convert.ToString(this.TXx, 2);
+                        WidthTemp = WidthTemp.Substring(0, WidthTemp.Length - 2);
+                        int wt = 11 - WidthTemp.Length;
+                        if (wt > 0)
+                        {
+                            WidthTemp = WidthTemp.PadLeft(11, '0');
+                        }
+
+                        string LengthTemp = Convert.ToString(this.TXy, 2);
+                        int lt = 13 - LengthTemp.Length;
+                        if (lt > 0)
+                        {
+                            LengthTemp = LengthTemp.PadLeft(13, '0');
+                        }
+
+                        string WidthTA = WidthTemp.Substring(WidthTemp.Length - 8);
+                        string WidthTB = WidthTemp.Substring(0, WidthTemp.Length - 8);
+
+                        string LengthTA = LengthTemp.Substring(LengthTemp.Length - 5);
+                        string LengthTB = LengthTemp.Substring(0, LengthTemp.Length - 5);
+
+                        string Byte2 = WidthTA;
+                        string Byte3 = LengthTA + WidthTB;
+                        string Byte4 = LengthTB;
+
+                        byte[] B2 = BSWConverter.BinaryToByteArray(Byte2);
+                        byte[] B3 = BSWConverter.BinaryToByteArray(Byte3);
+                        byte[] B4 = BSWConverter.BinaryToByteArray(Byte4);
+
+                        TempTexData.Add(Convert.ToByte(this.TXmips));
+                        TempTexData.AddRange(B2);
+                        TempTexData.AddRange(B3);
+                        TempTexData.AddRange(B4);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x13);
+                        TempTexData.Add(0x01);
+                        TempTexData.Add(0x00);
+
+                        int MpMpTest = Math.Max(1, (this.TXx + 3) / 4) * Math.Max(1, (this.TXy + 3) / 4) * 8;
+
+                        //Allocating room for Mip Offsets and the start of the MipMapData by calculating the size of each mip map and offsets for addresses.
+                        int MippMapPixelSizeThingDXT1 = 0;
+                        int MipOffset = 0;
+                        int OffTemp = 0;
+                        int DDSOffset = 128;
+                        for (int p = 0; p < this.TXmips; p++)
+                        {
+                            MipOffset = 16 + (8 * p);
+                            this.MMOffsets.Add(MipOffset);
+                            MippMapPixelSizeThingDXT1 = Math.Max(1, ((this.TXx / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * Math.Max(1, ((this.TXy / (Convert.ToInt32(Math.Pow(2, p)))) + 3) / 4) * 8;
+                            this.MMipSizes.Add(MippMapPixelSizeThingDXT1);
+                        }
+
+                        byte[][] MipMaps = new byte[this.TXmips][];
+                        //Reads and extracts from the DDS file stored in memory.
+                        for (int q = 0; q < this.TXmips; q++)
+                        {
+
+                            DDTemp = new byte[this.MMipSizes[q]];
+
+                            XDTemp = new byte[(this.TXmips)];
+
+                            Buffer.BlockCopy(this.DDSData, DDSOffset, DDTemp, 0, (this.MMipSizes[q]));
+                            DDSOffset = DDSOffset + DDTemp.Length;
+
+                            MipMaps[q] = DDTemp;
+
+                        }
+
+                        this.FirstMip = MipMaps[0];
+
+                        OffTemp = 16 + (8 * this.TXmips);
+                        byte[] FillerBytes = { 0x00, 0x00, 0x00, 0x00 };
+
+                        //Finishes the tex header by putting in the offsets as double words.
+                        for (int r = 0; r < this.TXmips; r++)
+                        {
+                            byte[] OTemp = BitConverter.GetBytes(OffTemp);
+                            //Array.Reverse(OTemp);
+                            this.TempTexData.AddRange(OTemp);
+                            OffTemp = OffTemp + MipMaps[r].Length;
+                            this.TempTexData.AddRange(FillerBytes);
+                        }
+
+                        //Now the MipMaps go in the AFTER Tex header.
+                        for (int s = 0; s < this.TXmips; s++)
+                        {
+                            this.TempTexData.AddRange(MipMaps[s]);
+                        }
+
+                        this.TexData = this.TempTexData.ToArray();
+
+                        this.Dialoginit = true;
+
+                        break;
+                    }
+
+                    //Alternate DXT5.
                 case 7:
                     if (this.IsDXT1 == true && this.DXType == "44585431")
                     {

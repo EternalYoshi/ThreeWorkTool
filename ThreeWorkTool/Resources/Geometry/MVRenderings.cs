@@ -166,7 +166,7 @@ namespace ThreeWorkTool.Resources.Geometry
             GL.BindVertexArray(0);
         }
 
-        public void Render(Matrix4 model, Matrix4 view, Matrix4 projection)
+        public void Render(Matrix4 model, Matrix4 view, Matrix4 projection, int SelectedJointIndex)
         {
             //We draw the Spline first.
             //Matrix4 SplineModel = Matrix4.CreateScale(SplineScale) * model;
