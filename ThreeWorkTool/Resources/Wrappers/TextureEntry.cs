@@ -321,7 +321,7 @@ namespace ThreeWorkTool.Resources.Wrappers
             texentry.YSize = Convert.ToInt32(((RawHeaderData[1] >> 19) & 0x1FFF));
 
             texentry.X = texentry.XSize;
-            texentry.Y = texentry.XSize;
+            texentry.Y = texentry.YSize;
 
             texentry.SurfaceCount = Convert.ToInt32(RawHeaderData[2] & 0x3f);
             texentry.Type = Convert.ToInt32(((RawHeaderData[2] >> 8) & 0xFF));

@@ -968,6 +968,13 @@ namespace ThreeWorkTool.Resources.Utility
             {
                 texFmt = RTextureSurfaceFormat.GetFormatFromTextureName(FTED.ShortName, isUsingAlpha)
                          ?? RTextureSurfaceFormat.BM_OPA;
+
+                //Because we can't or don't know how to encode in LAB Color, I gotta disable that option for now 
+                //and make it a regular DXT5 texture type instead.
+                if (FTED.cmBoxTextureType.SelectedIndex == 1)
+                {
+                    texFmt = 23;
+                }
             }
             else if (!isCompressed)
             {

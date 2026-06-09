@@ -352,12 +352,12 @@
         private System.Windows.Forms.Label lblMips;
         private System.Windows.Forms.Label lblX;
         private System.Windows.Forms.Label lblY;
-        private System.Windows.Forms.ComboBox cmBoxTextureType;
         private System.Windows.Forms.Label lblTexTypeSelect;
         private System.Windows.Forms.GroupBox grpBoxTexConv2;
         private System.Windows.Forms.GroupBox grpBoxTexConv3;
         private System.Windows.Forms.Label lblMoreOptions;
         private System.Windows.Forms.Button btnRedAlphaSwap;
         private System.Windows.Forms.Button btnInvertGreen;
+        public System.Windows.Forms.ComboBox cmBoxTextureType;
     }
 }
