@@ -11218,6 +11218,26 @@ namespace ThreeWorkTool
 
                                             frename.Mainfrm.TreeSource.SelectedNode = NewWrapperDDS;
 
+                                            frename.Mainfrm.OpenFileModified = true;
+                                            frename.Mainfrm.TreeSource.SelectedNode.GetType();
+
+                                            string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+
+                                            frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+                                            TextureEntry txentry = new TextureEntry();
+                                            txentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as TextureEntry;
+                                            frename.Mainfrm.picBoxA.Visible = true;
+                                            Bitmap bmx = BitmapBuilderDX(txentry.OutMaps, txentry, frename.Mainfrm.picBoxA);
+                                            if (bmx == null)
+                                            {
+                                                frename.Mainfrm.picBoxA.Image = frename.Mainfrm.picBoxA.ErrorImage;
+                                            }
+                                            else
+                                            {
+                                                ImageRescaler(bmx, frename.Mainfrm.picBoxA, txentry);
+                                            }
+
                                         }
                                     }
                                 }
@@ -11252,11 +11272,11 @@ namespace ThreeWorkTool
                     }
 
 
-                    frename.Mainfrm.OpenFileModified = true;
-                    frename.Mainfrm.TreeSource.SelectedNode.GetType();
+                    //frename.Mainfrm.OpenFileModified = true;
+                    //frename.Mainfrm.TreeSource.SelectedNode.GetType();
 
-                    string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
-                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+                    //string type = frename.Mainfrm.TreeSource.SelectedNode.GetType().ToString();
+                    //frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
 
                     frename.Mainfrm.TreeSource.EndUpdate();
 
@@ -11273,19 +11293,19 @@ namespace ThreeWorkTool
                         sw.WriteLine("===============================================================================================================");
                     }
 
-                    frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
-                    TextureEntry txentry = new TextureEntry();
-                    txentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as TextureEntry;
-                    frename.Mainfrm.picBoxA.Visible = true;
-                    Bitmap bmx = BitmapBuilderDX(txentry.OutMaps, txentry, frename.Mainfrm.picBoxA);
-                    if (bmx == null)
-                    {
-                        frename.Mainfrm.picBoxA.Image = frename.Mainfrm.picBoxA.ErrorImage;
-                    }
-                    else
-                    {
-                        ImageRescaler(bmx, frename.Mainfrm.picBoxA, txentry);
-                    }
+                    //frename.Mainfrm.pGrdMain.SelectedObject = frename.Mainfrm.TreeSource.SelectedNode.Tag;
+                    //TextureEntry txentry = new TextureEntry();
+                    //txentry = frename.Mainfrm.TreeSource.SelectedNode.Tag as TextureEntry;
+                    //frename.Mainfrm.picBoxA.Visible = true;
+                    //Bitmap bmx = BitmapBuilderDX(txentry.OutMaps, txentry, frename.Mainfrm.picBoxA);
+                    //if (bmx == null)
+                    //{
+                    //    frename.Mainfrm.picBoxA.Image = frename.Mainfrm.picBoxA.ErrorImage;
+                    //}
+                    //else
+                    //{
+                    //    ImageRescaler(bmx, frename.Mainfrm.picBoxA, txentry);
+                    //}
 
                 }
 
